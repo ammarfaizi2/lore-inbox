@@ -2,105 +2,83 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-10.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7A03FC4332B
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 37FCFC433E9
 	for <io-uring@archiver.kernel.org>; Sun, 14 Mar 2021 21:02:02 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1E3F064EEE
-	for <io-uring@archiver.kernel.org>; Sun, 14 Mar 2021 21:02:02 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E659A64EE5
+	for <io-uring@archiver.kernel.org>; Sun, 14 Mar 2021 21:02:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233995AbhCNVB0 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sun, 14 Mar 2021 17:01:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52394 "EHLO
+        id S234096AbhCNVBZ (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sun, 14 Mar 2021 17:01:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52372 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234065AbhCNVBU (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Sun, 14 Mar 2021 17:01:20 -0400
-Received: from mail-wm1-x336.google.com (mail-wm1-x336.google.com [IPv6:2a00:1450:4864:20::336])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 63EDAC061574
-        for <io-uring@vger.kernel.org>; Sun, 14 Mar 2021 14:01:20 -0700 (PDT)
-Received: by mail-wm1-x336.google.com with SMTP id d191so6951393wmd.2
-        for <io-uring@vger.kernel.org>; Sun, 14 Mar 2021 14:01:20 -0700 (PDT)
+        with ESMTP id S229870AbhCNVBR (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Sun, 14 Mar 2021 17:01:17 -0400
+Received: from mail-wr1-x430.google.com (mail-wr1-x430.google.com [IPv6:2a00:1450:4864:20::430])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D2588C061574
+        for <io-uring@vger.kernel.org>; Sun, 14 Mar 2021 14:01:16 -0700 (PDT)
+Received: by mail-wr1-x430.google.com with SMTP id l12so7690075wry.2
+        for <io-uring@vger.kernel.org>; Sun, 14 Mar 2021 14:01:16 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
+        h=from:to:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=VVHK/W8Nbrc8VAzTVKQRM8v6corEiuXY9lPKdrMi43U=;
-        b=PYtY+DUCnx7uc/h04RWqxijPLO5mssxC03sR+GvGt+ZE9gJpe/1/Wgksh+BPTFUMTr
-         CMZR3hBpKdR/4gkQyIDclhKgTMepTKiTUeDoza7yXy2NfYB8uQpKAy7GJ/lBwh4a3xsR
-         evgYhRIcWquIEdzrDndllLBCHDdWKDsRRscr5i+0NrthuQWJMp8vLwWm7nNuX7gvg1cC
-         E+jt0qsX8nrahNXoBdbq6SMLC984l8zsoeg3EzGWtgBSjMyCTqTFtAG78aYn+ao0vDr3
-         q1/oACJeeu/uhSoIOEVfmw6c/J605sPDK04eaKI1JHX+lg4TWINNIKK450/YSFowi8rE
-         Ml2Q==
+        bh=6Hf07OTyIniRJPb/wOdoyp7AK7ymJtAGVsREw2LTclo=;
+        b=n7MvJxGHL6ErcvTNaWme+QIMk8kPhfMudNy2EMEtwJ3KoSOzzVk0P+eYLH8Ra8GyTU
+         DFvoDUcmdkrE8AOx9mPx7fkOL6+EBaQ8N6pGTf1cARtNoZcVWjvp0nKornUFj3Xfcg2T
+         BbKykwcG3f9V2y60enbr5vct9zEDCPNQzfEyahT8hrgaZKX84g5lJAbkYIZS98OXwO56
+         8Q/mPZyY2QWSubeCy9U2CKD5LN9QaGP+v/XZBTtACq8ZHW2Gu6FjpLOQDgjZ3VpFltzF
+         4frIOmbnjBL8IWrZEMtT33SC2WA/Ip4dD2Ow15w4QlyI17KBYFygsSYah/QU+prC6Wwr
+         GaMQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=VVHK/W8Nbrc8VAzTVKQRM8v6corEiuXY9lPKdrMi43U=;
-        b=ExKajUar0A/411JwfWgIDKeYyGd+SD7ctVXHsenTOPVbuANsDzcCDo+Pa94ZFRB/S+
-         I0PYt9ccaIDHAmkz1O7eVAHZMNpHxl6kiUydQEqEWuq/hcB6vPE6uHy3VzjAh+6YWz0E
-         riO2c9wJWjhDK+soO+XBEkElwCjZXrkaBbAFD3glzynnxyFXQGhwy8A2RDlYLl2mPqgG
-         1whf6eCXLhjj/crbxgayGf/t39COrbfvyELyu36Xd1rfjSFs0FghfEY36VOIyryfOPuA
-         pjpwkqxzptNQewPP2M3fht+sgTyfK+WeBd7ZbK4nk95ooZr/vzMNnaAZzq6kmgvV/0rc
-         sydg==
-X-Gm-Message-State: AOAM531PDeCnagYg6jQPWcxG8Rxa8+qEYELINsD0A2iiVL8f5ZMpnUWp
-        0A+cXoII9wL/frr3BCVVL4U=
-X-Google-Smtp-Source: ABdhPJzBPsys6q0yfgQJJVbqhdXcoi4c7C3oByuv+1pBBZDd/hNE65M+dckJx7FzDe4CcrOyQXuGgA==
-X-Received: by 2002:a1c:2308:: with SMTP id j8mr23842307wmj.45.1615755679226;
-        Sun, 14 Mar 2021 14:01:19 -0700 (PDT)
+        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=6Hf07OTyIniRJPb/wOdoyp7AK7ymJtAGVsREw2LTclo=;
+        b=R5hYm3uNkNkI7GYiR7Zh1QcguD384fozS9fg63Jy+Z21eefU0HCmvuXVS4yOR0gBse
+         9Ti2pquIwSrpeaq9YrlNvVB4eYmylCa+5GjvRERtMU7NMJ8ebGwu2k0zkhSrcv395/pz
+         ueV9KLuJcyR5kp/nSMiibAOXKlQ/6FAb+NzSIVu1X7/1O5VPWiYj2KeEmLAD01WomO3U
+         I35nnt799Hh3Pp8sRt5Ib1o7bOk674omqMkY53+zlf9yGTNjP+JV3mD7q7G26z663Oke
+         kVrtk8EJogd19bYt4O99wPfcrtsmJXsY1KT4WWhLw4i5R1an6g91BR2Yns6BnRBqC5wn
+         XgYw==
+X-Gm-Message-State: AOAM533ky7eOOlUPYsYoOFlC6luMuVRlc/U0Pa0n7HCS66KdcoUk1cQx
+        GNr3t0f6xlm0uKrn3iERxlCO7jJoofL6yg==
+X-Google-Smtp-Source: ABdhPJzKistrDabNdGZipmGV80oN5H4sXM/n+5BfEk9BG/757nSt/Afq4CZcvd7J2dHAql997c2G7A==
+X-Received: by 2002:a5d:4d09:: with SMTP id z9mr23542775wrt.426.1615755675649;
+        Sun, 14 Mar 2021 14:01:15 -0700 (PDT)
 Received: from localhost.localdomain ([85.255.232.154])
-        by smtp.gmail.com with ESMTPSA id q15sm16232527wrx.56.2021.03.14.14.01.18
+        by smtp.gmail.com with ESMTPSA id q15sm16232527wrx.56.2021.03.14.14.01.14
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 14 Mar 2021 14:01:18 -0700 (PDT)
+        Sun, 14 Mar 2021 14:01:14 -0700 (PDT)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH 4/5] io_uring: halt SQO submission on ctx exit
-Date:   Sun, 14 Mar 2021 20:57:11 +0000
-Message-Id: <04ede797f76a11cb78ca296f4a4698da02d89583.1615754923.git.asml.silence@gmail.com>
+Subject: [PATCH 5.12 0/5] fixes
+Date:   Sun, 14 Mar 2021 20:57:07 +0000
+Message-Id: <cover.1615754923.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <cover.1615754923.git.asml.silence@gmail.com>
-References: <cover.1615754923.git.asml.silence@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-io_sq_thread_finish() is called in io_ring_ctx_free(), so SQPOLL task is
-potentially running submitting new requests. It's not a disaster because
-of using a "try" variant of percpu_ref_get, but is far from nice.
+Fresh fixes, 3-5 are SQPOLL related 
 
-Remove ctx from the sqd ctx list earlier, before cancellation loop, so
-SQPOLL can't find it and so won't submit new requests.
+Pavel Begunkov (5):
+  io_uring: fix ->flags races by linked timeouts
+  io_uring: fix complete_post use ctx after free
+  io_uring: replace sqd rw_semaphore with mutex
+  io_uring: halt SQO submission on ctx exit
+  io_uring: fix concurrent parking
 
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
----
- fs/io_uring.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ fs/io_uring.c | 72 +++++++++++++++++++++++++++++----------------------
+ 1 file changed, 41 insertions(+), 31 deletions(-)
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 76a60699c959..b4b8988785fb 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -8561,6 +8561,14 @@ static void io_ring_ctx_wait_and_kill(struct io_ring_ctx *ctx)
- 		io_unregister_personality(ctx, index);
- 	mutex_unlock(&ctx->uring_lock);
- 
-+	/* prevent SQPOLL from submitting new requests */
-+	if (ctx->sq_data) {
-+		io_sq_thread_park(ctx->sq_data);
-+		list_del_init(&ctx->sqd_list);
-+		io_sqd_update_thread_idle(ctx->sq_data);
-+		io_sq_thread_unpark(ctx->sq_data);
-+	}
-+
- 	io_kill_timeouts(ctx, NULL, NULL);
- 	io_poll_remove_all(ctx, NULL, NULL);
- 
 -- 
 2.24.0
 

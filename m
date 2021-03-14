@@ -2,83 +2,201 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 37FCFC433E9
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7418AC43381
 	for <io-uring@archiver.kernel.org>; Sun, 14 Mar 2021 21:02:02 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E659A64EE5
+	by mail.kernel.org (Postfix) with ESMTP id 0174364EE9
 	for <io-uring@archiver.kernel.org>; Sun, 14 Mar 2021 21:02:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234096AbhCNVBZ (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sun, 14 Mar 2021 17:01:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52372 "EHLO
+        id S234065AbhCNVB1 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sun, 14 Mar 2021 17:01:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52390 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229870AbhCNVBR (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Sun, 14 Mar 2021 17:01:17 -0400
-Received: from mail-wr1-x430.google.com (mail-wr1-x430.google.com [IPv6:2a00:1450:4864:20::430])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D2588C061574
-        for <io-uring@vger.kernel.org>; Sun, 14 Mar 2021 14:01:16 -0700 (PDT)
-Received: by mail-wr1-x430.google.com with SMTP id l12so7690075wry.2
-        for <io-uring@vger.kernel.org>; Sun, 14 Mar 2021 14:01:16 -0700 (PDT)
+        with ESMTP id S234064AbhCNVBU (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Sun, 14 Mar 2021 17:01:20 -0400
+Received: from mail-wm1-x336.google.com (mail-wm1-x336.google.com [IPv6:2a00:1450:4864:20::336])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF6C5C061574
+        for <io-uring@vger.kernel.org>; Sun, 14 Mar 2021 14:01:19 -0700 (PDT)
+Received: by mail-wm1-x336.google.com with SMTP id 124-20020a1c00820000b029010b871409cfso19070972wma.4
+        for <io-uring@vger.kernel.org>; Sun, 14 Mar 2021 14:01:19 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:subject:date:message-id:mime-version
+        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=6Hf07OTyIniRJPb/wOdoyp7AK7ymJtAGVsREw2LTclo=;
-        b=n7MvJxGHL6ErcvTNaWme+QIMk8kPhfMudNy2EMEtwJ3KoSOzzVk0P+eYLH8Ra8GyTU
-         DFvoDUcmdkrE8AOx9mPx7fkOL6+EBaQ8N6pGTf1cARtNoZcVWjvp0nKornUFj3Xfcg2T
-         BbKykwcG3f9V2y60enbr5vct9zEDCPNQzfEyahT8hrgaZKX84g5lJAbkYIZS98OXwO56
-         8Q/mPZyY2QWSubeCy9U2CKD5LN9QaGP+v/XZBTtACq8ZHW2Gu6FjpLOQDgjZ3VpFltzF
-         4frIOmbnjBL8IWrZEMtT33SC2WA/Ip4dD2Ow15w4QlyI17KBYFygsSYah/QU+prC6Wwr
-         GaMQ==
+        bh=jeDNcF+vZVYLbmD/x1US0KwS5uMa4XuQx5FZs2J9Mek=;
+        b=oaCirBjru4aw1ZqHId/Qqf5cnhwJahnbuv8QjbNWUIPJyfk9CKrak0g5AvE8AEDorE
+         qyFMpYgdlxq2x11B2/Am9iSz4ON2uTKwMVhYU+WQbCs5NSp/wFrUs2KYrbsWftizNa0q
+         kHfMtBMnETBsJXn0M5jreA8YFTiH1MNWciLDFkh5yTEuw2rbzFuQc8+sGA1ly7aR3P4t
+         fHfxp9OFY9f1Y+M+ClU34BaeNTHArxX7bucjtDBG2SJMFQDYgxGCWohkUuYv5XUoqVKw
+         UJwefpA8MYwOW0G7C7ayNdQ7+Zfd9OKYlL9H7VZIi/ez3pTF+HsaWMH50gSwkcocNTuC
+         9LKA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=6Hf07OTyIniRJPb/wOdoyp7AK7ymJtAGVsREw2LTclo=;
-        b=R5hYm3uNkNkI7GYiR7Zh1QcguD384fozS9fg63Jy+Z21eefU0HCmvuXVS4yOR0gBse
-         9Ti2pquIwSrpeaq9YrlNvVB4eYmylCa+5GjvRERtMU7NMJ8ebGwu2k0zkhSrcv395/pz
-         ueV9KLuJcyR5kp/nSMiibAOXKlQ/6FAb+NzSIVu1X7/1O5VPWiYj2KeEmLAD01WomO3U
-         I35nnt799Hh3Pp8sRt5Ib1o7bOk674omqMkY53+zlf9yGTNjP+JV3mD7q7G26z663Oke
-         kVrtk8EJogd19bYt4O99wPfcrtsmJXsY1KT4WWhLw4i5R1an6g91BR2Yns6BnRBqC5wn
-         XgYw==
-X-Gm-Message-State: AOAM533ky7eOOlUPYsYoOFlC6luMuVRlc/U0Pa0n7HCS66KdcoUk1cQx
-        GNr3t0f6xlm0uKrn3iERxlCO7jJoofL6yg==
-X-Google-Smtp-Source: ABdhPJzKistrDabNdGZipmGV80oN5H4sXM/n+5BfEk9BG/757nSt/Afq4CZcvd7J2dHAql997c2G7A==
-X-Received: by 2002:a5d:4d09:: with SMTP id z9mr23542775wrt.426.1615755675649;
-        Sun, 14 Mar 2021 14:01:15 -0700 (PDT)
+        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=jeDNcF+vZVYLbmD/x1US0KwS5uMa4XuQx5FZs2J9Mek=;
+        b=gWSvWnY2ZsG5G3etSBHNlSw/eEVu+Riye2GBnGEmXEfk84B/tCYYFJVK09yTqMZTSz
+         asnpAiN8yg7m/lFLlCJ5/xiUicgnSMDvolNF4Cw2Nohv1UZ6llUBh7s7LDgozVjL9cC1
+         GgKAXHtqJs958woXnC15JLFb1KHEgFHIzeeZ/hOeIsllQg7N3WFkyZ1heRC1UY78QeZ7
+         2bziN7ibo4UZgB/gJ3BnzkJGtp3xR+w+wJSNsLoxWwQCFduQbWu2rMQoXrIUupovLc6g
+         opnlQaziKRuwzcwvc2ITUzm7aP0HSiPNLg/1JJlc1sTN7sIQATwWS8SCRx6fmlGckHRK
+         kw/A==
+X-Gm-Message-State: AOAM531MkJe4umKsI0xIrxnsKiopWDzDMTFEY3N8EyUNG7w3Zloa/+IZ
+        FVTZ/vCdA3/eEUJ0lQe2TPlO78UErgFpEA==
+X-Google-Smtp-Source: ABdhPJwuFKQphlPlEseOpKgd+DfplL/V5eRh26l6Idgxpe4lQkGCGPH7KFT13DDViL9fTICJ0Wh14Q==
+X-Received: by 2002:a1c:dd43:: with SMTP id u64mr22881883wmg.160.1615755678450;
+        Sun, 14 Mar 2021 14:01:18 -0700 (PDT)
 Received: from localhost.localdomain ([85.255.232.154])
-        by smtp.gmail.com with ESMTPSA id q15sm16232527wrx.56.2021.03.14.14.01.14
+        by smtp.gmail.com with ESMTPSA id q15sm16232527wrx.56.2021.03.14.14.01.17
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 14 Mar 2021 14:01:14 -0700 (PDT)
+        Sun, 14 Mar 2021 14:01:18 -0700 (PDT)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH 5.12 0/5] fixes
-Date:   Sun, 14 Mar 2021 20:57:07 +0000
-Message-Id: <cover.1615754923.git.asml.silence@gmail.com>
+Subject: [PATCH 3/5] io_uring: replace sqd rw_semaphore with mutex
+Date:   Sun, 14 Mar 2021 20:57:10 +0000
+Message-Id: <3137484129e298fb384bb8c62cf9f707d3a51c51.1615754923.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.24.0
+In-Reply-To: <cover.1615754923.git.asml.silence@gmail.com>
+References: <cover.1615754923.git.asml.silence@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Fresh fixes, 3-5 are SQPOLL related 
+The only user of read-locking of sqd->rw_lock is sq_thread itself, which
+is by definition alone, so we don't really need rw_semaphore, but mutex
+will do. Replace it with a mutex, and kill read-to-write upgrading and
+extra task_work handling in io_sq_thread().
 
-Pavel Begunkov (5):
-  io_uring: fix ->flags races by linked timeouts
-  io_uring: fix complete_post use ctx after free
-  io_uring: replace sqd rw_semaphore with mutex
-  io_uring: halt SQO submission on ctx exit
-  io_uring: fix concurrent parking
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+---
+ fs/io_uring.c | 36 ++++++++++++++----------------------
+ 1 file changed, 14 insertions(+), 22 deletions(-)
 
- fs/io_uring.c | 72 +++++++++++++++++++++++++++++----------------------
- 1 file changed, 41 insertions(+), 31 deletions(-)
-
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 6548445f0d0b..76a60699c959 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -258,7 +258,7 @@ enum {
+ 
+ struct io_sq_data {
+ 	refcount_t		refs;
+-	struct rw_semaphore	rw_lock;
++	struct mutex		lock;
+ 
+ 	/* ctx's that are using this sqd */
+ 	struct list_head	ctx_list;
+@@ -6686,16 +6686,15 @@ static int io_sq_thread(void *data)
+ 		set_cpus_allowed_ptr(current, cpu_online_mask);
+ 	current->flags |= PF_NO_SETAFFINITY;
+ 
+-	down_read(&sqd->rw_lock);
+-
++	mutex_lock(&sqd->lock);
+ 	while (!test_bit(IO_SQ_THREAD_SHOULD_STOP, &sqd->state)) {
+ 		int ret;
+ 		bool cap_entries, sqt_spin, needs_sched;
+ 
+ 		if (test_bit(IO_SQ_THREAD_SHOULD_PARK, &sqd->state)) {
+-			up_read(&sqd->rw_lock);
++			mutex_unlock(&sqd->lock);
+ 			cond_resched();
+-			down_read(&sqd->rw_lock);
++			mutex_lock(&sqd->lock);
+ 			io_run_task_work();
+ 			timeout = jiffies + sqd->sq_thread_idle;
+ 			continue;
+@@ -6742,10 +6741,10 @@ static int io_sq_thread(void *data)
+ 			list_for_each_entry(ctx, &sqd->ctx_list, sqd_list)
+ 				io_ring_set_wakeup_flag(ctx);
+ 
+-			up_read(&sqd->rw_lock);
++			mutex_unlock(&sqd->lock);
+ 			schedule();
+ 			try_to_freeze();
+-			down_read(&sqd->rw_lock);
++			mutex_lock(&sqd->lock);
+ 			list_for_each_entry(ctx, &sqd->ctx_list, sqd_list)
+ 				io_ring_clear_wakeup_flag(ctx);
+ 		}
+@@ -6753,20 +6752,13 @@ static int io_sq_thread(void *data)
+ 		finish_wait(&sqd->wait, &wait);
+ 		timeout = jiffies + sqd->sq_thread_idle;
+ 	}
+-	up_read(&sqd->rw_lock);
+-	down_write(&sqd->rw_lock);
+-	/*
+-	 * someone may have parked and added a cancellation task_work, run
+-	 * it first because we don't want it in io_uring_cancel_sqpoll()
+-	 */
+-	io_run_task_work();
+ 
+ 	list_for_each_entry(ctx, &sqd->ctx_list, sqd_list)
+ 		io_uring_cancel_sqpoll(ctx);
+ 	sqd->thread = NULL;
+ 	list_for_each_entry(ctx, &sqd->ctx_list, sqd_list)
+ 		io_ring_set_wakeup_flag(ctx);
+-	up_write(&sqd->rw_lock);
++	mutex_unlock(&sqd->lock);
+ 
+ 	io_run_task_work();
+ 	complete(&sqd->exited);
+@@ -7068,21 +7060,21 @@ static int io_sqe_files_unregister(struct io_ring_ctx *ctx)
+ }
+ 
+ static void io_sq_thread_unpark(struct io_sq_data *sqd)
+-	__releases(&sqd->rw_lock)
++	__releases(&sqd->lock)
+ {
+ 	WARN_ON_ONCE(sqd->thread == current);
+ 
+ 	clear_bit(IO_SQ_THREAD_SHOULD_PARK, &sqd->state);
+-	up_write(&sqd->rw_lock);
++	mutex_unlock(&sqd->lock);
+ }
+ 
+ static void io_sq_thread_park(struct io_sq_data *sqd)
+-	__acquires(&sqd->rw_lock)
++	__acquires(&sqd->lock)
+ {
+ 	WARN_ON_ONCE(sqd->thread == current);
+ 
+ 	set_bit(IO_SQ_THREAD_SHOULD_PARK, &sqd->state);
+-	down_write(&sqd->rw_lock);
++	mutex_lock(&sqd->lock);
+ 	/* set again for consistency, in case concurrent parks are happening */
+ 	set_bit(IO_SQ_THREAD_SHOULD_PARK, &sqd->state);
+ 	if (sqd->thread)
+@@ -7093,11 +7085,11 @@ static void io_sq_thread_stop(struct io_sq_data *sqd)
+ {
+ 	WARN_ON_ONCE(sqd->thread == current);
+ 
+-	down_write(&sqd->rw_lock);
++	mutex_lock(&sqd->lock);
+ 	set_bit(IO_SQ_THREAD_SHOULD_STOP, &sqd->state);
+ 	if (sqd->thread)
+ 		wake_up_process(sqd->thread);
+-	up_write(&sqd->rw_lock);
++	mutex_unlock(&sqd->lock);
+ 	wait_for_completion(&sqd->exited);
+ }
+ 
+@@ -7179,7 +7171,7 @@ static struct io_sq_data *io_get_sq_data(struct io_uring_params *p,
+ 
+ 	refcount_set(&sqd->refs, 1);
+ 	INIT_LIST_HEAD(&sqd->ctx_list);
+-	init_rwsem(&sqd->rw_lock);
++	mutex_init(&sqd->lock);
+ 	init_waitqueue_head(&sqd->wait);
+ 	init_completion(&sqd->exited);
+ 	return sqd;
 -- 
 2.24.0
 

@@ -7,41 +7,41 @@ X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0338CC43381
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D584BC433E9
 	for <io-uring@archiver.kernel.org>; Mon, 15 Mar 2021 17:03:30 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id DD34F64F2F
+	by mail.kernel.org (Postfix) with ESMTP id B104B64DF4
 	for <io-uring@archiver.kernel.org>; Mon, 15 Mar 2021 17:03:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233598AbhCORDF (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Mon, 15 Mar 2021 13:03:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56470 "EHLO
+        id S231899AbhCORDI (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Mon, 15 Mar 2021 13:03:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56520 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235552AbhCORCJ (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Mon, 15 Mar 2021 13:02:09 -0400
+        with ESMTP id S235582AbhCORCW (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Mon, 15 Mar 2021 13:02:22 -0400
 Received: from hr2.samba.org (hr2.samba.org [IPv6:2a01:4f8:192:486::2:0])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F094C06174A
-        for <io-uring@vger.kernel.org>; Mon, 15 Mar 2021 10:02:08 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE686C06174A
+        for <io-uring@vger.kernel.org>; Mon, 15 Mar 2021 10:02:21 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=samba.org;
          s=42; h=Message-Id:Date:Cc:To:From;
-        bh=ARfahUekmCAeNsaSsPIN2TOi6Hk7jzfXlvU3FcTsqTw=; b=b96xRJnCC2APEZ+LqyXHWD5SrG
-        tg9HhEy7Kem/bqBw2QLnv3XCOPmArxAiNqyrGw0VMDI4rnjYZzzcGYYaIx7qEIrruRdAcbIhMrCDa
-        ETmTtynQTxNvixWEcZu0wPimtGveWDX+wpD0r+DE+TsjzoEZNBxYBPSDOe9tgc5Sy0YOcI7LBKzi4
-        m7sqM3ujfy+e9FkXpa0cG/baTPYD9S+lXBnIPFGRSUF1ng4gIRtSaC2UziKtmC0G31lYdB75TZTL7
-        9w6YdyVCxX6GEdFKHFdjeBQClbUrsf5gzfZmn3xpTNy9WgMcOTSO5kQcwkIBxuarXLNRxNyRoP9C4
-        FPj9DhIxS6XQ9nr2jsGhys5V3Lw6qodEV7wk+CsgPM4+Q3UFQLuDKhBDRMS6P7XDKb/w9bE4r+Bo6
-        Nl6q1BTmDESeJWg/yldb5JP0NPi2eaen2eiT4YAE5TpFULu/EhFGsejJ8xI5zqMVpHfGflVfalj0g
-        zqYnEXCBApj4n8vRvzxRoFAH;
+        bh=o0yc+m9kh41c58kCVURfi74/HsMF9KNOkK53AWnls3Y=; b=trkllKG0MLciizdPnVaxtuv6B2
+        3sYzKYWHDISHUURDslZ6ec7Wz41vmw3EUQagvAUMbT8Jofb6WIpqmhe+kOSUHXfvedmoIYIKGcs2Y
+        w/zzl9sx0GLvg2NOcR0UHMtRw4rX6Qft0YgVKT9YJ6DnZxIbts1xVK33XKiXvQIOL+D4OQlHeFZ8w
+        V7MYED4JrfTMgkiEWeFrcU3YQoyWFP192yu8KFd9dIBqlINruua3nOXQBxYKz+HpLXIiAjvzm7ETq
+        7s9F+gXPr4uot49Sd+TztKEZwbqlNrdR8JA/iG0XnD5/4Hsgk6fpuTIK99gTMcHamMObmIebg4U6K
+        W/ZnDZ0h5Gp/1yElQamSlYMZKodybybZLn/U4E/dYxzKKkaiWMNBdatGvpJiKJG9wrztF3vaPhXOg
+        gecJwRNXvzBgmNC0XnGNycWhnt4zaK5mrjzPsLr3Xqftf7G53XAk3YSKSYxeSXY+G5TBEo5ZrGlJo
+        mXTmsRTqpjnUmTFukq1DRmS2;
 Received: from [127.0.0.2] (localhost [127.0.0.1])
         by hr2.samba.org with esmtpsa (TLS1.3:ECDHE_RSA_CHACHA20_POLY1305:256)
         (Exim)
-        id 1lLqbW-00056c-P0; Mon, 15 Mar 2021 17:02:06 +0000
+        id 1lLqbj-00056u-UT; Mon, 15 Mar 2021 17:02:20 +0000
 From:   Stefan Metzmacher <metze@samba.org>
 To:     io-uring@vger.kernel.org
-Cc:     Stefan Metzmacher <metze@samba.org>, Jens Axboe <axboe@kernel.dk>
-Subject: [RFC PATCH 01/10] kernel: always initialize task->pf_io_worker to NULL
-Date:   Mon, 15 Mar 2021 18:01:39 +0100
-Message-Id: <660dcc31edd73d78c38608bfd98eb2a3e5287f38.1615826736.git.metze@samba.org>
+Cc:     Stefan Metzmacher <metze@samba.org>
+Subject: [RFC PATCH 03/10] io-wq: call set_task_comm() before wake_up_new_task()
+Date:   Mon, 15 Mar 2021 18:01:41 +0100
+Message-Id: <a80c237e136adf660b4b564942e26a2469a9ee54.1615826736.git.metze@samba.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <cover.1615826736.git.metze@samba.org>
 References: <cover.1615826736.git.metze@samba.org>
@@ -51,34 +51,73 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Otherwise io_wq_worker_{running,sleeping}() may dereference an
-invalid pointer (in future). Currently all users of create_io_thread()
-are fine and get task->pf_io_worker = NULL implicitly from the
-wq_manager, which got it either from the userspace thread
-of the sq_thread, which explicitly reset it to NULL.
-
-I think it's safer to always reset it in order to avoid future
-problems.
-
-Fixes: 3bfe6106693b ("io-wq: fork worker threads from original task")
-cc: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Stefan Metzmacher <metze@samba.org>
 ---
- kernel/fork.c | 1 +
- 1 file changed, 1 insertion(+)
+ fs/io-wq.c | 17 +++++++++--------
+ 1 file changed, 9 insertions(+), 8 deletions(-)
 
-diff --git a/kernel/fork.c b/kernel/fork.c
-index d3171e8e88e5..0b7068c55552 100644
---- a/kernel/fork.c
-+++ b/kernel/fork.c
-@@ -927,6 +927,7 @@ static struct task_struct *dup_task_struct(struct task_struct *orig, int node)
- 	tsk->splice_pipe = NULL;
- 	tsk->task_frag.page = NULL;
- 	tsk->wake_q.next = NULL;
-+	tsk->pf_io_worker = NULL;
+diff --git a/fs/io-wq.c b/fs/io-wq.c
+index e05f996d088f..d6b15a627f9a 100644
+--- a/fs/io-wq.c
++++ b/fs/io-wq.c
+@@ -479,14 +479,10 @@ static int io_wqe_worker(void *data)
+ 	struct io_worker *worker = data;
+ 	struct io_wqe *wqe = worker->wqe;
+ 	struct io_wq *wq = wqe->wq;
+-	char buf[TASK_COMM_LEN];
  
- 	account_kernel_stack(tsk, 1);
+ 	worker->flags |= (IO_WORKER_F_UP | IO_WORKER_F_RUNNING);
+ 	io_wqe_inc_running(worker);
  
+-	sprintf(buf, "iou-wrk-%d", wq->task_pid);
+-	set_task_comm(current, buf);
+-
+ 	while (!test_bit(IO_WQ_BIT_EXIT, &wq->state)) {
+ 		long ret;
+ 
+@@ -567,6 +563,7 @@ static bool create_io_worker(struct io_wq *wq, struct io_wqe *wqe, int index)
+ {
+ 	struct io_wqe_acct *acct = &wqe->acct[index];
+ 	struct io_worker *worker;
++	char tsk_comm[TASK_COMM_LEN];
+ 	struct task_struct *tsk;
+ 
+ 	__set_current_state(TASK_RUNNING);
+@@ -591,6 +588,9 @@ static bool create_io_worker(struct io_wq *wq, struct io_wqe *wqe, int index)
+ 		return false;
+ 	}
+ 
++	sprintf(tsk_comm, "iou-wrk-%d", wq->task_pid);
++	set_task_comm(tsk, tsk_comm);
++
+ 	tsk->pf_io_worker = worker;
+ 	worker->task = tsk;
+ 	set_cpus_allowed_ptr(tsk, cpumask_of_node(wqe->node));
+@@ -702,12 +702,8 @@ static void io_wq_cancel_pending(struct io_wq *wq)
+ static int io_wq_manager(void *data)
+ {
+ 	struct io_wq *wq = data;
+-	char buf[TASK_COMM_LEN];
+ 	int node;
+ 
+-	sprintf(buf, "iou-mgr-%d", wq->task_pid);
+-	set_task_comm(current, buf);
+-
+ 	do {
+ 		set_current_state(TASK_INTERRUPTIBLE);
+ 		io_wq_check_workers(wq);
+@@ -782,6 +778,11 @@ static int io_wq_fork_manager(struct io_wq *wq)
+ 	atomic_set(&wq->worker_refs, 1);
+ 	tsk = create_io_thread(io_wq_manager, wq, NUMA_NO_NODE);
+ 	if (!IS_ERR(tsk)) {
++		char tsk_comm[TASK_COMM_LEN];
++
++		sprintf(tsk_comm, "iou-mgr-%d", wq->task_pid);
++		set_task_comm(tsk, tsk_comm);
++
+ 		wq->manager = get_task_struct(tsk);
+ 		wake_up_new_task(tsk);
+ 		return 0;
 -- 
 2.25.1
 

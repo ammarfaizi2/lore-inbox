@@ -2,66 +2,103 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C519CC43381
-	for <io-uring@archiver.kernel.org>; Tue, 16 Mar 2021 15:34:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 03EDEC4332B
+	for <io-uring@archiver.kernel.org>; Tue, 16 Mar 2021 15:34:56 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9BE5865103
+	by mail.kernel.org (Postfix) with ESMTP id D2D9865103
 	for <io-uring@archiver.kernel.org>; Tue, 16 Mar 2021 15:34:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229494AbhCPPeZ (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Tue, 16 Mar 2021 11:34:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37026 "EHLO
+        id S238128AbhCPPe2 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Tue, 16 Mar 2021 11:34:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37104 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238155AbhCPPd7 (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Tue, 16 Mar 2021 11:33:59 -0400
+        with ESMTP id S238197AbhCPPeM (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Tue, 16 Mar 2021 11:34:12 -0400
 Received: from hr2.samba.org (hr2.samba.org [IPv6:2a01:4f8:192:486::2:0])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 99837C061756
-        for <io-uring@vger.kernel.org>; Tue, 16 Mar 2021 08:33:52 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16EBFC061756;
+        Tue, 16 Mar 2021 08:34:10 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=samba.org;
          s=42; h=Message-Id:Date:Cc:To:From;
-        bh=p9+PuS1qkcz/Tze45p8IBSudQSlVQwB89X91zVzlRGE=; b=EgzbzRXv0lhXq2wvlLB7c275Ny
-        cdvrys12KEwQrkU81Z68fSfChO3pZw96+YqG+eQoppsVFe6jUXzzXbpxWXUej9oeQsjSgkmYLPvPi
-        qnBhbePKs84w2EtAIE6L7gt3hCYwIEn5uRYrqWhCApFdMRpcezo4FF2ZtvIT8XU1af9Jlw+Si5VXJ
-        nBvFQy7nffTe4UxMd6ACgC59Wpro2Lmakr17GJtZkPyVWS+5CGQohTe/r9AaNbpbzAl6N0T/ZnBHg
-        wd0ymZSIX4NInyD4Dn5i/3nl/0CdY7grKMOWEOSYs6zQgPTsLYtMTk7nNE2hVWZWZH8Iq1sPPFi+L
-        clR75QLhUJdx2uPnGcdlw11431JQ9aKefsEdB1R5FY158YqFdh7PjAzo0BOBE7Yd7O50rsHCe9yIj
-        jDs/Q1HzGEvmmfaaQLk+BoRWo0kM+p6TmrNq9xvdSC8GKuUNbjjbTKr1PgtADxyE01tQDbkxxFlFG
-        QclhkPJRtCeWrtCCQC9nPzv5;
+        bh=W1/Pd1fvF7xVVbyikJTI1oYMQfnsxA1s6oxtgxnl93c=; b=DRKaJ5dRE2FUA56+oec4MKmW3d
+        AqGU6kn2AdGMcjjs6qtTj7N1JrCOoPMfAaor0BYi6EYW0xLcyxmpO3QfEXBcCJ27gEEPout2C4Z7D
+        vq68Sv1tQfj6okIDTVlZUeQLdA7h0SQnsYBlE7S4WQ9Ki1ulp4DZRWxDB+XX4mob/JyDjw5uzlkx4
+        8JLtyeG74IzwBYAS9M17lIMh37XUkubKKnyGZy40N9pPMEDZfe2l0FJIP6X5u2Rf8OT/LX8t0Rb0B
+        jQbJ+l13dpCxwDxk0Dvwo4bRr/cQnrEx8ZKXDlRMCMCihIoeuNwHzGz6GyUoxBjYrzzpARPEcfXSZ
+        9snZaZN8Dh2GWADRBodBb34hJNC/+Hxqw8nt+/mf3M3lErTJwuuc0qD/+32O+CJCtmwHhhYO+Hfnr
+        IPv6OcSmhvnPIExcs+aPb4ACSEG2GKJpbEW8cp6j5jloiMSE+wMvgB0/xOHc3LyMLUrvnRsy4L5zn
+        fM3yKSpOiWy7jVJ47LZDuSAd;
 Received: from [127.0.0.2] (localhost [127.0.0.1])
         by hr2.samba.org with esmtpsa (TLS1.3:ECDHE_RSA_CHACHA20_POLY1305:256)
         (Exim)
-        id 1lMBha-0000jO-0A; Tue, 16 Mar 2021 15:33:46 +0000
+        id 1lMBho-0000k2-MA; Tue, 16 Mar 2021 15:34:00 +0000
 From:   Stefan Metzmacher <metze@samba.org>
 To:     io-uring@vger.kernel.org
-Cc:     Stefan Metzmacher <metze@samba.org>
-Subject: [PATCH 0/2] send[msg]()/recv[msg]() fixes/improvements
-Date:   Tue, 16 Mar 2021 16:33:25 +0100
-Message-Id: <cover.1615908477.git.metze@samba.org>
+Cc:     Stefan Metzmacher <metze@samba.org>, stable@vger.kernel.org
+Subject: [PATCH 2/2] io_uring: imply MSG_NOSIGNAL for send[msg]()/recv[msg]() calls
+Date:   Tue, 16 Mar 2021 16:33:27 +0100
+Message-Id: <38961085c3ec49fd21550c7788f214d1ff02d2d4.1615908477.git.metze@samba.org>
 X-Mailer: git-send-email 2.25.1
+In-Reply-To: <cover.1615908477.git.metze@samba.org>
+References: <cover.1615908477.git.metze@samba.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Hi,
+We never want to generate any SIGPIPE, -EPIPE only is much better.
 
-here're patches which fix linking of send[msg]()/recv[msg]() calls
-and make sure io_uring_enter() never generate a SIGPIPE.
+cc: stable@vger.kernel.org
+Signed-off-by: Stefan Metzmacher <metze@samba.org>
+---
+ fs/io_uring.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-Stefan Metzmacher (2):
-  io_uring: call req_set_fail_links() on short send[msg]()/recv[msg]()
-    calls
-  io_uring: imply MSG_NOSIGNAL for send[msg]()/recv[msg]() calls
-
- fs/io_uring.c | 24 ++++++++++++++++--------
- 1 file changed, 16 insertions(+), 8 deletions(-)
-
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index f8a6a629e4db..54105c5cf9e8 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -4369,7 +4369,7 @@ static int io_sendmsg(struct io_kiocb *req, unsigned int issue_flags)
+ 		kmsg = &iomsg;
+ 	}
+ 
+-	flags = req->sr_msg.msg_flags;
++	flags = req->sr_msg.msg_flags | MSG_NOSIGNAL;
+ 	if (flags & MSG_DONTWAIT)
+ 		req->flags |= REQ_F_NOWAIT;
+ 	else if (issue_flags & IO_URING_F_NONBLOCK)
+@@ -4416,7 +4416,7 @@ static int io_send(struct io_kiocb *req, unsigned int issue_flags)
+ 	msg.msg_controllen = 0;
+ 	msg.msg_namelen = 0;
+ 
+-	flags = req->sr_msg.msg_flags;
++	flags = req->sr_msg.msg_flags | MSG_NOSIGNAL;
+ 	if (flags & MSG_DONTWAIT)
+ 		req->flags |= REQ_F_NOWAIT;
+ 	else if (issue_flags & IO_URING_F_NONBLOCK)
+@@ -4607,7 +4607,7 @@ static int io_recvmsg(struct io_kiocb *req, unsigned int issue_flags)
+ 				1, req->sr_msg.len);
+ 	}
+ 
+-	flags = req->sr_msg.msg_flags;
++	flags = req->sr_msg.msg_flags | MSG_NOSIGNAL;
+ 	if (flags & MSG_DONTWAIT)
+ 		req->flags |= REQ_F_NOWAIT;
+ 	else if (force_nonblock)
+@@ -4669,7 +4669,7 @@ static int io_recv(struct io_kiocb *req, unsigned int issue_flags)
+ 	msg.msg_iocb = NULL;
+ 	msg.msg_flags = 0;
+ 
+-	flags = req->sr_msg.msg_flags;
++	flags = req->sr_msg.msg_flags | MSG_NOSIGNAL;
+ 	if (flags & MSG_DONTWAIT)
+ 		req->flags |= REQ_F_NOWAIT;
+ 	else if (force_nonblock)
 -- 
 2.25.1
 

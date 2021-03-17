@@ -2,116 +2,254 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3852FC4332E
-	for <io-uring@archiver.kernel.org>; Wed, 17 Mar 2021 19:01:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 59502C433DB
+	for <io-uring@archiver.kernel.org>; Wed, 17 Mar 2021 22:11:32 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E0FF764F6C
-	for <io-uring@archiver.kernel.org>; Wed, 17 Mar 2021 19:00:57 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 129DC64E89
+	for <io-uring@archiver.kernel.org>; Wed, 17 Mar 2021 22:11:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232932AbhCQTAX (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Wed, 17 Mar 2021 15:00:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57316 "EHLO
+        id S229841AbhCQWK7 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 17 Mar 2021 18:10:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41992 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232388AbhCQTAB (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Wed, 17 Mar 2021 15:00:01 -0400
-Received: from mail-il1-x12d.google.com (mail-il1-x12d.google.com [IPv6:2607:f8b0:4864:20::12d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D0B1C06174A
-        for <io-uring@vger.kernel.org>; Wed, 17 Mar 2021 12:00:01 -0700 (PDT)
-Received: by mail-il1-x12d.google.com with SMTP id v3so2544168ilj.12
-        for <io-uring@vger.kernel.org>; Wed, 17 Mar 2021 12:00:01 -0700 (PDT)
+        with ESMTP id S229944AbhCQWKf (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Wed, 17 Mar 2021 18:10:35 -0400
+Received: from mail-io1-xd34.google.com (mail-io1-xd34.google.com [IPv6:2607:f8b0:4864:20::d34])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B08F5C06174A
+        for <io-uring@vger.kernel.org>; Wed, 17 Mar 2021 15:10:34 -0700 (PDT)
+Received: by mail-io1-xd34.google.com with SMTP id x16so190430iob.1
+        for <io-uring@vger.kernel.org>; Wed, 17 Mar 2021 15:10:34 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=subject:from:to:cc:references:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=24epm+HLwoWEEH5mLWqlHEJ7HnczD4429RGvWkKWVyk=;
-        b=Ybh7rru3SgKj/NlvUpPhRNJuVh3sqSr08l9YAuKoT4GsSdX3Uy3x0yhH+z4YTqvZ94
-         lt0WDS4plq0fzWSQlpkMRx6VHeLGpMv5raM0ObfugRRpKahUTlAljN9mWy4HwVRMnD69
-         7lSMtq63k7OyWbhGyjnb0C0wh4UxlHIytQbmYk0bIfbC8URDrgSyEF6Lq+s1J8HFtcjZ
-         SUU0RwEXeNun0BrRHcleU266YUuiS+f1NruLe6vJ1PrZaNFaBR576qMqPhtlY+f3g0g0
-         Ph8ldT0rJaGBoq0RZnSCiesgm50SjheFfy2rUfsXOlC93TqGH4Xq8jTGYT0yVb/2GQ2n
-         IFTA==
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=mlCtvo7lnB0iAIDh/6KjoQhNocbRJDB6XHzCDEgRB0w=;
+        b=fU9Nrq8cIE72vpfIlhgUuwx9MC0tESqrlAxAXSLPJgynmr3bCkNd8noZEn94+qHmrX
+         g9AgcaaORwbWIS0kcNkXrTc6AM0vhSPmg9j/xv/ekA70ETtb+okKP8gD94Lixdx0bKcU
+         rHGbPs3ccBKYi9QEQYVJ+FAqjruZeQBnOqxu3s77F3xzDRy0mMwJiNUt3XF2wjQYp6Pf
+         dwvN5wJtgp14rHR4Et6TZvIBYLDIdWxOKKD+1vn+NcpZ6n/Gvok0gKLImDMEmEgOYdm8
+         grZoiVXPV6UBakadT2c03nlEV9U7y+6WmLrIZU9CuGtCjYZIxnXje8Y/71HkQsBokAP4
+         docw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:from:to:cc:references:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=24epm+HLwoWEEH5mLWqlHEJ7HnczD4429RGvWkKWVyk=;
-        b=mMXu3iPOJAgQ20+eZMd2YW1KZVMDTu6AMskhE7PUXuJvQnkmoJvN9HewQ1N2XMQIon
-         qbRn4/manpAdM+kgaP5rf5yYqSHs4XdWcxL53EOrz7kWQY5twB6/HGmpAar3uQwfle/1
-         /5wLubnLQdaQZza3wqI1myMOa+/XeUW911HNMUBLCE1atU7twqfHJN0d6sYWP8Smenmz
-         7i6fzVk2hAtsw5HVqCwjsan8mFOGQpWWcfEnqdH7ImXB39iteoTpC8ikzVocTdFMlU6Q
-         JK2xpOlNsbN/tMMx3as9ZfNKPRIWIiDCPy6ygajAmUxRapK6GxeUmI60+XPKCNm9nKVU
-         LcTg==
-X-Gm-Message-State: AOAM530wn/xKFz70TMRDRB8B+g8pH/x5OpxDKZafUhuYGdMG7EG7LVvB
-        NSxGP1DA0pMtx4YKvGg5dr7LQQ==
-X-Google-Smtp-Source: ABdhPJyaMfuu7Q/FfalIzvc9n1/4D+00TyuDpDLhuUZvfSBAnK8XP1a3xlNZgyi6Z7BtuiyndZjUcw==
-X-Received: by 2002:a05:6e02:190a:: with SMTP id w10mr2732777ilu.39.1616007600092;
-        Wed, 17 Mar 2021 12:00:00 -0700 (PDT)
-Received: from [192.168.1.30] ([65.144.74.34])
-        by smtp.gmail.com with ESMTPSA id v17sm10623728ios.46.2021.03.17.11.59.59
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 17 Mar 2021 11:59:59 -0700 (PDT)
-Subject: Re: [RFC PATCH v3 3/3] nvme: wire up support for async passthrough
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=mlCtvo7lnB0iAIDh/6KjoQhNocbRJDB6XHzCDEgRB0w=;
+        b=RXj7jba0vlFX8EFtc+zNvNxLqYAv45M1OyFES4ufjxtKFHJ2Z7s8UNa0R9oPArSFvI
+         JyIQGGb904RI0pEATiPWOzcdsM60a5cwAz2SBZHth+btYOsYMpT13u8MdXPTGLoJDmuH
+         RGxAbeyUU8hxRUqqdO0Bi91kJFNRF37EGdBIRki5xDCy/3Xiu4nV8N94g1ah/9IDAW0p
+         vuJ6Nw2a2GydDOjcFbQgO1VTNvgEPxQ/+Ct8GpBHbQDJ6172jDXm+VWev3gzGcf4mbg6
+         Hj2zsoP1dLNIjbqCCVHorIY4QeHXMah2AMZhUPZ+XHzoj2hgPr81xK5Cqqw928bTFDMH
+         V73A==
+X-Gm-Message-State: AOAM530IOsF+IUkTr8TMJ+alt+rDH+0vTfGjFiCFVMDfnCrNL0sGprP1
+        88XKtQ8cM0HsXtgaGl5fHNE1+4FOkD/alA==
+X-Google-Smtp-Source: ABdhPJzrqcljJAwZRk9AlgC4IvsN9M92EA+nzgGjKYMBnJK3aj5MHuhLqgSE3epnUfPK5gkWJtwUZg==
+X-Received: by 2002:a6b:3c1a:: with SMTP id k26mr8272711iob.113.1616019033900;
+        Wed, 17 Mar 2021 15:10:33 -0700 (PDT)
+Received: from p1.localdomain ([65.144.74.34])
+        by smtp.gmail.com with ESMTPSA id r3sm160700ilq.42.2021.03.17.15.10.33
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 17 Mar 2021 15:10:33 -0700 (PDT)
 From:   Jens Axboe <axboe@kernel.dk>
-To:     Christoph Hellwig <hch@lst.de>
-Cc:     Kanchan Joshi <joshi.k@samsung.com>, kbusch@kernel.org,
-        chaitanya.kulkarni@wdc.com, io-uring@vger.kernel.org,
-        linux-nvme@lists.infradead.org, anuj20.g@samsung.com,
-        javier.gonz@samsung.com, nj.shetty@samsung.com,
-        selvakuma.s1@samsung.com
-References: <20210316140126.24900-1-joshi.k@samsung.com>
- <CGME20210316140240epcas5p3e71bfe2afecd728c5af60056f21cc9b7@epcas5p3.samsung.com>
- <20210316140126.24900-4-joshi.k@samsung.com> <20210317085258.GA19580@lst.de>
- <149d2bc7-ec80-2e51-7db1-15765f35a27f@kernel.dk>
- <20210317165959.GA25097@lst.de>
- <3b383e8e-b248-b8c4-2eea-6f5708845604@kernel.dk>
-Message-ID: <acf7cbd4-3db1-2c53-2ba4-67a396f39053@kernel.dk>
-Date:   Wed, 17 Mar 2021 12:59:58 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+To:     io-uring@vger.kernel.org
+Cc:     joshi.k@samsung.com, hch@lst.de, kbusch@kernel.org,
+        linux-nvme@lists.infradead.org, metze@samba.org,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 2/8] io_uring: add infrastructure around io_uring_cmd_sqe issue type
+Date:   Wed, 17 Mar 2021 16:10:21 -0600
+Message-Id: <20210317221027.366780-3-axboe@kernel.dk>
+X-Mailer: git-send-email 2.31.0
+In-Reply-To: <20210317221027.366780-1-axboe@kernel.dk>
+References: <20210317221027.366780-1-axboe@kernel.dk>
 MIME-Version: 1.0
-In-Reply-To: <3b383e8e-b248-b8c4-2eea-6f5708845604@kernel.dk>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 3/17/21 11:21 AM, Jens Axboe wrote:
-> On 3/17/21 10:59 AM, Christoph Hellwig wrote:
->> On Wed, Mar 17, 2021 at 10:49:28AM -0600, Jens Axboe wrote:
->>> I will post it soon, only reason I haven't reposted is that I'm not that
->>> happy with how the sqe split is done (and that it's done in the first
->>> place). But I'll probably just post the current version for comments,
->>> and hopefully we can get it to where it needs to be soon.
->>
->> Yes, I don't like that at all either.  I almost wonder if we should
->> use an entirely different format after opcode and flags, although
->> I suspect fd would be nice to have in the same spot as well.
-> 
-> Exactly - trying to think of how best to do this. It's somewhat a shame
-> that I didn't place user_data right after fd, or even at the end of the
-> struct. But oh well.
-> 
-> One idea would be to have io_uring_sqe_hdr and have that be
-> op/flags/prio/fd as we should have those for anything, and just embed
-> that at the top of both io_uring_sqe (our general command), and
-> io_uring_whatever which is what the passthrough stuff would use.
-> 
-> Not sure, I need to dabble in the code a bit and see how we can make it
-> the cleanest.
+Define an io_uring_cmd_sqe struct that passthrough commands can use,
+and define an array that has offset information for the two members
+that we care about (user_data and personality). Then we can init the
+two command types in basically the same way, just reading the user_data
+and personality at the defined offsets for the command type.
 
-How about something like the top two patches here to kick it off, then
-build on top?
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+---
+ fs/io_uring.c                 | 57 +++++++++++++++++++++++++++--------
+ include/uapi/linux/io_uring.h | 10 ++++++
+ 2 files changed, 54 insertions(+), 13 deletions(-)
 
-https://git.kernel.dk/cgit/linux-block/log/?h=io_uring-fops.v4
-
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 416e47832468..a4699b066172 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -824,6 +824,22 @@ struct io_defer_entry {
+ 	u32			seq;
+ };
+ 
++struct sqe_offset {
++	unsigned char		user_data;
++	unsigned char		personality;
++};
++
++static struct sqe_offset sqe_offsets[] = {
++	{
++		.user_data	= offsetof(struct io_uring_sqe, user_data),
++		.personality	= offsetof(struct io_uring_sqe, personality)
++	},
++	{
++		.user_data	= offsetof(struct io_uring_cmd_sqe, user_data),
++		.personality	= offsetof(struct io_uring_cmd_sqe, personality)
++	}
++};
++
+ struct io_op_def {
+ 	/* needs req->file assigned */
+ 	unsigned		needs_file : 1;
+@@ -844,6 +860,8 @@ struct io_op_def {
+ 	unsigned		plug : 1;
+ 	/* size of async data needed, if any */
+ 	unsigned short		async_size;
++	/* offset definition for user_data/personality */
++	unsigned short		offsets;
+ };
+ 
+ static const struct io_op_def io_op_defs[] = {
+@@ -988,6 +1006,9 @@ static const struct io_op_def io_op_defs[] = {
+ 	},
+ 	[IORING_OP_RENAMEAT] = {},
+ 	[IORING_OP_UNLINKAT] = {},
++	[IORING_OP_URING_CMD] = {
++		.offsets		= 1,
++	},
+ };
+ 
+ static bool io_disarm_next(struct io_kiocb *req);
+@@ -6384,16 +6405,21 @@ static inline bool io_check_restriction(struct io_ring_ctx *ctx,
+ }
+ 
+ static int io_init_req(struct io_ring_ctx *ctx, struct io_kiocb *req,
+-		       const struct io_uring_sqe *sqe)
++		       const struct io_uring_sqe_hdr *hdr)
+ {
+ 	struct io_submit_state *state;
++	const struct io_op_def *def;
+ 	unsigned int sqe_flags;
++	const __u64 *uptr;
++	const __u16 *pptr;
+ 	int personality, ret = 0;
+ 
+-	req->opcode = READ_ONCE(sqe->hdr.opcode);
++	req->opcode = READ_ONCE(hdr->opcode);
++	def = &io_op_defs[req->opcode];
+ 	/* same numerical values with corresponding REQ_F_*, safe to copy */
+-	req->flags = sqe_flags = READ_ONCE(sqe->hdr.flags);
+-	req->user_data = READ_ONCE(sqe->user_data);
++	req->flags = sqe_flags = READ_ONCE(hdr->flags);
++	uptr = (const void *) hdr + sqe_offsets[def->offsets].user_data;
++	req->user_data = READ_ONCE(*uptr);
+ 	req->async_data = NULL;
+ 	req->file = NULL;
+ 	req->ctx = ctx;
+@@ -6419,11 +6445,11 @@ static int io_init_req(struct io_ring_ctx *ctx, struct io_kiocb *req,
+ 	if (unlikely(!io_check_restriction(ctx, req, sqe_flags)))
+ 		return -EACCES;
+ 
+-	if ((sqe_flags & IOSQE_BUFFER_SELECT) &&
+-	    !io_op_defs[req->opcode].buffer_select)
++	if ((sqe_flags & IOSQE_BUFFER_SELECT) && !def->buffer_select)
+ 		return -EOPNOTSUPP;
+ 
+-	personality = READ_ONCE(sqe->personality);
++	pptr = (const void *) hdr + sqe_offsets[def->offsets].personality;
++	personality = READ_ONCE(*pptr);
+ 	if (personality) {
+ 		req->work.creds = xa_load(&ctx->personalities, personality);
+ 		if (!req->work.creds)
+@@ -6436,17 +6462,15 @@ static int io_init_req(struct io_ring_ctx *ctx, struct io_kiocb *req,
+ 	 * Plug now if we have more than 1 IO left after this, and the target
+ 	 * is potentially a read/write to block based storage.
+ 	 */
+-	if (!state->plug_started && state->ios_left > 1 &&
+-	    io_op_defs[req->opcode].plug) {
++	if (!state->plug_started && state->ios_left > 1 && def->plug) {
+ 		blk_start_plug(&state->plug);
+ 		state->plug_started = true;
+ 	}
+ 
+-	if (io_op_defs[req->opcode].needs_file) {
++	if (def->needs_file) {
+ 		bool fixed = req->flags & REQ_F_FIXED_FILE;
+ 
+-		req->file = io_file_get(state, req, READ_ONCE(sqe->hdr.fd),
+-					fixed);
++		req->file = io_file_get(state, req, READ_ONCE(hdr->fd), fixed);
+ 		if (unlikely(!req->file))
+ 			ret = -EBADF;
+ 	}
+@@ -6461,7 +6485,7 @@ static int io_submit_sqe(struct io_ring_ctx *ctx, struct io_kiocb *req,
+ 	struct io_submit_link *link = &ctx->submit_state.link;
+ 	int ret;
+ 
+-	ret = io_init_req(ctx, req, sqe);
++	ret = io_init_req(ctx, req, &sqe->hdr);
+ 	if (unlikely(ret)) {
+ fail_req:
+ 		io_req_complete_failed(req, ret);
+@@ -9915,6 +9939,7 @@ static int __init io_uring_init(void)
+ #define BUILD_BUG_SQE_ELEM(eoffset, etype, ename) \
+ 	__BUILD_BUG_VERIFY_ELEMENT(struct io_uring_sqe, eoffset, etype, ename)
+ 	BUILD_BUG_ON(sizeof(struct io_uring_sqe) != 64);
++	BUILD_BUG_ON(sizeof(struct io_uring_cmd_sqe) != 64);
+ 	BUILD_BUG_SQE_ELEM(0,  __u8,   hdr.opcode);
+ 	BUILD_BUG_SQE_ELEM(1,  __u8,   hdr.flags);
+ 	BUILD_BUG_SQE_ELEM(2,  __u16,  hdr.ioprio);
+@@ -9943,6 +9968,12 @@ static int __init io_uring_init(void)
+ 	BUILD_BUG_SQE_ELEM(40, __u16,  buf_index);
+ 	BUILD_BUG_SQE_ELEM(42, __u16,  personality);
+ 	BUILD_BUG_SQE_ELEM(44, __s32,  splice_fd_in);
++#define BUILD_BUG_SQEC_ELEM(eoffset, etype, ename) \
++	__BUILD_BUG_VERIFY_ELEMENT(struct io_uring_cmd_sqe, eoffset, etype, ename)
++	BUILD_BUG_SQEC_ELEM(8,				__u64,	user_data);
++	BUILD_BUG_SQEC_ELEM(18,				__u16,	personality);
++	BUILD_BUG_SQEC_ELEM(sqe_offsets[1].user_data,	__u64,	user_data);
++	BUILD_BUG_SQEC_ELEM(sqe_offsets[1].personality,	__u16,	personality);
+ 
+ 	BUILD_BUG_ON(ARRAY_SIZE(io_op_defs) != IORING_OP_LAST);
+ 	BUILD_BUG_ON(__REQ_F_LAST_BIT >= 8 * sizeof(int));
+diff --git a/include/uapi/linux/io_uring.h b/include/uapi/linux/io_uring.h
+index 5609474ccd9f..165ac406f00b 100644
+--- a/include/uapi/linux/io_uring.h
++++ b/include/uapi/linux/io_uring.h
+@@ -74,6 +74,15 @@ struct io_uring_sqe {
+ 	};
+ };
+ 
++struct io_uring_cmd_sqe {
++	struct io_uring_sqe_hdr	hdr;
++	__u64			user_data;
++	__u16			op;
++	__u16			personality;
++	__u32			len;
++	__u64			pdu[5];
++};
++
+ enum {
+ 	IOSQE_FIXED_FILE_BIT,
+ 	IOSQE_IO_DRAIN_BIT,
+@@ -148,6 +157,7 @@ enum {
+ 	IORING_OP_SHUTDOWN,
+ 	IORING_OP_RENAMEAT,
+ 	IORING_OP_UNLINKAT,
++	IORING_OP_URING_CMD,
+ 
+ 	/* this goes last, obviously */
+ 	IORING_OP_LAST,
 -- 
-Jens Axboe
+2.31.0
 

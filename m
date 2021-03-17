@@ -7,60 +7,61 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7F1FBC4332D
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 982A8C4332E
 	for <io-uring@archiver.kernel.org>; Wed, 17 Mar 2021 16:30:47 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 548F864F69
+	by mail.kernel.org (Postfix) with ESMTP id 7756664F6C
 	for <io-uring@archiver.kernel.org>; Wed, 17 Mar 2021 16:30:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232546AbhCQQaR (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Wed, 17 Mar 2021 12:30:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52918 "EHLO
+        id S232577AbhCQQaQ (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 17 Mar 2021 12:30:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52908 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232556AbhCQQ3t (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Wed, 17 Mar 2021 12:29:49 -0400
-Received: from mail-il1-x135.google.com (mail-il1-x135.google.com [IPv6:2607:f8b0:4864:20::135])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E5AFC06174A
-        for <io-uring@vger.kernel.org>; Wed, 17 Mar 2021 09:29:49 -0700 (PDT)
-Received: by mail-il1-x135.google.com with SMTP id v3so2071189ilj.12
-        for <io-uring@vger.kernel.org>; Wed, 17 Mar 2021 09:29:49 -0700 (PDT)
+        with ESMTP id S232550AbhCQQ3s (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Wed, 17 Mar 2021 12:29:48 -0400
+Received: from mail-io1-xd33.google.com (mail-io1-xd33.google.com [IPv6:2607:f8b0:4864:20::d33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C168C06174A
+        for <io-uring@vger.kernel.org>; Wed, 17 Mar 2021 09:29:48 -0700 (PDT)
+Received: by mail-io1-xd33.google.com with SMTP id o11so41683003iob.1
+        for <io-uring@vger.kernel.org>; Wed, 17 Mar 2021 09:29:48 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernel-dk.20150623.gappssmtp.com; s=20150623;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=7QxdZAqs5jueN26xfq30PZBGHG4vQCHLs7PQxNz8xUA=;
-        b=S6hdmqkRzBGxXsX4gg/1PHJhL5E8LpmfxyX3WIJoVd2cUpZagbXHtEPJXvI18mrSCK
-         1pFMPzJ1UbK1JZY15Bc1wtqtX1rdXSMa+Ux891N1K2sOYyt0DwtdH96X/0aTm942MM7E
-         8pYpDz8ElIaGeYrTxJo154gcSkNA1JiJaN/3jDVP96k8bHU5DkHSnr0U47SRbNFMtMf1
-         s7IuemYhwuw+5yJJxxlKOKXaq/V/KyMpVuHShSZeHR10NKK0ApwCbmSZmCJ4b2KPfgYx
-         xp8pgNgScBXj8RQItHb1cfVenYin011PKQ6ZBfgqZY+faG/sSnY/CS0OyKg3IiVMrR/a
-         TC1A==
+        bh=kpPDvXNpevj8lhojXAQU6JR+4Ed7UPfrgg63kToNCU4=;
+        b=gkJOrSFWlSBfHRvuR/kZrrzfOVgWfAULd5abmyqDZFyEAtlRS7YHRx532A+3+rSyst
+         //v2OoTBmRMnnV5YC1teiH/2lVeioh51EqYlZWQ08T4qGKdtx5ariGNiqw7bk1x+hTQy
+         CsvOP/d8WPnPeOXHQzZqVP6IQs77rFQEl5exivCcnJPwAaONtIUdGnl3l5bHkIjdamPI
+         luo0gAEGxkwB6oY3epXsJaM3tmydZbTfFKrjEKe6+z6IjK1bf42HHyNaGL50mqmNvF+i
+         lxBiu+bkZvSyaDmEyeI/V+EZBBsYNYWUDL8V81lJtVHSXI04rvRSHWPuxHmVfylVbIPn
+         L2wA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=7QxdZAqs5jueN26xfq30PZBGHG4vQCHLs7PQxNz8xUA=;
-        b=Ky9OodGGqYPfWtAQQ+3k0usRp7dLOSYd+6g9iE2S4CNuhVUnv+3yLPDtfQkOT1Hnyv
-         M9TIPyN6aJekvoM2PytxbjmptJWpL8dpNTAVUonWE1Fv+Uu8d0+9mD2qbGZG0Z+ZQlGm
-         ey3+RD0SlozzM/wV2Y47dXBBkgyZnA3BE4E5CG6cgE2+5f8BNHw0nSGwMjjB4Hwa2vlA
-         kClOjL+OemJwVJBCIpyofb9+KTfm2BcNf0gz7lcPfeEpOFYM/Ysw7+0eQaCvuuoqDffg
-         S21SJAkQ2NbPKx8cAyV2jj06OUIqWdlDjT3muhfo34KRJ8L1gNfZdpF6YNB957TJNgw8
-         MWtw==
-X-Gm-Message-State: AOAM533wVZQpXRDMF++PD9uGrogSckCmVNnlnqltliK04oTNDGOSX2OJ
-        W1NtuU9/yg/bX8+h4EwglGJrPv7PbtGoAQ==
-X-Google-Smtp-Source: ABdhPJyKwgaBHc4ltYxQmdqT5bx+hzThZoxoAwFODtZEE+5kHsIZujtnOJ9TEWzgXA7wJ+0lMRz7Qw==
-X-Received: by 2002:a05:6e02:1a2d:: with SMTP id g13mr8394796ile.216.1615998588640;
-        Wed, 17 Mar 2021 09:29:48 -0700 (PDT)
+        bh=kpPDvXNpevj8lhojXAQU6JR+4Ed7UPfrgg63kToNCU4=;
+        b=eZvZ00Z3fhfvYNGBtElu/tr1+8VC7fEw3jdyx+Yn9pX2sME22/4Zzdspfl+kz399zu
+         BY82QRZYU3IPEeUPGKC71pDAZ7IT50Oq4EjpsEDg+WOpH7X0AoXojxRi9FDYKoVoOmmw
+         j+XTYVkGmhqOLiQ6/SOazR8XVlGUzRZ5FlaS8gNXIU34KEPPWJfUfAhrfBEQ+UMnk3vp
+         GBPcMwzgpRxGlt6HvOhpPrYaoAbUmUwkdbu9ZOazJYNWm8Hv+YFsLwSDTkcUP2ITphIx
+         wS+l7d7f/+B+9QWHBrxPFfQyjWjBZxEvIA3iUhHz7HcuCZ09cMCzmA19dhecTh+XDhvm
+         YkMw==
+X-Gm-Message-State: AOAM531OD1zGBh6Lmrbs6+VwVgz7/HPH1DJnR6PfG2N+poM8M9lVJtJa
+        Iyi0il5JjCPI641NjAlOoh1MeRXso/Vsaw==
+X-Google-Smtp-Source: ABdhPJwkLpeXUdk4UEKaMchVQCqb4alVvAQiXgQR/KWfPLL+/64Z3bVJB9JPjzelJBBKIZM8KEdmtg==
+X-Received: by 2002:a02:c017:: with SMTP id y23mr3510136jai.3.1615998587624;
+        Wed, 17 Mar 2021 09:29:47 -0700 (PDT)
 Received: from p1.localdomain ([65.144.74.34])
-        by smtp.gmail.com with ESMTPSA id h1sm11164271ilo.64.2021.03.17.09.29.48
+        by smtp.gmail.com with ESMTPSA id h1sm11164271ilo.64.2021.03.17.09.29.46
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 17 Mar 2021 09:29:48 -0700 (PDT)
+        Wed, 17 Mar 2021 09:29:47 -0700 (PDT)
 From:   Jens Axboe <axboe@kernel.dk>
 To:     io-uring@vger.kernel.org
-Cc:     Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5/9] io_uring: add multishot mode for IORING_OP_POLL_ADD
-Date:   Wed, 17 Mar 2021 10:29:39 -0600
-Message-Id: <20210317162943.173837-6-axboe@kernel.dk>
+Cc:     Pavel Begunkov <asml.silence@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 3/9] io_uring: allocate memory for overflowed CQEs
+Date:   Wed, 17 Mar 2021 10:29:37 -0600
+Message-Id: <20210317162943.173837-4-axboe@kernel.dk>
 X-Mailer: git-send-email 2.31.0
 In-Reply-To: <20210317162943.173837-1-axboe@kernel.dk>
 References: <20210317162943.173837-1-axboe@kernel.dk>
@@ -70,196 +71,233 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-The default io_uring poll mode is one-shot, where once the event triggers,
-the poll command is completed and won't trigger any further events. If
-we're doing repeated polling on the same file or socket, then it can be
-more efficient to do multishot, where we keep triggering whenever the
-event becomes true.
+From: Pavel Begunkov <asml.silence@gmail.com>
 
-This deviates from the usual norm of having one CQE per SQE submitted. Add
-a CQE flag, IORING_CQE_F_MORE, which tells the application to expect
-further completion events from the submitted SQE. Right now the only user
-of this is POLL_ADD in multishot mode.
+Instead of using a request itself for overflowed CQE stashing, allocate a
+separate entry. The disadvantage is that the allocation may fail and it
+will be accounted as lost (see rings->cq_overflow), so we lose reliability
+in case of memory pressure if the application is driving the CQ ring into
+overflow. However, it opens a way for for multiple CQEs per an SQE and
+even generating SQE-less CQEs.
 
-Since sqe->poll_events is using the space that we normally use for adding
-flags to commands, use sqe->len for the flag space for POLL_ADD. Multishot
-mode is selected by setting IORING_POLL_ADD_MULTI in sqe->len. An
-application should expect more CQEs for the specificed SQE if the CQE is
-flagged with IORING_CQE_F_MORE. In multishot mode, only cancelation or an
-error will terminate the poll request, in which case the flag will be
-cleared.
-
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+[axboe: use GFP_ATOMIC | __GFP_ACCOUNT]
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 ---
- fs/io_uring.c                 | 63 +++++++++++++++++++++++++----------
- include/uapi/linux/io_uring.h | 12 +++++++
- 2 files changed, 57 insertions(+), 18 deletions(-)
+ fs/io_uring.c | 99 ++++++++++++++++++++++++---------------------------
+ 1 file changed, 46 insertions(+), 53 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 140029f730d7..c3d6f28a9147 100644
+index dbca1de0be2f..37413a9127b7 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -4908,17 +4908,25 @@ static void io_poll_remove_double(struct io_kiocb *req)
- 	}
+@@ -203,6 +203,11 @@ struct io_mapped_ubuf {
+ 
+ struct io_ring_ctx;
+ 
++struct io_overflow_cqe {
++	struct io_uring_cqe cqe;
++	struct list_head list;
++};
++
+ struct io_rsrc_put {
+ 	struct list_head list;
+ 	union {
+@@ -1404,41 +1409,33 @@ static void io_cqring_ev_posted_iopoll(struct io_ring_ctx *ctx)
  }
  
--static void io_poll_complete(struct io_kiocb *req, __poll_t mask, int error)
-+static bool io_poll_complete(struct io_kiocb *req, __poll_t mask, int error)
+ /* Returns true if there are no backlogged entries after the flush */
+-static bool __io_cqring_overflow_flush(struct io_ring_ctx *ctx, bool force,
+-				       struct task_struct *tsk,
+-				       struct files_struct *files)
++static bool __io_cqring_overflow_flush(struct io_ring_ctx *ctx, bool force)
  {
- 	struct io_ring_ctx *ctx = req->ctx;
-+	unsigned flags = IORING_CQE_F_MORE;
+ 	struct io_rings *rings = ctx->rings;
+-	struct io_kiocb *req, *tmp;
+-	struct io_uring_cqe *cqe;
+ 	unsigned long flags;
+ 	bool all_flushed, posted;
+-	LIST_HEAD(list);
  
--	if (!error && req->poll.canceled)
-+	if (!error && req->poll.canceled) {
- 		error = -ECANCELED;
+ 	if (!force && __io_cqring_events(ctx) == rings->cq_ring_entries)
+ 		return false;
+ 
+ 	posted = false;
+ 	spin_lock_irqsave(&ctx->completion_lock, flags);
+-	list_for_each_entry_safe(req, tmp, &ctx->cq_overflow_list, compl.list) {
+-		if (!io_match_task(req, tsk, files))
+-			continue;
++	while (!list_empty(&ctx->cq_overflow_list)) {
++		struct io_uring_cqe *cqe = io_get_cqring(ctx);
++		struct io_overflow_cqe *ocqe;
+ 
+-		cqe = io_get_cqring(ctx);
+ 		if (!cqe && !force)
+ 			break;
 -
--	io_poll_remove_double(req);
--	req->poll.done = true;
--	io_cqring_fill_event(req, error ? error : mangle_poll(mask));
-+		req->poll.events |= EPOLLONESHOT;
-+	}
-+	if (error || (req->poll.events & EPOLLONESHOT)) {
-+		io_poll_remove_double(req);
-+		req->poll.done = true;
-+		flags = 0;
-+	}
-+	if (!error)
-+		error = mangle_poll(mask);
-+	__io_cqring_fill_event(req, error, flags);
- 	io_commit_cqring(ctx);
-+	return !(flags & IORING_CQE_F_MORE);
- }
- 
- static void io_poll_task_func(struct callback_head *cb)
-@@ -4930,14 +4938,25 @@ static void io_poll_task_func(struct callback_head *cb)
- 	if (io_poll_rewait(req, &req->poll)) {
- 		spin_unlock_irq(&ctx->completion_lock);
- 	} else {
--		hash_del(&req->hash_node);
--		io_poll_complete(req, req->result, 0);
-+		bool done, post_ev;
-+
-+		post_ev = done = io_poll_complete(req, req->result, 0);
-+		if (done) {
-+			hash_del(&req->hash_node);
-+		} else if (!(req->poll.events & EPOLLONESHOT)) {
-+			post_ev = true;
-+			req->result = 0;
-+			add_wait_queue(req->poll.head, &req->poll.wait);
-+		}
- 		spin_unlock_irq(&ctx->completion_lock);
- 
--		nxt = io_put_req_find_next(req);
--		io_cqring_ev_posted(ctx);
--		if (nxt)
--			__io_req_task_submit(nxt);
-+		if (post_ev)
-+			io_cqring_ev_posted(ctx);
-+		if (done) {
-+			nxt = io_put_req_find_next(req);
-+			if (nxt)
-+				__io_req_task_submit(nxt);
-+		}
+-		list_move(&req->compl.list, &list);
+-		if (cqe) {
+-			WRITE_ONCE(cqe->user_data, req->user_data);
+-			WRITE_ONCE(cqe->res, req->result);
+-			WRITE_ONCE(cqe->flags, req->compl.cflags);
+-		} else {
+-			ctx->cached_cq_overflow++;
++		ocqe = list_first_entry(&ctx->cq_overflow_list,
++					struct io_overflow_cqe, list);
++		if (cqe)
++			memcpy(cqe, &ocqe->cqe, sizeof(*cqe));
++		else
+ 			WRITE_ONCE(ctx->rings->cq_overflow,
+-				   ctx->cached_cq_overflow);
+-		}
++				   ++ctx->cached_cq_overflow);
+ 		posted = true;
++		list_del(&ocqe->list);
++		kfree(ocqe);
  	}
  
- 	percpu_ref_put(&ctx->refs);
-@@ -4953,6 +4972,8 @@ static int io_poll_double_wake(struct wait_queue_entry *wait, unsigned mode,
- 	/* for instances that support it check for an event match first: */
- 	if (mask && !(mask & poll->events))
- 		return 0;
-+	if (!(poll->events & EPOLLONESHOT))
-+		return poll->wait.func(&poll->wait, mode, sync, key);
- 
- 	list_del_init(&wait->entry);
- 
-@@ -5118,7 +5139,7 @@ static __poll_t __io_arm_poll_handler(struct io_kiocb *req,
- 			ipt->error = 0;
- 			mask = 0;
- 		}
--		if (mask || ipt->error)
-+		if ((mask && (poll->events & EPOLLONESHOT)) || ipt->error)
- 			list_del_init(&poll->wait.entry);
- 		else if (cancel)
- 			WRITE_ONCE(poll->canceled, true);
-@@ -5161,7 +5182,7 @@ static bool io_arm_poll_handler(struct io_kiocb *req)
- 	req->flags |= REQ_F_POLLED;
- 	req->apoll = apoll;
- 
--	mask = 0;
-+	mask = EPOLLONESHOT;
- 	if (def->pollin)
- 		mask |= POLLIN | POLLRDNORM;
- 	if (def->pollout)
-@@ -5334,19 +5355,24 @@ static void io_poll_queue_proc(struct file *file, struct wait_queue_head *head,
- static int io_poll_add_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
- {
- 	struct io_poll_iocb *poll = &req->poll;
--	u32 events;
-+	u32 events, flags;
- 
- 	if (unlikely(req->ctx->flags & IORING_SETUP_IOPOLL))
- 		return -EINVAL;
--	if (sqe->addr || sqe->ioprio || sqe->off || sqe->len || sqe->buf_index)
-+	if (sqe->addr || sqe->ioprio || sqe->off || sqe->buf_index)
-+		return -EINVAL;
-+	flags = READ_ONCE(sqe->len);
-+	if (flags & ~IORING_POLL_ADD_MULTI)
- 		return -EINVAL;
- 
- 	events = READ_ONCE(sqe->poll32_events);
- #ifdef __BIG_ENDIAN
- 	events = swahw32(events);
- #endif
-+	if (!flags)
-+		events |= EPOLLONESHOT;
- 	poll->events = demangle_poll(events) | EPOLLERR | EPOLLHUP |
--		       (events & EPOLLEXCLUSIVE);
-+		       (events & (EPOLLEXCLUSIVE|EPOLLONESHOT));
- 	return 0;
- }
- 
-@@ -5370,7 +5396,8 @@ static int io_poll_add(struct io_kiocb *req, unsigned int issue_flags)
- 
- 	if (mask) {
+ 	all_flushed = list_empty(&ctx->cq_overflow_list);
+@@ -1453,19 +1450,10 @@ static bool __io_cqring_overflow_flush(struct io_ring_ctx *ctx, bool force,
+ 	spin_unlock_irqrestore(&ctx->completion_lock, flags);
+ 	if (posted)
  		io_cqring_ev_posted(ctx);
+-
+-	while (!list_empty(&list)) {
+-		req = list_first_entry(&list, struct io_kiocb, compl.list);
+-		list_del(&req->compl.list);
 -		io_put_req(req);
-+		if (poll->events & EPOLLONESHOT)
-+			io_put_req(req);
- 	}
- 	return ipt.error;
+-	}
+-
+ 	return all_flushed;
  }
-diff --git a/include/uapi/linux/io_uring.h b/include/uapi/linux/io_uring.h
-index 2514eb6b1cf2..76c967621601 100644
---- a/include/uapi/linux/io_uring.h
-+++ b/include/uapi/linux/io_uring.h
-@@ -159,6 +159,16 @@ enum {
-  */
- #define SPLICE_F_FD_IN_FIXED	(1U << 31) /* the last bit of __u32 */
  
-+/*
-+ * POLL_ADD flags. Note that since sqe->poll_events is the flag space, the
-+ * command flags for POLL_ADD are stored in sqe->len.
-+ *
-+ * IORING_POLL_ADD_MULTI	Multishot poll. Sets IORING_CQE_F_MORE if
-+ *				the poll handler will continue to report
-+ *				CQEs on behalf of the same SQE.
-+ */
-+#define IORING_POLL_ADD_MULTI	(1U << 0)
+-static bool io_cqring_overflow_flush(struct io_ring_ctx *ctx, bool force,
+-				     struct task_struct *tsk,
+-				     struct files_struct *files)
++static bool io_cqring_overflow_flush(struct io_ring_ctx *ctx, bool force)
+ {
+ 	bool ret = true;
+ 
+@@ -1473,7 +1461,7 @@ static bool io_cqring_overflow_flush(struct io_ring_ctx *ctx, bool force,
+ 		/* iopoll syncs against uring_lock, not completion_lock */
+ 		if (ctx->flags & IORING_SETUP_IOPOLL)
+ 			mutex_lock(&ctx->uring_lock);
+-		ret = __io_cqring_overflow_flush(ctx, force, tsk, files);
++		ret = __io_cqring_overflow_flush(ctx, force);
+ 		if (ctx->flags & IORING_SETUP_IOPOLL)
+ 			mutex_unlock(&ctx->uring_lock);
+ 	}
+@@ -1534,27 +1522,33 @@ static void __io_cqring_fill_event(struct io_kiocb *req, long res,
+ 		WRITE_ONCE(cqe->user_data, req->user_data);
+ 		WRITE_ONCE(cqe->res, res);
+ 		WRITE_ONCE(cqe->flags, cflags);
+-	} else if (ctx->cq_overflow_flushed ||
+-		   atomic_read(&req->task->io_uring->in_idle)) {
+-		/*
+-		 * If we're in ring overflow flush mode, or in task cancel mode,
+-		 * then we cannot store the request for later flushing, we need
+-		 * to drop it on the floor.
+-		 */
+-		ctx->cached_cq_overflow++;
+-		WRITE_ONCE(ctx->rings->cq_overflow, ctx->cached_cq_overflow);
+-	} else {
++		return;
++	}
++	if (!ctx->cq_overflow_flushed &&
++	    !atomic_read(&req->task->io_uring->in_idle)) {
++		struct io_overflow_cqe *ocqe;
 +
- /*
-  * IO completion data structure (Completion Queue Entry)
-  */
-@@ -172,8 +182,10 @@ struct io_uring_cqe {
-  * cqe->flags
-  *
-  * IORING_CQE_F_BUFFER	If set, the upper 16 bits are the buffer ID
-+ * IORING_CQE_F_MORE	If set, parent SQE will generate more CQE entries
-  */
- #define IORING_CQE_F_BUFFER		(1U << 0)
-+#define IORING_CQE_F_MORE		(1U << 1)
++		ocqe = kmalloc(sizeof(*ocqe), GFP_ATOMIC | __GFP_ACCOUNT);
++		if (!ocqe)
++			goto overflow;
+ 		if (list_empty(&ctx->cq_overflow_list)) {
+ 			set_bit(0, &ctx->sq_check_overflow);
+ 			set_bit(0, &ctx->cq_check_overflow);
+ 			ctx->rings->sq_flags |= IORING_SQ_CQ_OVERFLOW;
+ 		}
+-		io_clean_op(req);
+-		req->result = res;
+-		req->compl.cflags = cflags;
+-		req_ref_get(req);
+-		list_add_tail(&req->compl.list, &ctx->cq_overflow_list);
++		ocqe->cqe.user_data = req->user_data;
++		ocqe->cqe.res = res;
++		ocqe->cqe.flags = cflags;
++		list_add_tail(&ocqe->list, &ctx->cq_overflow_list);
++		return;
+ 	}
++overflow:
++	/*
++	 * If we're in ring overflow flush mode, or in task cancel mode,
++	 * or cannot allocate an overflow entry, then we need to drop it
++	 * on the floor.
++	 */
++	WRITE_ONCE(ctx->rings->cq_overflow, ++ctx->cached_cq_overflow);
+ }
  
- enum {
- 	IORING_CQE_BUFFER_SHIFT		= 16,
+ static void io_cqring_fill_event(struct io_kiocb *req, long res)
+@@ -2421,7 +2415,7 @@ static int io_iopoll_check(struct io_ring_ctx *ctx, long min)
+ 		 * already triggered a CQE (eg in error).
+ 		 */
+ 		if (test_bit(0, &ctx->cq_check_overflow))
+-			__io_cqring_overflow_flush(ctx, false, NULL, NULL);
++			__io_cqring_overflow_flush(ctx, false);
+ 		if (io_cqring_events(ctx))
+ 			break;
+ 
+@@ -6608,7 +6602,7 @@ static int io_submit_sqes(struct io_ring_ctx *ctx, unsigned int nr)
+ 
+ 	/* if we have a backlog and couldn't flush it all, return BUSY */
+ 	if (test_bit(0, &ctx->sq_check_overflow)) {
+-		if (!__io_cqring_overflow_flush(ctx, false, NULL, NULL))
++		if (!__io_cqring_overflow_flush(ctx, false))
+ 			return -EBUSY;
+ 	}
+ 
+@@ -6901,7 +6895,7 @@ static int io_cqring_wait(struct io_ring_ctx *ctx, int min_events,
+ 	int ret;
+ 
+ 	do {
+-		io_cqring_overflow_flush(ctx, false, NULL, NULL);
++		io_cqring_overflow_flush(ctx, false);
+ 		if (io_cqring_events(ctx) >= min_events)
+ 			return 0;
+ 		if (!io_run_task_work())
+@@ -6933,7 +6927,7 @@ static int io_cqring_wait(struct io_ring_ctx *ctx, int min_events,
+ 	trace_io_uring_cqring_wait(ctx, min_events);
+ 	do {
+ 		/* if we can't even flush overflow, don't wait for more */
+-		if (!io_cqring_overflow_flush(ctx, false, NULL, NULL)) {
++		if (!io_cqring_overflow_flush(ctx, false)) {
+ 			ret = -EBUSY;
+ 			break;
+ 		}
+@@ -8596,7 +8590,7 @@ static void io_ring_ctx_wait_and_kill(struct io_ring_ctx *ctx)
+ 	/* if force is set, the ring is going away. always drop after that */
+ 	ctx->cq_overflow_flushed = 1;
+ 	if (ctx->rings)
+-		__io_cqring_overflow_flush(ctx, true, NULL, NULL);
++		__io_cqring_overflow_flush(ctx, true);
+ 	xa_for_each(&ctx->personalities, index, creds)
+ 		io_unregister_personality(ctx, index);
+ 	mutex_unlock(&ctx->uring_lock);
+@@ -8754,7 +8748,6 @@ static void io_uring_try_cancel_requests(struct io_ring_ctx *ctx,
+ 		ret |= io_kill_timeouts(ctx, task, files);
+ 		ret |= io_run_task_work();
+ 		ret |= io_run_ctx_fallback(ctx);
+-		io_cqring_overflow_flush(ctx, true, task, files);
+ 		if (!ret)
+ 			break;
+ 		cond_resched();
+@@ -9166,7 +9159,7 @@ SYSCALL_DEFINE6(io_uring_enter, unsigned int, fd, u32, to_submit,
+ 	 */
+ 	ret = 0;
+ 	if (ctx->flags & IORING_SETUP_SQPOLL) {
+-		io_cqring_overflow_flush(ctx, false, NULL, NULL);
++		io_cqring_overflow_flush(ctx, false);
+ 
+ 		ret = -EOWNERDEAD;
+ 		if (unlikely(ctx->sq_data->thread == NULL)) {
 -- 
 2.31.0
 

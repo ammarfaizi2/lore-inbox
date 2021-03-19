@@ -8,59 +8,59 @@ X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 44D8CC433C1
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 75542C433E2
 	for <io-uring@archiver.kernel.org>; Fri, 19 Mar 2021 17:28:08 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1BA9861984
+	by mail.kernel.org (Postfix) with ESMTP id 477DE6198C
 	for <io-uring@archiver.kernel.org>; Fri, 19 Mar 2021 17:28:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229949AbhCSR1g (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Fri, 19 Mar 2021 13:27:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37262 "EHLO
+        id S230042AbhCSR1h (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Fri, 19 Mar 2021 13:27:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37282 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230042AbhCSR1E (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Fri, 19 Mar 2021 13:27:04 -0400
-Received: from mail-wr1-x434.google.com (mail-wr1-x434.google.com [IPv6:2a00:1450:4864:20::434])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40F61C06175F
-        for <io-uring@vger.kernel.org>; Fri, 19 Mar 2021 10:27:04 -0700 (PDT)
-Received: by mail-wr1-x434.google.com with SMTP id j7so9902170wrd.1
-        for <io-uring@vger.kernel.org>; Fri, 19 Mar 2021 10:27:04 -0700 (PDT)
+        with ESMTP id S230337AbhCSR1I (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Fri, 19 Mar 2021 13:27:08 -0400
+Received: from mail-wm1-x329.google.com (mail-wm1-x329.google.com [IPv6:2a00:1450:4864:20::329])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ACBBDC061761
+        for <io-uring@vger.kernel.org>; Fri, 19 Mar 2021 10:27:07 -0700 (PDT)
+Received: by mail-wm1-x329.google.com with SMTP id g20so5876254wmk.3
+        for <io-uring@vger.kernel.org>; Fri, 19 Mar 2021 10:27:07 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=1EBVCwgwpUQ5v/D1itVIudgrzIc+y8MCriiQQMsNYog=;
-        b=ILYdvcPcypnw1hCm1bli17i6SVjZ7ENaamjA47aeJs4pIJSeW1eER2uS1Sx2EXeKEv
-         VabxAo9hpJ/e6cBdCOIckjRmhGEBpc/Eg9vaEY+Hmu8oO7Tnb+gndWjKYKSBJ5xIF1QG
-         VrX5TwoqsXoTvnXPn+els+wwzw1AvSUwpK+KimoRF/b74x3NIZHjZhh+xkDWimAvRu4C
-         4yu6xgg8+cUNukwqb7czvil42zg0jhLqdityunw6kulPhFWtnC+YQ2l/7SNoUzPRQBKZ
-         5PnNG0jcvCBPIwGem+EnR2S/q4ACKh7iZ1FG63op5186JySJXgbc8fYK1Lk/7ZK+0APb
-         XyAA==
+        bh=x5iE6JNK9P50vg/+t+1KhSL2+3A2s6LkvQ0RnxSvZOk=;
+        b=LmHJ1+7Y/BrRq5eapQ5CXYG4n1Bi7w99vbJbM2gAh437D+prd99ucu/hiUJwJ8n4DZ
+         pDfWRop4gMJx8FJC4hR62C53uiHoZl1vkkNVwJGKM1gnliKRGXzepZrW8U6/yg5v8qkc
+         awLPnjpNDQGN8SVjtRzkoVqOcAPSPO+6hjcesFeniVMXwCr8R59CelkdbSJzP3qpuR/d
+         G7s5b41CF63t7lKHOCyAbElrzcr2QTq7OHLS6/2A+fJmbjAIfuoq7wpqvdAQyyNBgkRk
+         hzCuM8EJPppaQriBrN54npvGBhakg28LyIRpeXYIvHerOej+KelZpzO5FKJrPOz8m/h+
+         Oy/g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=1EBVCwgwpUQ5v/D1itVIudgrzIc+y8MCriiQQMsNYog=;
-        b=Y2EGGcjF64DT6M3wOs04Lp4HvX35Zj0Wr8nOakxNEOsV1hTgw9VwvrXfDpt6jygWWs
-         2sqrWdEH03BoR+hPM7Ln1a2X5Q5ijaj8/G9uyp7tymUpYBn+PFuKEqHYpC2IEfoaOJYb
-         sGKTcsuaYXdIrLpEcUR8kgV0AmdWyhq4EWmd+QV3XufV0n2Zbu3bSCclImohBj7XSaoZ
-         ZtHD/liRCfdZyN3Uxu3uQaR1A9/Uw9tYJzxDLN2PiNK2oQEOWRea80Ssoi6OVt5uZLiE
-         m2OZ5gDbLVXvJ8wGuxGVj2FfFIYCKvLqzBfR2G94GjYNR3CRuguCFY5Hoqwgl2bUQGEw
-         zaPw==
-X-Gm-Message-State: AOAM5307g5c9njl0CkonQqKiZspR/zDZzugP6ZxxDVNKPsjNpkSj9zED
-        slGtQ7chB1klpgzgzem240D3IUF0XQ7ZTA==
-X-Google-Smtp-Source: ABdhPJxKLJWA2WqrHAcv3x/hxFy81wIrgFJrYJ3BuTdHg51sHvD6wtx/yXaa3Vg493sCCMyX89FqTw==
-X-Received: by 2002:adf:e391:: with SMTP id e17mr5596403wrm.285.1616174823095;
-        Fri, 19 Mar 2021 10:27:03 -0700 (PDT)
+        bh=x5iE6JNK9P50vg/+t+1KhSL2+3A2s6LkvQ0RnxSvZOk=;
+        b=FYkVb5Y9ZE4QGIvNIkEZKTDNiRWxqOXat/XzMZRCxV0rF3JZY7mr84v3OTmTl+1AVw
+         G2HQpnN95oVLEgUnGAxtkPImbt9xOjO8iLSGADJzBTx3+KMNsF3de1wDrjU3RVegQvs/
+         Y0zwmyB5EuqOvVmMtHndtpCO9Wo/cu1HGk1wMo0iO98SnpUzhmeVs5aLGkIGAE8KI5cl
+         tbqsg6Uc6+iJnJtfCJ5AEcVcOMoPz7axj07oHO8U4N5NC8z+CqygO7ZVbDgTM+tufAiJ
+         AAMCCIipd9W/mMcFKsTBiNj1pCfGwZkpridgbs4d5hfnTWXzszvRva6axmHnJ4/iUC6a
+         AYSA==
+X-Gm-Message-State: AOAM533KHYZFJqwCPEz36fb3Dt1+RJs7SEHpVDPJj4TONlTKyyhPIaJ3
+        4xJA96y6Ojb2y08Q7eqVDq254wmiJEX9QA==
+X-Google-Smtp-Source: ABdhPJwDIRk2FRXZCsQYaPgca35fBaY91xQcd0jiOHWX/1Ur7/yTgv892O20od3wKPgDAIFR1DX1Tg==
+X-Received: by 2002:a1c:7715:: with SMTP id t21mr4651457wmi.132.1616174826405;
+        Fri, 19 Mar 2021 10:27:06 -0700 (PDT)
 Received: from localhost.localdomain ([148.252.133.195])
-        by smtp.gmail.com with ESMTPSA id i8sm7112943wmi.6.2021.03.19.10.27.02
+        by smtp.gmail.com with ESMTPSA id i8sm7112943wmi.6.2021.03.19.10.27.05
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 19 Mar 2021 10:27:02 -0700 (PDT)
+        Fri, 19 Mar 2021 10:27:06 -0700 (PDT)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH 13/16] io_uring: inline io_clean_op()'s fast path
-Date:   Fri, 19 Mar 2021 17:22:41 +0000
-Message-Id: <8522cae2c63bf73f6fd4c544a04830bece981ae5.1616167719.git.asml.silence@gmail.com>
+Subject: [PATCH 16/16] io_uring: optimise io_req_task_work_add()
+Date:   Fri, 19 Mar 2021 17:22:44 +0000
+Message-Id: <23fda3980a56cec26385a81030a6cc9e01c04bf6.1616167719.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <cover.1616167719.git.asml.silence@gmail.com>
 References: <cover.1616167719.git.asml.silence@gmail.com>
@@ -70,81 +70,103 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Inline io_clean_op(), leaving __io_clean_op() but renaming it. This will
-be used in following patches.
+Inline io_task_work_add() into io_req_task_work_add(). They both work
+with a request, so keeping them separate doesn't make things much more
+clear, but merging allows optimise it. Apart from small wins like not
+reading req->ctx or not calculating @notify in the hot path, i.e. with
+tctx->task_state set, it avoids doing wake_up_process() for every single
+add, but only after actually done task_work_add().
 
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
- fs/io_uring.c | 21 +++++++++------------
- 1 file changed, 9 insertions(+), 12 deletions(-)
+ fs/io_uring.c | 50 ++++++++++++++++++--------------------------------
+ 1 file changed, 18 insertions(+), 32 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index e46e4d5c3676..afc08ec2bc6e 100644
+index d7b4cbe2ac3a..3548b2e60ba5 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -1030,7 +1030,7 @@ static void io_queue_linked_timeout(struct io_kiocb *req);
- static int __io_sqe_files_update(struct io_ring_ctx *ctx,
- 				 struct io_uring_rsrc_update *ip,
- 				 unsigned nr_args);
--static void __io_clean_op(struct io_kiocb *req);
-+static void io_clean_op(struct io_kiocb *req);
- static struct file *io_file_get(struct io_submit_state *state,
- 				struct io_kiocb *req, int fd, bool fixed);
- static void __io_queue_sqe(struct io_kiocb *req);
-@@ -1061,12 +1061,6 @@ EXPORT_SYMBOL(io_uring_get_socket);
- #define io_for_each_link(pos, head) \
- 	for (pos = (head); pos; pos = pos->link)
- 
--static inline void io_clean_op(struct io_kiocb *req)
--{
--	if (req->flags & (REQ_F_NEED_CLEANUP | REQ_F_BUFFER_SELECTED))
--		__io_clean_op(req);
--}
--
- static inline void io_set_resource_node(struct io_kiocb *req)
- {
- 	struct io_ring_ctx *ctx = req->ctx;
-@@ -1564,7 +1558,9 @@ static void __io_cqring_fill_event(struct io_kiocb *req, long res,
- 			set_bit(0, &ctx->cq_check_overflow);
- 			ctx->rings->sq_flags |= IORING_SQ_CQ_OVERFLOW;
- 		}
--		io_clean_op(req);
-+		if (req->flags & (REQ_F_NEED_CLEANUP | REQ_F_BUFFER_SELECTED))
-+			io_clean_op(req);
-+
- 		req->result = res;
- 		req->compl.cflags = cflags;
- 		req_ref_get(req);
-@@ -1620,7 +1616,8 @@ static void io_req_complete_post(struct io_kiocb *req, long res,
- static void io_req_complete_state(struct io_kiocb *req, long res,
- 				  unsigned int cflags)
- {
--	io_clean_op(req);
-+	if (req->flags & (REQ_F_NEED_CLEANUP | REQ_F_BUFFER_SELECTED))
-+		io_clean_op(req);
- 	req->result = res;
- 	req->compl.cflags = cflags;
- 	req->flags |= REQ_F_COMPLETE_INLINE;
-@@ -1728,8 +1725,8 @@ static inline void io_put_file(struct io_kiocb *req, struct file *file,
- 
- static void io_dismantle_req(struct io_kiocb *req)
- {
--	io_clean_op(req);
--
-+	if (req->flags & (REQ_F_NEED_CLEANUP | REQ_F_BUFFER_SELECTED))
-+		io_clean_op(req);
- 	if (req->async_data)
- 		kfree(req->async_data);
- 	if (req->file)
-@@ -5927,7 +5924,7 @@ static int io_req_defer(struct io_kiocb *req)
- 	return -EIOCBQUEUED;
+@@ -1931,13 +1931,17 @@ static void tctx_task_work(struct callback_head *cb)
+ 		cond_resched();
  }
  
--static void __io_clean_op(struct io_kiocb *req)
-+static void io_clean_op(struct io_kiocb *req)
+-static int io_task_work_add(struct task_struct *tsk, struct io_kiocb *req,
+-			    enum task_work_notify_mode notify)
++static int io_req_task_work_add(struct io_kiocb *req)
  {
- 	if (req->flags & REQ_F_BUFFER_SELECTED) {
- 		switch (req->opcode) {
++	struct task_struct *tsk = req->task;
+ 	struct io_uring_task *tctx = tsk->io_uring;
++	enum task_work_notify_mode notify;
+ 	struct io_wq_work_node *node, *prev;
+ 	unsigned long flags;
+-	int ret;
++	int ret = 0;
++
++	if (unlikely(tsk->flags & PF_EXITING))
++		return -ESRCH;
+ 
+ 	WARN_ON_ONCE(!tctx);
+ 
+@@ -1950,14 +1954,23 @@ static int io_task_work_add(struct task_struct *tsk, struct io_kiocb *req,
+ 	    test_and_set_bit(0, &tctx->task_state))
+ 		return 0;
+ 
+-	if (!task_work_add(tsk, &tctx->task_work, notify))
++	/*
++	 * SQPOLL kernel thread doesn't need notification, just a wakeup. For
++	 * all other cases, use TWA_SIGNAL unconditionally to ensure we're
++	 * processing task_work. There's no reliable way to tell if TWA_RESUME
++	 * will do the job.
++	 */
++	notify = (req->ctx->flags & IORING_SETUP_SQPOLL) ? TWA_NONE : TWA_SIGNAL;
++
++	if (!task_work_add(tsk, &tctx->task_work, notify)) {
++		wake_up_process(tsk);
+ 		return 0;
++	}
+ 
+ 	/*
+ 	 * Slow path - we failed, find and delete work. if the work is not
+ 	 * in the list, it got run and we're fine.
+ 	 */
+-	ret = 0;
+ 	spin_lock_irqsave(&tctx->task_lock, flags);
+ 	wq_list_for_each(node, prev, &tctx->task_list) {
+ 		if (&req->io_task_work.node == node) {
+@@ -1971,33 +1984,6 @@ static int io_task_work_add(struct task_struct *tsk, struct io_kiocb *req,
+ 	return ret;
+ }
+ 
+-static int io_req_task_work_add(struct io_kiocb *req)
+-{
+-	struct task_struct *tsk = req->task;
+-	struct io_ring_ctx *ctx = req->ctx;
+-	enum task_work_notify_mode notify;
+-	int ret;
+-
+-	if (tsk->flags & PF_EXITING)
+-		return -ESRCH;
+-
+-	/*
+-	 * SQPOLL kernel thread doesn't need notification, just a wakeup. For
+-	 * all other cases, use TWA_SIGNAL unconditionally to ensure we're
+-	 * processing task_work. There's no reliable way to tell if TWA_RESUME
+-	 * will do the job.
+-	 */
+-	notify = TWA_NONE;
+-	if (!(ctx->flags & IORING_SETUP_SQPOLL))
+-		notify = TWA_SIGNAL;
+-
+-	ret = io_task_work_add(tsk, req, notify);
+-	if (!ret)
+-		wake_up_process(tsk);
+-
+-	return ret;
+-}
+-
+ static bool io_run_task_work_head(struct callback_head **work_head)
+ {
+ 	struct callback_head *work, *next;
 -- 
 2.24.0
 

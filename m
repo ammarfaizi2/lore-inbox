@@ -7,60 +7,60 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 24949C433E4
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4B610C433E6
 	for <io-uring@archiver.kernel.org>; Fri, 19 Mar 2021 20:36:09 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 05A406198E
+	by mail.kernel.org (Postfix) with ESMTP id 387EA61982
 	for <io-uring@archiver.kernel.org>; Fri, 19 Mar 2021 20:36:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230393AbhCSUfj (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Fri, 19 Mar 2021 16:35:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49886 "EHLO
+        id S230343AbhCSUfi (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Fri, 19 Mar 2021 16:35:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49874 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230497AbhCSUfa (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Fri, 19 Mar 2021 16:35:30 -0400
-Received: from mail-pl1-x630.google.com (mail-pl1-x630.google.com [IPv6:2607:f8b0:4864:20::630])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A23ACC06175F
-        for <io-uring@vger.kernel.org>; Fri, 19 Mar 2021 13:35:30 -0700 (PDT)
-Received: by mail-pl1-x630.google.com with SMTP id e14so3486633plj.2
-        for <io-uring@vger.kernel.org>; Fri, 19 Mar 2021 13:35:30 -0700 (PDT)
+        with ESMTP id S230490AbhCSUf2 (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Fri, 19 Mar 2021 16:35:28 -0400
+Received: from mail-pj1-x102f.google.com (mail-pj1-x102f.google.com [IPv6:2607:f8b0:4864:20::102f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4629C06175F
+        for <io-uring@vger.kernel.org>; Fri, 19 Mar 2021 13:35:28 -0700 (PDT)
+Received: by mail-pj1-x102f.google.com with SMTP id kr3-20020a17090b4903b02900c096fc01deso5407629pjb.4
+        for <io-uring@vger.kernel.org>; Fri, 19 Mar 2021 13:35:28 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernel-dk.20150623.gappssmtp.com; s=20150623;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=GuWtFlH4kaUCnosyxNfvlWy4RUrboa3jkB3FzN1yqJ4=;
-        b=peUfkFrEawXvqe/YezdxoAklw/g8KBzO8p314QY7t4gh7ttz8OQYmmgumpyVnSOH3S
-         xiw4ZOwqmuED3zw6E/jayGEBtPf27Mmq+FoykjjaPt1hDIVNLGuvJ1RmFkP3VQmwKPjE
-         4IOwAdy8FrjygVdG0yBKkPNYSNrJjEh8wr7jaguRhlzDxHTeCZFr1R2fK3t/1Jm9JpiQ
-         gk7lM+zjS27pd4sMVImXHJnIl3LpeX88kct+P5vU0qx54FApBFTyPQ+Jqv4Vj6/ofD9j
-         cAS2cfvkbe2Com2t2vOGhiZPbz7jV4dNTGez+DEhbJy+mQ1axdzfxujep6cRsuC5Ox2L
-         pzbw==
+        bh=NTfqarHXyHM9Y5Qfs+wFX8dfZ3lLLfGFPc0fdlVJS9g=;
+        b=z7NNKcZSlV8VBrfbhPKJylDGVp0Z7g8ONAnF8Snf84XJkRZz6fSn3H4wyjfQ4RXpio
+         jNuwbLQyfFt/1eNCIGbvaPhiPgjgcmMtLXY9Yt07oWVrbt8d6/g08fnTJzSizz/W9jPx
+         emoICY/wbkpblmg4aZJxIUu4NknAt8KDz0Ran/7XVjBbXl+h+C6bwKGKbRgHLjvbwJRI
+         AYAB3ov6EZx/gSlqw8tytZpFEla2lmBJCcKAGftMsMvkYA/J+IwVFxb253T3FYOaeJBq
+         LBTSNqZOuMGaD4uLmYv15OBBHNNPVrcdrWuuqG5HgHCVqjbk1AIqMZNSRfaW5W8o3D7o
+         /8fg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=GuWtFlH4kaUCnosyxNfvlWy4RUrboa3jkB3FzN1yqJ4=;
-        b=T2T5Hk4eQ94HcBdI3E2LFHEYfw0fm7ubw2yob4sunDaswLhLA42i04Bfo7T9bZYkx1
-         qcBIyPKtEnaO+ACJFA77cXCGDtuqdNMd9Y671rARw3xKkpctTfdwyLkYdh4XJ7KwTlsv
-         pnl4Fw8Kl0NH+ixVgsgeAi2L/AVI9VjWj44lg6tDieRJqNED7xN375VOFxnOyg/ebIlk
-         RWbDnhz3MMidCzi3qDAvD0bf9k1WlcVckT0I/inmISl8a1lRA9p+3D3Fmca+3mZBP6Ja
-         lhwNjAH/dD2xhQxh+MiSY1Cc1fc5vzuB2pc/PD7uu3sVQHt+mr399wiYrOJfisSqhY1C
-         UImg==
-X-Gm-Message-State: AOAM532e14HwSYNXnqbyjCqlmARIks3mFUk5m0fQmkhS2g5xuoKlUIgW
-        CsWXu3/xP7+TsC7JOGvNry1Cxt/+ilzq2g==
-X-Google-Smtp-Source: ABdhPJxwIMWTTc9p4Fq6J2gv76XLvPFZ45CGw+sUHT+EkmRLUVH/x8hHHa3z/D1r5SiDOGpbZm1lpQ==
-X-Received: by 2002:a17:90a:bb8d:: with SMTP id v13mr348549pjr.12.1616186129923;
-        Fri, 19 Mar 2021 13:35:29 -0700 (PDT)
+        bh=NTfqarHXyHM9Y5Qfs+wFX8dfZ3lLLfGFPc0fdlVJS9g=;
+        b=NAykjrFFbigYL88PTSr7hqITnY2j4CpoJVFlfMUjvQoOh4biFPA3DM7qd97W/pgf7r
+         wUH9iV/9+ohwESLQG2JWyGTxM/xLZrqArt136cJfu3w6ogiRNbGDr558KrbDYHV2TP3Y
+         6kwPSVXlY0P3vcY+VAHZEvhXkJeSaGb0ic2tuU58yzBKBU+ZHFZ4fiogCm/AAT+nbQoR
+         8MeRaVONX8YfM7fmiDkpOHYOHXFYUsi2NZCUiQOy2LM7D1JzZHwuVQBZs647PHCHj8ot
+         BBQcuieCr6kAeZDpF85GmVtWauogUGEyfzCNPpysNKIopLtpFOj5DFSh5ZF0scZxPKif
+         h3pQ==
+X-Gm-Message-State: AOAM533H2G7CL4JqK67QqTO5KlRwyr1Qh/08Sr0jtL8CsnHjSfre6WAQ
+        ytwwQ1rja8qTz1HT+SmNa++4MpwIiZrj9Q==
+X-Google-Smtp-Source: ABdhPJy/6gvKstpzjJpF+VBSvnpR0GIgZpqRjqdZ6kB5ZWU6EcTkVoD7juEQ/dnH1zhd1wbGCRLuAg==
+X-Received: by 2002:a17:903:230e:b029:e6:99d4:e136 with SMTP id d14-20020a170903230eb02900e699d4e136mr16001730plh.26.1616186128095;
+        Fri, 19 Mar 2021 13:35:28 -0700 (PDT)
 Received: from localhost.localdomain ([66.219.217.173])
-        by smtp.gmail.com with ESMTPSA id b17sm6253498pfp.136.2021.03.19.13.35.29
+        by smtp.gmail.com with ESMTPSA id b17sm6253498pfp.136.2021.03.19.13.35.27
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 19 Mar 2021 13:35:29 -0700 (PDT)
+        Fri, 19 Mar 2021 13:35:27 -0700 (PDT)
 From:   Jens Axboe <axboe@kernel.dk>
 To:     io-uring@vger.kernel.org
 Cc:     Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 8/8] io_uring: allow events and user_data update of running poll requests
-Date:   Fri, 19 Mar 2021 14:35:16 -0600
-Message-Id: <20210319203516.790984-9-axboe@kernel.dk>
+Subject: [PATCH 6/8] io_uring: terminate multishot poll for CQ ring overflow
+Date:   Fri, 19 Mar 2021 14:35:14 -0600
+Message-Id: <20210319203516.790984-7-axboe@kernel.dk>
 X-Mailer: git-send-email 2.31.0
 In-Reply-To: <20210319203516.790984-1-axboe@kernel.dk>
 References: <20210319203516.790984-1-axboe@kernel.dk>
@@ -70,199 +70,90 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-This adds two new POLL_ADD flags, IORING_POLL_UPDATE_EVENTS and
-IORING_POLL_UPDATE_USER_DATA. As with the other POLL_ADD flag, these are
-masked into sqe->len. If set, the POLL_ADD will have the following
-behavior:
-
-- sqe->addr must contain the the user_data of the poll request that
-  needs to be modified. This field is otherwise invalid for a POLL_ADD
-  command.
-
-- If IORING_POLL_UPDATE_EVENTS is set, sqe->poll_events must contain the
-  new mask for the existing poll request. There are no checks for whether
-  these are identical or not, if a matching poll request is found, then it
-  is re-armed with the new mask.
-
-- If IORING_POLL_UPDATE_USER_DATA is set, sqe->off must contain the new
-  user_data for the existing poll request.
-
-A POLL_ADD with any of these flags set may complete with any of the
-following results:
-
-1) 0, which means that we successfully found the existing poll request
-   specified, and performed the re-arm procedure. Any error from that
-   re-arm will be exposed as a completion event for that original poll
-   request, not for the update request.
-2) -ENOENT, if no existing poll request was found with the given
-   user_data.
-3) -EALREADY, if the existing poll request was already in the process of
-   being removed/canceled/completing.
-4) -EACCES, if an attempt was made to modify an internal poll request
-   (eg not one originally issued ass IORING_OP_POLL_ADD).
-
-The usual -EINVAL cases apply as well, if any invalid fields are set
-in the sqe for this command type.
+If we hit overflow and fail to allocate an overflow entry for the
+completion, terminate the multishot poll mode.
 
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 ---
- fs/io_uring.c                 | 90 ++++++++++++++++++++++++++++++++---
- include/uapi/linux/io_uring.h |  5 ++
- 2 files changed, 89 insertions(+), 6 deletions(-)
+ fs/io_uring.c | 20 ++++++++++++--------
+ 1 file changed, 12 insertions(+), 8 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 55a7674eb3b6..10b67041ca30 100644
+index 53378003bd3b..103daef0db34 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -488,7 +488,15 @@ struct io_poll_iocb {
- 	__poll_t			events;
- 	bool				done;
- 	bool				canceled;
--	struct wait_queue_entry		wait;
-+	bool				update_events;
-+	bool				update_user_data;
-+	union {
-+		struct wait_queue_entry	wait;
-+		struct {
-+			u64		old_user_data;
-+			u64		new_user_data;
-+		};
-+	};
- };
+@@ -1044,6 +1044,7 @@ static void io_rsrc_put_work(struct work_struct *work);
+ static void io_req_task_queue(struct io_kiocb *req);
+ static void io_submit_flush_completions(struct io_comp_state *cs,
+ 					struct io_ring_ctx *ctx);
++static bool io_poll_remove_waitqs(struct io_kiocb *req);
+ static int io_req_prep_async(struct io_kiocb *req);
  
- struct io_poll_remove {
-@@ -4990,6 +4998,7 @@ static void io_init_poll_iocb(struct io_poll_iocb *poll, __poll_t events,
- 	poll->head = NULL;
- 	poll->done = false;
- 	poll->canceled = false;
-+	poll->update_events = poll->update_user_data = false;
- #define IO_POLL_UNMASK	(EPOLLERR|EPOLLHUP|EPOLLNVAL|EPOLLRDHUP)
- 	/* mask in events that we always want/need */
- 	poll->events = events | IO_POLL_UNMASK;
-@@ -5368,24 +5377,36 @@ static int io_poll_add_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe
- 
- 	if (unlikely(req->ctx->flags & IORING_SETUP_IOPOLL))
- 		return -EINVAL;
--	if (sqe->addr || sqe->ioprio || sqe->off || sqe->buf_index)
-+	if (sqe->ioprio || sqe->buf_index)
- 		return -EINVAL;
- 	flags = READ_ONCE(sqe->len);
--	if (flags & ~IORING_POLL_ADD_MULTI)
-+	if (flags & ~(IORING_POLL_ADD_MULTI | IORING_POLL_UPDATE_EVENTS |
-+			IORING_POLL_UPDATE_USER_DATA))
- 		return -EINVAL;
--
- 	events = READ_ONCE(sqe->poll32_events);
- #ifdef __BIG_ENDIAN
- 	events = swahw32(events);
- #endif
--	if (!flags)
-+	if (!(flags & IORING_POLL_ADD_MULTI))
- 		events |= EPOLLONESHOT;
-+	poll->update_events = poll->update_user_data = false;
-+	if (flags & IORING_POLL_UPDATE_EVENTS) {
-+		poll->update_events = true;
-+		poll->old_user_data = READ_ONCE(sqe->addr);
-+	}
-+	if (flags & IORING_POLL_UPDATE_USER_DATA) {
-+		poll->update_user_data = true;
-+		poll->new_user_data = READ_ONCE(sqe->off);
-+	}
-+	if (!(poll->update_events || poll->update_user_data) &&
-+	     (sqe->off || sqe->addr))
-+		return -EINVAL;
- 	poll->events = demangle_poll(events) |
- 				(events & (EPOLLEXCLUSIVE|EPOLLONESHOT));
- 	return 0;
+ static struct kmem_cache *req_cachep;
+@@ -1513,7 +1514,7 @@ static inline void req_ref_get(struct io_kiocb *req)
+ 	atomic_inc(&req->refs);
  }
  
--static int io_poll_add(struct io_kiocb *req, unsigned int issue_flags)
-+static int __io_poll_add(struct io_kiocb *req)
+-static void __io_cqring_fill_event(struct io_kiocb *req, long res,
++static bool __io_cqring_fill_event(struct io_kiocb *req, long res,
+ 				   unsigned int cflags)
  {
- 	struct io_poll_iocb *poll = &req->poll;
  	struct io_ring_ctx *ctx = req->ctx;
-@@ -5411,6 +5432,63 @@ static int io_poll_add(struct io_kiocb *req, unsigned int issue_flags)
- 	return ipt.error;
+@@ -1531,7 +1532,7 @@ static void __io_cqring_fill_event(struct io_kiocb *req, long res,
+ 		WRITE_ONCE(cqe->user_data, req->user_data);
+ 		WRITE_ONCE(cqe->res, res);
+ 		WRITE_ONCE(cqe->flags, cflags);
+-		return;
++		return true;
+ 	}
+ 	if (!ctx->cq_overflow_flushed &&
+ 	    !atomic_read(&req->task->io_uring->in_idle)) {
+@@ -1549,7 +1550,7 @@ static void __io_cqring_fill_event(struct io_kiocb *req, long res,
+ 		ocqe->cqe.res = res;
+ 		ocqe->cqe.flags = cflags;
+ 		list_add_tail(&ocqe->list, &ctx->cq_overflow_list);
+-		return;
++		return true;
+ 	}
+ overflow:
+ 	/*
+@@ -1558,6 +1559,7 @@ static void __io_cqring_fill_event(struct io_kiocb *req, long res,
+ 	 * on the floor.
+ 	 */
+ 	WRITE_ONCE(ctx->rings->cq_overflow, ++ctx->cached_cq_overflow);
++	return false;
  }
  
-+static int io_poll_update(struct io_kiocb *req)
-+{
-+	struct io_ring_ctx *ctx = req->ctx;
-+	struct io_kiocb *preq;
-+	int ret;
-+
-+	spin_lock_irq(&ctx->completion_lock);
-+	preq = io_poll_find(ctx, req->poll.old_user_data);
-+	if (!preq) {
-+		ret = -ENOENT;
-+		goto err;
-+	} else if (preq->opcode != IORING_OP_POLL_ADD) {
-+		/* don't allow internal poll updates */
-+		ret = -EACCES;
-+		goto err;
-+	}
-+	if (!__io_poll_remove_one(preq, &preq->poll)) {
-+		/* in process of completing/removal */
-+		ret = -EALREADY;
-+		goto err;
-+	}
-+	/* we now have a detached poll request. reissue. */
-+	ret = 0;
-+err:
-+	spin_unlock_irq(&ctx->completion_lock);
-+	if (ret < 0) {
-+		req_set_fail_links(req);
-+		io_req_complete(req, ret);
-+		return 0;
-+	}
-+	/* only mask one event flags, keep behavior flags */
-+	if (req->poll.update_events) {
-+		preq->poll.events &= ~0xffff;
-+		preq->poll.events |= req->poll.events & 0xffff;
-+		preq->poll.events |= IO_POLL_UNMASK;
-+	}
-+	if (req->poll.update_user_data)
-+		preq->user_data = req->poll.new_user_data;
-+
-+	/* complete update request, we're done with it */
-+	io_req_complete(req, ret);
-+
-+	ret = __io_poll_add(preq);
-+	if (ret < 0) {
-+		req_set_fail_links(preq);
-+		io_req_complete(preq, ret);
-+	}
-+	return 0;
-+}
-+
-+static int io_poll_add(struct io_kiocb *req, unsigned int issue_flags)
-+{
-+	if (!req->poll.update_events && !req->poll.update_user_data)
-+		return __io_poll_add(req);
-+	return io_poll_update(req);
-+}
-+
- static enum hrtimer_restart io_timeout_fn(struct hrtimer *timer)
+ static void io_cqring_fill_event(struct io_kiocb *req, long res)
+@@ -4905,14 +4907,14 @@ static bool io_poll_complete(struct io_kiocb *req, __poll_t mask, int error)
+ 		error = -ECANCELED;
+ 		req->poll.events |= EPOLLONESHOT;
+ 	}
+-	if (error || (req->poll.events & EPOLLONESHOT)) {
+-		io_poll_remove_double(req);
++	if (!error)
++		error = mangle_poll(mask);
++	if (!__io_cqring_fill_event(req, error, flags) ||
++	    (req->poll.events & EPOLLONESHOT)) {
++		io_poll_remove_waitqs(req);
+ 		req->poll.done = true;
+ 		flags = 0;
+ 	}
+-	if (!error)
+-		error = mangle_poll(mask);
+-	__io_cqring_fill_event(req, error, flags);
+ 	io_commit_cqring(ctx);
+ 	return !(flags & IORING_CQE_F_MORE);
+ }
+@@ -5203,6 +5205,8 @@ static bool __io_poll_remove_one(struct io_kiocb *req,
  {
- 	struct io_timeout_data *data = container_of(timer,
-diff --git a/include/uapi/linux/io_uring.h b/include/uapi/linux/io_uring.h
-index 76c967621601..5beaa6bbc6db 100644
---- a/include/uapi/linux/io_uring.h
-+++ b/include/uapi/linux/io_uring.h
-@@ -166,8 +166,13 @@ enum {
-  * IORING_POLL_ADD_MULTI	Multishot poll. Sets IORING_CQE_F_MORE if
-  *				the poll handler will continue to report
-  *				CQEs on behalf of the same SQE.
-+ *
-+ * IORING_POLL_UPDATE		Update existing poll request, matching
-+ *				sqe->addr as the old user_data field.
-  */
- #define IORING_POLL_ADD_MULTI	(1U << 0)
-+#define IORING_POLL_UPDATE_EVENTS	(1U << 1)
-+#define IORING_POLL_UPDATE_USER_DATA	(1U << 2)
+ 	bool do_complete = false;
  
- /*
-  * IO completion data structure (Completion Queue Entry)
++	if (!poll->head)
++		return false;
+ 	spin_lock(&poll->head->lock);
+ 	WRITE_ONCE(poll->canceled, true);
+ 	if (!list_empty(&poll->wait.entry)) {
 -- 
 2.31.0
 

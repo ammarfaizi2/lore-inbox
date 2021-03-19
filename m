@@ -2,158 +2,145 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-20.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,INCLUDES_PULL_REQUEST,
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4B610C433E6
-	for <io-uring@archiver.kernel.org>; Fri, 19 Mar 2021 20:36:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 507B1C433C1
+	for <io-uring@archiver.kernel.org>; Fri, 19 Mar 2021 22:31:53 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 387EA61982
-	for <io-uring@archiver.kernel.org>; Fri, 19 Mar 2021 20:36:09 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1C79161978
+	for <io-uring@archiver.kernel.org>; Fri, 19 Mar 2021 22:31:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230343AbhCSUfi (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Fri, 19 Mar 2021 16:35:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49874 "EHLO
+        id S230092AbhCSWbP (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Fri, 19 Mar 2021 18:31:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46580 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230490AbhCSUf2 (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Fri, 19 Mar 2021 16:35:28 -0400
-Received: from mail-pj1-x102f.google.com (mail-pj1-x102f.google.com [IPv6:2607:f8b0:4864:20::102f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4629C06175F
-        for <io-uring@vger.kernel.org>; Fri, 19 Mar 2021 13:35:28 -0700 (PDT)
-Received: by mail-pj1-x102f.google.com with SMTP id kr3-20020a17090b4903b02900c096fc01deso5407629pjb.4
-        for <io-uring@vger.kernel.org>; Fri, 19 Mar 2021 13:35:28 -0700 (PDT)
+        with ESMTP id S230370AbhCSWa6 (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Fri, 19 Mar 2021 18:30:58 -0400
+Received: from mail-pl1-x62e.google.com (mail-pl1-x62e.google.com [IPv6:2607:f8b0:4864:20::62e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1671EC061760
+        for <io-uring@vger.kernel.org>; Fri, 19 Mar 2021 15:30:58 -0700 (PDT)
+Received: by mail-pl1-x62e.google.com with SMTP id l1so3598825plg.12
+        for <io-uring@vger.kernel.org>; Fri, 19 Mar 2021 15:30:58 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=NTfqarHXyHM9Y5Qfs+wFX8dfZ3lLLfGFPc0fdlVJS9g=;
-        b=z7NNKcZSlV8VBrfbhPKJylDGVp0Z7g8ONAnF8Snf84XJkRZz6fSn3H4wyjfQ4RXpio
-         jNuwbLQyfFt/1eNCIGbvaPhiPgjgcmMtLXY9Yt07oWVrbt8d6/g08fnTJzSizz/W9jPx
-         emoICY/wbkpblmg4aZJxIUu4NknAt8KDz0Ran/7XVjBbXl+h+C6bwKGKbRgHLjvbwJRI
-         AYAB3ov6EZx/gSlqw8tytZpFEla2lmBJCcKAGftMsMvkYA/J+IwVFxb253T3FYOaeJBq
-         LBTSNqZOuMGaD4uLmYv15OBBHNNPVrcdrWuuqG5HgHCVqjbk1AIqMZNSRfaW5W8o3D7o
-         /8fg==
+        h=to:cc:from:subject:message-id:date:user-agent:mime-version
+         :content-language:content-transfer-encoding;
+        bh=gI854csR2HsdbU3pYgaTZFQa3T6Y1McW3DZPrkKPPaU=;
+        b=qZpjbZc+Un4Pos9oDpfUC3Q2mnsZYQVrUL4fqCjixWnm0IOn4VDemZMeRm4CAeHxIy
+         Xzb8uTbODQGhTWOxTtFWuz8/zB+8KwatKi0H9PAkxcnL0wq2wf/h17tKLHObdZN5rRMC
+         oy8TpZ1UonBv1FDEZVeiwoONvqlCvirubnHa75kOuv51BTZ9//YNFkuEwTNEFsLvBDTT
+         XcvlklfqgsTTo/CjIdqEKyzeTPUwm6Tzqu8JpnYM67H1YSvB3da3y3Fkivkml5HQo7Jk
+         J2dsS2RT7FY4kv7lLksYftVX1gJW8+r5hSP1Y9SiSzHvHHvO5nWTpkx/flbcQe0g5Xdm
+         Sz7g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=NTfqarHXyHM9Y5Qfs+wFX8dfZ3lLLfGFPc0fdlVJS9g=;
-        b=NAykjrFFbigYL88PTSr7hqITnY2j4CpoJVFlfMUjvQoOh4biFPA3DM7qd97W/pgf7r
-         wUH9iV/9+ohwESLQG2JWyGTxM/xLZrqArt136cJfu3w6ogiRNbGDr558KrbDYHV2TP3Y
-         6kwPSVXlY0P3vcY+VAHZEvhXkJeSaGb0ic2tuU58yzBKBU+ZHFZ4fiogCm/AAT+nbQoR
-         8MeRaVONX8YfM7fmiDkpOHYOHXFYUsi2NZCUiQOy2LM7D1JzZHwuVQBZs647PHCHj8ot
-         BBQcuieCr6kAeZDpF85GmVtWauogUGEyfzCNPpysNKIopLtpFOj5DFSh5ZF0scZxPKif
-         h3pQ==
-X-Gm-Message-State: AOAM533H2G7CL4JqK67QqTO5KlRwyr1Qh/08Sr0jtL8CsnHjSfre6WAQ
-        ytwwQ1rja8qTz1HT+SmNa++4MpwIiZrj9Q==
-X-Google-Smtp-Source: ABdhPJy/6gvKstpzjJpF+VBSvnpR0GIgZpqRjqdZ6kB5ZWU6EcTkVoD7juEQ/dnH1zhd1wbGCRLuAg==
-X-Received: by 2002:a17:903:230e:b029:e6:99d4:e136 with SMTP id d14-20020a170903230eb02900e699d4e136mr16001730plh.26.1616186128095;
-        Fri, 19 Mar 2021 13:35:28 -0700 (PDT)
-Received: from localhost.localdomain ([66.219.217.173])
-        by smtp.gmail.com with ESMTPSA id b17sm6253498pfp.136.2021.03.19.13.35.27
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 19 Mar 2021 13:35:27 -0700 (PDT)
+        h=x-gm-message-state:to:cc:from:subject:message-id:date:user-agent
+         :mime-version:content-language:content-transfer-encoding;
+        bh=gI854csR2HsdbU3pYgaTZFQa3T6Y1McW3DZPrkKPPaU=;
+        b=mIP74+T5+n/+J/AyJgooMMkVgAYhsi/HgCdieQztBKZaWvdn27wF79JBv3QwoU1oTT
+         Q9qR3zCj2KpFnRjN+wQKuFx7gjZPAM+JMnlw0i0/4BRhYmfSqJbc0e41f5SCEzcpXkce
+         Qj440h0qzMaIpqbIPnYiVv085WvCwIQXo1x6uiAV9gMJ3gueN64xHemlh62LuBK7x+9j
+         I0/Y+huRhG3CJD2Vit44GZySuwdQI7yfgNYA4ho9fLjvsNBVHlU+OoxLc8DlAqLPT7or
+         8Az6WJyFf1vOs/vsHr6e0PAdYyIXrdrMNrDYyaxoGZ3aFRGAXkiobygU3O1IhthqnDho
+         7/Dg==
+X-Gm-Message-State: AOAM532idlA5z8CSyjZZRHlff6fqFrZvMXBIxW17Eym57DgY6A8IBV9U
+        AVIXa2GwSCY/EEFqqFN0ANGylZOB75CU6A==
+X-Google-Smtp-Source: ABdhPJzjOk/3qTymBt3+rTWARFMjgRSZtXL19ztmKcniWgx6v3ZT/kBz0KAHi/oW9Q0BIIQHEOJE/g==
+X-Received: by 2002:a17:902:b28b:b029:e6:375:69b0 with SMTP id u11-20020a170902b28bb02900e6037569b0mr16590501plr.25.1616193057276;
+        Fri, 19 Mar 2021 15:30:57 -0700 (PDT)
+Received: from [192.168.1.134] ([66.219.217.173])
+        by smtp.gmail.com with ESMTPSA id 8sm6380436pjj.53.2021.03.19.15.30.56
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 19 Mar 2021 15:30:56 -0700 (PDT)
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     io-uring <io-uring@vger.kernel.org>
 From:   Jens Axboe <axboe@kernel.dk>
-To:     io-uring@vger.kernel.org
-Cc:     Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 6/8] io_uring: terminate multishot poll for CQ ring overflow
-Date:   Fri, 19 Mar 2021 14:35:14 -0600
-Message-Id: <20210319203516.790984-7-axboe@kernel.dk>
-X-Mailer: git-send-email 2.31.0
-In-Reply-To: <20210319203516.790984-1-axboe@kernel.dk>
-References: <20210319203516.790984-1-axboe@kernel.dk>
+Subject: [GIT PULL] io_uring fixes for 5.12-rc4
+Message-ID: <24fa8b65-1771-f35e-fcc9-75974a92bea7@kernel.dk>
+Date:   Fri, 19 Mar 2021 16:30:55 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-If we hit overflow and fail to allocate an overflow entry for the
-completion, terminate the multishot poll mode.
+Hi Linus,
 
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
----
- fs/io_uring.c | 20 ++++++++++++--------
- 1 file changed, 12 insertions(+), 8 deletions(-)
+Quieter week this time, which was both expected and desired. About half
+of the below is fixes for this release, the other half are just fixes in
+general. In detail:
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 53378003bd3b..103daef0db34 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -1044,6 +1044,7 @@ static void io_rsrc_put_work(struct work_struct *work);
- static void io_req_task_queue(struct io_kiocb *req);
- static void io_submit_flush_completions(struct io_comp_state *cs,
- 					struct io_ring_ctx *ctx);
-+static bool io_poll_remove_waitqs(struct io_kiocb *req);
- static int io_req_prep_async(struct io_kiocb *req);
- 
- static struct kmem_cache *req_cachep;
-@@ -1513,7 +1514,7 @@ static inline void req_ref_get(struct io_kiocb *req)
- 	atomic_inc(&req->refs);
- }
- 
--static void __io_cqring_fill_event(struct io_kiocb *req, long res,
-+static bool __io_cqring_fill_event(struct io_kiocb *req, long res,
- 				   unsigned int cflags)
- {
- 	struct io_ring_ctx *ctx = req->ctx;
-@@ -1531,7 +1532,7 @@ static void __io_cqring_fill_event(struct io_kiocb *req, long res,
- 		WRITE_ONCE(cqe->user_data, req->user_data);
- 		WRITE_ONCE(cqe->res, res);
- 		WRITE_ONCE(cqe->flags, cflags);
--		return;
-+		return true;
- 	}
- 	if (!ctx->cq_overflow_flushed &&
- 	    !atomic_read(&req->task->io_uring->in_idle)) {
-@@ -1549,7 +1550,7 @@ static void __io_cqring_fill_event(struct io_kiocb *req, long res,
- 		ocqe->cqe.res = res;
- 		ocqe->cqe.flags = cflags;
- 		list_add_tail(&ocqe->list, &ctx->cq_overflow_list);
--		return;
-+		return true;
- 	}
- overflow:
- 	/*
-@@ -1558,6 +1559,7 @@ static void __io_cqring_fill_event(struct io_kiocb *req, long res,
- 	 * on the floor.
- 	 */
- 	WRITE_ONCE(ctx->rings->cq_overflow, ++ctx->cached_cq_overflow);
-+	return false;
- }
- 
- static void io_cqring_fill_event(struct io_kiocb *req, long res)
-@@ -4905,14 +4907,14 @@ static bool io_poll_complete(struct io_kiocb *req, __poll_t mask, int error)
- 		error = -ECANCELED;
- 		req->poll.events |= EPOLLONESHOT;
- 	}
--	if (error || (req->poll.events & EPOLLONESHOT)) {
--		io_poll_remove_double(req);
-+	if (!error)
-+		error = mangle_poll(mask);
-+	if (!__io_cqring_fill_event(req, error, flags) ||
-+	    (req->poll.events & EPOLLONESHOT)) {
-+		io_poll_remove_waitqs(req);
- 		req->poll.done = true;
- 		flags = 0;
- 	}
--	if (!error)
--		error = mangle_poll(mask);
--	__io_cqring_fill_event(req, error, flags);
- 	io_commit_cqring(ctx);
- 	return !(flags & IORING_CQE_F_MORE);
- }
-@@ -5203,6 +5205,8 @@ static bool __io_poll_remove_one(struct io_kiocb *req,
- {
- 	bool do_complete = false;
- 
-+	if (!poll->head)
-+		return false;
- 	spin_lock(&poll->head->lock);
- 	WRITE_ONCE(poll->canceled, true);
- 	if (!list_empty(&poll->wait.entry)) {
+- Fix the freezing of IO threads, by making the freezer not send them
+  fake signals. Make them freezable by default.
+
+- Like we did for personalities, move the buffer IDR to xarray. Kills
+  some code and avoids a use-after-free on teardown.
+
+- SQPOLL cleanups and fixes (Pavel)
+
+- Fix linked timeout race (Pavel)
+
+- Fix potential completion post use-after-free (Pavel)
+
+- Cleanup and move internal structures outside of general kernel view
+  (Stefan)
+
+- Use MSG_SIGNAL for send/recv from io_uring (Stefan)
+
+Please pull!
+
+
+The following changes since commit 58f99373834151e1ca7edc49bc5578d9d40db099:
+
+  io_uring: fix OP_ASYNC_CANCEL across tasks (2021-03-12 09:42:56 -0700)
+
+are available in the Git repository at:
+
+  git://git.kernel.dk/linux-block.git tags/io_uring-5.12-2021-03-19
+
+for you to fetch changes up to de75a3d3f5a14c9ab3c4883de3471d3c92a8ee78:
+
+  io_uring: don't leak creds on SQO attach error (2021-03-18 09:44:35 -0600)
+
+----------------------------------------------------------------
+io_uring-5.12-2021-03-19
+
+----------------------------------------------------------------
+Jens Axboe (3):
+      kernel: freezer should treat PF_IO_WORKER like PF_KTHREAD for freezing
+      io_uring: allow IO worker threads to be frozen
+      io_uring: convert io_buffer_idr to XArray
+
+Pavel Begunkov (8):
+      io_uring: fix ->flags races by linked timeouts
+      io_uring: fix complete_post use ctx after free
+      io_uring: replace sqd rw_semaphore with mutex
+      io_uring: halt SQO submission on ctx exit
+      io_uring: fix concurrent parking
+      io_uring: add generic callback_head helpers
+      io_uring: fix sqpoll cancellation via task_work
+      io_uring: don't leak creds on SQO attach error
+
+Stefan Metzmacher (3):
+      io_uring: imply MSG_NOSIGNAL for send[msg]()/recv[msg]() calls
+      io_uring: remove structures from include/linux/io_uring.h
+      io_uring: use typesafe pointers in io_uring_task
+
+ fs/io-wq.c               |   6 +-
+ fs/io-wq.h               |  10 ++-
+ fs/io_uring.c            | 228 ++++++++++++++++++++++++++---------------------
+ include/linux/io_uring.h |  25 ------
+ kernel/fork.c            |   1 -
+ kernel/freezer.c         |   2 +-
+ 6 files changed, 142 insertions(+), 130 deletions(-)
+
 -- 
-2.31.0
+Jens Axboe
 

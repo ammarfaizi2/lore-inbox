@@ -2,132 +2,89 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
+X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DB599C433E0
-	for <io-uring@archiver.kernel.org>; Sat, 20 Mar 2021 15:39:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 552D4C433DB
+	for <io-uring@archiver.kernel.org>; Sat, 20 Mar 2021 16:20:44 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id AC4746196D
-	for <io-uring@archiver.kernel.org>; Sat, 20 Mar 2021 15:39:24 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2195B61966
+	for <io-uring@archiver.kernel.org>; Sat, 20 Mar 2021 16:20:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229941AbhCTPiv (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sat, 20 Mar 2021 11:38:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39826 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229843AbhCTPik (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Sat, 20 Mar 2021 11:38:40 -0400
-Received: from mail-pj1-x1031.google.com (mail-pj1-x1031.google.com [IPv6:2607:f8b0:4864:20::1031])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 748D5C061762
-        for <io-uring@vger.kernel.org>; Sat, 20 Mar 2021 08:38:40 -0700 (PDT)
-Received: by mail-pj1-x1031.google.com with SMTP id nh23-20020a17090b3657b02900c0d5e235a8so6348790pjb.0
-        for <io-uring@vger.kernel.org>; Sat, 20 Mar 2021 08:38:40 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=t1wyaEbIk1qk0jXhKLmoLck1wU+dWQUF616kERbYpQs=;
-        b=Eb9qXvJiuYFJhsn0CTFvgkOQVuNoyVsIG538Q+8gMLiJ12uX5nJSUWQ2OFIF407UME
-         /KVwPO9MlD2aflU7Kh/H02L5ac5K/OaT/xP0h7ko3o5GRT56BR4ybSOJmYrrvmH9/K3o
-         Mgckj36yYUHcpfx5W9kF8MAQXeQsTkNY4nxwzKk44yA4TL++Mbquciw/RrRUoXuiFxO4
-         uWp+96cfDvFG9bvCKgwQeoG48ZJUePE0G1Z0KIWjpPRsdMjM/P9Jq9FDzxmeXF7wmUeg
-         tbPQh2FLBUUy+Dkfp1ZrOBxDNt3/yPWT/haq82NM7DtbFw+fS6arRXgtwfpViTjehJVz
-         fK9g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=t1wyaEbIk1qk0jXhKLmoLck1wU+dWQUF616kERbYpQs=;
-        b=Sw1qLAZm+pSwkSFc6VoxLtmYcJeyUTKbSfo9whhjedW6NxATYyijS2Hcv44kznPLwd
-         ze/W86erD+Y+EHpkEe3Co7fSpYyKR2cqwAkl2DrRi7S46p7uOWPOiTmdywR2OEy2M0EB
-         sd+zB9a/NtOkz6rdoQM1Lusy5EnogWeuTMnGrBpC8YBLY53or/tBK+KUHy/kxmT0hg8+
-         dBobcsBS+UVP1kKb8fntmY1P4xMWh6NRVATa7MJ6/uNGwqgOFk3Tkx0nzLEKyv+eI6ae
-         lPwjznyY/gWu8lMfbt0diNifHM/awWK1vtb3tEdIabigmInc7V05yS0mb+CTAYcafycU
-         X2JA==
-X-Gm-Message-State: AOAM5313zcDIdssk44SJiE+ff3TufLmbE8H2ZMXiNiFDSJt8g044YpM+
-        5mMrGof0mchPkPKwIoqilm5aXxyhaAZVRw==
-X-Google-Smtp-Source: ABdhPJw3yAkRnonh4M7gT2S3CvQnqFk9tfVHpJ6jpCxpSgAsRyUL5S5j960lxdLtr05B62T2NOqntQ==
-X-Received: by 2002:a17:90a:7061:: with SMTP id f88mr4165196pjk.56.1616254719515;
-        Sat, 20 Mar 2021 08:38:39 -0700 (PDT)
-Received: from localhost.localdomain ([66.219.217.173])
-        by smtp.gmail.com with ESMTPSA id 2sm8658753pfi.116.2021.03.20.08.38.38
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 20 Mar 2021 08:38:38 -0700 (PDT)
-From:   Jens Axboe <axboe@kernel.dk>
-To:     io-uring@vger.kernel.org
-Cc:     torvalds@linux-foundation.org, ebiederm@xmission.com,
-        linux-kernel@vger.kernel.org, oleg@redhat.com
-Subject: [PATCHSET 0/2] PF_IO_WORKER signal tweaks
-Date:   Sat, 20 Mar 2021 09:38:30 -0600
-Message-Id: <20210320153832.1033687-1-axboe@kernel.dk>
-X-Mailer: git-send-email 2.31.0
+        id S229756AbhCTQUK (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sat, 20 Mar 2021 12:20:10 -0400
+Received: from out02.mta.xmission.com ([166.70.13.232]:34810 "EHLO
+        out02.mta.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229894AbhCTQTi (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Sat, 20 Mar 2021 12:19:38 -0400
+Received: from in01.mta.xmission.com ([166.70.13.51])
+        by out02.mta.xmission.com with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+        (Exim 4.93)
+        (envelope-from <ebiederm@xmission.com>)
+        id 1lNeK7-00FJur-86; Sat, 20 Mar 2021 10:19:35 -0600
+Received: from ip68-227-160-95.om.om.cox.net ([68.227.160.95] helo=fess.xmission.com)
+        by in01.mta.xmission.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.87)
+        (envelope-from <ebiederm@xmission.com>)
+        id 1lNeK4-0002L4-Py; Sat, 20 Mar 2021 10:19:34 -0600
+From:   ebiederm@xmission.com (Eric W. Biederman)
+To:     Jens Axboe <axboe@kernel.dk>
+Cc:     io-uring@vger.kernel.org, torvalds@linux-foundation.org,
+        linux-kernel@vger.kernel.org, oleg@redhat.com,
+        Stefan Metzmacher <metze@samba.org>
+References: <20210320153832.1033687-1-axboe@kernel.dk>
+        <20210320153832.1033687-2-axboe@kernel.dk>
+Date:   Sat, 20 Mar 2021 11:18:29 -0500
+In-Reply-To: <20210320153832.1033687-2-axboe@kernel.dk> (Jens Axboe's message
+        of "Sat, 20 Mar 2021 09:38:31 -0600")
+Message-ID: <m1eeg9bxyi.fsf@fess.ebiederm.org>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/26.1 (gnu/linux)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-XM-SPF: eid=1lNeK4-0002L4-Py;;;mid=<m1eeg9bxyi.fsf@fess.ebiederm.org>;;;hst=in01.mta.xmission.com;;;ip=68.227.160.95;;;frm=ebiederm@xmission.com;;;spf=neutral
+X-XM-AID: U2FsdGVkX18CIZY+/GAkzRU0WK1K+zdRzn1Dnv8x+DQ=
+X-SA-Exim-Connect-IP: 68.227.160.95
+X-SA-Exim-Mail-From: ebiederm@xmission.com
+Subject: Re: [PATCH 1/2] signal: don't allow sending any signals to PF_IO_WORKER threads
+X-SA-Exim-Version: 4.2.1 (built Thu, 05 May 2016 13:38:54 -0600)
+X-SA-Exim-Scanned: Yes (on in01.mta.xmission.com)
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Hi,
+Jens Axboe <axboe@kernel.dk> writes:
 
-Been trying to ensure that we do the right thing wrt signals and
-PF_IO_WORKER threads, and I think there are two cases we need to handle
-explicitly:
+> They don't take signals individually, and even if they share signals with
+> the parent task, don't allow them to be delivered through the worker
+> thread.
 
-1) Just don't allow signals to them in general. We do mask everything
-   as blocked, outside of SIGKILL, so things like wants_signal() will
-   never return true for them. But it's still possible to send them a
-   signal via (ultimately) group_send_sig_info(). This will then deliver
-   the signal to the original io_uring owning task, and that seems a bit
-   unexpected. So just don't allow them in general.
+This is silly I know, but why do we care?
 
-2) STOP is done a bit differently, and we should not allow that either.
+The creds should be reasonably in-sync with the rest of the threads.
 
-Outside of that, I've been looking at same_thread_group(). This will
-currently return true for an io_uring task and it's IO workers, since
-they do share ->signal. From looking at the kernel users of this, that
-actually seems OK for the cases I checked. One is accounting related,
-which we obviously want, and others are related to permissions between
-tasks. FWIW, I ran with the below and didn't observe any ill effects,
-but I'd like someone to actually think about and verify that PF_IO_WORKER
-same_thread_group() usage is sane.
+There are other threads that will receive the signal, especially when
+you worry about group_send_sig_info.  Which signal sending code paths
+are actually a problem.
 
-diff --git a/include/linux/sched/signal.h b/include/linux/sched/signal.h
-index 3f6a0fcaa10c..a580bc0f8aa3 100644
---- a/include/linux/sched/signal.h
-+++ b/include/linux/sched/signal.h
-@@ -667,10 +667,17 @@ static inline bool thread_group_leader(struct task_struct *p)
- 	return p->exit_signal >= 0;
- }
- 
-+static inline
-+bool same_thread_group_account(struct task_struct *p1, struct task_struct *p2)
-+{
-+	return p1->signal == p2->signal
-+}
-+
- static inline
- bool same_thread_group(struct task_struct *p1, struct task_struct *p2)
- {
--	return p1->signal == p2->signal;
-+	return same_thread_group_account(p1, p2) &&
-+			!((p1->flags | p2->flags) & PF_IO_WORKER);
- }
- 
- static inline struct task_struct *next_thread(const struct task_struct *p)
-diff --git a/kernel/sched/cputime.c b/kernel/sched/cputime.c
-index 5f611658eeab..625110cacc2a 100644
---- a/kernel/sched/cputime.c
-+++ b/kernel/sched/cputime.c
-@@ -307,7 +307,7 @@ void thread_group_cputime(struct task_struct *tsk, struct task_cputime *times)
- 	 * those pending times and rely only on values updated on tick or
- 	 * other scheduler action.
- 	 */
--	if (same_thread_group(current, tsk))
-+	if (same_thread_group_account(current, tsk))
- 		(void) task_sched_runtime(current);
- 
- 	rcu_read_lock();
-
-
+> Reported-by: Stefan Metzmacher <metze@samba.org>
+> Signed-off-by: Jens Axboe <axboe@kernel.dk>
+> ---
+>  kernel/signal.c | 3 +++
+>  1 file changed, 3 insertions(+)
+>
+> diff --git a/kernel/signal.c b/kernel/signal.c
+> index ba4d1ef39a9e..730ecd3d6faf 100644
+> --- a/kernel/signal.c
+> +++ b/kernel/signal.c
+> @@ -833,6 +833,9 @@ static int check_kill_permission(int sig, struct kernel_siginfo *info,
+>  
+>  	if (!valid_signal(sig))
+>  		return -EINVAL;
+> +	/* PF_IO_WORKER threads don't take any signals */
+> +	if (t->flags & PF_IO_WORKER)
+> +		return -EPERM;
+>  
+>  	if (!si_fromuser(info))
+>  		return 0;

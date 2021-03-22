@@ -8,59 +8,59 @@ X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B7906C433C1
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2C5C4C433E1
 	for <io-uring@archiver.kernel.org>; Mon, 22 Mar 2021 02:03:48 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 890AB61947
+	by mail.kernel.org (Postfix) with ESMTP id 0676561944
 	for <io-uring@archiver.kernel.org>; Mon, 22 Mar 2021 02:03:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229874AbhCVCDS (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sun, 21 Mar 2021 22:03:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58026 "EHLO
+        id S229901AbhCVCDP (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sun, 21 Mar 2021 22:03:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58014 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229865AbhCVCCr (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Sun, 21 Mar 2021 22:02:47 -0400
-Received: from mail-wm1-x332.google.com (mail-wm1-x332.google.com [IPv6:2a00:1450:4864:20::332])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF7BCC061574
-        for <io-uring@vger.kernel.org>; Sun, 21 Mar 2021 19:02:46 -0700 (PDT)
-Received: by mail-wm1-x332.google.com with SMTP id t5-20020a1c77050000b029010e62cea9deso8379427wmi.0
-        for <io-uring@vger.kernel.org>; Sun, 21 Mar 2021 19:02:46 -0700 (PDT)
+        with ESMTP id S229692AbhCVCCp (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Sun, 21 Mar 2021 22:02:45 -0400
+Received: from mail-wr1-x42c.google.com (mail-wr1-x42c.google.com [IPv6:2a00:1450:4864:20::42c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B811C061756
+        for <io-uring@vger.kernel.org>; Sun, 21 Mar 2021 19:02:45 -0700 (PDT)
+Received: by mail-wr1-x42c.google.com with SMTP id j18so15011892wra.2
+        for <io-uring@vger.kernel.org>; Sun, 21 Mar 2021 19:02:45 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=DNTpkA3Ww5fUFv7EFo7fVpqh3mJX5dvLugKI9OWjBZw=;
-        b=Yv7HzXt+iIwQs+NqNgwSm81k9cUm9UbLN+11oU2ntSxuzzFd2RJVA9od/+XqBZYNgr
-         x+g356RZK0clJHGikDZRTiyrgNxA5caRigXaSNKkdS55wPPKOZoJIQ7MY9UAGetlV9cW
-         ECy5vvvX0+Vw0OIcLehImJ3nhOwT4QtS8JF6LHhJyROPQh148LroVBF2jldyLTY9S9cU
-         pqijVfPIT9igdCLsbrKxuJsYxjvAPkr8lMPTxGURubBqTho75egvnrInxXuz1CZuagi2
-         lPZjvk8kuSh2+2Um/AHqb/uAVvxQcj2Vw7cOdTSbR7b1DwnAu4T6VeUqk2lv931oTbh7
-         zddQ==
+        bh=IFgwJUXv5Si+NCG7DDhZmROrk7E7s0vE/gfft1pH9oo=;
+        b=vXKAixzxYpYogkNLI2UFDDtZF7LTYizglU5saK4Kwj71iMGJDjRN09tdoolCUYm3UU
+         FEeRoSpSf6Pdazf405ejn2s5SQ4zC+mpZIH78Um6nppM5hkTyBs9pLN9Hyzi8djuRlBm
+         VXmfI4GoGvof0swGEnI0RGn2Mq6yqyOJXhVzmnf5CPLn77uRpufeHMRd24UkYFdcHlxQ
+         30YcqwyhQum2vldKdn+HkXJ1K0939whCQ9DRPbV53WUv9Nyc1sV5mnGdq/nMzWzBLtRN
+         I3Hmsz2cUSR6fqqe+Tvf9I2cG8bRDostS1krR042QJEXDdTZt3oc+ONToJ6KMlj1Dg2B
+         Z1HA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=DNTpkA3Ww5fUFv7EFo7fVpqh3mJX5dvLugKI9OWjBZw=;
-        b=RhSyPCOQA4Cp/aegRO1vYrBZD9sXcThI2QCdOneNjB6Ou+J53VjDX82TYUfO0amTNw
-         qTL9bxSbWEHrOiET6JWrSK/Ba4xz9tDSTD2pTO1iaPsxCOwP5Nll9ryX62KkkK2ISeWX
-         HyZ4RIc3l1gtUI/jpugo3vgmLHwG5+3ucSqx7RPLmnvPkPKlt9yxMpOFZCIgdUbyaV2l
-         oDR3f2Hh64SO5pRD4ln7LU/83nx1rzjKT9lLKwCekl8ZyYBBuvYF2g5mBPpGRBALFZ6a
-         zWZbS2Dd0gnTuzZ5we3hNiSkeKG58HM5NvkjkHl+/uy1GidSq6uGlRVX4txGSm4SdlDc
-         gEgw==
-X-Gm-Message-State: AOAM532c/i8e+DMYP9gtPX2w2TyEzYBVyXovhw72NoQ2WNzq3FM25rQY
-        jG7Y+//Q/xNpMWRN6YXyN12dqLkzYw+HAQ==
-X-Google-Smtp-Source: ABdhPJzfcwHA73tECjeYUXM7lblzVMvgTPmECrrZ1IBdL9ST6vy+qO8JTRoWIrsx/cUmP7sF5ErWQA==
-X-Received: by 2002:a1c:9a47:: with SMTP id c68mr13545715wme.63.1616378565705;
-        Sun, 21 Mar 2021 19:02:45 -0700 (PDT)
+        bh=IFgwJUXv5Si+NCG7DDhZmROrk7E7s0vE/gfft1pH9oo=;
+        b=QTERmBKDLEWUuyK10mEZZ/Prdj2t+UespqqHS1i+lyOCtgAzbHmVO2beJrDB8LQ9gZ
+         YUGL0XF4BN73s38u06h5fF7G8LobVsiBs5vdxz2lX7ww7pJxtnSPbOhnSk2esFDgPUyf
+         Mr4icySTXc4p/XAh2y7f7PfRUbgoTTGDR33oFpek1jjhKRAb+tXy+1vT3O/dLE2KmYJh
+         Ikv8Wns3UAO0JQzq9UPfhkrMptQ08dKnZEaJeboMfjzhspl1qsfl2hPTfUxr5SZGVFuu
+         HNURPRdIwVzK5AXS5IU3LjTz1P7jDrwgEFyqtloEn9m4e52+jjCiZxCJfVGSxW5WRLo2
+         5pvA==
+X-Gm-Message-State: AOAM530FZORYt38Yt2Jmlrpo6BPk7gr/1BwSXmgAflAKbgn7yZUHsgks
+        ongjMUS2lnZBM9NBgIYM5hnj9KzWOD0AOg==
+X-Google-Smtp-Source: ABdhPJxz94X/tb+v0oYzS4gYYWuXmqtEDtisaYVYVy2/UXrYQqKgHe2UL5rGv2KJM89PQynlvES/mQ==
+X-Received: by 2002:adf:fbcc:: with SMTP id d12mr15543726wrs.151.1616378564088;
+        Sun, 21 Mar 2021 19:02:44 -0700 (PDT)
 Received: from localhost.localdomain ([85.255.234.202])
-        by smtp.gmail.com with ESMTPSA id i8sm15066695wmi.6.2021.03.21.19.02.45
+        by smtp.gmail.com with ESMTPSA id i8sm15066695wmi.6.2021.03.21.19.02.43
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 21 Mar 2021 19:02:45 -0700 (PDT)
+        Sun, 21 Mar 2021 19:02:43 -0700 (PDT)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH 04/11] io_uring: remove tctx->sqpoll
-Date:   Mon, 22 Mar 2021 01:58:27 +0000
-Message-Id: <a4aba990c9fd73b18a107ef363aad7590d54d533.1616378197.git.asml.silence@gmail.com>
+Subject: [PATCH 02/11] io_uring: don't do extra EXITING cancellations
+Date:   Mon, 22 Mar 2021 01:58:25 +0000
+Message-Id: <f2aba1075b5b23be428f8e7e2f6dc529a5667783.1616378197.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <cover.1616378197.git.asml.silence@gmail.com>
 References: <cover.1616378197.git.asml.silence@gmail.com>
@@ -70,25 +70,34 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-struct io_uring_task::sqpoll is not used anymore, kill it
+io_match_task() matches all requests with PF_EXITING task, even though
+those may be valid requests. It was necessary for SQPOLL cancellation,
+but now it kills all requests before exiting via
+io_uring_cancel_sqpoll(), so it's not needed.
 
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
- fs/io_uring.c | 1 -
- 1 file changed, 1 deletion(-)
+ fs/io_uring.c | 6 +-----
+ 1 file changed, 1 insertion(+), 5 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 45b49273df8b..ff238dc503db 100644
+index 5cba23347092..080fac4d4543 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -465,7 +465,6 @@ struct io_uring_task {
- 	struct io_wq		*io_wq;
- 	struct percpu_counter	inflight;
- 	atomic_t		in_idle;
--	bool			sqpoll;
+@@ -1077,12 +1077,8 @@ static bool io_match_task(struct io_kiocb *head,
+ {
+ 	struct io_kiocb *req;
  
- 	spinlock_t		task_lock;
- 	struct io_wq_work_list	task_list;
+-	if (task && head->task != task) {
+-		/* in terms of cancelation, always match if req task is dead */
+-		if (head->task->flags & PF_EXITING)
+-			return true;
++	if (task && head->task != task)
+ 		return false;
+-	}
+ 	if (!files)
+ 		return true;
+ 
 -- 
 2.24.0
 

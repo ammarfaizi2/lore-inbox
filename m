@@ -8,59 +8,59 @@ X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2C5C4C433E1
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BFFE0C433E4
 	for <io-uring@archiver.kernel.org>; Mon, 22 Mar 2021 02:03:48 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0676561944
+	by mail.kernel.org (Postfix) with ESMTP id 9E34161944
 	for <io-uring@archiver.kernel.org>; Mon, 22 Mar 2021 02:03:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229901AbhCVCDP (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sun, 21 Mar 2021 22:03:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58014 "EHLO
+        id S229865AbhCVCDV (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sun, 21 Mar 2021 22:03:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58038 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229692AbhCVCCp (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Sun, 21 Mar 2021 22:02:45 -0400
-Received: from mail-wr1-x42c.google.com (mail-wr1-x42c.google.com [IPv6:2a00:1450:4864:20::42c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B811C061756
-        for <io-uring@vger.kernel.org>; Sun, 21 Mar 2021 19:02:45 -0700 (PDT)
-Received: by mail-wr1-x42c.google.com with SMTP id j18so15011892wra.2
-        for <io-uring@vger.kernel.org>; Sun, 21 Mar 2021 19:02:45 -0700 (PDT)
+        with ESMTP id S229871AbhCVCCt (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Sun, 21 Mar 2021 22:02:49 -0400
+Received: from mail-wm1-x329.google.com (mail-wm1-x329.google.com [IPv6:2a00:1450:4864:20::329])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D0DAC061756
+        for <io-uring@vger.kernel.org>; Sun, 21 Mar 2021 19:02:49 -0700 (PDT)
+Received: by mail-wm1-x329.google.com with SMTP id p19so8589715wmq.1
+        for <io-uring@vger.kernel.org>; Sun, 21 Mar 2021 19:02:49 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=IFgwJUXv5Si+NCG7DDhZmROrk7E7s0vE/gfft1pH9oo=;
-        b=vXKAixzxYpYogkNLI2UFDDtZF7LTYizglU5saK4Kwj71iMGJDjRN09tdoolCUYm3UU
-         FEeRoSpSf6Pdazf405ejn2s5SQ4zC+mpZIH78Um6nppM5hkTyBs9pLN9Hyzi8djuRlBm
-         VXmfI4GoGvof0swGEnI0RGn2Mq6yqyOJXhVzmnf5CPLn77uRpufeHMRd24UkYFdcHlxQ
-         30YcqwyhQum2vldKdn+HkXJ1K0939whCQ9DRPbV53WUv9Nyc1sV5mnGdq/nMzWzBLtRN
-         I3Hmsz2cUSR6fqqe+Tvf9I2cG8bRDostS1krR042QJEXDdTZt3oc+ONToJ6KMlj1Dg2B
-         Z1HA==
+        bh=U0DFVF2PZSqfCZ5n0bZ6r+M5weL2a92ghPvc66xdypY=;
+        b=CFntpXtCh4NtSNDJuPKNN/9VMWKlQjCL4wxRDsUGno6H5ADCnTg9VMr7CZ2Ck+AbNa
+         Htnu0p/Rf3de6NIWhUiwt5Z66SIA0qbYV5SCGKTsMeJZtGvVrTBQEXWaTemX/uqanGqB
+         JUc2QYxEjNZjblLyfjofE0EVjgbbZAXxbv9iwpwQdGnOROpSlVIL1JBRYW/UMGfLLiLM
+         zn0EIpwShtWAcNgBg+4hchnKlJwJTw12DfrGWo30495pQJL9Dr2GmFsZCszj3J2AcBrn
+         vw5gBGyvJqcbwpK7pbaSoi3D8W2ARtUlrxVwk339VVmITT/iDUCuc8SwQA5EbZh1DkbL
+         4lkw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=IFgwJUXv5Si+NCG7DDhZmROrk7E7s0vE/gfft1pH9oo=;
-        b=QTERmBKDLEWUuyK10mEZZ/Prdj2t+UespqqHS1i+lyOCtgAzbHmVO2beJrDB8LQ9gZ
-         YUGL0XF4BN73s38u06h5fF7G8LobVsiBs5vdxz2lX7ww7pJxtnSPbOhnSk2esFDgPUyf
-         Mr4icySTXc4p/XAh2y7f7PfRUbgoTTGDR33oFpek1jjhKRAb+tXy+1vT3O/dLE2KmYJh
-         Ikv8Wns3UAO0JQzq9UPfhkrMptQ08dKnZEaJeboMfjzhspl1qsfl2hPTfUxr5SZGVFuu
-         HNURPRdIwVzK5AXS5IU3LjTz1P7jDrwgEFyqtloEn9m4e52+jjCiZxCJfVGSxW5WRLo2
-         5pvA==
-X-Gm-Message-State: AOAM530FZORYt38Yt2Jmlrpo6BPk7gr/1BwSXmgAflAKbgn7yZUHsgks
-        ongjMUS2lnZBM9NBgIYM5hnj9KzWOD0AOg==
-X-Google-Smtp-Source: ABdhPJxz94X/tb+v0oYzS4gYYWuXmqtEDtisaYVYVy2/UXrYQqKgHe2UL5rGv2KJM89PQynlvES/mQ==
-X-Received: by 2002:adf:fbcc:: with SMTP id d12mr15543726wrs.151.1616378564088;
-        Sun, 21 Mar 2021 19:02:44 -0700 (PDT)
+        bh=U0DFVF2PZSqfCZ5n0bZ6r+M5weL2a92ghPvc66xdypY=;
+        b=pqgsJC6NtcOiP+bEytxH6DurwYcLeBrFkh89EtR1/BwD7ydyR9iSHDbsrLBxdEyidS
+         M16kTOITgkWy4l0sleca6P9G/Cgcl4S9oBz11tN/1efHRKhs6vo4mbJBTMD96/h1Dj6O
+         SFwyC2fl/juAXlO4UM7TwNX+6f8psFxE2hz+zV8qQc1yVrI85QV1juQdZBUptHSJoIRR
+         iQxzNL0ptG+GPUj/HSYYkq1+oe7BBmEV1xDWVqCoGw3QKJ/yhQoz5Bs/vtag58QytXQC
+         ERy3+e2sWv4PLWMX29OyCHJziN5Rw9GH1th074m17RIg7LWmilh0uKY+Z+O670jiwMZ6
+         kIpQ==
+X-Gm-Message-State: AOAM531Ba6sztFje/JeLVAfFgQWg+QtdnrUN3DigAcTB8rXVpJSMmZHf
+        bBm4v+hfTc4iGGC7UKCNyq4=
+X-Google-Smtp-Source: ABdhPJxQin/JR97XjhA5CU8A5wcPTQ1q7cV+c2vecPGzmLETh4aZl7Fz1wJPJg8FCFJeECvsvlsEkg==
+X-Received: by 2002:a1c:ddc6:: with SMTP id u189mr14084601wmg.171.1616378567980;
+        Sun, 21 Mar 2021 19:02:47 -0700 (PDT)
 Received: from localhost.localdomain ([85.255.234.202])
-        by smtp.gmail.com with ESMTPSA id i8sm15066695wmi.6.2021.03.21.19.02.43
+        by smtp.gmail.com with ESMTPSA id i8sm15066695wmi.6.2021.03.21.19.02.47
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 21 Mar 2021 19:02:43 -0700 (PDT)
+        Sun, 21 Mar 2021 19:02:47 -0700 (PDT)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH 02/11] io_uring: don't do extra EXITING cancellations
-Date:   Mon, 22 Mar 2021 01:58:25 +0000
-Message-Id: <f2aba1075b5b23be428f8e7e2f6dc529a5667783.1616378197.git.asml.silence@gmail.com>
+Subject: [PATCH 07/11] io_uring: kill unused REQ_F_NO_FILE_TABLE
+Date:   Mon, 22 Mar 2021 01:58:30 +0000
+Message-Id: <c24dfcb0ea0b7877169d740f163f708e5445d13a.1616378197.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <cover.1616378197.git.asml.silence@gmail.com>
 References: <cover.1616378197.git.asml.silence@gmail.com>
@@ -70,34 +70,49 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-io_match_task() matches all requests with PF_EXITING task, even though
-those may be valid requests. It was necessary for SQPOLL cancellation,
-but now it kills all requests before exiting via
-io_uring_cancel_sqpoll(), so it's not needed.
+current->files are always valid now even for io-wq threads, so kill not
+used anymore REQ_F_NO_FILE_TABLE.
 
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
- fs/io_uring.c | 6 +-----
- 1 file changed, 1 insertion(+), 5 deletions(-)
+ fs/io_uring.c | 9 +--------
+ 1 file changed, 1 insertion(+), 8 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 5cba23347092..080fac4d4543 100644
+index 8609ca962dea..b666453bc479 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -1077,12 +1077,8 @@ static bool io_match_task(struct io_kiocb *head,
- {
- 	struct io_kiocb *req;
+@@ -694,7 +694,6 @@ enum {
+ 	REQ_F_NEED_CLEANUP_BIT,
+ 	REQ_F_POLLED_BIT,
+ 	REQ_F_BUFFER_SELECTED_BIT,
+-	REQ_F_NO_FILE_TABLE_BIT,
+ 	REQ_F_LTIMEOUT_ACTIVE_BIT,
+ 	REQ_F_COMPLETE_INLINE_BIT,
+ 	/* keep async read/write and isreg together and in order */
+@@ -736,8 +735,6 @@ enum {
+ 	REQ_F_POLLED		= BIT(REQ_F_POLLED_BIT),
+ 	/* buffer already selected */
+ 	REQ_F_BUFFER_SELECTED	= BIT(REQ_F_BUFFER_SELECTED_BIT),
+-	/* doesn't need file table for this request */
+-	REQ_F_NO_FILE_TABLE	= BIT(REQ_F_NO_FILE_TABLE_BIT),
+ 	/* linked timeout is active, i.e. prepared by link's head */
+ 	REQ_F_LTIMEOUT_ACTIVE	= BIT(REQ_F_LTIMEOUT_ACTIVE_BIT),
+ 	/* completion is deferred through io_comp_state */
+@@ -4188,12 +4185,8 @@ static int io_statx(struct io_kiocb *req, unsigned int issue_flags)
+ 	struct io_statx *ctx = &req->statx;
+ 	int ret;
  
--	if (task && head->task != task) {
--		/* in terms of cancelation, always match if req task is dead */
--		if (head->task->flags & PF_EXITING)
--			return true;
-+	if (task && head->task != task)
- 		return false;
+-	if (issue_flags & IO_URING_F_NONBLOCK) {
+-		/* only need file table for an actual valid fd */
+-		if (ctx->dfd == -1 || ctx->dfd == AT_FDCWD)
+-			req->flags |= REQ_F_NO_FILE_TABLE;
++	if (issue_flags & IO_URING_F_NONBLOCK)
+ 		return -EAGAIN;
 -	}
- 	if (!files)
- 		return true;
  
+ 	ret = do_statx(ctx->dfd, ctx->filename, ctx->flags, ctx->mask,
+ 		       ctx->buffer);
 -- 
 2.24.0
 

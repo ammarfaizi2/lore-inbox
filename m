@@ -2,65 +2,65 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.9 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNWANTED_LANGUAGE_BODY,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E807DC433E8
-	for <io-uring@archiver.kernel.org>; Tue, 23 Mar 2021 14:18:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0611AC433E9
+	for <io-uring@archiver.kernel.org>; Tue, 23 Mar 2021 14:18:23 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id BC38C61984
+	by mail.kernel.org (Postfix) with ESMTP id E0664619C0
 	for <io-uring@archiver.kernel.org>; Tue, 23 Mar 2021 14:18:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232257AbhCWOSK (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Tue, 23 Mar 2021 10:18:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46366 "EHLO
+        id S232139AbhCWOSB (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Tue, 23 Mar 2021 10:18:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46352 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232312AbhCWORb (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Tue, 23 Mar 2021 10:17:31 -0400
-Received: from mail-wr1-x436.google.com (mail-wr1-x436.google.com [IPv6:2a00:1450:4864:20::436])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42D7FC061763
-        for <io-uring@vger.kernel.org>; Tue, 23 Mar 2021 07:17:31 -0700 (PDT)
-Received: by mail-wr1-x436.google.com with SMTP id x13so20935721wrs.9
-        for <io-uring@vger.kernel.org>; Tue, 23 Mar 2021 07:17:31 -0700 (PDT)
+        with ESMTP id S232301AbhCWORa (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Tue, 23 Mar 2021 10:17:30 -0400
+Received: from mail-wm1-x336.google.com (mail-wm1-x336.google.com [IPv6:2a00:1450:4864:20::336])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C8C1C0613D9
+        for <io-uring@vger.kernel.org>; Tue, 23 Mar 2021 07:17:26 -0700 (PDT)
+Received: by mail-wm1-x336.google.com with SMTP id z6-20020a1c4c060000b029010f13694ba2so10914509wmf.5
+        for <io-uring@vger.kernel.org>; Tue, 23 Mar 2021 07:17:26 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=1RNupxVidJ6hkYBaoQHzEq2wBYod5qPqDByhwtma190=;
-        b=thkteSjNmGpe/gKOm/grJz5YiHREK5q6oDBGbLj09YUT80B2mDWyqt2FTE2PpYjiR7
-         iRxNI7Igp1ax15FC8rDWyelJboVM5uf3vH6dMXfUKFeMGnGKYFrnTq8dAtqtMwkyU/S2
-         smcNqlmme/QK2tv81qwWb/cnALy6neIZ9ipBRocB5EO8N6CYW49Lp1P8SnxqWbwSfosG
-         /LqZjxQM/B9EdqRGgnq6AiQ1DFJ1ZK4+mJ9+sh/7b/BIiyijCJd1FjBd2A6DpggpKi3c
-         tvfECf1thFr5P8B5Fm12DqVqwysJRryN4UIKRuGT1l73MAxGGyA2S0RlOisILy/XLxq3
-         olWA==
+        bh=1lgdxUViKuWWIDdG438HIIaVZgn63bsbSOyXiDdZOLw=;
+        b=pnIozRJj7hXcR19UmWchyA2R+u9B6zF2fxCSYNRUqKc2J5z4+MCVQHrUbn9FwKJgW5
+         4PieCv4WMIfSQ+WhCnXCrgY032ViGbkk3RTVihlAU6oFphx410wU7tH7PQZkQLKPA/Er
+         dw9ZMDffFbIHEPIhMSydy9DGwCbUEPjaR5fXKDOo1jkF1LaTH+4Txv5p+ekUxv/zZxg9
+         r0w2/wamz8JqdR0e5CfILDjaxj6RMWHXVmV578LDhX0hoW3Q/vHecHGVKKGgLnENINZI
+         vaHWdcTWEYKR+ozz6GE9FaHZsd2cEjNxo2lWqc0FVrk6tktJ+tpFqUlsNDtfhElHeUwe
+         5wvA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=1RNupxVidJ6hkYBaoQHzEq2wBYod5qPqDByhwtma190=;
-        b=VgSdQsoNiLdt5kFMF4wHtQ5bk7mPNMCJv58CXJHARF5HqYGt39c7Vv892zPLcfZDth
-         2tA2JOFtZPAPbYn+f+/a/lqkiGkLMBThsVScFFkD7xej8pKRD0Nz0eTb1zv04wApbmV2
-         vQ6K47GmatehS9HIGhWnNLP65tciiciI/uSyy1QoN+xyNoivms6VG/IpFCAvHZIsx+mE
-         TPs7TDSywb/Ki7JLQ788Q77PKlgeROJa8SAdHbfFTp1LBSYRI5DI5UjXlClYj/3XUa5B
-         Etc1hgqYOdoe7GvTNsT+I4gEkew1fqz1XPPw4CHwwWPgtso5K8/3s5ZfO1/Z22JYRaKk
-         M79w==
-X-Gm-Message-State: AOAM531NPar4gTfP2xQsmlPkJtOlKoOwMtZmaM9zYPo5okEiBPG3H0nG
-        UNBB44Bbp0VDzGN+J/1n6No=
-X-Google-Smtp-Source: ABdhPJz/TqUobNDIj8FFeS/fS0lVCXRbZCSakwcxdwxmO6MhwYBW6Z5B8nQI/EXpjp5AosdbcODTcQ==
-X-Received: by 2002:adf:e108:: with SMTP id t8mr4117491wrz.371.1616509049999;
-        Tue, 23 Mar 2021 07:17:29 -0700 (PDT)
+        bh=1lgdxUViKuWWIDdG438HIIaVZgn63bsbSOyXiDdZOLw=;
+        b=OIxjZB41AMedGSiMRpKpQL6qTGfVwvomOXH7F4vDXO2FOjbcyhD+Md9u7K3dfY3d4M
+         oRj4bFxoeS4PA+K08XYjnrwD/5SUDM8iT7vB4PdEVvjGlSO8spijBHhgrw54NjwACgGj
+         r1gaXO7ef/XxJW8Ver658FnZn+5dp/r5TuV750AhHIuhjfqwfBgMurLwZhYy5QvCHoiZ
+         aOL1glv6axQtxreALdekli+J3+IDEamvqPd86p+WWeWUEk3iVWQ+UOgWJ5b2teY0s8DD
+         MNxp/X/NFlIFh0DzY8yWLXD4DBlJ573FHe1Cx0XiVhFFhu3YsEVUIpw3nX0JH/0UiBu6
+         Yp2w==
+X-Gm-Message-State: AOAM532KOd5JH9GHJudJvvZtvDZK6DLeLT0uAMaVm6HR51oVPkZVfPgU
+        VNfFspKpKMgKX5kminj3vMhhXo49JXPQlQ==
+X-Google-Smtp-Source: ABdhPJw6uHbGHSBXkkRSrRGokqHHIoS1ERqeOG11WjR9dgy3CdH7J1RVt8es03pP/+r6Ez7DEm9IFA==
+X-Received: by 2002:a05:600c:2254:: with SMTP id a20mr3729090wmm.115.1616509045366;
+        Tue, 23 Mar 2021 07:17:25 -0700 (PDT)
 Received: from localhost.localdomain ([85.255.236.147])
-        by smtp.gmail.com with ESMTPSA id c2sm2861277wmr.22.2021.03.23.07.17.28
+        by smtp.gmail.com with ESMTPSA id c2sm2861277wmr.22.2021.03.23.07.17.24
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 23 Mar 2021 07:17:29 -0700 (PDT)
+        Tue, 23 Mar 2021 07:17:24 -0700 (PDT)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH 5/7] io_uring: move rsrc_put callback into io_rsrc_data
-Date:   Tue, 23 Mar 2021 14:13:15 +0000
-Message-Id: <db024edab92b2f21cf0a8bb9dd450532254f49f1.1616508751.git.asml.silence@gmail.com>
+Subject: [PATCH 2/7] io_uring: simplify io_rsrc_node_ref_zero
+Date:   Tue, 23 Mar 2021 14:13:12 +0000
+Message-Id: <b589ce62c73cd9a65858ac8ce4e2e5846b43ec0e.1616508751.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <cover.1616508751.git.asml.silence@gmail.com>
 References: <cover.1616508751.git.asml.silence@gmail.com>
@@ -70,142 +70,45 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-io_rsrc_node's callback operates only on a single io_rsrc_data and only
-with its resources, so rsrc_put() callback is actually a property of
-io_rsrc_data. Move it there, it makes code much nicecr.
+Replace queue_delayed_work() with mod_delayed_work() in
+io_rsrc_node_ref_zero() as the later one can schedule a new work, and
+cleanup it further for better readability.
 
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
- fs/io_uring.c | 31 ++++++++++++++-----------------
- 1 file changed, 14 insertions(+), 17 deletions(-)
+ fs/io_uring.c | 12 ++++--------
+ 1 file changed, 4 insertions(+), 8 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 8b0d0774890a..9f9ed4151e71 100644
+index 2ecb21ba0ca4..8c5fd7a8f31d 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -220,16 +220,17 @@ struct io_rsrc_node {
- 	struct list_head		node;
- 	struct list_head		rsrc_list;
- 	struct io_rsrc_data		*rsrc_data;
--	void				(*rsrc_put)(struct io_ring_ctx *ctx,
--						    struct io_rsrc_put *prsrc);
- 	struct llist_node		llist;
- 	bool				done;
- };
- 
-+typedef void (rsrc_put_fn)(struct io_ring_ctx *ctx, struct io_rsrc_put *prsrc);
-+
- struct io_rsrc_data {
- 	struct fixed_rsrc_table		*table;
- 	struct io_ring_ctx		*ctx;
- 
-+	rsrc_put_fn			*do_put;
- 	struct io_rsrc_node		*node;
- 	struct percpu_ref		refs;
- 	struct completion		done;
-@@ -6958,9 +6959,7 @@ static inline void io_rsrc_ref_unlock(struct io_ring_ctx *ctx)
- }
- 
- static void io_rsrc_node_set(struct io_ring_ctx *ctx,
--			     struct io_rsrc_data *rsrc_data,
--			     void (*rsrc_put)(struct io_ring_ctx *ctx,
--			                      struct io_rsrc_put *prsrc))
-+			     struct io_rsrc_data *rsrc_data)
- {
- 	struct io_rsrc_node *rsrc_node = ctx->rsrc_backup_node;
- 
-@@ -6968,7 +6967,6 @@ static void io_rsrc_node_set(struct io_ring_ctx *ctx,
- 
- 	ctx->rsrc_backup_node = NULL;
- 	rsrc_node->rsrc_data = rsrc_data;
--	rsrc_node->rsrc_put = rsrc_put;
+@@ -7448,7 +7448,7 @@ static void io_rsrc_node_ref_zero(struct percpu_ref *ref)
+ 	struct io_rsrc_data *data = node->rsrc_data;
+ 	struct io_ring_ctx *ctx = data->ctx;
+ 	bool first_add = false;
+-	int delay = HZ;
++	int delay;
  
  	io_rsrc_ref_lock(ctx);
- 	rsrc_data->node = rsrc_node;
-@@ -6997,10 +6995,7 @@ static int io_rsrc_node_prealloc(struct io_ring_ctx *ctx)
- 	return ctx->rsrc_backup_node ? 0 : -ENOMEM;
+ 	node->done = true;
+@@ -7464,13 +7464,9 @@ static void io_rsrc_node_ref_zero(struct percpu_ref *ref)
+ 	}
+ 	io_rsrc_ref_unlock(ctx);
+ 
+-	if (percpu_ref_is_dying(&data->refs))
+-		delay = 0;
+-
+-	if (!delay)
+-		mod_delayed_work(system_wq, &ctx->rsrc_put_work, 0);
+-	else if (first_add)
+-		queue_delayed_work(system_wq, &ctx->rsrc_put_work, delay);
++	delay = percpu_ref_is_dying(&data->refs) ? 0 : HZ;
++	if (first_add || !delay)
++		mod_delayed_work(system_wq, &ctx->rsrc_put_work, delay);
  }
  
--static int io_rsrc_ref_quiesce(struct io_rsrc_data *data,
--			       struct io_ring_ctx *ctx,
--			       void (*rsrc_put)(struct io_ring_ctx *ctx,
--			                        struct io_rsrc_put *prsrc))
-+static int io_rsrc_ref_quiesce(struct io_rsrc_data *data, struct io_ring_ctx *ctx)
- {
- 	int ret;
- 
-@@ -7021,7 +7016,7 @@ static int io_rsrc_ref_quiesce(struct io_rsrc_data *data,
- 			break;
- 
- 		percpu_ref_resurrect(&data->refs);
--		io_rsrc_node_set(ctx, data, rsrc_put);
-+		io_rsrc_node_set(ctx, data);
- 		reinit_completion(&data->done);
- 
- 		mutex_unlock(&ctx->uring_lock);
-@@ -7033,7 +7028,8 @@ static int io_rsrc_ref_quiesce(struct io_rsrc_data *data,
- 	return ret;
- }
- 
--static struct io_rsrc_data *io_rsrc_data_alloc(struct io_ring_ctx *ctx)
-+static struct io_rsrc_data *io_rsrc_data_alloc(struct io_ring_ctx *ctx,
-+					       rsrc_put_fn *do_put)
- {
- 	struct io_rsrc_data *data;
- 
-@@ -7047,6 +7043,7 @@ static struct io_rsrc_data *io_rsrc_data_alloc(struct io_ring_ctx *ctx)
- 		return NULL;
- 	}
- 	data->ctx = ctx;
-+	data->do_put = do_put;
- 	init_completion(&data->done);
- 	return data;
- }
-@@ -7071,7 +7068,7 @@ static int io_sqe_files_unregister(struct io_ring_ctx *ctx)
- 	 */
- 	if (!data || percpu_ref_is_dying(&data->refs))
- 		return -ENXIO;
--	ret = io_rsrc_ref_quiesce(data, ctx, io_ring_file_put);
-+	ret = io_rsrc_ref_quiesce(data, ctx);
- 	if (ret)
- 		return ret;
- 
-@@ -7406,7 +7403,7 @@ static void __io_rsrc_put_work(struct io_rsrc_node *ref_node)
- 
- 	list_for_each_entry_safe(prsrc, tmp, &ref_node->rsrc_list, list) {
- 		list_del(&prsrc->list);
--		ref_node->rsrc_put(ctx, prsrc);
-+		rsrc_data->do_put(ctx, prsrc);
- 		kfree(prsrc);
- 	}
- 
-@@ -7504,7 +7501,7 @@ static int io_sqe_files_register(struct io_ring_ctx *ctx, void __user *arg,
- 	if (ret)
- 		return ret;
- 
--	file_data = io_rsrc_data_alloc(ctx);
-+	file_data = io_rsrc_data_alloc(ctx, io_ring_file_put);
- 	if (!file_data)
- 		return -ENOMEM;
- 	ctx->file_data = file_data;
-@@ -7562,7 +7559,7 @@ static int io_sqe_files_register(struct io_ring_ctx *ctx, void __user *arg,
- 		return ret;
- 	}
- 
--	io_rsrc_node_set(ctx, file_data, io_ring_file_put);
-+	io_rsrc_node_set(ctx, file_data);
- 	return ret;
- out_fput:
- 	for (i = 0; i < ctx->nr_user_files; i++) {
-@@ -7714,7 +7711,7 @@ static int __io_sqe_files_update(struct io_ring_ctx *ctx,
- 
- 	if (needs_switch) {
- 		percpu_ref_kill(&data->node->refs);
--		io_rsrc_node_set(ctx, data, io_ring_file_put);
-+		io_rsrc_node_set(ctx, data);
- 	}
- 	return done ? done : err;
- }
+ static struct io_rsrc_node *io_rsrc_node_alloc(struct io_ring_ctx *ctx)
 -- 
 2.24.0
 

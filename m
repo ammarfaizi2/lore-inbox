@@ -2,104 +2,78 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
+	SPF_PASS,UNPARSEABLE_RELAY,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 69F32C433E2
-	for <io-uring@archiver.kernel.org>; Mon, 22 Mar 2021 18:02:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6AADCC433E0
+	for <io-uring@archiver.kernel.org>; Tue, 23 Mar 2021 04:11:02 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 44FF8619A4
-	for <io-uring@archiver.kernel.org>; Mon, 22 Mar 2021 18:02:01 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2CECB619AF
+	for <io-uring@archiver.kernel.org>; Tue, 23 Mar 2021 04:11:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230262AbhCVSB2 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Mon, 22 Mar 2021 14:01:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38844 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230041AbhCVSBL (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Mon, 22 Mar 2021 14:01:11 -0400
-Received: from mail-io1-xd35.google.com (mail-io1-xd35.google.com [IPv6:2607:f8b0:4864:20::d35])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78E01C061756
-        for <io-uring@vger.kernel.org>; Mon, 22 Mar 2021 11:01:04 -0700 (PDT)
-Received: by mail-io1-xd35.google.com with SMTP id z3so14901851ioc.8
-        for <io-uring@vger.kernel.org>; Mon, 22 Mar 2021 11:01:04 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=UBH7wU4IlnWC2HiHQ+T3Z4EjDCon/J1Q+9uaSfpYYh0=;
-        b=szekHwVb8JS23WCL9EHLgmMp5jRQdtKCNDGhvLpOUHgyumVXFmGaACXD+Yq+PnpIxJ
-         UXK2bRfYo+jxb6uv6iw8ikpDIKyTaK7gvhoLBd4XFmsNTcZtmGK7FvpTkXV8hFjJD7RH
-         1l/dyA3NhfmgjTNx4p5Bk9KpY5cQ1dqr4ytrZtuWxvR4f7uHjHSAMibJbG3dyzxWzc8t
-         vyEhEiMDa1js7ZuC20LMDKDkKyr3BZoy3kYz1A2CVmNqia9I2C/jcmac0p3uUTC7LMsW
-         6+El5NX7eDEiOVNMaNCbeUlxsHn5Fg11nV/ZDn0q0HUfqg/wSFe/58htHg+2hrn+L0sL
-         Ed/Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=UBH7wU4IlnWC2HiHQ+T3Z4EjDCon/J1Q+9uaSfpYYh0=;
-        b=NiO9dLEDPkOGXy9niF/xU8JqB/N0cekFmscQPXZa9hLp5/UFtSm/psHTIQ5j+C4yzF
-         75wqIDFn7Mbq3ZgVBjKJJ71MTXu3Cz0MorLZuwuIb+kAkAvJrbar+5JPfrnmMWzRf5Ct
-         W4wRXTu1YI4AUm7loxsB48A95BHAlR8+H5PVbucQGJlWoVRwk/pAcCBOla/OMAfEM77e
-         xuZyc2mTjt5TakcQBPZrj2tZ7Nb/vujrqRGPjKYsaUSfU3Rp20WYnOKVN5HRA8wAlg6p
-         PTxgbPHOwsRHbjChe3mvNP4CYs+oGQA8ZuMtjR/xA4wSwY1lE3YUHAA2+YfZPyBoyXbS
-         R45g==
-X-Gm-Message-State: AOAM533WrzunEWwtonoy0L/SblDQTzQLv6YQue+tziwGDKQyw7sIeT9D
-        Zp4VoziTu909LYYb+vEL8HmhZTtTGXDOEQ==
-X-Google-Smtp-Source: ABdhPJzMTzQROLHwyaPSGyHYa22k0Z0M7wGqf+5yLw6suMQFmXdZ+J0Bjl9mkBR+ly2qkRUOmjMcxw==
-X-Received: by 2002:a02:ccd9:: with SMTP id k25mr540712jaq.43.1616436063422;
-        Mon, 22 Mar 2021 11:01:03 -0700 (PDT)
-Received: from p1.localdomain ([65.144.74.34])
-        by smtp.gmail.com with ESMTPSA id r12sm2903562ile.64.2021.03.22.11.01.02
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 22 Mar 2021 11:01:02 -0700 (PDT)
-From:   Jens Axboe <axboe@kernel.dk>
-To:     io-uring@vger.kernel.org
-Cc:     Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 1/2] kernel: allow fork with TIF_NOTIFY_SIGNAL pending
-Date:   Mon, 22 Mar 2021 12:00:58 -0600
-Message-Id: <20210322180059.275415-2-axboe@kernel.dk>
-X-Mailer: git-send-email 2.31.0
-In-Reply-To: <20210322180059.275415-1-axboe@kernel.dk>
-References: <20210322180059.275415-1-axboe@kernel.dk>
+        id S229464AbhCWEKa (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Tue, 23 Mar 2021 00:10:30 -0400
+Received: from out30-57.freemail.mail.aliyun.com ([115.124.30.57]:38438 "EHLO
+        out30-57.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229500AbhCWEKC (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Tue, 23 Mar 2021 00:10:02 -0400
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R131e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=alimailimapcm10staff010182156082;MF=joseph.qi@linux.alibaba.com;NM=1;PH=DS;RN=5;SR=0;TI=SMTPD_---0UT1nzlU_1616472598;
+Received: from B-D1K7ML85-0059.local(mailfrom:joseph.qi@linux.alibaba.com fp:SMTPD_---0UT1nzlU_1616472598)
+          by smtp.aliyun-inc.com(127.0.0.1);
+          Tue, 23 Mar 2021 12:09:59 +0800
+Subject: Re: [ANNOUNCEMENT] io_uring SQPOLL sharing changes
+To:     Jens Axboe <axboe@kernel.dk>,
+        Xiaoguang Wang <xiaoguang.wang@linux.alibaba.com>,
+        Pavel Begunkov <asml.silence@gmail.com>,
+        io-uring <io-uring@vger.kernel.org>,
+        Hao Xu <haoxu@linux.alibaba.com>
+References: <ca41ede6-7040-5eac-f4f0-9467427b1589@gmail.com>
+ <30563957-709a-73a2-7d54-58419089d61a@linux.alibaba.com>
+ <1afd5237-4363-9178-917e-3132ba1b89c3@kernel.dk>
+From:   Joseph Qi <joseph.qi@linux.alibaba.com>
+Message-ID: <293e88d8-7fa5-edf4-226c-1e42dec9af67@linux.alibaba.com>
+Date:   Tue, 23 Mar 2021 12:09:58 +0800
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0)
+ Gecko/20100101 Thunderbird/78.7.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <1afd5237-4363-9178-917e-3132ba1b89c3@kernel.dk>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-fork() fails if signal_pending() is true, but there are two conditions
-that can lead to that:
 
-1) An actual signal is pending. We want fork to fail for that one, like
-   we always have.
 
-2) TIF_NOTIFY_SIGNAL is pending, because the task has pending task_work.
-   We don't need to make it fail for that case.
+On 3/22/21 10:49 PM, Jens Axboe wrote:
+> On 3/21/21 11:54 PM, Xiaoguang Wang wrote:
+>> hi Pavel,
+>>
+>>> Hey,
+>>>
+>>> You may have already noticed, but there will be a change how SQPOLL
+>>> is shared in 5.12. In particular, SQPOLL may be shared only by processes
+>>> belonging to the same thread group. If this condition is not fulfilled,
+>>> then it silently creates a new SQPOLL task.
+>>
+>> Thanks for your kindly reminder, currently we only share sqpoll thread
+>> in threads belonging to one same process.
+> 
+> That's good to know, imho it is also the only thing that _really_ makes
+> sense to do.
+> 
+> Since we're on the topic, are you actively using the percpu thread setup
+> that you sent out patches for earlier? That could still work within
+> the new scheme of having io threads, but I'd be curious to know first
+> if you guys are actually using it.
+> 
 
-Allow fork() to proceed if just task_work is pending, by changing the
-signal_pending() check to task_sigpending().
+Yes, we've already used percpu sqthread feature in our production
+environment, in which 16 application threads share the same sqthread,
+and it gains ~20% rt improvement compared with libaio.
 
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
----
- kernel/fork.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/kernel/fork.c b/kernel/fork.c
-index 54cc905e5fe0..254e08c65de9 100644
---- a/kernel/fork.c
-+++ b/kernel/fork.c
-@@ -1941,7 +1941,7 @@ static __latent_entropy struct task_struct *copy_process(
- 	recalc_sigpending();
- 	spin_unlock_irq(&current->sighand->siglock);
- 	retval = -ERESTARTNOINTR;
--	if (signal_pending(current))
-+	if (task_sigpending(current))
- 		goto fork_out;
- 
- 	retval = -ENOMEM;
--- 
-2.31.0
-
+Thanks,
+Joseph

@@ -2,194 +2,131 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-19.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.7 required=3.0 tests=BAYES_00,FROM_LOCAL_HEX,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C15FDC433C1
-	for <io-uring@archiver.kernel.org>; Thu, 25 Mar 2021 17:07:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5A99FC433E0
+	for <io-uring@archiver.kernel.org>; Thu, 25 Mar 2021 17:59:05 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 83053619C2
-	for <io-uring@archiver.kernel.org>; Thu, 25 Mar 2021 17:07:58 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2DA5761A28
+	for <io-uring@archiver.kernel.org>; Thu, 25 Mar 2021 17:59:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229524AbhCYRH0 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Thu, 25 Mar 2021 13:07:26 -0400
-Received: from mailout3.samsung.com ([203.254.224.33]:51979 "EHLO
-        mailout3.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229900AbhCYRHH (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Thu, 25 Mar 2021 13:07:07 -0400
-Received: from epcas5p2.samsung.com (unknown [182.195.41.40])
-        by mailout3.samsung.com (KnoxPortal) with ESMTP id 20210325170705epoutp0336a42a907d89ec7f6b1a594a63f11aa0~vpNTQyecS2110621106epoutp030
-        for <io-uring@vger.kernel.org>; Thu, 25 Mar 2021 17:07:05 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout3.samsung.com 20210325170705epoutp0336a42a907d89ec7f6b1a594a63f11aa0~vpNTQyecS2110621106epoutp030
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-        s=mail20170921; t=1616692025;
-        bh=VkNmnNVaNeR68Wxd/K1D4WnVi5XzjHjJ9ySJs/XWKpQ=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=haUAroUQwJ5jbh0NqYv6t8Ve6yNwoIBZoWNzED382oKvoPMPpjrEAnqZW/1nyVGgp
-         HZAoOQb5B6Y4J2UdoxKcU8nN5RdarzNUJKw7BLByHzZWvSUK8YSyvvZZtydaa+6x2O
-         zWKxSXJ3UPZxOK7vYGzRkrwZvqSMuDOOOt4Vx9ag=
-Received: from epsmges5p2new.samsung.com (unknown [182.195.42.74]) by
-        epcas5p3.samsung.com (KnoxPortal) with ESMTP id
-        20210325170704epcas5p31fb9771f14aa0d15eec11a679e4156a3~vpNS5dsy92091420914epcas5p3P;
-        Thu, 25 Mar 2021 17:07:04 +0000 (GMT)
-Received: from epcas5p2.samsung.com ( [182.195.41.40]) by
-        epsmges5p2new.samsung.com (Symantec Messaging Gateway) with SMTP id
-        AB.07.39068.833CC506; Fri, 26 Mar 2021 02:07:04 +0900 (KST)
-Received: from epsmtrp2.samsung.com (unknown [182.195.40.14]) by
-        epcas5p3.samsung.com (KnoxPortal) with ESMTPA id
-        20210325170704epcas5p3aafad4845b9ea1a545d643121a0ee1e5~vpNSPiA3d2091420914epcas5p3O;
-        Thu, 25 Mar 2021 17:07:04 +0000 (GMT)
-Received: from epsmgms1p1new.samsung.com (unknown [182.195.42.41]) by
-        epsmtrp2.samsung.com (KnoxPortal) with ESMTP id
-        20210325170704epsmtrp20d9edc0423f0ec743dbf397d31eb1015~vpNSOumQP0494804948epsmtrp2R;
-        Thu, 25 Mar 2021 17:07:04 +0000 (GMT)
-X-AuditID: b6c32a4a-60fff7000000989c-19-605cc338e3be
-Received: from epsmtip2.samsung.com ( [182.195.34.31]) by
-        epsmgms1p1new.samsung.com (Symantec Messaging Gateway) with SMTP id
-        1A.D2.33967.733CC506; Fri, 26 Mar 2021 02:07:03 +0900 (KST)
-Received: from localhost.localdomain (unknown [107.110.206.5]) by
-        epsmtip2.samsung.com (KnoxPortal) with ESMTPA id
-        20210325170702epsmtip27a8800a7e126822fa51c186a0e791745~vpNQitBKu2594425944epsmtip2i;
-        Thu, 25 Mar 2021 17:07:02 +0000 (GMT)
-From:   Kanchan Joshi <joshi.k@samsung.com>
-To:     axboe@kernel.dk, hch@lst.de, kbusch@kernel.org,
-        chaitanya.kulkarni@wdc.com
-Cc:     io-uring@vger.kernel.org, linux-nvme@lists.infradead.org,
-        anuj20.g@samsung.com, javier.gonz@samsung.com,
-        nj.shetty@samsung.com, selvakuma.s1@samsung.com,
-        Kanchan Joshi <joshi.k@samsung.com>
-Subject: [RFC PATCH v4 1/2] io_uring: add helpers for io_uring_cmd
- completion in submitter-task.
-Date:   Thu, 25 Mar 2021 22:35:39 +0530
-Message-Id: <20210325170540.59619-2-joshi.k@samsung.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20210325170540.59619-1-joshi.k@samsung.com>
+        id S230046AbhCYR6c (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Thu, 25 Mar 2021 13:58:32 -0400
+Received: from mail-io1-f71.google.com ([209.85.166.71]:33496 "EHLO
+        mail-io1-f71.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230008AbhCYR6L (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Thu, 25 Mar 2021 13:58:11 -0400
+Received: by mail-io1-f71.google.com with SMTP id o1so4341464iou.0
+        for <io-uring@vger.kernel.org>; Thu, 25 Mar 2021 10:58:11 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:date:in-reply-to:message-id:subject
+         :from:to;
+        bh=Ud2GtM19aZ+Jjw6jcKZyQALMFPzFZgNlVDCtTbZgYjE=;
+        b=Z9mdcacwxbRn+HvAYUILzoVnMWYY/PFIemHdeHTuFRevT6HMUV9UwSGzG4YezsZFVQ
+         0yaFD+npUXxg67JDJpiLlsVfkZfy/PeDfVAZJ4IR40ZQDDBrx0TAK4uOvBcWXDcnN75y
+         LqKyTxipWg13LpGzxJZel2xRW0qPty7dG2wWdTAilO9euXFrbNma1/ZFvoZKdGKPyIQa
+         IwWOoZg6im0R+/vCbG+hy9bS+Wejx1Y6NeyUa/T0zQ026EGHQcTTPYo1RO4QoJOObSvn
+         i4gygLxWcN0v9YTEhklVQ4mvx7zYBoG9yI9Ru27Ov8ejv3pHEz5f6Nw6J8BPAf3jYmeD
+         qFog==
+X-Gm-Message-State: AOAM533ud6IvRzqFJVYX1l9uw3CqMfxkYUat5MLMffpkKLHO0RAiB786
+        rOfvPuxhWdEKpLw2wNHEKCKYzQIi2PMnCA3gqVVw+mHNVaHF
+X-Google-Smtp-Source: ABdhPJzEVPGTgsSDXo19Ht7uHAF2vrtCuvmQi0PbOBV88ntiDT2wm7WZgCmnYdq+f7wJPaZkF+WccfI2vwG/9PBadwjAdP6jt0gi
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFlrKKsWRmVeSWpSXmKPExsWy7bCmhq7F4ZgEg3c/tC2aJvxltlh9t5/N
-        Ytbt1ywWK1cfZbJ413qOxeLxnc/sFkf/v2WzmHToGqPF/GVP2S22/Z7PbHFlyiJmi9c/TrI5
-        8HhcPlvqsWlVJ5vH5iX1HrtvNrB59G1ZxejxeZOcR/uBbqYA9igum5TUnMyy1CJ9uwSujE8b
-        1zIWNIpVTLhu08D4TqiLkZNDQsBEYseDnUwgtpDAbkaJiZ+4IOxPjBIvH6V0MXIB2d8YJZ4e
-        b2GFafi45yYrRGIvo8TtLbehnM+MEs+ufGbvYuTgYBPQlLgwuRSkQUQgQGLXwc9gG5gFjjJK
-        PFpZDWILCyRJXHjQxQ5iswioStw40ATWyitgIdH7IRRil7zEzEvfwUo4BSwlbv5rALuBV0BQ
-        4uTMJywQI+UlmrfOZgY5QUJgLofE+6uvGSGaXSTez/oPZQtLvDq+hR3ClpL4/G4vG4RdLPHr
-        zlGo5g5GiesNM1kgEvYSF/f8ZQI5iBnol/W79CGW8Un0/n4CFpYQ4JXoaIMGoqLEvUlPoeEj
-        LvFwxhJWiBIPiXO/IyGh08MoMf3/a+YJjPKzkLwwC8kLsxCWLWBkXsUomVpQnJueWmxaYJSX
-        Wq5XnJhbXJqXrpecn7uJEZyStLx2MD588EHvECMTB+MhRgkOZiUR3iTfmAQh3pTEyqrUovz4
-        otKc1OJDjNIcLErivDsMHsQLCaQnlqRmp6YWpBbBZJk4OKUamDpXMe/ZuV5ZTOxTVPfd40vS
-        Qhi+C3LccdVi4GtNUkhpL2L/bLaVLzPnirBB8VsLRY7q/y9vlqzIn5n9rpMziVf4e/uZjjlH
-        bzcG/9j+PaYhb1Lq/neLpTScj1fy+KQyJ13sv37jrWGd4ykZs07jNSeUbXtSb9W/rV8a3pTx
-        Rd9aZp2Q38ys554Ki5XkYs8Ha+iJWh/m3e7MdaDA8Pk5qdPMm5esW7TZf7m9SbWupZ/xrNva
-        Buc+X677eGm9BHvcXd0N839sq9/xu9hknePRA2crv4ode3/LIWXORm515wdcu17fij+bx//x
-        s4Sc22OejS6hzkGPZ1xjmSOTcqYkxu7VwwrR27fu5U6PLb+YpMRSnJFoqMVcVJwIAL4IuIK4
-        AwAA
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFnrKLMWRmVeSWpSXmKPExsWy7bCSvK754ZgEg90zrS2aJvxltlh9t5/N
-        Ytbt1ywWK1cfZbJ413qOxeLxnc/sFkf/v2WzmHToGqPF/GVP2S22/Z7PbHFlyiJmi9c/TrI5
-        8HhcPlvqsWlVJ5vH5iX1HrtvNrB59G1ZxejxeZOcR/uBbqYA9igum5TUnMyy1CJ9uwSujE8b
-        1zIWNIpVTLhu08D4TqiLkZNDQsBE4uOem6xdjFwcQgK7GSVubFvPDpEQl2i+9gPKFpZY+e85
-        mC0k8JFR4u55ky5GDg42AU2JC5NLQcIiAiESXfO2MYHMYRY4yyix/HE7I0hCWCBBomH1JrBe
-        FgFViRsHmthBenkFLCR6P4RCjJeXmHnpO1gJp4ClxM1/DawQqywk7uy9yAxi8woISpyc+YQF
-        xGYGqm/eOpt5AqPALCSpWUhSCxiZVjFKphYU56bnFhsWGOallusVJ+YWl+al6yXn525iBMeE
-        luYOxu2rPugdYmTiYDzEKMHBrCTCm+QbkyDEm5JYWZValB9fVJqTWnyIUZqDRUmc90LXyXgh
-        gfTEktTs1NSC1CKYLBMHp1QDk90h5y7ZxEmHVi4pYTw5eeJ6BonTq9WF+La43P68JTbMOpD9
-        jWDisUOCZivPrb/yP61xfVvtxdwL9VdfBV8+tV9HLujy18XfeFeLcFTEb4qNsPxz4OotT/bd
-        i9sNZVQ+yDM0e39bpH/j+lP7Z3eNX2/wTJScee2N8ap2zwDhUo0FZ7ouFK832PVXJSt4gxaL
-        47Ka8wpBSz4+vxr7UbM9826RftWfBzkcjsXdmx+8DniVPTF00kVV7XdPPc7zdDEb+fSGTmVb
-        UvjO/aiG64X+mjkr+n2OHLNZYfXxENOFCVxbXMrlMoPW16j/fSlb0bL0nc3v12K/tm2Kq3gj
-        laV9nfXSd+nO43tmqcq1T9KYcVyJpTgj0VCLuag4EQCbFdD3+AIAAA==
-X-CMS-MailID: 20210325170704epcas5p3aafad4845b9ea1a545d643121a0ee1e5
-X-Msg-Generator: CA
-Content-Type: text/plain; charset="utf-8"
-CMS-TYPE: 105P
-X-CMS-RootMailID: 20210325170704epcas5p3aafad4845b9ea1a545d643121a0ee1e5
-References: <20210325170540.59619-1-joshi.k@samsung.com>
-        <CGME20210325170704epcas5p3aafad4845b9ea1a545d643121a0ee1e5@epcas5p3.samsung.com>
+X-Received: by 2002:a02:6654:: with SMTP id l20mr8597420jaf.55.1616695091264;
+ Thu, 25 Mar 2021 10:58:11 -0700 (PDT)
+Date:   Thu, 25 Mar 2021 10:58:11 -0700
+In-Reply-To: <4befa1ec-11d8-fca8-692a-492b72b219f4@kernel.dk>
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <000000000000a0025805be6028a0@google.com>
+Subject: Re: [syzbot] WARNING in io_wq_put
+From:   syzbot <syzbot+77a738a6bc947bf639ca@syzkaller.appspotmail.com>
+To:     asml.silence@gmail.com, axboe@kernel.dk, io-uring@vger.kernel.org,
+        linux-kernel@vger.kernel.org, syzkaller-bugs@googlegroups.com
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Completion of io_uring_cmd ioctl may involve referencing certain
-ioctl-specefic fields, requiring original submitter-context.
-Introduce two APIs for that purpose:
-a. io_uring_cmd_complete_in_task
-b. io_uring_cbh_to_io_uring_cmd
+Hello,
 
-The APIs facilitate reusing task-work infra, while driver gets to
-implement ioctl-specific handling in a callback.
+syzbot has tested the proposed patch but the reproducer is still triggering an issue:
+WARNING in kvm_wait
 
-Signed-off-by: Kanchan Joshi  <joshi.k@samsung.com>
-Signed-off-by: Anuj Gupta <anuj20.g@samsung.com>
----
- fs/io_uring.c            | 23 +++++++++++++++++++++++
- include/linux/io_uring.h | 12 ++++++++++++
- 2 files changed, 35 insertions(+)
+------------[ cut here ]------------
+raw_local_irq_restore() called with IRQs enabled
+WARNING: CPU: 1 PID: 191 at kernel/locking/irqflag-debug.c:10 warn_bogus_irq_restore+0x1f/0x30 kernel/locking/irqflag-debug.c:10
+Modules linked in:
+CPU: 1 PID: 191 Comm: kworker/u4:4 Not tainted 5.12.0-rc2-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Workqueue:  0x0 (events_unbound)
+RIP: 0010:warn_bogus_irq_restore+0x1f/0x30 kernel/locking/irqflag-debug.c:10
+Code: cc cc cc cc cc cc cc cc cc cc cc 80 3d c7 af b1 03 00 74 01 c3 c6 05 bd af b1 03 01 48 c7 c7 c0 5f ae 89 31 c0 e8 d1 dd f6 f7 <0f> 0b c3 cc cc cc cc cc cc cc cc cc cc cc cc cc cc 41 56 53 48 83
+RSP: 0018:ffffc90000dc0a08 EFLAGS: 00010246
+RAX: 6a712abdc5855100 RBX: ffffffff8f982d60 RCX: ffff8880118bb880
+RDX: 0000000000000103 RSI: 0000000000000103 RDI: 0000000000000000
+RBP: 1ffff920001b8142 R08: ffffffff81609502 R09: ffffed10173e5fe8
+R10: ffffed10173e5fe8 R11: 0000000000000000 R12: 0000000000000003
+R13: ffff88823ffe6880 R14: 0000000000000246 R15: dffffc0000000000
+FS:  0000000000000000(0000) GS:ffff8880b9f00000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007f44d117d718 CR3: 000000001340a000 CR4: 00000000001506e0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+ <IRQ>
+ kvm_wait+0x10e/0x160 arch/x86/kernel/kvm.c:860
+ pv_wait arch/x86/include/asm/paravirt.h:564 [inline]
+ pv_wait_head_or_lock kernel/locking/qspinlock_paravirt.h:470 [inline]
+ __pv_queued_spin_lock_slowpath+0x6b5/0xb90 kernel/locking/qspinlock.c:508
+ pv_queued_spin_lock_slowpath arch/x86/include/asm/paravirt.h:554 [inline]
+ queued_spin_lock_slowpath arch/x86/include/asm/qspinlock.h:51 [inline]
+ queued_spin_lock include/asm-generic/qspinlock.h:85 [inline]
+ do_raw_spin_lock+0x430/0x810 kernel/locking/spinlock_debug.c:113
+ spin_lock include/linux/spinlock.h:354 [inline]
+ mac80211_hwsim_tx_frame_no_nl+0x60e/0x1860 drivers/net/wireless/mac80211_hwsim.c:1514
+ mac80211_hwsim_tx_frame+0x143/0x180 drivers/net/wireless/mac80211_hwsim.c:1775
+ mac80211_hwsim_beacon_tx+0x4b9/0x870 drivers/net/wireless/mac80211_hwsim.c:1829
+ __iterate_interfaces+0x23e/0x4b0 net/mac80211/util.c:793
+ ieee80211_iterate_active_interfaces_atomic+0x9b/0x120 net/mac80211/util.c:829
+ mac80211_hwsim_beacon+0xa4/0x180 drivers/net/wireless/mac80211_hwsim.c:1852
+ __run_hrtimer kernel/time/hrtimer.c:1519 [inline]
+ __hrtimer_run_queues+0x4c9/0xa00 kernel/time/hrtimer.c:1583
+ hrtimer_run_softirq+0x176/0x1e0 kernel/time/hrtimer.c:1600
+ __do_softirq+0x318/0x714 kernel/softirq.c:345
+ invoke_softirq kernel/softirq.c:221 [inline]
+ __irq_exit_rcu+0x1d8/0x200 kernel/softirq.c:422
+ irq_exit_rcu+0x5/0x20 kernel/softirq.c:434
+ sysvec_apic_timer_interrupt+0x91/0xb0 arch/x86/kernel/apic/apic.c:1100
+ </IRQ>
+ asm_sysvec_apic_timer_interrupt+0x12/0x20 arch/x86/include/asm/idtentry.h:632
+RIP: 0010:__raw_spin_unlock_irq include/linux/spinlock_api_smp.h:169 [inline]
+RIP: 0010:_raw_spin_unlock_irq+0x25/0x40 kernel/locking/spinlock.c:199
+Code: b4 fd ff 66 90 53 48 89 fb 48 83 c7 18 48 8b 74 24 08 e8 0e 56 09 f8 48 89 df e8 56 2b 0b f8 e8 41 9f 2b f8 fb bf 01 00 00 00 <e8> c6 3b ff f7 65 8b 05 c7 9f ae 76 85 c0 74 02 5b c3 e8 7b fb ac
+RSP: 0018:ffffc9000143fca0 EFLAGS: 00000286
+RAX: 6a712abdc5855100 RBX: ffff8880b9f34c40 RCX: ffffffff8f59cb03
+RDX: 0000000040000000 RSI: 0000000000000002 RDI: 0000000000000001
+RBP: ffffc9000143fd00 R08: ffffffff817eef20 R09: ffffed10173e6989
+R10: ffffed10173e6989 R11: 0000000000000000 R12: ffff8880b9f34c40
+R13: ffff8880118bb880 R14: dffffc0000000000 R15: 0000000000000000
+ finish_task_switch+0x145/0x620 kernel/sched/core.c:4193
+ context_switch kernel/sched/core.c:4327 [inline]
+ __schedule+0x9a1/0xe70 kernel/sched/core.c:5075
+ schedule+0x14b/0x200 kernel/sched/core.c:5154
+ worker_thread+0xfe6/0x1300 kernel/workqueue.c:2442
+ kthread+0x39a/0x3c0 kernel/kthread.c:292
+ ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:294
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index b6e1b6b51c5f..a8629c460bdd 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -2079,6 +2079,29 @@ static void io_req_task_submit(struct callback_head *cb)
- 	__io_req_task_submit(req);
- }
- 
-+struct io_uring_cmd *io_uring_cbh_to_io_uring_cmd(struct callback_head *cb)
-+{
-+	return &container_of(cb, struct io_kiocb, task_work)->uring_cmd;
-+}
-+EXPORT_SYMBOL_GPL(io_uring_cbh_to_io_uring_cmd);
-+
-+int io_uring_cmd_complete_in_task(struct io_uring_cmd *ioucmd,
-+			void (*driver_cb)(struct callback_head *))
-+{
-+	int ret;
-+	struct io_kiocb *req = container_of(ioucmd, struct io_kiocb, uring_cmd);
-+
-+	req->task_work.func = driver_cb;
-+	ret = io_req_task_work_add(req);
-+	if (unlikely(ret)) {
-+		req->result = -ECANCELED;
-+		percpu_ref_get(&req->ctx->refs);
-+		io_req_task_work_add_fallback(req, io_req_task_cancel);
-+	}
-+	return ret;
-+}
-+EXPORT_SYMBOL_GPL(io_uring_cmd_complete_in_task);
-+
- static void io_req_task_queue_fail(struct io_kiocb *req, int ret)
- {
- 	req->result = ret;
-diff --git a/include/linux/io_uring.h b/include/linux/io_uring.h
-index 9956c0f5f9d0..526bc58dea25 100644
---- a/include/linux/io_uring.h
-+++ b/include/linux/io_uring.h
-@@ -19,6 +19,9 @@ struct io_uring_cmd {
- 
- #if defined(CONFIG_IO_URING)
- void io_uring_cmd_done(struct io_uring_cmd *cmd, ssize_t ret);
-+int io_uring_cmd_complete_in_task(struct io_uring_cmd *ioucmd,
-+			void (*driver_cb)(struct callback_head *));
-+struct io_uring_cmd *io_uring_cbh_to_io_uring_cmd(struct callback_head *cbh);
- struct sock *io_uring_get_socket(struct file *file);
- void __io_uring_task_cancel(void);
- void __io_uring_files_cancel(struct files_struct *files);
-@@ -43,6 +46,15 @@ static inline void io_uring_free(struct task_struct *tsk)
- static inline void io_uring_cmd_done(struct io_uring_cmd *cmd, ssize_t ret)
- {
- }
-+int io_uring_cmd_complete_in_task(struct io_uring_cmd *ioucmd,
-+			void (*driver_cb)(struct callback_head *))
-+{
-+	return -1;
-+}
-+struct io_uring_cmd *io_uring_cbh_to_io_uring_cmd(struct callback_head *)
-+{
-+	return NULL;
-+}
- static inline struct sock *io_uring_get_socket(struct file *file)
- {
- 	return NULL;
--- 
-2.25.1
+
+Tested on:
+
+commit:         f5d2d23b io-wq: fix race around pending work on teardown
+git tree:       git://git.kernel.dk/linux-block io_uring-5.12
+console output: https://syzkaller.appspot.com/x/log.txt?x=12cad621d00000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=9fdcf055a7409ee0
+dashboard link: https://syzkaller.appspot.com/bug?extid=77a738a6bc947bf639ca
+compiler:       Debian clang version 11.0.1-2
 

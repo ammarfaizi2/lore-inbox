@@ -2,96 +2,127 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5B26CC433C1
-	for <io-uring@archiver.kernel.org>; Thu, 25 Mar 2021 16:20:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 49ABCC433C1
+	for <io-uring@archiver.kernel.org>; Thu, 25 Mar 2021 16:44:39 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 2B79961A2A
-	for <io-uring@archiver.kernel.org>; Thu, 25 Mar 2021 16:20:18 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 05EE561A16
+	for <io-uring@archiver.kernel.org>; Thu, 25 Mar 2021 16:44:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229574AbhCYQTp (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Thu, 25 Mar 2021 12:19:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47334 "EHLO
+        id S229666AbhCYQoH (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Thu, 25 Mar 2021 12:44:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52618 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229631AbhCYQTl (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Thu, 25 Mar 2021 12:19:41 -0400
-Received: from mail-il1-x136.google.com (mail-il1-x136.google.com [IPv6:2607:f8b0:4864:20::136])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E503DC06174A
-        for <io-uring@vger.kernel.org>; Thu, 25 Mar 2021 09:19:40 -0700 (PDT)
-Received: by mail-il1-x136.google.com with SMTP id d10so2602620ils.5
-        for <io-uring@vger.kernel.org>; Thu, 25 Mar 2021 09:19:40 -0700 (PDT)
+        with ESMTP id S229629AbhCYQnt (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Thu, 25 Mar 2021 12:43:49 -0400
+Received: from mail-io1-xd2d.google.com (mail-io1-xd2d.google.com [IPv6:2607:f8b0:4864:20::d2d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC5C3C06175F
+        for <io-uring@vger.kernel.org>; Thu, 25 Mar 2021 09:43:49 -0700 (PDT)
+Received: by mail-io1-xd2d.google.com with SMTP id k25so2544920iob.6
+        for <io-uring@vger.kernel.org>; Thu, 25 Mar 2021 09:43:49 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:references:from:message-id:date:user-agent:mime-version
-         :in-reply-to:content-language:content-transfer-encoding;
-        bh=Ny7W7nmNL0f2kx37U2KnK1Y8GB/j8Ew/zS7FydXgYaM=;
-        b=1TGzRoP4nzflQ7ef524XsMC5b59L/6l0xgoIgzNCTrNcUS1VME115hs3xwgV6mGnge
-         +9G2c/WV50zaaZiRDp1VLK4g+3BmuHfrWrShAzfVhcjyeTpAo6GHkQ36oLrx6yKN/mJw
-         MB5KPOhm/nWfft5X4tv9sPXgmBctYm1VAfqabhoFrSfOIjb9X6DhPhKYa9GzeL3QCRq9
-         oY8lL/72pOiAKGvMfeARfH+tcuAkCPWIrBpl0tkzYrAPKoUMiIuyhlUjGB844dmrE7Vp
-         GUOkyEGWhlq5NerzHwWVM4jU8scYLe7FIVStGMbq75nsXjBjf+m+ITz+HKpaKbl2GZFP
-         TwvA==
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=Zelrk36zpmC+2fEIaTzCe8iAs0QYE8m4zqDOwegDXxU=;
+        b=QLqByaEHTRPwGeUS1pOq5E8tTBozcYgNoU0DBDvnF2zaT4Moftc+JhKY6s7sagWObm
+         pQuhuSWdD53SqSqWiQ60vUU+WrpJwTOLrbdnSAOrv5FHd1mf8yi8JX0S//j4bZxzhlKR
+         qt1E1tR5X1rsX31PtU4jNGpbucp+ruUSzfDwXIXyCwHi4MNqLoK6shp9KlsyA429DdMW
+         kpnB/Y4xtQp39aO8MK36jUB27WAfnrN6XfftZCG1cEb/pGnaLwgTFRMjrBtXXvyRrbRI
+         uHc6sPcSmCOmCTU0OtWuynAM15qkhs2Dr68y+h07fTmhtexCh63eoQT7dhmOZWz96LnE
+         4tnQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=Ny7W7nmNL0f2kx37U2KnK1Y8GB/j8Ew/zS7FydXgYaM=;
-        b=rWdrlmeeumC8gtHNcjvrIwstagbWqr1GpxcHbiZBCpd2HgL3fk2lByojaqng0nQblp
-         Ur0k5XV3rxH7keCRlEHUJs8XD+SNLWDM55tonS5HwSyuq56v/n8cfk80oRjRA0FiSeix
-         fq+jhoHN67TXHvyC/m7S9V4uQyivLWlPtk4lwYi0ndIZGwxUYig5xdTp80WZGifJfV8t
-         nP/I3bxDAwwyrxqLjCUUki3SIYsBeEMavUKtkEjDHJkQNGCTnTUa7Fj7vxvk9ihradh+
-         BI6pxIgY98YCnO1QRwVX6c0Qn9GHrjmWmvq4kbjNqXhYLxjlwnIT0yFjjMSHoSK27j4W
-         r8/g==
-X-Gm-Message-State: AOAM533hahXwtRVb735FUjXy4ZoqfxFmj8PeMuh6I0X5tmRvRrhGCCQE
-        Ociz84vRle+eP8Su9Xf6GpcIFA==
-X-Google-Smtp-Source: ABdhPJxIiA6R39HdNvXHx3c2SyTFeZMos+ZQ8unpx6kmIyvJnm570Oh9mTJuA/yqkjHsyzOj8jW0Yw==
-X-Received: by 2002:a05:6e02:e91:: with SMTP id t17mr7396763ilj.258.1616689180302;
-        Thu, 25 Mar 2021 09:19:40 -0700 (PDT)
-Received: from [192.168.1.30] ([65.144.74.34])
-        by smtp.gmail.com with ESMTPSA id 7sm931320ilx.81.2021.03.25.09.19.39
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 25 Mar 2021 09:19:40 -0700 (PDT)
-Subject: Re: [syzbot] WARNING in io_wq_put
-To:     syzbot <syzbot+77a738a6bc947bf639ca@syzkaller.appspotmail.com>,
-        asml.silence@gmail.com, io-uring@vger.kernel.org,
-        linux-kernel@vger.kernel.org, syzkaller-bugs@googlegroups.com
-References: <0000000000007a49c105be013f72@google.com>
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=Zelrk36zpmC+2fEIaTzCe8iAs0QYE8m4zqDOwegDXxU=;
+        b=purAYQhepCs+e0b4uGnMp8RywtgFcvPYEw9MQbwDih3shpElEv739UzR1oiIFnEr8d
+         glNbByZzQlCXXp95xYml3+j8o1PmQbbDDWSUvFMJzCT6GldLdDhpeurVLdSLy/ywXINV
+         6oOsRaOse7zj5glF+AWMzVfNlk7YPhKHEAUI6xZAWYhfMiBZmhaNfcQkjyo5FFdKJo8g
+         G1zapmqwrlRIEjowMKI8JiJn8XYwRUzvnFoTXM+0xCenCIGz+5VUJ0g541hXrfjCQj8M
+         4uAhhmlVruRglpNW5pAOzp31LG5H1GznjGJTbO+Kor8oC+nUlCZjFs8wX46JaknqUSX0
+         9ETQ==
+X-Gm-Message-State: AOAM533naW0voo7GfDNzFBZob8yn5LCbY96uZ5zFfojJJ+HLWRToIGDt
+        KBBd2jtpsEJYGGVjRLM3fnygZkzG7X5UUQ==
+X-Google-Smtp-Source: ABdhPJyFxG6jE4JyH3R/U5GLHMaVOP8xt4cFnvszKiM7dZP9MvQ6l80nPe2d2VkNep1HFuDssJGtFQ==
+X-Received: by 2002:a02:714f:: with SMTP id n15mr8440902jaf.6.1616690629100;
+        Thu, 25 Mar 2021 09:43:49 -0700 (PDT)
+Received: from p1.localdomain ([65.144.74.34])
+        by smtp.gmail.com with ESMTPSA id k12sm2990605ios.2.2021.03.25.09.43.48
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 25 Mar 2021 09:43:48 -0700 (PDT)
 From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <4befa1ec-11d8-fca8-692a-492b72b219f4@kernel.dk>
-Date:   Thu, 25 Mar 2021 10:19:39 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+To:     io-uring@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, ebiederm@xmission.com,
+        linux-kernel@vger.kernel.org, oleg@redhat.com, metze@samba.org,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 1/2] kernel: don't include PF_IO_WORKERs as part of same_thread_group()
+Date:   Thu, 25 Mar 2021 10:43:42 -0600
+Message-Id: <20210325164343.807498-2-axboe@kernel.dk>
+X-Mailer: git-send-email 2.31.0
+In-Reply-To: <20210325164343.807498-1-axboe@kernel.dk>
+References: <20210325164343.807498-1-axboe@kernel.dk>
 MIME-Version: 1.0
-In-Reply-To: <0000000000007a49c105be013f72@google.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 3/20/21 6:44 PM, syzbot wrote:
-> syzbot has found a reproducer for the following issue on:
-> 
-> HEAD commit:    1c273e10 Merge tag 'zonefs-5.12-rc4' of git://git.kernel.o..
-> git tree:       upstream
-> console output: https://syzkaller.appspot.com/x/log.txt?x=13853506d00000
-> kernel config:  https://syzkaller.appspot.com/x/.config?x=c51293a9ca630f6d
-> dashboard link: https://syzkaller.appspot.com/bug?extid=77a738a6bc947bf639ca
-> compiler:       Debian clang version 11.0.1-2
-> syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=11ec259ed00000
-> C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=13acfa62d00000
-> 
-> IMPORTANT: if you fix the issue, please add the following tag to the commit:
-> Reported-by: syzbot+77a738a6bc947bf639ca@syzkaller.appspotmail.com
+Don't pretend that the IO threads are in the same thread group, the only
+case where that seems to be desired is for accounting purposes. Add
+a special accounting function for that and make the scheduler side use it.
 
-#syz test: git://git.kernel.dk/linux-block io_uring-5.12
+For signals and ptrace, we don't allow them to be treated as threads
+anyway.
 
+Reported-by: Stefan Metzmacher <metze@samba.org>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+---
+ include/linux/sched/signal.h | 9 ++++++++-
+ kernel/sched/cputime.c       | 2 +-
+ 2 files changed, 9 insertions(+), 2 deletions(-)
+
+diff --git a/include/linux/sched/signal.h b/include/linux/sched/signal.h
+index 3f6a0fcaa10c..4f621e386abf 100644
+--- a/include/linux/sched/signal.h
++++ b/include/linux/sched/signal.h
+@@ -668,11 +668,18 @@ static inline bool thread_group_leader(struct task_struct *p)
+ }
+ 
+ static inline
+-bool same_thread_group(struct task_struct *p1, struct task_struct *p2)
++bool same_thread_group_account(struct task_struct *p1, struct task_struct *p2)
+ {
+ 	return p1->signal == p2->signal;
+ }
+ 
++static inline
++bool same_thread_group(struct task_struct *p1, struct task_struct *p2)
++{
++	return same_thread_group_account(p1, p2) &&
++			!((p1->flags | p2->flags) & PF_IO_WORKER);
++}
++
+ static inline struct task_struct *next_thread(const struct task_struct *p)
+ {
+ 	return list_entry_rcu(p->thread_group.next,
+diff --git a/kernel/sched/cputime.c b/kernel/sched/cputime.c
+index 5f611658eeab..625110cacc2a 100644
+--- a/kernel/sched/cputime.c
++++ b/kernel/sched/cputime.c
+@@ -307,7 +307,7 @@ void thread_group_cputime(struct task_struct *tsk, struct task_cputime *times)
+ 	 * those pending times and rely only on values updated on tick or
+ 	 * other scheduler action.
+ 	 */
+-	if (same_thread_group(current, tsk))
++	if (same_thread_group_account(current, tsk))
+ 		(void) task_sched_runtime(current);
+ 
+ 	rcu_read_lock();
 -- 
-Jens Axboe
+2.31.0
 

@@ -2,103 +2,113 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1F8F8C433E2
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0BD7BC433DB
 	for <io-uring@archiver.kernel.org>; Thu, 25 Mar 2021 13:13:03 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id ECFC361A21
+	by mail.kernel.org (Postfix) with ESMTP id C3923619FE
 	for <io-uring@archiver.kernel.org>; Thu, 25 Mar 2021 13:13:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230191AbhCYNMb (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        id S230133AbhCYNMb (ORCPT <rfc822;io-uring@archiver.kernel.org>);
         Thu, 25 Mar 2021 09:12:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34122 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34138 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230167AbhCYNMP (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Thu, 25 Mar 2021 09:12:15 -0400
-Received: from mail-wm1-x330.google.com (mail-wm1-x330.google.com [IPv6:2a00:1450:4864:20::330])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 026BDC06174A
-        for <io-uring@vger.kernel.org>; Thu, 25 Mar 2021 06:12:15 -0700 (PDT)
-Received: by mail-wm1-x330.google.com with SMTP id y124-20020a1c32820000b029010c93864955so3061994wmy.5
-        for <io-uring@vger.kernel.org>; Thu, 25 Mar 2021 06:12:14 -0700 (PDT)
+        with ESMTP id S230248AbhCYNMS (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Thu, 25 Mar 2021 09:12:18 -0400
+Received: from mail-wm1-x333.google.com (mail-wm1-x333.google.com [IPv6:2a00:1450:4864:20::333])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 970DBC06175F
+        for <io-uring@vger.kernel.org>; Thu, 25 Mar 2021 06:12:17 -0700 (PDT)
+Received: by mail-wm1-x333.google.com with SMTP id t5-20020a1c77050000b029010e62cea9deso1172052wmi.0
+        for <io-uring@vger.kernel.org>; Thu, 25 Mar 2021 06:12:17 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:subject:date:message-id:mime-version
+        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=Lei1Vp2rZLsZeBG1j38rlO8E89kA31Ge3PEj55dzWQE=;
-        b=PhIbHTYw2OO1JoWyPEjPkvcC+8Tm9/eEA9GeJEE6/yHv4t5DZddHlUqnqy13XoWKND
-         pZZaTEB1r93dGm0Hwo6z/nX60L+mVw7jkmNTLAl8V/kM4HZB1D1WP00HNArW2ItJGYLD
-         u8l/WcEvk3h/0qheovfVsjhRn+SD16zoHnK5oeW5HXpsOs4oOdB4lD89+nbZgHb1NokV
-         I/JnGKFNsAck4wBzTYnUbMaXTSl8aimfsq+o4SFHMabOKc/f+5bPrtAG0kRmKpIsAYV+
-         5RfocEVAx+Ktg0CYmjDN0JSFa1HStG1LcsBnpBBSGwn0uctcOjxgem1uUyWfZX2l85/x
-         jcUw==
+        bh=APXOgohIUk73i9FEoOPQ/7PLeaAk+kt+OWzQWuT5Cxw=;
+        b=Z6LUXV9uC4vxZWdmuMVGDiaE9yvNRAeW7vSWcrilI+CIh1oz0KzVfesXXxSNQtynHo
+         zOSr81ghejq0KGbzelO2dT5m6WSQM3gTFqQfGtKyaA4hUhMg501ZJDKoHszmYWMaACUv
+         pDexGZRMQb/QrIFG8nEalbJLeF26egbMHCRehOarc3mJ8rqDRtDIgBITNJ15kPByP7Ex
+         5QJbQJ/WV1Hy4jNZZrm1WLhLcRGbtEzmQhbyQz3NRl5GMepZL063Jwo4x+olNTjqSphO
+         AJrIJL9aJZbWu9/+ia4R/Dblw1OPBS3KXL+iU1AkIrNTlftGnrjodyn2Nn3iQhMQKB2T
+         POng==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=Lei1Vp2rZLsZeBG1j38rlO8E89kA31Ge3PEj55dzWQE=;
-        b=AgZokIsY6tr6N4rf/879GPHBh/R976+0g8ZulI5jMlevCXy4bOtBK+ktcD/VA8qECu
-         2GMm9L8WrQJSQVMEghAi2AWGCQYahz45oefABUFxvllx9uAsUFALFnY0vmFdhh2//uzf
-         xm58AbO/qLag5sl/AgB4ziCA+c6WIRTQuVOqg49Y0aAR6geU1LzsNqZuMfyBE7jkvDiF
-         /hnvGOp0wAQMi7nnmxLIB4xNOeys7NZQ/HQ4MPfCPxw2RV6XJHYU3rZ0usSFkDfL+Gfo
-         Y9Yba/KPH4oq2BnVcXu8bYU2fhpmJb2O5NC0VcCWtU/JgjHmPoG+ge0QlHLvri8VDPYR
-         2YUA==
-X-Gm-Message-State: AOAM530uXDjCEDyWp+KwKbCC09rA0qML2mdNAV2X8exXc0xyBZ+b/ZC9
-        7FqXJPjeU6N1x9bU+YqkKMs=
-X-Google-Smtp-Source: ABdhPJzVyvA7H4blh/Qp7k6SSLJgeZr/XhsNemvGwte432HypLGS4IMWrgXUxfbAF5EYT+3iTEPyUw==
-X-Received: by 2002:a1c:2857:: with SMTP id o84mr7943056wmo.181.1616677933681;
-        Thu, 25 Mar 2021 06:12:13 -0700 (PDT)
+        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=APXOgohIUk73i9FEoOPQ/7PLeaAk+kt+OWzQWuT5Cxw=;
+        b=IfD8ChnFQuPxbTfDADt1sVN+uLnCNlgYd+bkbEja8iegTa8rhGfUBvCoP3GV5gCDjg
+         iZSHlixTZUohh+Mc63Fk5uoEXQ2iZq7em+TgMy2wxwYtgw4wzv/8xJs0EA637BPkBLxE
+         D5W8qrXmL9rkeTHc4qMZYC7Z5pQZbDdK4oOJmm/CaaGb3InXN+dLdh6b+ULVNYqlCRVc
+         A5sMICbRH+2tt96DGOEhE536ZRUQOSv1R1nmnJpnqHe7YfXhnCbwkQM4mE29ZC94Qcc+
+         z6VUZ7edutznivh2WOvOKZAgfXTwRciEG+nWxDEHew5jbnxJ6T5Uawbpyz0jWaYXeNyj
+         eWFg==
+X-Gm-Message-State: AOAM532/W65rDOvuONK51s8ZezbnY0YhhLfPRfDEgFYhSCGNguI0VV1n
+        s6Ab5pDUHqFynb4YMCzE9hU=
+X-Google-Smtp-Source: ABdhPJwXfIQRtx4nbhg76N5gROGlPmuO2SjmAN26SfqDW/4hBYGXr18qZ9rtILgijFVsGgBWKGHEQA==
+X-Received: by 2002:a1c:6a05:: with SMTP id f5mr7816926wmc.75.1616677936143;
+        Thu, 25 Mar 2021 06:12:16 -0700 (PDT)
 Received: from localhost.localdomain ([148.252.129.162])
-        by smtp.gmail.com with ESMTPSA id i4sm5754285wmq.12.2021.03.25.06.12.12
+        by smtp.gmail.com with ESMTPSA id i4sm5754285wmq.12.2021.03.25.06.12.15
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 25 Mar 2021 06:12:13 -0700 (PDT)
+        Thu, 25 Mar 2021 06:12:15 -0700 (PDT)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH v3 for-5.13 00/17] ctx wide rsrc nodes + other stuff
-Date:   Thu, 25 Mar 2021 13:07:49 +0000
-Message-Id: <cover.1616677487.git.asml.silence@gmail.com>
+Subject: [PATCH v3 02/17] io_uring: simplify io_rsrc_node_ref_zero
+Date:   Thu, 25 Mar 2021 13:07:51 +0000
+Message-Id: <dd22c634662343a2dee06a879c0979f9adc9c391.1616677487.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.24.0
+In-Reply-To: <cover.1616677487.git.asml.silence@gmail.com>
+References: <cover.1616677487.git.asml.silence@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-1-7 implement ctx wide rsrc nodes. The main idea here is to make make
-rsrc nodes (aka ref nodes) to be per ctx rather than per rsrc_data, that
-is a requirement for having multiple resource types. All the meat to it
-in 7/7. Btw improve rsrc API, because it was too easy to misuse.
+Replace queue_delayed_work() with mod_delayed_work() in
+io_rsrc_node_ref_zero() as the later one can schedule a new work, and
+cleanup it further for better readability.
 
-8-17 are necessarily related cleanups
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+---
+ fs/io_uring.c | 12 ++++--------
+ 1 file changed, 4 insertions(+), 8 deletions(-)
 
-v2: io_rsrc_node_destroy() last rsrc_node on ctx_free()
-v3: add 8-17, 1-7 are unchanged
-
-Pavel Begunkov (17):
-  io_uring: name rsrc bits consistently
-  io_uring: simplify io_rsrc_node_ref_zero
-  io_uring: use rsrc prealloc infra for files reg
-  io_uring: encapsulate rsrc node manipulations
-  io_uring: move rsrc_put callback into io_rsrc_data
-  io_uring: refactor io_queue_rsrc_removal()
-  io_uring: ctx-wide rsrc nodes
-  io_uring: reuse io_rsrc_node_destroy()
-  io_uring: remove useless is_dying check on quiesce
-  io_uring: refactor rw reissue
-  io_uring: combine lock/unlock sections on exit
-  io_uring: better ref handling in poll_remove_one
-  io_uring: remove unused hash_wait
-  io_uring: refactor io_async_cancel()
-  io_uring: improve import_fixed overflow checks
-  io_uring: store reg buffer end instead of length
-  io_uring: kill unused forward decls
-
- fs/io_uring.c | 333 ++++++++++++++++++++------------------------------
- 1 file changed, 135 insertions(+), 198 deletions(-)
-
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index b2c6d91749df..502b0f6c755b 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -7453,7 +7453,7 @@ static void io_rsrc_node_ref_zero(struct percpu_ref *ref)
+ 	struct io_rsrc_data *data = node->rsrc_data;
+ 	struct io_ring_ctx *ctx = data->ctx;
+ 	bool first_add = false;
+-	int delay = HZ;
++	int delay;
+ 
+ 	io_rsrc_ref_lock(ctx);
+ 	node->done = true;
+@@ -7469,13 +7469,9 @@ static void io_rsrc_node_ref_zero(struct percpu_ref *ref)
+ 	}
+ 	io_rsrc_ref_unlock(ctx);
+ 
+-	if (percpu_ref_is_dying(&data->refs))
+-		delay = 0;
+-
+-	if (!delay)
+-		mod_delayed_work(system_wq, &ctx->rsrc_put_work, 0);
+-	else if (first_add)
+-		queue_delayed_work(system_wq, &ctx->rsrc_put_work, delay);
++	delay = percpu_ref_is_dying(&data->refs) ? 0 : HZ;
++	if (first_add || !delay)
++		mod_delayed_work(system_wq, &ctx->rsrc_put_work, delay);
+ }
+ 
+ static struct io_rsrc_node *io_rsrc_node_alloc(struct io_ring_ctx *ctx)
 -- 
 2.24.0
 

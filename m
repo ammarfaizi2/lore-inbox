@@ -2,83 +2,108 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.5 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_RED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AC668C433E0
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DA0A4C433DB
 	for <io-uring@archiver.kernel.org>; Thu, 25 Mar 2021 20:45:27 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 724E461A43
+	by mail.kernel.org (Postfix) with ESMTP id 91ABA61A44
 	for <io-uring@archiver.kernel.org>; Thu, 25 Mar 2021 20:45:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230313AbhCYUoy (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        id S230300AbhCYUoy (ORCPT <rfc822;io-uring@archiver.kernel.org>);
         Thu, 25 Mar 2021 16:44:54 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:40779 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230263AbhCYUoj (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Thu, 25 Mar 2021 16:44:39 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1616705078;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=QRNZIFWxRM57bHTCCTJ1A2JvKV0FOZM1E6K3THZHiOg=;
-        b=K2QSliinGuCnIHmQDOKWd8xLRI4nn+v0fFHZJTclMJ0dABmnmHF5CJ8Z/ftNUfL4UUT6RE
-        QhEyfm4iKmIkWqmIoI3FUAq4+zFBv2V6kPBAGCZy86tgvh0IZfe2uvMoH79zXdx24CU+fe
-        euI3ASRtpLjpJ0M+tFCy5fEpaMt/psM=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-540-xis2Tf1rPa2feoa4YPKEnQ-1; Thu, 25 Mar 2021 16:44:34 -0400
-X-MC-Unique: xis2Tf1rPa2feoa4YPKEnQ-1
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id B265E88127C;
-        Thu, 25 Mar 2021 20:44:33 +0000 (UTC)
-Received: from dhcp-27-174.brq.redhat.com (unknown [10.40.192.41])
-        by smtp.corp.redhat.com (Postfix) with SMTP id 10BF813470;
-        Thu, 25 Mar 2021 20:44:31 +0000 (UTC)
-Received: by dhcp-27-174.brq.redhat.com (nbSMTP-1.00) for uid 1000
-        oleg@redhat.com; Thu, 25 Mar 2021 21:44:33 +0100 (CET)
-Date:   Thu, 25 Mar 2021 21:44:30 +0100
-From:   Oleg Nesterov <oleg@redhat.com>
+Received: from out01.mta.xmission.com ([166.70.13.231]:39202 "EHLO
+        out01.mta.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230153AbhCYUog (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Thu, 25 Mar 2021 16:44:36 -0400
+Received: from in02.mta.xmission.com ([166.70.13.52])
+        by out01.mta.xmission.com with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.93)
+        (envelope-from <ebiederm@xmission.com>)
+        id 1lPWqJ-008Loq-8p; Thu, 25 Mar 2021 14:44:35 -0600
+Received: from ip68-227-160-95.om.om.cox.net ([68.227.160.95] helo=fess.xmission.com)
+        by in02.mta.xmission.com with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.93)
+        (envelope-from <ebiederm@xmission.com>)
+        id 1lPWqI-007kcD-2u; Thu, 25 Mar 2021 14:44:34 -0600
+From:   ebiederm@xmission.com (Eric W. Biederman)
 To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     "Eric W. Biederman" <ebiederm@xmission.com>,
-        Jens Axboe <axboe@kernel.dk>,
-        io-uring <io-uring@vger.kernel.org>,
+Cc:     Jens Axboe <axboe@kernel.dk>, io-uring <io-uring@vger.kernel.org>,
         Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Oleg Nesterov <oleg@redhat.com>,
         Stefan Metzmacher <metze@samba.org>
-Subject: Re: [PATCH 0/2] Don't show PF_IO_WORKER in /proc/<pid>/task/
-Message-ID: <20210325204430.GE28349@redhat.com>
 References: <20210325164343.807498-1-axboe@kernel.dk>
- <m1ft0j3u5k.fsf@fess.ebiederm.org>
- <CAHk-=wjOXiEAjGLbn2mWRsxqpAYUPcwCj2x5WgEAh=gj+o0t4Q@mail.gmail.com>
- <CAHk-=wg1XpX=iAv=1HCUReMbEgeN5UogZ4_tbi+ehaHZG6d==g@mail.gmail.com>
- <CAHk-=wgUcVeaKhtBgJO3TfE69miJq-krtL8r_Wf_=LBTJw6WSg@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+        <m1ft0j3u5k.fsf@fess.ebiederm.org>
+        <CAHk-=wjOXiEAjGLbn2mWRsxqpAYUPcwCj2x5WgEAh=gj+o0t4Q@mail.gmail.com>
+        <CAHk-=wg1XpX=iAv=1HCUReMbEgeN5UogZ4_tbi+ehaHZG6d==g@mail.gmail.com>
+        <CAHk-=wgUcVeaKhtBgJO3TfE69miJq-krtL8r_Wf_=LBTJw6WSg@mail.gmail.com>
+Date:   Thu, 25 Mar 2021 15:43:34 -0500
 In-Reply-To: <CAHk-=wgUcVeaKhtBgJO3TfE69miJq-krtL8r_Wf_=LBTJw6WSg@mail.gmail.com>
-User-Agent: Mutt/1.5.24 (2015-08-30)
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
+        (Linus Torvalds's message of "Thu, 25 Mar 2021 13:12:42 -0700")
+Message-ID: <m1lfab0xs9.fsf@fess.ebiederm.org>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/26.1 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain
+X-XM-SPF: eid=1lPWqI-007kcD-2u;;;mid=<m1lfab0xs9.fsf@fess.ebiederm.org>;;;hst=in02.mta.xmission.com;;;ip=68.227.160.95;;;frm=ebiederm@xmission.com;;;spf=neutral
+X-XM-AID: U2FsdGVkX1/f0dVqJdZlHqDKLajsEoUgpwHpwtu/hxw=
+X-SA-Exim-Connect-IP: 68.227.160.95
+X-SA-Exim-Mail-From: ebiederm@xmission.com
+Subject: Re: [PATCH 0/2] Don't show PF_IO_WORKER in /proc/<pid>/task/
+X-SA-Exim-Version: 4.2.1 (built Sat, 08 Feb 2020 21:53:50 +0000)
+X-SA-Exim-Scanned: Yes (on in02.mta.xmission.com)
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 03/25, Linus Torvalds wrote:
+Linus Torvalds <torvalds@linux-foundation.org> writes:
+
+> On Thu, Mar 25, 2021 at 12:42 PM Linus Torvalds
+> <torvalds@linux-foundation.org> wrote:
+>>
+>> On Thu, Mar 25, 2021 at 12:38 PM Linus Torvalds
+>> <torvalds@linux-foundation.org> wrote:
+>> >
+>> > I don't know what the gdb logic is, but maybe there's some other
+>> > option that makes gdb not react to them?
+>>
+>> .. maybe we could have a different name for them under the task/
+>> subdirectory, for example (not  just the pid)? Although that probably
+>> messes up 'ps' too..
+>
+> Actually, maybe the right model is to simply make all the io threads
+> take signals, and get rid of all the special cases.
+>
+> Sure, the signals will never be delivered to user space, but if we
+>
+>  - just made the thread loop do "get_signal()" when there are pending signals
+>
+>  - allowed ptrace_attach on them
+>
+> they'd look pretty much like regular threads that just never do the
+> user-space part of signal handling.
 >
 > The whole "signals are very special for IO threads" thing has caused
 > so many problems, that maybe the solution is simply to _not_ make them
 > special?
 
-Or may be IO threads should not abuse CLONE_THREAD?
+The special case in check_kill_permission is certainly unnecessary.
+Having the signal blocked is enough to prevent signal_pending() from
+being true. 
 
-Why does create_io_thread() abuse CLONE_THREAD ?
 
-One reason (I think) is that this implies SIGKILL when the process exits/execs,
-anything else?
+The most straight forward thing I can see is to allow ptrace_attach and
+to modify ptrace_check_attach to always return -ESRCH for io workers
+unless ignore_state is set causing none of the other ptrace operations
+to work.
 
-Oleg.
+That is what a long running in-kernel thread would do today so
+user-space aka gdb may actually cope with it.
+
+
+We might be able to support if io workers start supporting SIGSTOP but I
+am not at all certain.
+
+Eric
 

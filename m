@@ -2,94 +2,146 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 47BEDC433C1
-	for <io-uring@archiver.kernel.org>; Thu, 25 Mar 2021 20:57:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 56B9EC433C1
+	for <io-uring@archiver.kernel.org>; Thu, 25 Mar 2021 21:21:32 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1286261A31
-	for <io-uring@archiver.kernel.org>; Thu, 25 Mar 2021 20:57:23 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 32B1A61A3C
+	for <io-uring@archiver.kernel.org>; Thu, 25 Mar 2021 21:21:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229930AbhCYU4r (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Thu, 25 Mar 2021 16:56:47 -0400
-Received: from out03.mta.xmission.com ([166.70.13.233]:55486 "EHLO
-        out03.mta.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230042AbhCYU4Y (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Thu, 25 Mar 2021 16:56:24 -0400
-Received: from in01.mta.xmission.com ([166.70.13.51])
-        by out03.mta.xmission.com with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
-        (Exim 4.93)
-        (envelope-from <ebiederm@xmission.com>)
-        id 1lPX1j-00GGQT-Ij; Thu, 25 Mar 2021 14:56:23 -0600
-Received: from ip68-227-160-95.om.om.cox.net ([68.227.160.95] helo=fess.xmission.com)
-        by in01.mta.xmission.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.87)
-        (envelope-from <ebiederm@xmission.com>)
-        id 1lPX1h-0003qr-PN; Thu, 25 Mar 2021 14:56:23 -0600
-From:   ebiederm@xmission.com (Eric W. Biederman)
-To:     Oleg Nesterov <oleg@redhat.com>
+        id S230313AbhCYVU7 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Thu, 25 Mar 2021 17:20:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55690 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229581AbhCYVUc (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Thu, 25 Mar 2021 17:20:32 -0400
+Received: from hr2.samba.org (hr2.samba.org [IPv6:2a01:4f8:192:486::2:0])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6CD5DC06174A;
+        Thu, 25 Mar 2021 14:20:26 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=samba.org;
+         s=42; h=Date:Message-ID:From:Cc:To;
+        bh=OQZA0jbq1xbHQCEY8TUlGEMjzZL7qZb9xcn3Kc+aiKs=; b=IEcX+TJ4DVViDj3tjQpKZypFLF
+        Ab9NpeluhoG74Xlf6pso8kRjaglOxb+cT+GOp/qHs+Rb1tmFTFvIGhs82LdWAOtepfPKtRAM2LXV5
+        QDkDeN467HKsZV2jzhXpRttGSNLIXbwFZbaOAb1W5jJaGfYRyKguLIfD8RNXS9PidrHSVoDYbIIRu
+        Kcq1Gakgi9miP7Cbd4u6g+8UktT7NdrPQzxwXPagRs050JUc7rwYw3xuZsx1kLDZnFxWYqEPEiuPt
+        j6JdmFKX2OnVDgoxckR4hvZwnEULi40WSgRw0VWxMFYoqF1xauZjpeeUdfjIXRnfXj6azY0f78/vk
+        ejxawll8SChMOpgrj67rZcy0YX86RCYs3UG7/25BdtdlWjM8s7CgSS/B67QWXOlNpU5zO+4YOtVZ6
+        heJ/pV5hfQMlSwsx7kwmZOnhUEcAPNmQq8G+nban+uofjRSsWZKabfAioSIN0kuOQwi84k3v+g5EU
+        J8SvhJjffz3lDnIFhSthA0MU;
+Received: from [127.0.0.2] (localhost [127.0.0.1])
+        by hr2.samba.org with esmtpsa (TLS1.3:ECDHE_RSA_CHACHA20_POLY1305:256)
+        (Exim)
+        id 1lPXOx-0003up-Qv; Thu, 25 Mar 2021 21:20:23 +0000
+To:     "Eric W. Biederman" <ebiederm@xmission.com>,
+        Oleg Nesterov <oleg@redhat.com>
 Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
         Jens Axboe <axboe@kernel.dk>,
         io-uring <io-uring@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Stefan Metzmacher <metze@samba.org>
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 References: <20210325164343.807498-1-axboe@kernel.dk>
-        <m1ft0j3u5k.fsf@fess.ebiederm.org>
-        <CAHk-=wjOXiEAjGLbn2mWRsxqpAYUPcwCj2x5WgEAh=gj+o0t4Q@mail.gmail.com>
-        <CAHk-=wg1XpX=iAv=1HCUReMbEgeN5UogZ4_tbi+ehaHZG6d==g@mail.gmail.com>
-        <CAHk-=wgUcVeaKhtBgJO3TfE69miJq-krtL8r_Wf_=LBTJw6WSg@mail.gmail.com>
-        <20210325204430.GE28349@redhat.com>
-Date:   Thu, 25 Mar 2021 15:55:21 -0500
-In-Reply-To: <20210325204430.GE28349@redhat.com> (Oleg Nesterov's message of
-        "Thu, 25 Mar 2021 21:44:30 +0100")
-Message-ID: <m1im5fymva.fsf@fess.ebiederm.org>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/26.1 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain
-X-XM-SPF: eid=1lPX1h-0003qr-PN;;;mid=<m1im5fymva.fsf@fess.ebiederm.org>;;;hst=in01.mta.xmission.com;;;ip=68.227.160.95;;;frm=ebiederm@xmission.com;;;spf=neutral
-X-XM-AID: U2FsdGVkX1/JsbrhQ4IeD1xkDz3HU8Jinx2474vuSMo=
-X-SA-Exim-Connect-IP: 68.227.160.95
-X-SA-Exim-Mail-From: ebiederm@xmission.com
+ <m1ft0j3u5k.fsf@fess.ebiederm.org>
+ <CAHk-=wjOXiEAjGLbn2mWRsxqpAYUPcwCj2x5WgEAh=gj+o0t4Q@mail.gmail.com>
+ <CAHk-=wg1XpX=iAv=1HCUReMbEgeN5UogZ4_tbi+ehaHZG6d==g@mail.gmail.com>
+ <CAHk-=wgUcVeaKhtBgJO3TfE69miJq-krtL8r_Wf_=LBTJw6WSg@mail.gmail.com>
+ <20210325204430.GE28349@redhat.com> <m1im5fymva.fsf@fess.ebiederm.org>
+From:   Stefan Metzmacher <metze@samba.org>
 Subject: Re: [PATCH 0/2] Don't show PF_IO_WORKER in /proc/<pid>/task/
-X-SA-Exim-Version: 4.2.1 (built Thu, 05 May 2016 13:38:54 -0600)
-X-SA-Exim-Scanned: Yes (on in01.mta.xmission.com)
+Message-ID: <b639606f-cc2f-44d8-c251-163a95289e30@samba.org>
+Date:   Thu, 25 Mar 2021 22:20:21 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.7.1
+MIME-Version: 1.0
+In-Reply-To: <m1im5fymva.fsf@fess.ebiederm.org>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Oleg Nesterov <oleg@redhat.com> writes:
 
-> On 03/25, Linus Torvalds wrote:
+Am 25.03.21 um 21:55 schrieb Eric W. Biederman:
+> Oleg Nesterov <oleg@redhat.com> writes:
+> 
+>> On 03/25, Linus Torvalds wrote:
+>>>
+>>> The whole "signals are very special for IO threads" thing has caused
+>>> so many problems, that maybe the solution is simply to _not_ make them
+>>> special?
 >>
->> The whole "signals are very special for IO threads" thing has caused
->> so many problems, that maybe the solution is simply to _not_ make them
->> special?
->
-> Or may be IO threads should not abuse CLONE_THREAD?
->
-> Why does create_io_thread() abuse CLONE_THREAD ?
->
-> One reason (I think) is that this implies SIGKILL when the process exits/execs,
-> anything else?
+>> Or may be IO threads should not abuse CLONE_THREAD?
+>>
+>> Why does create_io_thread() abuse CLONE_THREAD ?
+>>
+>> One reason (I think) is that this implies SIGKILL when the process exits/execs,
+>> anything else?
+> 
+> A lot.
+> 
+> The io workers perform work on behave of the ordinary userspace threads.
+> Some of that work is opening files.  For things like rlimits to work
+> properly you need to share the signal_struct.  But odds are if you find
+> anything in signal_struct (not counting signals) there will be an
+> io_uring code path that can exercise it as io_uring can traverse the
+> filesystem, open files and read/write files.  So io_uring can exercise
+> all of proc.
+> 
+> Using create_io_thread with CLONE_THREAD is the least problematic way
+> (including all of the signal and ptrace problems we are looking at right
+> now) to implement the io worker threads.
+> 
+> They _really_ are threads of the process that just never execute any
+> code in userspace.
 
-A lot.
+So they should look like a userspace thread sitting in something like
+epoll_pwait() with all signals blocked, which will never return to userspace again?
 
-The io workers perform work on behave of the ordinary userspace threads.
-Some of that work is opening files.  For things like rlimits to work
-properly you need to share the signal_struct.  But odds are if you find
-anything in signal_struct (not counting signals) there will be an
-io_uring code path that can exercise it as io_uring can traverse the
-filesystem, open files and read/write files.  So io_uring can exercise
-all of proc.
+I think that would be useful, but I also think that userspace should see:
+- /proc/$tidofiothread/cmdline as empty (in order to let ps and top use [iou-wrk-$tidofuserspacethread])
+- /proc/$tidofiothread/exe as symlink to that not exists
+- all of /proc/$tidofiothread/ shows root.root as owner and group
+  and things which still allow write access to /proc/$tidofiothread/comm similar things
+  with rw permissions should still disallow modifications:
 
-Using create_io_thread with CLONE_THREAD is the least problematic way
-(including all of the signal and ptrace problems we are looking at right
-now) to implement the io worker threads.
+For the other kernel threads e.g. "[cryptd]" I see the following:
 
-They _really_ are threads of the process that just never execute any
-code in userspace.
+LANG=C ls -l /proc/653 | grep rw
+ls: cannot read symbolic link '/proc/653/exe': No such file or directory
+-rw-r--r--  1 root root 0 Mar 25 22:09 autogroup
+-rw-r--r--  1 root root 0 Mar 25 22:09 comm
+-rw-r--r--  1 root root 0 Mar 25 22:09 coredump_filter
+lrwxrwxrwx  1 root root 0 Mar 25 22:09 cwd -> /
+lrwxrwxrwx  1 root root 0 Mar 25 22:09 exe
+-rw-r--r--  1 root root 0 Mar 25 22:09 gid_map
+-rw-r--r--  1 root root 0 Mar 25 22:09 loginuid
+-rw-------  1 root root 0 Mar 25 22:09 mem
+-rw-r--r--  1 root root 0 Mar 25 22:09 oom_adj
+-rw-r--r--  1 root root 0 Mar 25 22:09 oom_score_adj
+-rw-r--r--  1 root root 0 Mar 25 22:09 projid_map
+lrwxrwxrwx  1 root root 0 Mar 25 22:09 root -> /
+-rw-r--r--  1 root root 0 Mar 25 22:09 sched
+-rw-r--r--  1 root root 0 Mar 25 22:09 setgroups
+-rw-r--r--  1 root root 0 Mar 25 22:09 timens_offsets
+-rw-rw-rw-  1 root root 0 Mar 25 22:09 timerslack_ns
+-rw-r--r--  1 root root 0 Mar 25 22:09 uid_map
 
-Eric
+And this:
 
+LANG=C echo "bla" > /proc/653/comm
+-bash: echo: write error: Invalid argument
+
+LANG=C echo "bla" > /proc/653/gid_map
+-bash: echo: write error: Operation not permitted
+
+Can't we do the same for iothreads regarding /proc?
+Just make things read only there and empty "cmdline"/"exe"?
+
+Maybe I'm too naive, but that what I'd assume as a userspace developer/admin.
+
+Does at least parts of it make any sense?
+
+metze

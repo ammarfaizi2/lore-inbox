@@ -2,126 +2,159 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 34543C433DB
-	for <io-uring@archiver.kernel.org>; Thu, 25 Mar 2021 13:13:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9EC72C433DB
+	for <io-uring@archiver.kernel.org>; Thu, 25 Mar 2021 13:39:55 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0BDF661A2F
-	for <io-uring@archiver.kernel.org>; Thu, 25 Mar 2021 13:13:35 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7C4D261A1F
+	for <io-uring@archiver.kernel.org>; Thu, 25 Mar 2021 13:39:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230296AbhCYNND (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Thu, 25 Mar 2021 09:13:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34220 "EHLO
+        id S230296AbhCYNjX (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Thu, 25 Mar 2021 09:39:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39838 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230166AbhCYNMb (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Thu, 25 Mar 2021 09:12:31 -0400
-Received: from mail-wr1-x432.google.com (mail-wr1-x432.google.com [IPv6:2a00:1450:4864:20::432])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 915D6C06174A
-        for <io-uring@vger.kernel.org>; Thu, 25 Mar 2021 06:12:31 -0700 (PDT)
-Received: by mail-wr1-x432.google.com with SMTP id j18so2253304wra.2
-        for <io-uring@vger.kernel.org>; Thu, 25 Mar 2021 06:12:31 -0700 (PDT)
+        with ESMTP id S230134AbhCYNiv (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Thu, 25 Mar 2021 09:38:51 -0400
+Received: from mail-io1-xd2c.google.com (mail-io1-xd2c.google.com [IPv6:2607:f8b0:4864:20::d2c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16DC3C061760
+        for <io-uring@vger.kernel.org>; Thu, 25 Mar 2021 06:38:51 -0700 (PDT)
+Received: by mail-io1-xd2c.google.com with SMTP id n21so1936400ioa.7
+        for <io-uring@vger.kernel.org>; Thu, 25 Mar 2021 06:38:51 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
-         :content-transfer-encoding;
-        bh=ZB5suhXyzVib0kj9RwE5sak4TpA3/HAOUFJ8JTcy+ro=;
-        b=f5QWk0LstXrHGTi1fmvCSxt5+RR8/Ul2EfnfvHhkeLp3mOoLuMmPsQRLaVMtjYDly8
-         cgRigI62oBEf2W/tUyKWcoAG6pa0emGiLvIzfeAUDjllgwFQo9ZaJdYxP4oD+rAoQx+E
-         G1E77WXSyebQ4EiJ265WZZCE3HnubOyCDD3BjJ6Fdpo2LatFr3PIC+fvIU//8ovDk9D9
-         MwzAQP2+YMvjrkMGbV+fc0jaPFnwZXY9kjcTkJL5FGf1tdzmGnPZ6mhf3hk20YjDrQrx
-         6fNkmQgfRpoNRv1w0pc+EaVD4pXsShl949qDauCqXDjKZddfWiFrQT29d2gOx3isdqYL
-         kk9w==
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=eM1i1Yk87DzUyuufIUGNIKd4zH4tVzCeadWKa9Xb/JU=;
+        b=XdHRtgYk0+DLpDrv3ToQu5LWl0EYWRXpd/TbmPrRxtPCCkTI1FtzSRyh+dBxxClmvL
+         +q9RzafC27umFrgzVkXSOeHFGrfjKrrqJTm7RqEDtLXp7PwkuxLlD46X/G1Tssmszq6G
+         H3bjL9t24Wj3tcTTmVqNoHu/QwKYDo76LNFmaag0zJ9hhsFJ0dJ4VNFm70qp+KBVcXpJ
+         M1thxus4OrUpRTyMkoXMORYOiKpO+fQx3AnD0lUgQ0Wih12kQpF+7omp4c3lv1Uihm8i
+         n94wWdDv7paeA6/5WbaZxsn/dwpQScoYDCcQKuTXN4/s52NloR4Al9i92lhhyd0lTdCF
+         GfTQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=ZB5suhXyzVib0kj9RwE5sak4TpA3/HAOUFJ8JTcy+ro=;
-        b=rcoqR4RmFxxsAnsmi+fK6eWvX+JT55AJhbQQmPsTgA73O7HzFqxV09ffK9HJDKXy+B
-         mh+G3WIpmwUwN3DCp9XFGaQ7yq0q0nvryRkpiM5nuwcb+dkbt/k/xyCsQNrFU6ivC84O
-         yNbcWujYQC1YdTRJd49RKefhOguK734O+7upuJNseiYV+Uz0y51uYW5QKj7ApRoh6MOD
-         Y0giCFzWq035twq+rWf2vZrGLI2Q2997y1pYgm3nqQFNaaQ01bDUF+iqq+A5f08PyNPC
-         4vRnpOgEBAgLO7vXc6QDlUTfdzcYJBrmPf0wudcQkK43sw/C3I/ZPzyE5VVPzws7xRhT
-         ZD8Q==
-X-Gm-Message-State: AOAM533mfHpN0MRdxrI7ErzqNVy9atk6gvEfxWHVJRg43tdP4LoZ7jwu
-        EVhUbNAiS9TBe/5MpQl38X3AmZc4Wz27iQ==
-X-Google-Smtp-Source: ABdhPJzyGYOVboihzsTBVRTvny3bzLl46I9kMj6mTNdSzFBe/fp39HySl/9z07hVY21byoEHB4yLXg==
-X-Received: by 2002:adf:e548:: with SMTP id z8mr9093298wrm.246.1616677950376;
-        Thu, 25 Mar 2021 06:12:30 -0700 (PDT)
-Received: from localhost.localdomain ([148.252.129.162])
-        by smtp.gmail.com with ESMTPSA id i4sm5754285wmq.12.2021.03.25.06.12.29
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 25 Mar 2021 06:12:30 -0700 (PDT)
-From:   Pavel Begunkov <asml.silence@gmail.com>
-To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH v3 16/17] io_uring: store reg buffer end instead of length
-Date:   Thu, 25 Mar 2021 13:08:05 +0000
-Message-Id: <c42906ff1d5565479652ac9769c4c52ce1a70184.1616677487.git.asml.silence@gmail.com>
-X-Mailer: git-send-email 2.24.0
-In-Reply-To: <cover.1616677487.git.asml.silence@gmail.com>
-References: <cover.1616677487.git.asml.silence@gmail.com>
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=eM1i1Yk87DzUyuufIUGNIKd4zH4tVzCeadWKa9Xb/JU=;
+        b=V2alIscPdpuGLTuac0kgmZ64t5m92J+NG57btOcBofRK5W4mqyLWFH4oyULi/nAUzy
+         +RXokFqtjqgPXp9I+bfVeP10zNJnNwKPvyYq6vULBhO4OuXMeDq1iQxSGVxXjSISW77I
+         XDmOEfAtohBdrBu8McWl1q0D5oRJnLCm7Z6vNhj293F5zcjkbUS88dMKNtWpq8QcwiNZ
+         dPpolgHkGj6QyjQiJiK2iFL3q1MYBTFRufGCP2qNiXq0sOWlAZJUpaXtC0vIc5lGIGQo
+         9Hk3LhyCMKPpB1ZZC1cd/3WMas1ZezvZjOBwSPmScl+ru4d4QI+ckhQ9X0CotY4bFts4
+         0ykQ==
+X-Gm-Message-State: AOAM530qF3Cpu0H2+EfKP4OS+2d3/TTmihYtsLMnO1W3L24dP2Vru10F
+        BwKpL1AZQLb+i2b3vir819LpoQ==
+X-Google-Smtp-Source: ABdhPJztg2JZ0lfPBKpRS5e6PcjYOMvW4/3r4DT52HfPZ2N9pX0RvjFWOsn0Ee82mHqUxfdIURFLbw==
+X-Received: by 2002:a02:11c9:: with SMTP id 192mr7529596jaf.135.1616679530405;
+        Thu, 25 Mar 2021 06:38:50 -0700 (PDT)
+Received: from [192.168.1.30] ([65.144.74.34])
+        by smtp.gmail.com with ESMTPSA id v7sm2770160ilu.72.2021.03.25.06.38.49
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 25 Mar 2021 06:38:50 -0700 (PDT)
+Subject: Re: [PATCH AUTOSEL 5.11 43/44] signal: don't allow STOP on
+ PF_IO_WORKER threads
+To:     Stefan Metzmacher <metze@samba.org>,
+        "Eric W. Biederman" <ebiederm@xmission.com>
+Cc:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, io-uring <io-uring@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+References: <20210325112459.1926846-1-sashal@kernel.org>
+ <20210325112459.1926846-43-sashal@kernel.org>
+ <f4c932b4-b787-651e-dd9f-584b386acddb@samba.org>
+ <m1r1k34ey1.fsf@fess.ebiederm.org>
+ <41589c56-9219-3ec2-55b3-3f010752ac7b@samba.org>
+From:   Jens Axboe <axboe@kernel.dk>
+Message-ID: <2b2a9701-cbe0-4538-ed3b-6917b85bebf8@kernel.dk>
+Date:   Thu, 25 Mar 2021 07:38:51 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <41589c56-9219-3ec2-55b3-3f010752ac7b@samba.org>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-It's a bit more convenient for us to store a registered buffer end
-address instead of length, see struct io_mapped_ubuf, as it allow to not
-recompute it every time.
+On 3/25/21 6:11 AM, Stefan Metzmacher wrote:
+> 
+> Am 25.03.21 um 13:04 schrieb Eric W. Biederman:
+>> Stefan Metzmacher <metze@samba.org> writes:
+>>
+>>> Am 25.03.21 um 12:24 schrieb Sasha Levin:
+>>>> From: "Eric W. Biederman" <ebiederm@xmission.com>
+>>>>
+>>>> [ Upstream commit 4db4b1a0d1779dc159f7b87feb97030ec0b12597 ]
+>>>>
+>>>> Just like we don't allow normal signals to IO threads, don't deliver a
+>>>> STOP to a task that has PF_IO_WORKER set. The IO threads don't take
+>>>> signals in general, and have no means of flushing out a stop either.
+>>>>
+>>>> Longer term, we may want to look into allowing stop of these threads,
+>>>> as it relates to eg process freezing. For now, this prevents a spin
+>>>> issue if a SIGSTOP is delivered to the parent task.
+>>>>
+>>>> Reported-by: Stefan Metzmacher <metze@samba.org>
+>>>> Signed-off-by: Jens Axboe <axboe@kernel.dk>
+>>>> Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
+>>>> Signed-off-by: Sasha Levin <sashal@kernel.org>
+>>>> ---
+>>>>  kernel/signal.c | 3 ++-
+>>>>  1 file changed, 2 insertions(+), 1 deletion(-)
+>>>>
+>>>> diff --git a/kernel/signal.c b/kernel/signal.c
+>>>> index 55526b941011..00a3840f6037 100644
+>>>> --- a/kernel/signal.c
+>>>> +++ b/kernel/signal.c
+>>>> @@ -288,7 +288,8 @@ bool task_set_jobctl_pending(struct task_struct *task, unsigned long mask)
+>>>>  			JOBCTL_STOP_SIGMASK | JOBCTL_TRAPPING));
+>>>>  	BUG_ON((mask & JOBCTL_TRAPPING) && !(mask & JOBCTL_PENDING_MASK));
+>>>>  
+>>>> -	if (unlikely(fatal_signal_pending(task) || (task->flags & PF_EXITING)))
+>>>> +	if (unlikely(fatal_signal_pending(task) ||
+>>>> +		     (task->flags & (PF_EXITING | PF_IO_WORKER))))
+>>>>  		return false;
+>>>>  
+>>>>  	if (mask & JOBCTL_STOP_SIGMASK)
+>>>>
+>>>
+>>> Again, why is this proposed for 5.11 and 5.10 already?
+>>
+>> Has the bit about the io worker kthreads been backported?
+>> If so this isn't horrible.  If not this is nonsense.
 
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
----
- fs/io_uring.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+No not yet - my plan is to do that, but not until we're 100% satisfied
+with it.
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index f30580f59070..9f062bddae31 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -195,7 +195,7 @@ enum io_uring_cmd_flags {
- 
- struct io_mapped_ubuf {
- 	u64		ubuf;
--	size_t		len;
-+	u64		ubuf_end;
- 	struct		bio_vec *bvec;
- 	unsigned int	nr_bvecs;
- 	unsigned long	acct_pages;
-@@ -2814,7 +2814,7 @@ static int io_import_fixed(struct io_kiocb *req, int rw, struct iov_iter *iter)
- 	if (unlikely(check_add_overflow(buf_addr, (u64)len, &buf_end)))
- 		return -EFAULT;
- 	/* not inside the mapped region */
--	if (buf_addr < imu->ubuf || buf_end > imu->ubuf + imu->len)
-+	if (unlikely(buf_addr < imu->ubuf || buf_end > imu->ubuf_end))
- 		return -EFAULT;
- 
- 	/*
-@@ -8186,7 +8186,7 @@ static int io_sqe_buffer_register(struct io_ring_ctx *ctx, struct iovec *iov,
- 	}
- 	/* store original address for later verification */
- 	imu->ubuf = ubuf;
--	imu->len = iov->iov_len;
-+	imu->ubuf_end = ubuf + iov->iov_len;
- 	imu->nr_bvecs = nr_pages;
- 	ret = 0;
- done:
-@@ -9222,9 +9222,9 @@ static void __io_uring_show_fdinfo(struct io_ring_ctx *ctx, struct seq_file *m)
- 	seq_printf(m, "UserBufs:\t%u\n", ctx->nr_user_bufs);
- 	for (i = 0; has_lock && i < ctx->nr_user_bufs; i++) {
- 		struct io_mapped_ubuf *buf = &ctx->user_bufs[i];
-+		unsigned int len = buf->ubuf_end - buf->ubuf;
- 
--		seq_printf(m, "%5u: 0x%llx/%u\n", i, buf->ubuf,
--						(unsigned int) buf->len);
-+		seq_printf(m, "%5u: 0x%llx/%u\n", i, buf->ubuf, len);
- 	}
- 	if (has_lock && !xa_empty(&ctx->personalities)) {
- 		unsigned long index;
+> I don't know, I hope not...
+> 
+> But I just tested v5.12-rc4 and attaching to
+> an application with iothreads with gdb is still not possible,
+> it still loops forever trying to attach to the iothreads.
+
+I do see the looping, gdb apparently doesn't give up when it gets
+-EPERM trying to attach to the threads. Which isn't really a kernel
+thing, but:
+
+> And I tested 'kill -9 $pidofiothread', and it feezed the whole
+> machine...
+
+that sounds very strange, I haven't seen anything like that running
+the exact same scenario.
+
+> So there's still work to do in order to get 5.12 stable.
+> 
+> I'm short on time currently, but I hope to send more details soon.
+
+Thanks! I'll play with it this morning and see if I can provoke
+something odd related to STOP/attach.
+
 -- 
-2.24.0
+Jens Axboe
 

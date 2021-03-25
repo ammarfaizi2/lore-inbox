@@ -2,97 +2,83 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-10.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3A310C433E1
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5BB41C433E3
 	for <io-uring@archiver.kernel.org>; Thu, 25 Mar 2021 18:37:32 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id F27A561A44
-	for <io-uring@archiver.kernel.org>; Thu, 25 Mar 2021 18:37:31 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 30A8661A43
+	for <io-uring@archiver.kernel.org>; Thu, 25 Mar 2021 18:37:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230100AbhCYShA (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        id S230095AbhCYShA (ORCPT <rfc822;io-uring@archiver.kernel.org>);
         Thu, 25 Mar 2021 14:37:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48896 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48882 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230059AbhCYSg4 (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Thu, 25 Mar 2021 14:36:56 -0400
-Received: from mail-wr1-x42b.google.com (mail-wr1-x42b.google.com [IPv6:2a00:1450:4864:20::42b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84D7FC06174A
-        for <io-uring@vger.kernel.org>; Thu, 25 Mar 2021 11:36:56 -0700 (PDT)
-Received: by mail-wr1-x42b.google.com with SMTP id o16so3359690wrn.0
-        for <io-uring@vger.kernel.org>; Thu, 25 Mar 2021 11:36:56 -0700 (PDT)
+        with ESMTP id S230007AbhCYSgx (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Thu, 25 Mar 2021 14:36:53 -0400
+Received: from mail-wm1-x32e.google.com (mail-wm1-x32e.google.com [IPv6:2a00:1450:4864:20::32e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76A06C06174A
+        for <io-uring@vger.kernel.org>; Thu, 25 Mar 2021 11:36:53 -0700 (PDT)
+Received: by mail-wm1-x32e.google.com with SMTP id j4-20020a05600c4104b029010c62bc1e20so1737156wmi.3
+        for <io-uring@vger.kernel.org>; Thu, 25 Mar 2021 11:36:53 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
+        h=from:to:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=tvHoPsHlykmB3tsBvouRHNn9J8rs5KuPMplAiRZi9YY=;
-        b=gPs/MfERcQFuls/1vBIt6vZWvML7CImkN0gnLxoi8XOZdOC9I9VmjvwHRXRsHrnDan
-         RU5nRoTO9AfS5DIPa2ShuFuiOh52htL3UJIjkJCGpnfTO4z9sok6LBEvUMXZrtHlyTHx
-         GUh93ELNFbWNeX2WTQikXEaIHQtLvN7Mom5ptTlcfoZZdjitHvaZrqjuyKuHARiAs7uO
-         jaJpPNDeM/VijSXEQptqXSj+P2OIDUzEt5IMDbLOcK4nNzNLrXfyieRORfqfX+FaHdzE
-         eY5+W6ajX/ZXkyUVpso2J1uxCn/Ew5rC7vuXw+ucNUhA0/DshQCTlVB3KB/BUbWw7URD
-         9uUw==
+        bh=hnDYZY7O+PhT58XFGRZd4FXFf+mCDRCg/ICdtS/xx3M=;
+        b=ClBghhn4yOMtXWjTCWkcqjq+v21WxnThoCUWxKFNaYRKpZVEQVHWXV82qkZ4cfgBZT
+         t2/BtAHhawAUVHy0CuU+eE1J8gCMvnd163qlnS0Bd0ziHpZnkZ/6fPxb1qhiThgNF2sa
+         yijFyo131apDfLueVRib+wPIAcuDYG8265n1kARwp8QLLyDgHd+OHKFzJph+SjkyahKl
+         W9NgmZfE9CPlqAuX8iaVJhbZ24ttwst1PynBn2vs8wgD5+/SUgKSrkOQEmwLa8O5c7LW
+         eOiNI/cNQlIAmUhn+7rqOI+Nrj1EvOawKWU/NTAHNFkt6IEXlZyxCEuf0N+uOffahJys
+         nx5A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=tvHoPsHlykmB3tsBvouRHNn9J8rs5KuPMplAiRZi9YY=;
-        b=CTiSjbGGMekUGIRf/Q7iOleskkcLW/1fFAy5q1myWkJ+zOvyE7ZMor+W9uDbUAXIvj
-         TFBnIRneoj3pa9lNHaX8S1ldZ0bFsdcd4FQ6l5iTH5UNBfgMXc/rRJUJd0zKcNrGLN7Z
-         t4ABAZ3rEFkj56ytDYjVU3cROxztPmi+SnuSmjyU+ZTthBT79KQpsKyvarFQ21w8kv6u
-         uc/Sty4M4RC4NQ/8kMC1q6c6mus0qIi89Fv7g0GFTjGd/KR09lULqh0Ba5iYB9eJQ7bP
-         hifnVV11Gbd3gK/udL02KoBomLhnCOo9eUr+Xh78NACVjio+DBNhqmVcekRQcbA3zW1M
-         +bMQ==
-X-Gm-Message-State: AOAM53336MkDVZbvAcCJ4KjMwSYX5Q7Q2i9Dz+SbWh5JEWkDP8MPfj44
-        LFeSHFr3PQrU4/X/5dyCgto=
-X-Google-Smtp-Source: ABdhPJwNn3faiN5O2Kudn3ie3kBNz2dxcGg7w7sbs29fv8q0bfUO7L3Q4wzhR3v7l1SrU1UQzTiNkA==
-X-Received: by 2002:adf:fa41:: with SMTP id y1mr10277485wrr.256.1616697415330;
-        Thu, 25 Mar 2021 11:36:55 -0700 (PDT)
+        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=hnDYZY7O+PhT58XFGRZd4FXFf+mCDRCg/ICdtS/xx3M=;
+        b=KHIDjzdyne9Hz4XbevZSsyI+gcY3p/v8Zhgo8XajeBkse5CBMHqLv8CNjquscO4ZJ9
+         gZalx4DqFLVjVlIxHyawdxosu3ZiOAwnYK9eMsXS/ph3iP8O4K0V534qXz5V/P5oSj+s
+         PlykOYAcNq6AbRhu7Bc07YeZ49/ewOTwL8EBxi2ONz2Wwx+63+iSVSd1fyLcvfmTnrcr
+         Pa9W4ToBJ8ntET3R5Z9bV5oDKGXrVbjMtYa9v3gyyJRVoaIdnJqckx4OXP+sKPSL3Qph
+         LsOCjzo4pCGKLCtGxblRiFLKQ2zXLKjE66HqdtRNAqd/yut1jUzKnmCqA3gT9/b7oimo
+         xQbA==
+X-Gm-Message-State: AOAM5329ymUYAv68J9QWnO9k5eynJeUIxkLMWTPIBTIkz1CZcquRuIQG
+        2Ab6EdFQUkEm3HHgbV1hebSolNKojAp0Nw==
+X-Google-Smtp-Source: ABdhPJxJ5wfy5wbnJ3EahdaTG6LXfw+lig0/Ezp9/XE4o5j/77LEvuQc46KtjXh2vSAj2qv2Lw32hQ==
+X-Received: by 2002:a05:600c:2312:: with SMTP id 18mr9251589wmo.8.1616697412228;
+        Thu, 25 Mar 2021 11:36:52 -0700 (PDT)
 Received: from localhost.localdomain ([148.252.129.162])
-        by smtp.gmail.com with ESMTPSA id p27sm7876828wmi.12.2021.03.25.11.36.54
+        by smtp.gmail.com with ESMTPSA id p27sm7876828wmi.12.2021.03.25.11.36.51
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 25 Mar 2021 11:36:54 -0700 (PDT)
+        Thu, 25 Mar 2021 11:36:51 -0700 (PDT)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH 3/4] io_uring: don't cancel-track common timeouts
-Date:   Thu, 25 Mar 2021 18:32:44 +0000
-Message-Id: <104441ef5d97e3932113d44501fda0df88656b83.1616696997.git.asml.silence@gmail.com>
+Subject: [PATCH 5.12 0/4] cancellation fixes
+Date:   Thu, 25 Mar 2021 18:32:41 +0000
+Message-Id: <cover.1616696997.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <cover.1616696997.git.asml.silence@gmail.com>
-References: <cover.1616696997.git.asml.silence@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Don't account usual timeouts (i.e. not linked) as REQ_F_INFLIGHT but
-keep behaviour prior to dd59a3d595cc1 ("io_uring: reliably cancel linked
-timeouts").
+1-3 timeout cancellation fixes
+4/4 prevents a regression cancelling more than needed
 
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
----
- fs/io_uring.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+Pavel Begunkov (4):
+  io_uring: fix timeout cancel return code
+  io_uring: do post-completion chore on t-out cancel
+  io_uring: don't cancel-track common timeouts
+  io_uring: don't cancel extra on files match
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 3fcce81b24cd..fabaf49fefa3 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -5564,7 +5564,8 @@ static int io_timeout_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe,
- 
- 	data->mode = io_translate_timeout_mode(flags);
- 	hrtimer_init(&data->timer, CLOCK_MONOTONIC, data->mode);
--	io_req_track_inflight(req);
-+	if (is_timeout_link)
-+		io_req_track_inflight(req);
- 	return 0;
- }
- 
+ fs/io_uring.c | 53 ++++++++++++++++++++++++++-------------------------
+ 1 file changed, 27 insertions(+), 26 deletions(-)
+
 -- 
 2.24.0
 

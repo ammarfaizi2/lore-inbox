@@ -2,108 +2,88 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2B5F1C433C1
-	for <io-uring@archiver.kernel.org>; Thu, 25 Mar 2021 19:10:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E8EC4C433C1
+	for <io-uring@archiver.kernel.org>; Thu, 25 Mar 2021 19:18:03 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id DCA0B61A39
-	for <io-uring@archiver.kernel.org>; Thu, 25 Mar 2021 19:10:32 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9A11661A32
+	for <io-uring@archiver.kernel.org>; Thu, 25 Mar 2021 19:18:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229616AbhCYTJ7 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Thu, 25 Mar 2021 15:09:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55850 "EHLO
+        id S230241AbhCYTRb (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Thu, 25 Mar 2021 15:17:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57578 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229669AbhCYTJZ (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Thu, 25 Mar 2021 15:09:25 -0400
-Received: from mail-wr1-x429.google.com (mail-wr1-x429.google.com [IPv6:2a00:1450:4864:20::429])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7671C06174A
-        for <io-uring@vger.kernel.org>; Thu, 25 Mar 2021 12:09:23 -0700 (PDT)
-Received: by mail-wr1-x429.google.com with SMTP id o16so3445284wrn.0
-        for <io-uring@vger.kernel.org>; Thu, 25 Mar 2021 12:09:23 -0700 (PDT)
+        with ESMTP id S229616AbhCYTR1 (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Thu, 25 Mar 2021 15:17:27 -0400
+Received: from mail-il1-x135.google.com (mail-il1-x135.google.com [IPv6:2607:f8b0:4864:20::135])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46C53C06174A
+        for <io-uring@vger.kernel.org>; Thu, 25 Mar 2021 12:17:27 -0700 (PDT)
+Received: by mail-il1-x135.google.com with SMTP id u10so3128441ilb.0
+        for <io-uring@vger.kernel.org>; Thu, 25 Mar 2021 12:17:27 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=JU1UCVRwebI2nrbAqb8os48RraG5AF25uL54kxq2c9U=;
-        b=SKkSceC47htLWxH9FNc6uKH81kIv3pXfcv0i0jnnioagncqWOji1NgtddG7He6fMIe
-         aY1jZuTVZMITcYVO0rU0IlZ12PX4fOyQ2adUiY4NHtwiAITsG8nmv6ux1TuWPY31HZpk
-         YIS+zBANE4+J9Ctg4ZTio0vPC3jaCwv8f2cLvCYBzSlSwayY51cS46WyxOz2NoZtS/3M
-         ZGZBJPWub8SHu7jHMKTdwoX5Or6iuuCzvxns7SlgEGRUumeN4MnVCPJHhOBHvVZF7TU7
-         O9Dh/SytWEczI68Ehu80Ny8cIvrWxd7NNTGhzVSggNkArcEji4rBfcOpfbRVtKvZEqn8
-         8Byw==
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=subject:to:references:from:message-id:date:user-agent:mime-version
+         :in-reply-to:content-language:content-transfer-encoding;
+        bh=yYjdHv6cjxwbISL1Q9jAv393F535wjK/rugm9CcLrj8=;
+        b=TFzEC0R5uviyoALgoU4JvSCPVnspBuNRMIqelrAhNPkbC/hUnh+bRUA7Q+PWYCQnYe
+         pzpYn6fD7CEkuclF9K9FgsGAZi3l9qmH7A1t30oJiHqe9icQvlFmR9pBLGKUdxXPYOCN
+         gmtl5iUA+sgzZod1WQAv0Q6+XGl5PS/kkQAFg5VDoR+/9Rr6dDGG6vlhqz5/ESLicjxy
+         saRCDWVEyzcMdnlXJkO0z0kiXdqvMgFNLRy3+YVG9MlhnOw/sPEFrJ+hreANqM+qQTcG
+         lj0VAFEbj/3ZwMaNKAeaJQoHTa+E1BRUiSmxZUramAuKnCNJFdww2PhqXP3aHMYJgP8M
+         TdYA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
+        h=x-gm-message-state:subject:to:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
          :content-transfer-encoding;
-        bh=JU1UCVRwebI2nrbAqb8os48RraG5AF25uL54kxq2c9U=;
-        b=MYGq9nJ+Ij4Ld6hHNcQgXd9jCbHYQSog1quT7WXMWwZHYv2jjzd/PJj4g34a8ourwX
-         q/FWAHjxPH3pfZPkjVVh2fwMOIDL+XBA5Qd6Wo/DMB2Du3flerAvYKA4npBQZIYoW036
-         FIWK+6j0sqYk7XaCOTPc18zSSmyqO/aNZAGhaSYZ5TqIRqGQqiDnF1BXvgx7LJvicLeb
-         VxEr5B6ztK568zQWrbHOmv4xyyATj8gFk255/i/4Wxtj6h4UNEUvO0PDsMctLuJdiX5W
-         11rNy91OHx/Vy+30Ozd58PZIhzH/lqahIMO92HycJuo+HbNoXFp/P5P3xMUDzdohfpwY
-         17/g==
-X-Gm-Message-State: AOAM532MKES0IsqxbRqQIqrUSgB0bN+fp0MD7QehYCrh2UX0C0mZXIjk
-        fV5Z4ohb6a1Nm0YRpE/mclt441lDksQvIA==
-X-Google-Smtp-Source: ABdhPJzVp7d2KcYzzv9zMr2BjKGRs0es1GL5wDvq5IOtSIu0Y+wCVb+g166BFazgwf4slC/bw525cg==
-X-Received: by 2002:a05:6000:2c4:: with SMTP id o4mr10546614wry.190.1616699362660;
-        Thu, 25 Mar 2021 12:09:22 -0700 (PDT)
-Received: from localhost.localdomain ([148.252.129.162])
-        by smtp.gmail.com with ESMTPSA id n7sm4106814wrv.71.2021.03.25.12.09.21
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 25 Mar 2021 12:09:22 -0700 (PDT)
-From:   Pavel Begunkov <asml.silence@gmail.com>
-To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH v2 5.12] io_uring: maintain CQE order of a failed link
-Date:   Thu, 25 Mar 2021 19:05:14 +0000
-Message-Id: <b7a96b05832e7ab23ad55f84092a2548c4a888b0.1616699075.git.asml.silence@gmail.com>
-X-Mailer: git-send-email 2.24.0
+        bh=yYjdHv6cjxwbISL1Q9jAv393F535wjK/rugm9CcLrj8=;
+        b=KQFhmJ8sQdavOn4Lh7N/Oz/AcDKwk/rdzrmnCly8NiWZ5bOTt1F+ilHH+meYgXA77+
+         4JBm7222Hx7nszBFazRVkbO3pS9+oB212R2yAEP8RFDaxOOyOQvtEEpExeWxKV8/D64b
+         nZjJIPJL/qVRNrCEC9At1VlyXsBLqpL9GS/aX5lywUw1qTRYOAemEAUmLmN/5AZvzPDO
+         JFS0RmD5xEwH+R06VYwBjUdtCryVostZFjs8uFZOMumn5G+7sTHLUHVc9cn6ZBnO3TJ4
+         v5NyIPuXWAcAqHV0DKo9xLxjuJe3Re9zFsCXpVryqW40CAKmStYzrXQx/LjhL2rnC1oy
+         oj8g==
+X-Gm-Message-State: AOAM532+UV5RbvWZnQPfJ9/Tb7hgEJ4tKDBiGj8Il/u9Ze/RcB4vmpwk
+        wVkO6GP5GJjSXqcWfTgFwc+5Cac1jX9BDw==
+X-Google-Smtp-Source: ABdhPJyBbRzqw18HyQkv21BR9mldKEsBcyNekopNtAyWdJx2EiQmlgK21/8wNb+Gj5PbUgVNGsGeuQ==
+X-Received: by 2002:a05:6e02:e52:: with SMTP id l18mr7927253ilk.217.1616699846532;
+        Thu, 25 Mar 2021 12:17:26 -0700 (PDT)
+Received: from [192.168.1.30] ([65.144.74.34])
+        by smtp.gmail.com with ESMTPSA id o13sm3032193iob.17.2021.03.25.12.17.25
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 25 Mar 2021 12:17:26 -0700 (PDT)
+Subject: Re: [PATCH v2] io_uring: reg buffer overflow checks hardening
+To:     Pavel Begunkov <asml.silence@gmail.com>, io-uring@vger.kernel.org
+References: <2b0625551be3d97b80a5fd21c8cd79dc1c91f0b5.1616624589.git.asml.silence@gmail.com>
+From:   Jens Axboe <axboe@kernel.dk>
+Message-ID: <e8d423fa-5b0d-a337-e921-00697d24028f@kernel.dk>
+Date:   Thu, 25 Mar 2021 13:17:25 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <2b0625551be3d97b80a5fd21c8cd79dc1c91f0b5.1616624589.git.asml.silence@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Arguably we want CQEs of linked requests be in a strict order of
-submission as it always was. Now if init of a request fails its CQE may
-be posted before all prior linked requests including the head of the
-link. Fix it by failing it last.
+On 3/24/21 4:59 PM, Pavel Begunkov wrote:
+> We are safe with overflows in io_sqe_buffer_register() because it will
+> just yield alloc failure, but it's nicer to check explicitly.
+> 
+> v2: replace u64 with ulong to handle 32 bit and match
+>     io_sqe_buffer_register() math. (Jens)
 
-Fixes: de59bc104c24f ("io_uring: fail links more in io_submit_sqe()")
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
----
+Applied for 5.13 - btw, and I think that was an oversight on this one,
+just put the version stuff below the '---' as it should not go into
+the git log.
 
-v2: expand commit description
-
- fs/io_uring.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index f8df982017fa..947c9524c53a 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -6459,8 +6459,6 @@ static int io_submit_sqe(struct io_ring_ctx *ctx, struct io_kiocb *req,
- 	ret = io_init_req(ctx, req, sqe);
- 	if (unlikely(ret)) {
- fail_req:
--		io_put_req(req);
--		io_req_complete(req, ret);
- 		if (link->head) {
- 			/* fail even hard links since we don't submit */
- 			link->head->flags |= REQ_F_FAIL_LINK;
-@@ -6468,6 +6466,8 @@ static int io_submit_sqe(struct io_ring_ctx *ctx, struct io_kiocb *req,
- 			io_req_complete(link->head, -ECANCELED);
- 			link->head = NULL;
- 		}
-+		io_put_req(req);
-+		io_req_complete(req, ret);
- 		return ret;
- 	}
- 	ret = io_req_prep(req, sqe);
 -- 
-2.24.0
+Jens Axboe
 

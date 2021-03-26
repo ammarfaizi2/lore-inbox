@@ -2,136 +2,125 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 41723C433C1
-	for <io-uring@archiver.kernel.org>; Fri, 26 Mar 2021 22:15:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 91111C433C1
+	for <io-uring@archiver.kernel.org>; Fri, 26 Mar 2021 22:25:09 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3AB2161A2A
-	for <io-uring@archiver.kernel.org>; Fri, 26 Mar 2021 22:15:24 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8494561A32
+	for <io-uring@archiver.kernel.org>; Fri, 26 Mar 2021 22:25:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230138AbhCZWOv (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Fri, 26 Mar 2021 18:14:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39174 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229933AbhCZWOu (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Fri, 26 Mar 2021 18:14:50 -0400
-Received: from mail-oo1-xc2c.google.com (mail-oo1-xc2c.google.com [IPv6:2607:f8b0:4864:20::c2c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61B2CC0613AA
-        for <io-uring@vger.kernel.org>; Fri, 26 Mar 2021 15:14:50 -0700 (PDT)
-Received: by mail-oo1-xc2c.google.com with SMTP id 125-20020a4a1a830000b02901b6a144a417so1629958oof.13
-        for <io-uring@vger.kernel.org>; Fri, 26 Mar 2021 15:14:50 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=gbbaSGWQI1dnr2q05scQHcs8XmgSsnu2DZSsX9rkEi8=;
-        b=1AwtqGkshgIkEFWLGZA6tJmJ3/E3mfKoGYWDyXOPzpCSauS4Q7TlVQ5gaSfAAdLRrl
-         CiBhtyn0eI0Q56WwMfkxhy4Ojd5MZvmiWiadpPrWwzXUrn7WPC4ZseXOE/DYkWNClNKJ
-         4bBCebbLs2Y/mUR86McWyXC1pLcWl3M464RwExUkPe9wFBEFDz0+ZLqVAz/Iwu1mAnv6
-         3Mi8pP2jyNKCi3IwkPu5l8ArbSLDSVdtCmj/HItpp2sonNI89hNoT678mC7bW/yyUwdL
-         7ufUVJ0kLD6ElkFycM9as1kM3h/KZ23OCwcUi9r61tNmiwkAjUvtvEugIAuUpGmwg7WK
-         BE1g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=gbbaSGWQI1dnr2q05scQHcs8XmgSsnu2DZSsX9rkEi8=;
-        b=NMu7ekyJXO/iaPsmwb2jlqPAqTEQ1bJ7YneK0TnXuWS6rvXmGHbYbnE9qnfcT60gdg
-         /JbueFpnasp/TFM4R3DaniwFtaLzdXgS3UB8rlOJe4zVPCC+dEoB0pcHOwGC2VDlbYcl
-         rq8l4BoZoxA1AIddxKzpv21d695BIexjBF5usOszEEeZWKHeT62gRwfmSTFpHcgVUGNM
-         hOSwaUXRGfYLK0o+Tb/xW43Kx1jLNmlIvxis0q6GwRHmjfmOOc3a6Wb0p35KvnseRuCQ
-         YhBV/LSomw2NC6W9W0qKfUfJVxuWVjukle0PCixSItxNa1VzelOOYEs5nAEdV8nCTscn
-         rmUw==
-X-Gm-Message-State: AOAM531B8nzfyCQ6i/Iub22z+E3lt5TchA9D0+m0puS2ggE+gXyGOTm2
-        UdIGDMUJzNtWCLz1KFhXoOM9iw==
-X-Google-Smtp-Source: ABdhPJy1a1jZjihdkJMQQ6cs0GrdtABV5sPoJd8izmGPvImmrTeAhO/1UuT+puDyPVE/eCG66kXq2g==
-X-Received: by 2002:a4a:d48b:: with SMTP id o11mr12774991oos.2.1616796889782;
-        Fri, 26 Mar 2021 15:14:49 -0700 (PDT)
-Received: from [192.168.1.30] ([207.135.233.147])
-        by smtp.gmail.com with ESMTPSA id c12sm958644oou.26.2021.03.26.15.14.48
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 26 Mar 2021 15:14:49 -0700 (PDT)
-Subject: Re: [PATCH 2/7] io_uring: handle signals for IO threads like a normal
- thread
-To:     "Eric W. Biederman" <ebiederm@xmission.com>
+        id S230226AbhCZWYh (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Fri, 26 Mar 2021 18:24:37 -0400
+Received: from out03.mta.xmission.com ([166.70.13.233]:45548 "EHLO
+        out03.mta.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229969AbhCZWYK (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Fri, 26 Mar 2021 18:24:10 -0400
+Received: from in02.mta.xmission.com ([166.70.13.52])
+        by out03.mta.xmission.com with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.93)
+        (envelope-from <ebiederm@xmission.com>)
+        id 1lPusC-000XAB-LB; Fri, 26 Mar 2021 16:24:08 -0600
+Received: from ip68-227-160-95.om.om.cox.net ([68.227.160.95] helo=fess.xmission.com)
+        by in02.mta.xmission.com with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.93)
+        (envelope-from <ebiederm@xmission.com>)
+        id 1lPusB-00BL1H-2w; Fri, 26 Mar 2021 16:24:08 -0600
+From:   ebiederm@xmission.com (Eric W. Biederman)
+To:     Jens Axboe <axboe@kernel.dk>
 Cc:     io-uring@vger.kernel.org, torvalds@linux-foundation.org,
         metze@samba.org, oleg@redhat.com, linux-kernel@vger.kernel.org
 References: <20210326155128.1057078-1-axboe@kernel.dk>
- <20210326155128.1057078-3-axboe@kernel.dk> <m1wntty7yn.fsf@fess.ebiederm.org>
-From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <106a38d3-5a5f-17fd-41f7-890f5e9a3602@kernel.dk>
-Date:   Fri, 26 Mar 2021 16:14:48 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        <20210326155128.1057078-3-axboe@kernel.dk>
+        <m1wntty7yn.fsf@fess.ebiederm.org>
+        <106a38d3-5a5f-17fd-41f7-890f5e9a3602@kernel.dk>
+Date:   Fri, 26 Mar 2021 17:23:08 -0500
+In-Reply-To: <106a38d3-5a5f-17fd-41f7-890f5e9a3602@kernel.dk> (Jens Axboe's
+        message of "Fri, 26 Mar 2021 16:14:48 -0600")
+Message-ID: <m1k0ptv9kj.fsf@fess.ebiederm.org>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/26.1 (gnu/linux)
 MIME-Version: 1.0
-In-Reply-To: <m1wntty7yn.fsf@fess.ebiederm.org>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
+X-XM-SPF: eid=1lPusB-00BL1H-2w;;;mid=<m1k0ptv9kj.fsf@fess.ebiederm.org>;;;hst=in02.mta.xmission.com;;;ip=68.227.160.95;;;frm=ebiederm@xmission.com;;;spf=neutral
+X-XM-AID: U2FsdGVkX1/shYyeRWs6JVLWuaWNXtLje+PNW5eZ8CQ=
+X-SA-Exim-Connect-IP: 68.227.160.95
+X-SA-Exim-Mail-From: ebiederm@xmission.com
+Subject: Re: [PATCH 2/7] io_uring: handle signals for IO threads like a normal thread
+X-SA-Exim-Version: 4.2.1 (built Sat, 08 Feb 2020 21:53:50 +0000)
+X-SA-Exim-Scanned: Yes (on in02.mta.xmission.com)
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 3/26/21 2:29 PM, Eric W. Biederman wrote:
-> Jens Axboe <axboe@kernel.dk> writes:
-> 
->> We go through various hoops to disallow signals for the IO threads, but
->> there's really no reason why we cannot just allow them. The IO threads
->> never return to userspace like a normal thread, and hence don't go through
->> normal signal processing. Instead, just check for a pending signal as part
->> of the work loop, and call get_signal() to handle it for us if anything
->> is pending.
->>
->> With that, we can support receiving signals, including special ones like
->> SIGSTOP.
->>
->> Signed-off-by: Jens Axboe <axboe@kernel.dk>
->> ---
->>  fs/io-wq.c    | 24 +++++++++++++++++-------
->>  fs/io_uring.c | 12 ++++++++----
->>  2 files changed, 25 insertions(+), 11 deletions(-)
->>
->> diff --git a/fs/io-wq.c b/fs/io-wq.c
->> index b7c1fa932cb3..3e2f059a1737 100644
->> --- a/fs/io-wq.c
->> +++ b/fs/io-wq.c
->> @@ -16,7 +16,6 @@
->>  #include <linux/rculist_nulls.h>
->>  #include <linux/cpu.h>
->>  #include <linux/tracehook.h>
->> -#include <linux/freezer.h>
->>  
->>  #include "../kernel/sched/sched.h"
->>  #include "io-wq.h"
->> @@ -503,10 +502,16 @@ static int io_wqe_worker(void *data)
->>  		if (io_flush_signals())
->>  			continue;
->>  		ret = schedule_timeout(WORKER_IDLE_TIMEOUT);
->> -		if (try_to_freeze() || ret)
->> +		if (signal_pending(current)) {
->> +			struct ksignal ksig;
->> +
->> +			if (fatal_signal_pending(current))
->> +				break;
->> +			if (get_signal(&ksig))
->> +				continue;
->                         ^^^^^^^^^^^^^^^^^^^^^^
-> 
-> That is wrong.  You are promising to deliver a signal to signal
-> handler and them simply discarding it.  Perhaps:
-> 
-> 			if (!get_signal(&ksig))
->                         	continue;
-> 			WARN_ON(!sig_kernel_stop(ksig->sig));
->                         break;
+Jens Axboe <axboe@kernel.dk> writes:
 
-Thanks, updated.
+> On 3/26/21 2:29 PM, Eric W. Biederman wrote:
+>> Jens Axboe <axboe@kernel.dk> writes:
+>> 
+>>> We go through various hoops to disallow signals for the IO threads, but
+>>> there's really no reason why we cannot just allow them. The IO threads
+>>> never return to userspace like a normal thread, and hence don't go through
+>>> normal signal processing. Instead, just check for a pending signal as part
+>>> of the work loop, and call get_signal() to handle it for us if anything
+>>> is pending.
+>>>
+>>> With that, we can support receiving signals, including special ones like
+>>> SIGSTOP.
+>>>
+>>> Signed-off-by: Jens Axboe <axboe@kernel.dk>
+>>> ---
+>>>  fs/io-wq.c    | 24 +++++++++++++++++-------
+>>>  fs/io_uring.c | 12 ++++++++----
+>>>  2 files changed, 25 insertions(+), 11 deletions(-)
+>>>
+>>> diff --git a/fs/io-wq.c b/fs/io-wq.c
+>>> index b7c1fa932cb3..3e2f059a1737 100644
+>>> --- a/fs/io-wq.c
+>>> +++ b/fs/io-wq.c
+>>> @@ -16,7 +16,6 @@
+>>>  #include <linux/rculist_nulls.h>
+>>>  #include <linux/cpu.h>
+>>>  #include <linux/tracehook.h>
+>>> -#include <linux/freezer.h>
+>>>  
+>>>  #include "../kernel/sched/sched.h"
+>>>  #include "io-wq.h"
+>>> @@ -503,10 +502,16 @@ static int io_wqe_worker(void *data)
+>>>  		if (io_flush_signals())
+>>>  			continue;
+>>>  		ret = schedule_timeout(WORKER_IDLE_TIMEOUT);
+>>> -		if (try_to_freeze() || ret)
+>>> +		if (signal_pending(current)) {
+>>> +			struct ksignal ksig;
+>>> +
+>>> +			if (fatal_signal_pending(current))
+>>> +				break;
+>>> +			if (get_signal(&ksig))
+>>> +				continue;
+>>                         ^^^^^^^^^^^^^^^^^^^^^^
+>> 
+>> That is wrong.  You are promising to deliver a signal to signal
+>> handler and them simply discarding it.  Perhaps:
+>> 
+>> 			if (!get_signal(&ksig))
+>>                         	continue;
+>> 			WARN_ON(!sig_kernel_stop(ksig->sig));
+>>                         break;
+>
+> Thanks, updated.
 
--- 
-Jens Axboe
+Gah.  Kill the WARN_ON.
+
+I was thinking "WARN_ON(!sig_kernel_fatal(ksig->sig));"
+The function sig_kernel_fatal does not exist.
+
+Fatal is the state that is left when a signal is neither
+ignored nor a stop signal, and does not have a handler.
+
+The rest of the logic still works.
+
+Eric
 

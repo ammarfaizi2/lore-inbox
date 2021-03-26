@@ -2,213 +2,97 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.9 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNWANTED_LANGUAGE_BODY,
+	URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BBA9AC433C1
-	for <io-uring@archiver.kernel.org>; Fri, 26 Mar 2021 00:12:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 42CE3C433DB
+	for <io-uring@archiver.kernel.org>; Fri, 26 Mar 2021 00:41:48 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7D3FA61A3E
-	for <io-uring@archiver.kernel.org>; Fri, 26 Mar 2021 00:12:31 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id F261861A38
+	for <io-uring@archiver.kernel.org>; Fri, 26 Mar 2021 00:41:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229919AbhCZAL7 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Thu, 25 Mar 2021 20:11:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35918 "EHLO
+        id S229934AbhCZAlS (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Thu, 25 Mar 2021 20:41:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42154 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229760AbhCZALh (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Thu, 25 Mar 2021 20:11:37 -0400
-Received: from mail-pl1-x635.google.com (mail-pl1-x635.google.com [IPv6:2607:f8b0:4864:20::635])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F748C06175F
-        for <io-uring@vger.kernel.org>; Thu, 25 Mar 2021 17:11:37 -0700 (PDT)
-Received: by mail-pl1-x635.google.com with SMTP id d8so46669plh.11
-        for <io-uring@vger.kernel.org>; Thu, 25 Mar 2021 17:11:37 -0700 (PDT)
+        with ESMTP id S229993AbhCZAks (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Thu, 25 Mar 2021 20:40:48 -0400
+Received: from mail-pg1-x52a.google.com (mail-pg1-x52a.google.com [IPv6:2607:f8b0:4864:20::52a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91FFAC06175F
+        for <io-uring@vger.kernel.org>; Thu, 25 Mar 2021 17:40:48 -0700 (PDT)
+Received: by mail-pg1-x52a.google.com with SMTP id v10so3444719pgs.12
+        for <io-uring@vger.kernel.org>; Thu, 25 Mar 2021 17:40:48 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=q9S3+fI2D+2mI26/8bWMBz4t+NgZcdhnEUCCGVDX3aM=;
-        b=SB5lUVPY9Bbxm+ta78VVnlcXkTJ1IfQQ5vAx5lk+EnCtO3Cvs7s8v9s5R2kS8IO2X3
-         KHQ+OAo9bhSAQygsOVUxKn8GOxYZ5CZ+jYxSMZZ9L8fkH6qLVZsqozrVDfGckp3kmFqj
-         nYts3fBEuKqQbn7bOT2RIE2f+A+I8mgFtN9kM9xaGbId2vGp/jlhikwRO6wiByDC2J1B
-         BaYb14zKzzl+xVkJYIog4vbhndRQ0L73ZZ7q02Z3WyUx2rbVWxVO0+w3hYk6ULko2vox
-         PI8OLHlgKOt367GzKSsqk2STrRV96XcINxhKOBThXu8/Hps4O3iYBeBDZzC3MzMVjiII
-         KSCw==
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=ZraEtUCV2acD7fBa5SEhKvc6Elb2YkSsHkkh6DBvMcc=;
+        b=T1YT7oGi1AvvOihv+fkm5Z3HTE537IbIn217/FrN0x7/LGHF5Dn6QWaTmKqj0R1j3l
+         vYD3ksC9siVkzR5BmNeCTzIOlM3I0Pqte0ZgpyiMhqx2aCx8ZpK527NlQe/4rHOxrx6i
+         XoPm/iERq5TKQHJXpgsn5GV+m2HUtT6PFSuz8XuqgZ75LaPQR1Z9D9jsvc5s21FpYNAH
+         feVeoA645Y928amgIXqEadVFe6ARcC+rqyakm2lKiO5IX90lTi4wkjE6rxHzSbH0FO2B
+         3lpjxUMaP7laG/qxUOwdp1XahHq1rxvoTkeZ6abPN006MZX7ghrqWdPuY62TOTPoHqc/
+         eTmA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=q9S3+fI2D+2mI26/8bWMBz4t+NgZcdhnEUCCGVDX3aM=;
-        b=Cgo9A2PLzRox4J0scd5B/K+VTYbniSRS4NFBHBrEsVsgmeMrc7MeLHyb66inv4oeuf
-         qlUuPXM4zKd0pR+WGA7OwcrhM4WQD6NPs/KZkb7n6GQecAiVWlZNl3SJS2O3Ni4tZbUW
-         k057Lh3jVzsSlxSVktoKZzUxMvhvLb98nMeDSddw14WR/ng+YSdMf8jr3z1rH41dFWRg
-         svpNrqTHJTZ5vF9lh+YX/xDOsXBoP+a4Zdu4n4bq7LdZ3w0zF5JiafKpyQVxbocT+pKe
-         Biaro32YoTvszTBNU/8kz0jFYy7XA6EerN5lwKwpoNo+YJVQmXis/K/0/DMKXeH4L5k4
-         akOA==
-X-Gm-Message-State: AOAM5330QqIDYP6DOp6hpAcJRt0YBwYYdTRsiiZFfhPsoSBa6RklkWLo
-        EpAd+uHOnI/yiFCogMiWRybVYA==
-X-Google-Smtp-Source: ABdhPJya0Kwkqr5Wt3+Q/EXDZ7yyn0sEDLVLnYX2MOK/IVmQTi1zmXp/rUZNotJv1r+3jKwDuevcSA==
-X-Received: by 2002:a17:90a:2d88:: with SMTP id p8mr11301109pjd.159.1616717496476;
-        Thu, 25 Mar 2021 17:11:36 -0700 (PDT)
-Received: from [192.168.1.134] ([66.219.217.173])
-        by smtp.gmail.com with ESMTPSA id q10sm6668760pfc.190.2021.03.25.17.11.35
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 25 Mar 2021 17:11:36 -0700 (PDT)
-Subject: Re: [PATCH 0/2] Don't show PF_IO_WORKER in /proc/<pid>/task/
-To:     Stefan Metzmacher <metze@samba.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        "Eric W. Biederman" <ebiederm@xmission.com>
-Cc:     io-uring <io-uring@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Oleg Nesterov <oleg@redhat.com>
-References: <20210325164343.807498-1-axboe@kernel.dk>
- <m1ft0j3u5k.fsf@fess.ebiederm.org>
- <CAHk-=wjOXiEAjGLbn2mWRsxqpAYUPcwCj2x5WgEAh=gj+o0t4Q@mail.gmail.com>
- <CAHk-=wg1XpX=iAv=1HCUReMbEgeN5UogZ4_tbi+ehaHZG6d==g@mail.gmail.com>
- <CAHk-=wgUcVeaKhtBgJO3TfE69miJq-krtL8r_Wf_=LBTJw6WSg@mail.gmail.com>
- <ad21da2b-01ea-e77c-70b2-0401059e322b@kernel.dk>
- <f9bc0bac-2ad9-827e-7360-099e1e310df5@kernel.dk>
- <5563d244-52c0-dafb-5839-e84990340765@samba.org>
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=ZraEtUCV2acD7fBa5SEhKvc6Elb2YkSsHkkh6DBvMcc=;
+        b=QsXjRSSTKakQ04v1SW2H9Ydf/r5jrJN2zkewsuJXUuq2zCwFOR7M90nR1SAJWNQOfN
+         LMEe1I7polzjB8JFz2WIUS3A5A6QURrhZQqSzYVK4XjWC3ANCAqgt0KfRgVHbQg0hhSt
+         oV9xZNL+bEn5DcR2mCo1/VlM0eCjHYaeqLSEC72B6MDfm3dvM8Qkpa0VmfZuqP4KOU3z
+         WuBxLb6IWumP80UvTLB+8diMiPzyGhFKCu0shmDMrLnM42zP3vK5AJFgysPtgRkHU9jB
+         ZWfIF3gm1bCPh9aOz0ILCY+K4DQQhqb0avVkGQ83ADRCg8oyiEACemaI+q7r+efAjIbG
+         HcTA==
+X-Gm-Message-State: AOAM531aLLJR3m0W7WX/jODcDMTECFXFf16u0dFrQ/Bu0JQX7k2SUZeG
+        U0sr5hTVvKh3BeVK0O3DngxJWJRX14c6IQ==
+X-Google-Smtp-Source: ABdhPJykhUgOKxnJVjT2PMV4oTuTaxVVA45s05E/Ss0z7un6NKFgyWb9/ADHGfOFLNsXtt8XvpNu2A==
+X-Received: by 2002:a63:1b5f:: with SMTP id b31mr9986812pgm.194.1616719247924;
+        Thu, 25 Mar 2021 17:40:47 -0700 (PDT)
+Received: from localhost.localdomain ([66.219.217.173])
+        by smtp.gmail.com with ESMTPSA id c128sm6899448pfc.76.2021.03.25.17.40.46
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 25 Mar 2021 17:40:47 -0700 (PDT)
 From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <6a2c4fe3-a019-2744-2e17-34b6325967d7@kernel.dk>
-Date:   Thu, 25 Mar 2021 18:11:34 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+To:     io-uring@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, ebiederm@xmission.com,
+        metze@samba.org, oleg@redhat.com, linux-kernel@vger.kernel.org,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 2/8] kernel: unmask SIGSTOP for IO threads
+Date:   Thu, 25 Mar 2021 18:39:25 -0600
+Message-Id: <20210326003928.978750-3-axboe@kernel.dk>
+X-Mailer: git-send-email 2.31.0
+In-Reply-To: <20210326003928.978750-1-axboe@kernel.dk>
+References: <20210326003928.978750-1-axboe@kernel.dk>
 MIME-Version: 1.0
-In-Reply-To: <5563d244-52c0-dafb-5839-e84990340765@samba.org>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 3/25/21 3:57 PM, Stefan Metzmacher wrote:
-> 
-> Am 25.03.21 um 22:44 schrieb Jens Axboe:
->> On 3/25/21 2:40 PM, Jens Axboe wrote:
->>> On 3/25/21 2:12 PM, Linus Torvalds wrote:
->>>> On Thu, Mar 25, 2021 at 12:42 PM Linus Torvalds
->>>> <torvalds@linux-foundation.org> wrote:
->>>>>
->>>>> On Thu, Mar 25, 2021 at 12:38 PM Linus Torvalds
->>>>> <torvalds@linux-foundation.org> wrote:
->>>>>>
->>>>>> I don't know what the gdb logic is, but maybe there's some other
->>>>>> option that makes gdb not react to them?
->>>>>
->>>>> .. maybe we could have a different name for them under the task/
->>>>> subdirectory, for example (not  just the pid)? Although that probably
->>>>> messes up 'ps' too..
->>>>
->>>> Actually, maybe the right model is to simply make all the io threads
->>>> take signals, and get rid of all the special cases.
->>>>
->>>> Sure, the signals will never be delivered to user space, but if we
->>>>
->>>>  - just made the thread loop do "get_signal()" when there are pending signals
->>>>
->>>>  - allowed ptrace_attach on them
->>>>
->>>> they'd look pretty much like regular threads that just never do the
->>>> user-space part of signal handling.
->>>>
->>>> The whole "signals are very special for IO threads" thing has caused
->>>> so many problems, that maybe the solution is simply to _not_ make them
->>>> special?
->>>
->>> Just to wrap up the previous one, yes it broke all sorts of things to
->>> make the 'tid' directory different. They just end up being hidden anyway
->>> through that, for both ps and top.
->>>
->>> Yes, I do think that maybe it's better to just embrace maybe just
->>> embrace the signals, and have everything just work by default. It's
->>> better than continually trying to make the threads special. I'll see
->>> if there are some demons lurking down that path.
->>
->> In the spirit of "let's just try it", I ran with the below patch. With
->> that, I can gdb attach just fine to a test case that creates an io_uring
->> and a regular thread with pthread_create(). The regular thread uses
->> the ring, so you end up with two iou-mgr threads. Attach:
->>
->> [root@archlinux ~]# gdb -p 360
->> [snip gdb noise]
->> Attaching to process 360
->> [New LWP 361]
->> [New LWP 362]
->> [New LWP 363]
->>
->> warning: Selected architecture i386:x86-64 is not compatible with reported target architecture i386
->>
->> warning: Architecture rejected target-supplied description
->> Error while reading shared library symbols for /usr/lib/libpthread.so.0:
->> Cannot find user-level thread for LWP 363: generic error
->> 0x00007f7aa526e125 in clock_nanosleep@GLIBC_2.2.5 () from /usr/lib/libc.so.6
->> (gdb) info threads
->>   Id   Target Id             Frame 
->> * 1    LWP 360 "io_uring"    0x00007f7aa526e125 in clock_nanosleep@GLIBC_2.2.5 ()
->>    from /usr/lib/libc.so.6
->>   2    LWP 361 "iou-mgr-360" 0x0000000000000000 in ?? ()
->>   3    LWP 362 "io_uring"    0x00007f7aa52a0a9d in syscall () from /usr/lib/libc.so.6
->>   4    LWP 363 "iou-mgr-362" 0x0000000000000000 in ?? ()
->> (gdb) thread 2
->> [Switching to thread 2 (LWP 361)]
->> #0  0x0000000000000000 in ?? ()
->> (gdb) bt
->> #0  0x0000000000000000 in ?? ()
->> Backtrace stopped: Cannot access memory at address 0x0
->> (gdb) cont
->> Continuing.
->> ^C
->> Thread 1 "io_uring" received signal SIGINT, Interrupt.
->> [Switching to LWP 360]
->> 0x00007f7aa526e125 in clock_nanosleep@GLIBC_2.2.5 () from /usr/lib/libc.so.6
->> (gdb) q
->> A debugging session is active.
->>
->> 	Inferior 1 [process 360] will be detached.
->>
->> Quit anyway? (y or n) y
->> Detaching from program: /root/git/fio/t/io_uring, process 360
->> [Inferior 1 (process 360) detached]
->>
->> The iou-mgr-x threads are stopped just fine, gdb obviously can't get any
->> real info out of them. But it works... Regular test cases work fine too,
->> just a sanity check. Didn't expect them not to.
-> 
-> I guess that's basically what I tried to describe when I said they
-> should look like a userspace process that is blocked in a syscall
-> forever.
+With IO threads accepting signals, including SIGSTOP, unmask the
+SIGSTOP signal from the default blocked mask.
 
-Right, that's almost what they look like, in practice that is what they
-look like.
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+---
+ kernel/fork.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
->> Only thing that I dislike a bit, but I guess that's just a Linuxism, is
->> that if can now kill an io_uring owning task by sending a signal to one
->> of its IO thread workers.
-> 
-> Can't we just only allow SIGSTOP, which will be only delivered to
-> the iothread itself? And also SIGKILL should not be allowed from userspace.
-
-I don't think we can sanely block them, and we to cleanup and teardown
-normally regardless of who gets the signal (owner or one of the
-threads). So I'm not _too_ hung up on the "io thread gets signal goes to
-owner" as that is what happens with normal threads too, though I would
-prefer if that wasn't the case. But overall I feel better just embracing
-the thread model, rather than having something that kinda sorta looks
-like a thread, but differs in odd ways.
-
-> And /proc/$iothread/ should be read only and owned by root with
-> "cmdline" and "exe" being empty.
-
-I know you brought this one up as part of your series, not sure I get
-why you want it owned by root and read-only? cmdline and exe, yeah those
-could be hidden, but is there really any point?
-
-Maybe I'm missing something here, if so, do clue me in!
-
+diff --git a/kernel/fork.c b/kernel/fork.c
+index d3171e8e88e5..d5a40552910f 100644
+--- a/kernel/fork.c
++++ b/kernel/fork.c
+@@ -2435,7 +2435,7 @@ struct task_struct *create_io_thread(int (*fn)(void *), void *arg, int node)
+ 	tsk = copy_process(NULL, 0, node, &args);
+ 	if (!IS_ERR(tsk)) {
+ 		sigfillset(&tsk->blocked);
+-		sigdelsetmask(&tsk->blocked, sigmask(SIGKILL));
++		sigdelsetmask(&tsk->blocked, sigmask(SIGKILL)|sigmask(SIGSTOP));
+ 	}
+ 	return tsk;
+ }
 -- 
-Jens Axboe
+2.31.0
 

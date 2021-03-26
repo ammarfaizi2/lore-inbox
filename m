@@ -7,63 +7,63 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7BBE2C433E4
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DD514C433EC
 	for <io-uring@archiver.kernel.org>; Fri, 26 Mar 2021 15:53:15 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 66A3361A5A
+	by mail.kernel.org (Postfix) with ESMTP id ADD4361A45
 	for <io-uring@archiver.kernel.org>; Fri, 26 Mar 2021 15:53:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231195AbhCZPwu (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Fri, 26 Mar 2021 11:52:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41364 "EHLO
+        id S231201AbhCZPwv (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Fri, 26 Mar 2021 11:52:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41376 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230114AbhCZPwO (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Fri, 26 Mar 2021 11:52:14 -0400
-Received: from mail-io1-xd29.google.com (mail-io1-xd29.google.com [IPv6:2607:f8b0:4864:20::d29])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E4C4C0613B3
-        for <io-uring@vger.kernel.org>; Fri, 26 Mar 2021 08:52:14 -0700 (PDT)
-Received: by mail-io1-xd29.google.com with SMTP id z3so5838568ioc.8
-        for <io-uring@vger.kernel.org>; Fri, 26 Mar 2021 08:52:14 -0700 (PDT)
+        with ESMTP id S230070AbhCZPwQ (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Fri, 26 Mar 2021 11:52:16 -0400
+Received: from mail-il1-x130.google.com (mail-il1-x130.google.com [IPv6:2607:f8b0:4864:20::130])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B215EC0613B2
+        for <io-uring@vger.kernel.org>; Fri, 26 Mar 2021 08:52:16 -0700 (PDT)
+Received: by mail-il1-x130.google.com with SMTP id d2so5381499ilm.10
+        for <io-uring@vger.kernel.org>; Fri, 26 Mar 2021 08:52:16 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernel-dk.20150623.gappssmtp.com; s=20150623;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=UxQIrqL1e1bv0TRTUopnjE8m4DjY4XOhdCxrLXbG/MQ=;
-        b=Ryt6S/JZtVfje1gjWOS/t0o0Wh1W0sKRoPp86aSmIEzuLprM33JiAcTE8SCHUpn8bU
-         GxwTJC5xSyGSNDdEFKQoXnx7M0etduPePYTTLsLX3Q3gqvAkmLqkv/V0Y32iYqlK+U2p
-         59UYoFxpZjJqaRX/YGLHK4v842D7mbC4Pif+1t3OqAncjMq7igH+y/zmm5VeGB6OpZz4
-         yNyovWpB2VzkHc60Mi1iMjrUb7qjrQ7BcGdddY9aR08bX0JqGotZZ1LGcU8HAL6N5WrB
-         sOEcN/bk3ljBw9Jrq4d+qhtFYee7iOqQlC0Q76Q3tfYfRxti61s1hoD04CmSWHkyC23u
-         SboQ==
+        bh=w3EKLjKkkRDyuhjHErOaTe+JpmWOCkVYfmQHbnU0kHI=;
+        b=Q1n38aK+c3uamMZgFIc52ESkgPLBNxfDOGN7cty0ag6K+9uXQQt8jsruCvD/gYKN+t
+         +kdItJ4kmtALD5eZzPiP2L1gFkR0F54a1kMbVVa65L1FM3qbBZZu8wiHl6LqrRKyUUTm
+         nOQLogXH/Fa+o9sIL9hFjdET6GD18bBlkXSSVjm20oSMAqx6mDRkFJ8i2NSmz7nxZFRK
+         fsptYBAowRRYz8tNWlGQ9DeIMyufh/rQVIL8GWaRxuilhHtE9ZhRE2v0ZkR88Wjv4rpJ
+         YyxoaljHyNoTrYhrlRhF/wmb1Jcb9xlO+yDgttrYCwXXuQ7EdM1M4htKWdcnqtsMYe93
+         ygFQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=UxQIrqL1e1bv0TRTUopnjE8m4DjY4XOhdCxrLXbG/MQ=;
-        b=mG+f29mJHjKbZ2YozymRIs2S0G5nuH0lOH9PG4S/+wtAmy+qiTHHMKfqO1kb21DK//
-         r5Zd16p3fBM7d3n39CyJM2QHmLSNkGrrznUjmrQKtHHGPXpJPY0X2yyEpdaVTWBZvz/i
-         HQEY7dPM/A9aeNEv/t/AkBlpCWAPo6/3FXPpQnRILaUnpr5+Yro0bzczuL0q1SSg2THF
-         hcj1My+cAf5ukiCqCEwKU3zQm/PDMPZ+jL+QzGbz/XpLeS02roCuRtrG+3b6ngnmC9aH
-         5YQ2tl2jw+LN2CFzKbCLhip0R2UJh78NMJbnKTFiHS+SjBKkCJAuadp1HzQA8fSIn60v
-         L3TA==
-X-Gm-Message-State: AOAM533BbrSr9qSVhw4e5MooYgqdxWHPkKojSQ4QBpRhogWhK6u3/DGK
-        V3wpC2xRTkOFLRQduWbJthlDL36x8HgjwQ==
-X-Google-Smtp-Source: ABdhPJxxGXzjendQFH5f3P7Q/JmG83kJRw4+RWa9A+cP3R9et+07qPBusau4Y00kjMT+xXF8fisl8w==
-X-Received: by 2002:a05:6638:2101:: with SMTP id n1mr12853547jaj.7.1616773933951;
-        Fri, 26 Mar 2021 08:52:13 -0700 (PDT)
+        bh=w3EKLjKkkRDyuhjHErOaTe+JpmWOCkVYfmQHbnU0kHI=;
+        b=WHqdrIX2iLgOJitpLr8Qyo8Aq5H8MQ80sEo55UVh7AgN34XD628QdgvRmYDxqvKY9b
+         XB+4k8/ShT+JU7HWMjWOWixwYGGgbLU5BsUCJ2IGFIaQ3VJJG7cMdZlL3rlROpVk24NS
+         LLMlh7XiUV0fdq7MNqBtwMzuEqyLViXvOdMVevPzkR3gC4e97V4xG8nYSnXHCX1zTZFu
+         FqiWAwrWx8lwJDdNwNwBMYuyJqIjz5fhi3JYWL7onlilLTvs1rj9/16slJ84IwYyLhCS
+         aguGqZq0OgD6AYOfmv+RaHWglS57WKaPGgKpKEKXTa40Ibd9tIGPvaxkO8nEwLxP4ix8
+         Z+DA==
+X-Gm-Message-State: AOAM532H/igcHAsi7VT3M7tEIenMdf5WA9OrAGZ5rYHvWs8W0VXqYZWO
+        YcOjVgqp9NhJIitWFAgR86zHXTeVTHcRfw==
+X-Google-Smtp-Source: ABdhPJzKUpNoS4pw8KCPWFEvmW62Pe4ry7Ir9wj1n+5XszzM0F7ROsSkdti+mcIBm/8GcFiCQduIkQ==
+X-Received: by 2002:a92:c748:: with SMTP id y8mr9218586ilp.37.1616773936005;
+        Fri, 26 Mar 2021 08:52:16 -0700 (PDT)
 Received: from p1.localdomain ([65.144.74.34])
-        by smtp.gmail.com with ESMTPSA id a7sm4456337ilj.64.2021.03.26.08.52.13
+        by smtp.gmail.com with ESMTPSA id a7sm4456337ilj.64.2021.03.26.08.52.14
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 26 Mar 2021 08:52:13 -0700 (PDT)
+        Fri, 26 Mar 2021 08:52:15 -0700 (PDT)
 From:   Jens Axboe <axboe@kernel.dk>
 To:     io-uring@vger.kernel.org
 Cc:     torvalds@linux-foundation.org, ebiederm@xmission.com,
         metze@samba.org, oleg@redhat.com, linux-kernel@vger.kernel.org,
         Pavel Begunkov <asml.silence@gmail.com>,
         Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 08/10] io_uring: do post-completion chore on t-out cancel
-Date:   Fri, 26 Mar 2021 09:51:26 -0600
-Message-Id: <20210326155128.1057078-14-axboe@kernel.dk>
+Subject: [PATCH 10/10] io_uring: don't cancel extra on files match
+Date:   Fri, 26 Mar 2021 09:51:28 -0600
+Message-Id: <20210326155128.1057078-16-axboe@kernel.dk>
 X-Mailer: git-send-email 2.31.0
 In-Reply-To: <20210326155128.1057078-1-axboe@kernel.dk>
 References: <20210326155128.1057078-1-axboe@kernel.dk>
@@ -75,78 +75,32 @@ X-Mailing-List: io-uring@vger.kernel.org
 
 From: Pavel Begunkov <asml.silence@gmail.com>
 
-Don't forget about io_commit_cqring() + io_cqring_ev_posted() after
-exit/exec cancelling timeouts. Both functions declared only after
-io_kill_timeouts(), so to avoid tons of forward declarations move
-it down.
+As tasks always wait and kill their io-wq on exec/exit, files are of no
+more concern to us, so we don't need to specifically cancel them by hand
+in those cases. Moreover we should not, because io_match_task() looks at
+req->task->files now, which is always true and so leads to extra
+cancellations, that wasn't a case before per-task io-wq.
 
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
-Link: https://lore.kernel.org/r/72ace588772c0f14834a6a4185d56c445a366fb4.1616696997.git.asml.silence@gmail.com
+Link: https://lore.kernel.org/r/0566c1de9b9dd417f5de345c817ca953580e0e2e.1616696997.git.asml.silence@gmail.com
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 ---
- fs/io_uring.c | 42 ++++++++++++++++++++++--------------------
- 1 file changed, 22 insertions(+), 20 deletions(-)
+ fs/io_uring.c | 2 --
+ 1 file changed, 2 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 4d0cb2548a67..69896ae204d6 100644
+index 4189e1b684e1..66ae46874d85 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -1262,26 +1262,6 @@ static void io_kill_timeout(struct io_kiocb *req, int status)
+@@ -1094,8 +1094,6 @@ static bool io_match_task(struct io_kiocb *head,
+ 	io_for_each_link(req, head) {
+ 		if (req->flags & REQ_F_INFLIGHT)
+ 			return true;
+-		if (req->task->files == files)
+-			return true;
  	}
+ 	return false;
  }
- 
--/*
-- * Returns true if we found and killed one or more timeouts
-- */
--static bool io_kill_timeouts(struct io_ring_ctx *ctx, struct task_struct *tsk,
--			     struct files_struct *files)
--{
--	struct io_kiocb *req, *tmp;
--	int canceled = 0;
--
--	spin_lock_irq(&ctx->completion_lock);
--	list_for_each_entry_safe(req, tmp, &ctx->timeout_list, timeout.list) {
--		if (io_match_task(req, tsk, files)) {
--			io_kill_timeout(req, -ECANCELED);
--			canceled++;
--		}
--	}
--	spin_unlock_irq(&ctx->completion_lock);
--	return canceled != 0;
--}
--
- static void __io_queue_deferred(struct io_ring_ctx *ctx)
- {
- 	do {
-@@ -8612,6 +8592,28 @@ static void io_ring_exit_work(struct work_struct *work)
- 	io_ring_ctx_free(ctx);
- }
- 
-+/* Returns true if we found and killed one or more timeouts */
-+static bool io_kill_timeouts(struct io_ring_ctx *ctx, struct task_struct *tsk,
-+			     struct files_struct *files)
-+{
-+	struct io_kiocb *req, *tmp;
-+	int canceled = 0;
-+
-+	spin_lock_irq(&ctx->completion_lock);
-+	list_for_each_entry_safe(req, tmp, &ctx->timeout_list, timeout.list) {
-+		if (io_match_task(req, tsk, files)) {
-+			io_kill_timeout(req, -ECANCELED);
-+			canceled++;
-+		}
-+	}
-+	io_commit_cqring(ctx);
-+	spin_unlock_irq(&ctx->completion_lock);
-+
-+	if (canceled != 0)
-+		io_cqring_ev_posted(ctx);
-+	return canceled != 0;
-+}
-+
- static void io_ring_ctx_wait_and_kill(struct io_ring_ctx *ctx)
- {
- 	unsigned long index;
 -- 
 2.31.0
 

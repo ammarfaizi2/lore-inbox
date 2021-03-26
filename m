@@ -7,62 +7,62 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AFD8FC433DB
-	for <io-uring@archiver.kernel.org>; Fri, 26 Mar 2021 15:52:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0F688C433E1
+	for <io-uring@archiver.kernel.org>; Fri, 26 Mar 2021 15:52:44 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7FEB8601FC
+	by mail.kernel.org (Postfix) with ESMTP id BEAF961A28
 	for <io-uring@archiver.kernel.org>; Fri, 26 Mar 2021 15:52:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230409AbhCZPwO (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Fri, 26 Mar 2021 11:52:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41330 "EHLO
+        id S230458AbhCZPwP (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Fri, 26 Mar 2021 11:52:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41344 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230470AbhCZPwF (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Fri, 26 Mar 2021 11:52:05 -0400
-Received: from mail-il1-x131.google.com (mail-il1-x131.google.com [IPv6:2607:f8b0:4864:20::131])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 539ACC0613B1
-        for <io-uring@vger.kernel.org>; Fri, 26 Mar 2021 08:52:05 -0700 (PDT)
-Received: by mail-il1-x131.google.com with SMTP id t6so5380258ilp.11
-        for <io-uring@vger.kernel.org>; Fri, 26 Mar 2021 08:52:05 -0700 (PDT)
+        with ESMTP id S230479AbhCZPwH (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Fri, 26 Mar 2021 11:52:07 -0400
+Received: from mail-il1-x133.google.com (mail-il1-x133.google.com [IPv6:2607:f8b0:4864:20::133])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0485FC0613B3
+        for <io-uring@vger.kernel.org>; Fri, 26 Mar 2021 08:52:07 -0700 (PDT)
+Received: by mail-il1-x133.google.com with SMTP id d10so5410291ils.5
+        for <io-uring@vger.kernel.org>; Fri, 26 Mar 2021 08:52:06 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernel-dk.20150623.gappssmtp.com; s=20150623;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=2mAmxL/kkU5P2p4/GNsVO44FMkgxyU8s5QHvaqUZUn8=;
-        b=UiPFxEcNXGdHzMJvXUv5dHcIiKqFHUT5CvVH7tlB7pv5EfO93D7/fRDE8iJ4x3HI57
-         8Y7CrCde/Co4TH0jsIv8OC+m/0fBeui0uMAbCZCkk9RHM55gII3tog6KrdEf061FYwKO
-         7+oZDIJZoUzznCdr7DZo6QeA4unSTb+nQqV2MX3t3QnmEU2O5yUj4vMSe41k7umvS6Ye
-         bo8395n8p8FCi3APT50OsW/xoNDcD1M8KS4Z9TyAhchVZ9PnoXcR4Ls3kdviLzQsTEnn
-         DtMOgg2H+t18zIPbNiahlsyrzPvpDEXcs6R9xVTxAXsmgHA4IB2Xqfld5txRED+sp4Ux
-         /OzA==
+        bh=2t6iLdXAU1r3Y7JBXozM9Cp3Dd1oQr2SnOThQgSbPl4=;
+        b=YnXWk5kppJoJPBxYw/wYd53PK+lfddAN4D5PRi0Pm5WAt5hvcjz8UpopfIyG70/uVe
+         6bb/oizXQVSqHhM4Q40g3esoiAscXjao3G82z5rC/efYtkRijnhRpun9Q96LJpr1pSHJ
+         JnwugMdZIYuXGTiO8+zAJ5aCPa8jbeN+5O++ZOjbGX9rVDwfWtZC/04rzawQDAz4hrp0
+         Cy6/6xMRLGe2Gc3uuXDklT+E3aTS9zA6qXgFxu4LA9Lvi38pgaPQh8yrDwVF5455ITr9
+         Lnx/D6Eu7YmKoI6BZNzfRFa3MQIFmE5CglEXgpThc4ega6l1o/71Q4Cw+AUAw9A/Ww69
+         iRUA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=2mAmxL/kkU5P2p4/GNsVO44FMkgxyU8s5QHvaqUZUn8=;
-        b=HwZmgcx4iMn/B8QQ8PvpZlAqN+CsQ9L4vvdj3WabPt+lp4F8yLVoQ3mudYXReITRbL
-         iz3OZOw/pa5nqvLeDXf3WIncNLWgI0j2KbXkibuLX7J32k2ydTcSQVzyOFaUTvynX4uo
-         Bub8dL3pV6C+pWXvLzh5WlFCavl2EvNVRYMmWrGql0A+DbQrMmtn5NO82ibRUe3J7UJq
-         BDtSw2p05qRU0zMnapwNrapR0p/fbLsHv0Os9Q0f45mEAScMCWxZc1+lbq8xS1NLkamS
-         vW3JqDOdJvauoAGgqRXINQ7suQQzGogE9ffHYxyx7iA8YsWQ9LxW68mV7Gr6pFwz9tjP
-         Myqg==
-X-Gm-Message-State: AOAM533/lV8K+LvfeLp7WanaIBwTDu/pVGB0KJBC4iWePiSElHLR2em1
-        1CCZdgjACLYq2PXAX4x2tBmVc1equ1znTw==
-X-Google-Smtp-Source: ABdhPJxXt5U9gZ0BK/E9O0HuDrXXe2n0VRgav8rbbzQZAW8xOD3QsOfQSz0QSYEmpe6bp3Jw/HrY9g==
-X-Received: by 2002:a05:6e02:4b2:: with SMTP id e18mr10044121ils.42.1616773924539;
-        Fri, 26 Mar 2021 08:52:04 -0700 (PDT)
+        bh=2t6iLdXAU1r3Y7JBXozM9Cp3Dd1oQr2SnOThQgSbPl4=;
+        b=db/g06EV0yEOMZYNYncea29bKL/jIeTX2Psxtnscjggyt71F63TIr60I11NDMY10nX
+         4+UioNrfvUGVIMYamRY7qRhkudCEN2Qg7II40EM5Zyj4VUvWv9SZb+oVhZZ45l8qToNo
+         e0Q/7AsoYKWYT4l1miWcvwbH9urYgCP1s+li3OkQ4/JgbnOOgS3nRxQ8CyGhPy6z6z2/
+         X3HmvFGhOdjeDvLT/3SeusJxSeKV1bcu57w1aqSP9yeKoOOJs0tnM/Vj6EIA5PVuewqs
+         jiE0nXwW5fGx/b89fHcogeEX5ppSBZMuIjiICySZVwReiEMaAdxiS1bvUHYB7NjApRqO
+         +YpA==
+X-Gm-Message-State: AOAM530izcNC6taEE07f1hgGPUNNP06GnUm3JLI+UhJNJdpHFidgQ34W
+        Mi6baVkrgEWFIxocl81ZkySE0qY1+mSlNA==
+X-Google-Smtp-Source: ABdhPJytbzRF5CIaGho+RCmG38IXLE3SJ+K+2XyZVuWVDHLEwXvSz5mUHkofTKmlFhgVDHgsF3P6CQ==
+X-Received: by 2002:a92:cd51:: with SMTP id v17mr11377639ilq.146.1616773926253;
+        Fri, 26 Mar 2021 08:52:06 -0700 (PDT)
 Received: from p1.localdomain ([65.144.74.34])
-        by smtp.gmail.com with ESMTPSA id a7sm4456337ilj.64.2021.03.26.08.52.03
+        by smtp.gmail.com with ESMTPSA id a7sm4456337ilj.64.2021.03.26.08.52.05
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 26 Mar 2021 08:52:04 -0700 (PDT)
+        Fri, 26 Mar 2021 08:52:05 -0700 (PDT)
 From:   Jens Axboe <axboe@kernel.dk>
 To:     io-uring@vger.kernel.org
 Cc:     torvalds@linux-foundation.org, ebiederm@xmission.com,
         metze@samba.org, oleg@redhat.com, linux-kernel@vger.kernel.org,
         Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 2/7] io_uring: handle signals for IO threads like a normal thread
-Date:   Fri, 26 Mar 2021 09:51:15 -0600
-Message-Id: <20210326155128.1057078-3-axboe@kernel.dk>
+Subject: [PATCH 3/7] kernel: stop masking signals in create_io_thread()
+Date:   Fri, 26 Mar 2021 09:51:17 -0600
+Message-Id: <20210326155128.1057078-5-axboe@kernel.dk>
 X-Mailer: git-send-email 2.31.0
 In-Reply-To: <20210326155128.1057078-1-axboe@kernel.dk>
 References: <20210326155128.1057078-1-axboe@kernel.dk>
@@ -72,109 +72,53 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-We go through various hoops to disallow signals for the IO threads, but
-there's really no reason why we cannot just allow them. The IO threads
-never return to userspace like a normal thread, and hence don't go through
-normal signal processing. Instead, just check for a pending signal as part
-of the work loop, and call get_signal() to handle it for us if anything
-is pending.
+This is racy - move the blocking into when the task is created and
+we're marking it as PF_IO_WORKER anyway. The IO threads are now
+prepared to handle signals like SIGSTOP as well, so clear that from
+the mask to allow proper stopping of IO threads.
 
-With that, we can support receiving signals, including special ones like
-SIGSTOP.
-
+Reported-by: Oleg Nesterov <oleg@redhat.com>
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 ---
- fs/io-wq.c    | 24 +++++++++++++++++-------
- fs/io_uring.c | 12 ++++++++----
- 2 files changed, 25 insertions(+), 11 deletions(-)
+ kernel/fork.c | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/fs/io-wq.c b/fs/io-wq.c
-index b7c1fa932cb3..3e2f059a1737 100644
---- a/fs/io-wq.c
-+++ b/fs/io-wq.c
-@@ -16,7 +16,6 @@
- #include <linux/rculist_nulls.h>
- #include <linux/cpu.h>
- #include <linux/tracehook.h>
--#include <linux/freezer.h>
+diff --git a/kernel/fork.c b/kernel/fork.c
+index d3171e8e88e5..ddaa15227071 100644
+--- a/kernel/fork.c
++++ b/kernel/fork.c
+@@ -1940,8 +1940,14 @@ static __latent_entropy struct task_struct *copy_process(
+ 	p = dup_task_struct(current, node);
+ 	if (!p)
+ 		goto fork_out;
+-	if (args->io_thread)
++	if (args->io_thread) {
++		/*
++		 * Mark us an IO worker, and block any signal that isn't
++		 * fatal or STOP
++		 */
+ 		p->flags |= PF_IO_WORKER;
++		siginitsetinv(&p->blocked, sigmask(SIGKILL)|sigmask(SIGSTOP));
++	}
  
- #include "../kernel/sched/sched.h"
- #include "io-wq.h"
-@@ -503,10 +502,16 @@ static int io_wqe_worker(void *data)
- 		if (io_flush_signals())
- 			continue;
- 		ret = schedule_timeout(WORKER_IDLE_TIMEOUT);
--		if (try_to_freeze() || ret)
-+		if (signal_pending(current)) {
-+			struct ksignal ksig;
-+
-+			if (fatal_signal_pending(current))
-+				break;
-+			if (get_signal(&ksig))
-+				continue;
-+		}
-+		if (ret)
- 			continue;
--		if (fatal_signal_pending(current))
--			break;
- 		/* timed out, exit unless we're the fixed worker */
- 		if (test_bit(IO_WQ_BIT_EXIT, &wq->state) ||
- 		    !(worker->flags & IO_WORKER_F_FIXED))
-@@ -714,9 +719,14 @@ static int io_wq_manager(void *data)
- 		set_current_state(TASK_INTERRUPTIBLE);
- 		io_wq_check_workers(wq);
- 		schedule_timeout(HZ);
--		try_to_freeze();
--		if (fatal_signal_pending(current))
--			set_bit(IO_WQ_BIT_EXIT, &wq->state);
-+		if (signal_pending(current)) {
-+			struct ksignal ksig;
-+
-+			if (fatal_signal_pending(current))
-+				set_bit(IO_WQ_BIT_EXIT, &wq->state);
-+			else if (get_signal(&ksig))
-+				continue;
-+		}
- 	} while (!test_bit(IO_WQ_BIT_EXIT, &wq->state));
+ 	/*
+ 	 * This _must_ happen before we call free_task(), i.e. before we jump
+@@ -2430,14 +2436,8 @@ struct task_struct *create_io_thread(int (*fn)(void *), void *arg, int node)
+ 		.stack_size	= (unsigned long)arg,
+ 		.io_thread	= 1,
+ 	};
+-	struct task_struct *tsk;
  
- 	io_wq_check_workers(wq);
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 54ea561db4a5..350418a88db3 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -78,7 +78,6 @@
- #include <linux/task_work.h>
- #include <linux/pagemap.h>
- #include <linux/io_uring.h>
--#include <linux/freezer.h>
+-	tsk = copy_process(NULL, 0, node, &args);
+-	if (!IS_ERR(tsk)) {
+-		sigfillset(&tsk->blocked);
+-		sigdelsetmask(&tsk->blocked, sigmask(SIGKILL));
+-	}
+-	return tsk;
++	return copy_process(NULL, 0, node, &args);
+ }
  
- #define CREATE_TRACE_POINTS
- #include <trace/events/io_uring.h>
-@@ -6765,8 +6764,14 @@ static int io_sq_thread(void *data)
- 			timeout = jiffies + sqd->sq_thread_idle;
- 			continue;
- 		}
--		if (fatal_signal_pending(current))
--			break;
-+		if (signal_pending(current)) {
-+			struct ksignal ksig;
-+
-+			if (fatal_signal_pending(current))
-+				break;
-+			if (get_signal(&ksig))
-+				continue;
-+		}
- 		sqt_spin = false;
- 		cap_entries = !list_is_singular(&sqd->ctx_list);
- 		list_for_each_entry(ctx, &sqd->ctx_list, sqd_list) {
-@@ -6809,7 +6814,6 @@ static int io_sq_thread(void *data)
- 
- 			mutex_unlock(&sqd->lock);
- 			schedule();
--			try_to_freeze();
- 			mutex_lock(&sqd->lock);
- 			list_for_each_entry(ctx, &sqd->ctx_list, sqd_list)
- 				io_ring_clear_wakeup_flag(ctx);
+ /*
 -- 
 2.31.0
 

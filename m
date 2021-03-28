@@ -2,147 +2,110 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-20.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,INCLUDES_PULL_REQUEST,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 086CAC433C1
-	for <io-uring@archiver.kernel.org>; Sun, 28 Mar 2021 01:03:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 41B93C433C1
+	for <io-uring@archiver.kernel.org>; Sun, 28 Mar 2021 19:03:34 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id BE0076196C
-	for <io-uring@archiver.kernel.org>; Sun, 28 Mar 2021 01:03:01 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 166D16196E
+	for <io-uring@archiver.kernel.org>; Sun, 28 Mar 2021 19:03:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231232AbhC1BCW (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sat, 27 Mar 2021 21:02:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42644 "EHLO
+        id S231417AbhC1TDB (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sun, 28 Mar 2021 15:03:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47040 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230464AbhC1BB4 (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Sat, 27 Mar 2021 21:01:56 -0400
-Received: from mail-pf1-x42e.google.com (mail-pf1-x42e.google.com [IPv6:2607:f8b0:4864:20::42e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BACFCC0613B1
-        for <io-uring@vger.kernel.org>; Sat, 27 Mar 2021 18:01:55 -0700 (PDT)
-Received: by mail-pf1-x42e.google.com with SMTP id h3so7427932pfr.12
-        for <io-uring@vger.kernel.org>; Sat, 27 Mar 2021 18:01:55 -0700 (PDT)
+        with ESMTP id S231205AbhC1TDB (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Sun, 28 Mar 2021 15:03:01 -0400
+Received: from mail-lj1-x236.google.com (mail-lj1-x236.google.com [IPv6:2a00:1450:4864:20::236])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3D9CC061756
+        for <io-uring@vger.kernel.org>; Sun, 28 Mar 2021 12:03:00 -0700 (PDT)
+Received: by mail-lj1-x236.google.com with SMTP id 184so13465008ljf.9
+        for <io-uring@vger.kernel.org>; Sun, 28 Mar 2021 12:03:00 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=to:cc:from:subject:message-id:date:user-agent:mime-version
-         :content-language:content-transfer-encoding;
-        bh=eyL4y7J+sguIicsgUYHfgkDhUQoIalxnWBfG2EfxytA=;
-        b=fX3BOBqExjNXL6EmkdjX1VcvtoV9E9R1PWvpXzSLleMft5UXpEHgx1z1jTBZa1suWq
-         rks4OkDFyAupzSOHROcqYYDNTNtx6c1UtNnp+ldLm2bnPbsJ6xCDOqZ/fhKoSDcIORb6
-         xLlzrBOn+MhkyhU6Ktf8JW9o6H+xs9W2AXjFtVy5iWmUCemB086xHgXs/Nh5ODpEbknW
-         Nd3QGjDqYsjLhRqP3uA1lWLqXA55l4GGoAS209AbPkcfInP+29vWa2PlCXCNQ08lHhpu
-         gfu0zHWo94TG6+vkcIs2bHIXcStHI9DF2JdB5ifVVnFC7V90M9NTjz5yqYxQ4y5fEu8s
-         JeSQ==
+        d=linux-foundation.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=6meSVu06EdgIS3E4eUl13iSC0bIq0UJenzavQYq9iXg=;
+        b=OngmHF9rdYA8WU4BMTKXK69WdSo7C/so4S7/5c7zW35JW+agmsvv+NvUROsbESjFNa
+         Bf25+5xRyduknGBhjv9BbhAA4XI1K2TGo8s+7LQrFIP/GIv6M0Wcsbp+biiLdC8ZEzjV
+         IKQS/rxW8s9Y6EaPKBvWryLiycp5J8Yk/ecXA=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:to:cc:from:subject:message-id:date:user-agent
-         :mime-version:content-language:content-transfer-encoding;
-        bh=eyL4y7J+sguIicsgUYHfgkDhUQoIalxnWBfG2EfxytA=;
-        b=fpD0RdAAtAvVpbMvroE2rbRSyonIbh5H+JZ75kbdUbNqL3JS9exKd27UKg9omdfGnv
-         lHdEoaT/563/Q8ro5X7lfDTsXf5hJXGnURTbeYRAIVeAWPmbjnjSp4N7nViYe+NYpFUz
-         VwYrVqWJOZTrZVp20Xjcqgq759dzPULIQYFepx3ZsanvIji9dvEvI5621D5+pyATyr1h
-         U/NFriJ13PiOjrT2gBuuUzaLWq8S8S4aH7H2N612P4mbVEvQr8CkbbHHPzFxd73aqz9e
-         BMf6PfbLK6byNH1NegQHa450wlJThQH29Rmje3O/9LMLJ90PK3bmOMlf2YCEqOAqNkwp
-         ut7g==
-X-Gm-Message-State: AOAM533slgM6W4Rw5/ZfC10+7AzXEjbu0CAaLY09/XmeTkg6hdi2Bl2a
-        mdUmwaa8rmHYhxaX7kZP2frKoQ==
-X-Google-Smtp-Source: ABdhPJx73kxUG3WJHrzZ2lSc8HYNHZkKzu6lSLl5J9vPnGlpgNQoeNJf6yRpsWFYE4INlRkZeMgvkw==
-X-Received: by 2002:a65:4344:: with SMTP id k4mr18395508pgq.48.1616893314956;
-        Sat, 27 Mar 2021 18:01:54 -0700 (PDT)
-Received: from [192.168.1.134] ([66.219.217.173])
-        by smtp.gmail.com with ESMTPSA id mm12sm11787671pjb.49.2021.03.27.18.01.53
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=6meSVu06EdgIS3E4eUl13iSC0bIq0UJenzavQYq9iXg=;
+        b=LjXS7ZAUaAIzMngpa7jbQJb/pQ5cgPs6kHZg8piAKPeE2vMRcKQ7u3gIj73uGiatVz
+         K4mdSluVpE0s9562N0VNMkiWR5qYMkFPWex/aP9q+nsg7FQ2vUXuxnSDoYYnqoIcaQER
+         vwj1vlq9/A9bNkOW4Ls+kk5mapk4CG3E49Jri1Dt123AIlC3+n7AVKA/hiEFw4fKUtrt
+         u+n/QeKuMVYrSBDOOyDE8M8VlY64hbNAVGnhFwOLI5JbbnOa4b0Gmyek4HMbdpEmdpq8
+         CJ6J3DWvpumPfZMMcOoivWUWZ4MPXwJRkBlwAb92Mn0iF/3g4mywowVQGHbY+60m374s
+         F8zA==
+X-Gm-Message-State: AOAM530OiM3LCa55rU56hK3QYIL/WFuxVCzjC62q9slcAXVWhSwNcQ7O
+        Hzr/xVjN6xiQ8t7kX3GPA8DYGTa4pWLGtQ==
+X-Google-Smtp-Source: ABdhPJw3nLhKEfA86ffz/lX+7k2wAYUVMlSZb2CeKGMaYdZChIukwZ81YBg/309FSp6/ujlFrU7xKw==
+X-Received: by 2002:a2e:3c06:: with SMTP id j6mr16365289lja.496.1616958178821;
+        Sun, 28 Mar 2021 12:02:58 -0700 (PDT)
+Received: from mail-lf1-f42.google.com (mail-lf1-f42.google.com. [209.85.167.42])
+        by smtp.gmail.com with ESMTPSA id e18sm2150454ljl.92.2021.03.28.12.02.58
+        for <io-uring@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sat, 27 Mar 2021 18:01:54 -0700 (PDT)
-To:     Linus Torvalds <torvalds@linux-foundation.org>
+        Sun, 28 Mar 2021 12:02:58 -0700 (PDT)
+Received: by mail-lf1-f42.google.com with SMTP id o126so15208277lfa.0
+        for <io-uring@vger.kernel.org>; Sun, 28 Mar 2021 12:02:58 -0700 (PDT)
+X-Received: by 2002:a05:6512:3ba9:: with SMTP id g41mr13819817lfv.421.1616958177852;
+ Sun, 28 Mar 2021 12:02:57 -0700 (PDT)
+MIME-Version: 1.0
+References: <aa67d57a-ba51-f443-c0f2-43d455bff25c@kernel.dk>
+In-Reply-To: <aa67d57a-ba51-f443-c0f2-43d455bff25c@kernel.dk>
+From:   Linus Torvalds <torvalds@linux-foundation.org>
+Date:   Sun, 28 Mar 2021 12:02:42 -0700
+X-Gmail-Original-Message-ID: <CAHk-=wiHof59ZbJai7M7Xw7RYfm8KszApXztnoTHePke5mZBsA@mail.gmail.com>
+Message-ID: <CAHk-=wiHof59ZbJai7M7Xw7RYfm8KszApXztnoTHePke5mZBsA@mail.gmail.com>
+Subject: Re: [GIT PULL] io_uring fixes for 5.12-rc5
+To:     Jens Axboe <axboe@kernel.dk>,
+        Pavel Begunkov <asml.silence@gmail.com>,
+        Colin Ian King <colin.king@canonical.com>
 Cc:     io-uring <io-uring@vger.kernel.org>,
         "Eric W. Biederman" <ebiederm@xmission.com>
-From:   Jens Axboe <axboe@kernel.dk>
-Subject: [GIT PULL] io_uring fixes for 5.12-rc5
-Message-ID: <aa67d57a-ba51-f443-c0f2-43d455bff25c@kernel.dk>
-Date:   Sat, 27 Mar 2021 19:01:53 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Hi Linus,
+On Sat, Mar 27, 2021 at 6:02 PM Jens Axboe <axboe@kernel.dk> wrote:
+>
+> - Fix sign extension issue for IORING_OP_PROVIDE_BUFFERS
 
-- Use thread info versions of flag testing, as discussed last week.
+I don't think this fixes anything.
 
-- The series enabling PF_IO_WORKER to just take signals, instead of
-  needing to special case that they do not in a bunch of places. Ends up
-  being pretty trivial to do, and then we can revert all the special
-  casing we're currently doing.
+It may change the sign bit, but as far as I can tell, doesn't actually
+fix anything at all. You're multiplying a 16-bit value with a signed
+32-bit one. The cast to "unsigned long" makes sure it's done as an
+unsigned multiply, but doesn't change anything funcamental.
 
-- Kill dead pointer assignment
+ - "p->len" is an explictly signed type (__s32). Don't ask me why.
 
-- Fix hashed part of async work queue trace
+ - the size calculation takes that signed value, turns it into an
+"unsigned long" (which sign-extends it), and then does an unsigned
+multiply of that nonsensical value
 
-- Fix sign extension issue for IORING_OP_PROVIDE_BUFFERS
+ - that can overflow both in 64-bit and 32-bit (since the 32-bit
+signed value has been made an extremely large "unsigned long"
 
-- Fix a link completion ordering regression in this merge window
+So there is absolutely nothing "right" about the typing there. Not
+before, and not after. The whole cast is entirely meaningless, and
+doesn't seem to fix anything. It is basically a random change.
 
-- Cancelation fixes
+If you want that calculation to make sense, you need to
 
-Please pull!
+ (a) disallow the insane case of signed "len". Most certainly not
+sign-extend it to a large unsigned value.
 
+ (b) actually make sure there is no overflow
 
-The following changes since commit 0031275d119efe16711cd93519b595e6f9b4b330:
+because adding a random cast does neither of those things.
 
-  io_uring: call req_set_fail_links() on short send[msg]()/recv[msg]() with MSG_WAITALL (2021-03-21 09:41:14 -0600)
-
-are available in the Git repository at:
-
-  git://git.kernel.dk/linux-block.git tags/io_uring-5.12-2021-03-27
-
-for you to fetch changes up to 2b8ed1c94182dbbd0163d0eb443a934cbf6b0d85:
-
-  io_uring: remove unsued assignment to pointer io (2021-03-27 14:09:11 -0600)
-
-----------------------------------------------------------------
-io_uring-5.12-2021-03-27
-
-----------------------------------------------------------------
-Colin Ian King (1):
-      io_uring: remove unsued assignment to pointer io
-
-Jens Axboe (9):
-      io_uring: don't use {test,clear}_tsk_thread_flag() for current
-      io-wq: fix race around pending work on teardown
-      kernel: don't call do_exit() for PF_IO_WORKER threads
-      io_uring: handle signals for IO threads like a normal thread
-      kernel: stop masking signals in create_io_thread()
-      Revert "signal: don't allow sending any signals to PF_IO_WORKER threads"
-      Revert "kernel: treat PF_IO_WORKER like PF_KTHREAD for ptrace/signals"
-      Revert "kernel: freezer should treat PF_IO_WORKER like PF_KTHREAD for freezing"
-      Revert "signal: don't allow STOP on PF_IO_WORKER threads"
-
-Pavel Begunkov (9):
-      io_uring: correct io_queue_async_work() traces
-      io_uring: don't skip file_end_write() on reissue
-      io_uring: fix provide_buffers sign extension
-      io_uring: do ctx sqd ejection in a clear context
-      io_uring: maintain CQE order of a failed link
-      io_uring: fix timeout cancel return code
-      io_uring: do post-completion chore on t-out cancel
-      io_uring: don't cancel-track common timeouts
-      io_uring: don't cancel extra on files match
-
- fs/io-wq.c       | 32 +++++++++++-------
- fs/io_uring.c    | 98 +++++++++++++++++++++++++++++---------------------------
- kernel/fork.c    | 16 ++++-----
- kernel/freezer.c |  2 +-
- kernel/ptrace.c  |  2 +-
- kernel/signal.c  | 20 +++++++-----
- 6 files changed, 94 insertions(+), 76 deletions(-)
-
--- 
-Jens Axboe
-
+              Linus

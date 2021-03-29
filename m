@@ -2,88 +2,77 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.7 required=3.0 tests=BAYES_00,FROM_LOCAL_HEX,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B4292C433E0
-	for <io-uring@archiver.kernel.org>; Mon, 29 Mar 2021 07:35:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8AC7EC433C1
+	for <io-uring@archiver.kernel.org>; Mon, 29 Mar 2021 10:44:49 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7BFB26196B
-	for <io-uring@archiver.kernel.org>; Mon, 29 Mar 2021 07:35:18 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5D84C61938
+	for <io-uring@archiver.kernel.org>; Mon, 29 Mar 2021 10:44:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231126AbhC2Heo (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Mon, 29 Mar 2021 03:34:44 -0400
-Received: from mail-io1-f69.google.com ([209.85.166.69]:45710 "EHLO
-        mail-io1-f69.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230224AbhC2HeT (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Mon, 29 Mar 2021 03:34:19 -0400
-Received: by mail-io1-f69.google.com with SMTP id n13so10252621ioh.12
-        for <io-uring@vger.kernel.org>; Mon, 29 Mar 2021 00:34:18 -0700 (PDT)
+        id S232648AbhC2KoR (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Mon, 29 Mar 2021 06:44:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51900 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232611AbhC2Knp (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Mon, 29 Mar 2021 06:43:45 -0400
+Received: from mail-wm1-x332.google.com (mail-wm1-x332.google.com [IPv6:2a00:1450:4864:20::332])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 988FDC061574
+        for <io-uring@vger.kernel.org>; Mon, 29 Mar 2021 03:43:44 -0700 (PDT)
+Received: by mail-wm1-x332.google.com with SMTP id d8-20020a1c1d080000b029010f15546281so8275028wmd.4
+        for <io-uring@vger.kernel.org>; Mon, 29 Mar 2021 03:43:44 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=3Pl9BcFLNXFbmmCNqGWv2Vn4rYnc2KZZO0ikC+cK8oU=;
+        b=gcnHC0NnwC58nSV0Lw/bYvuVyO0htYcg+9xK1E0gf+CHcbpb74N/n+ucOroHe5sxv/
+         RiQB7hv2rvOAIFtwUxCoi0nTuN+T5WSAsxxie/PdZlwHONlsIcmIEOsoHTlPnFrsbaFe
+         FNQ2u5EVHJ3j8AjJSgfF/jSKZ47earyy/Qs+V+BWKfGeuZFT+T7vDqjnfH87SDtqkoQ8
+         dTrs3v4u6pKHd1fakyvR1H+e2qyZZrtLHh5e5cSNLpxTct2i0aUrEbxGDC1J7pOrx2sG
+         BvcSyHFgYDLLs3oW77STTbyIImT7LocNrSCLDvUJi2uzieU8NvrooTBGOQNPlERI+Mbo
+         G0Jg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:date:message-id:subject:from:to;
-        bh=6nMBPjQoE5iHToTiMAu4u9310U6VWR1t5o9JInSRs9s=;
-        b=q1af5Lcoyz+HL4OJmp5+//wI8XC7UgSwWP1dPBAW+Wuu10lDjGTCkgvVjSOriEDCSy
-         qnuE2pafBuNu7HkfLkceyMKiOjj2Qx0sNo9Ggx7uKDeSWKCQ49YDekOB50b3UKrspRBP
-         ku8c6UhgLUDbqOu0aZwVwyPZsE7NWzKUoUo2GRNmCKlG3KA2QAgrR55ETrQiqthTD1rV
-         Cjjo925XYmE9p+zpaEUIJFjRCZdgWBKyM3pdZoQB80MGB6V9CsAoiG4FKsAyLowE4kKQ
-         dqjCQBbS19WCNjreaSON1w9D4DG2XMKlj0ILtcKKGYZ9pqa0d1fp3McarDHKeZVA5G3Z
-         BMLw==
-X-Gm-Message-State: AOAM531Ex8NSzdQ6CdaO3nMJ8g91gxLJuE04oHA7/Gu5jRJUcrYCewAb
-        4w8hVhWHQJbZDDZ0VvQzMB2LIUQaH1TuonfWEapzQ+w6HSgu
-X-Google-Smtp-Source: ABdhPJwdL/IYYrRcO+yUnQ2A2cK5EhVwQjgZEKggFvEeML0cInp7Mt7eMkmUBr29k25aE5EefqYzV+KXir++TJ1fNnDQRSmp1Grk
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=3Pl9BcFLNXFbmmCNqGWv2Vn4rYnc2KZZO0ikC+cK8oU=;
+        b=QECXqPOo4ypuUvTVnNhxFnNWCtmPatzaDh2dPYhl76BlXDQBJZqXvxQYMDf89IOLVM
+         +vD0kkn8OY0y3ENZb4/bppX1IN74V9aHZheVAVeUf3rvo8eVcv9her7xoKhD4iILN2vz
+         EYv3d0Vb8GyPY+PcjIrF+3Xn8M1A0l6LwYspTHxRdzwzgAYtiCY3xB2rWHV+7hNcEo19
+         4VjJZPrejNFKComXS/6Fw2wDM+yRT65Q+qpBNfkOT2KUpYGxGSJfn5n5l5zX5s9V/KgH
+         vgb9rAP1Y0XqT5oTF1PLJl3R+bg1K/H38zau7y7Lm67gx+/OPpJ9XsB4fkqylcKU28q7
+         MFYw==
+X-Gm-Message-State: AOAM533FPhMRX4lIyTpMIVtc1/VYzc87W4oiyaQGkWdNfkC79fginF38
+        fm7jXD2McESv1H9P9xfOE58ZuPR7RjSYEQ==
+X-Google-Smtp-Source: ABdhPJx8RKaf2vofxlLapUjpKNvzf36b5RmE5tEIEmO/svG0IJ92rf+2o4UvbzEaBzqHZ9bJTRdY8w==
+X-Received: by 2002:a1c:7ec4:: with SMTP id z187mr24294341wmc.3.1617014623397;
+        Mon, 29 Mar 2021 03:43:43 -0700 (PDT)
+Received: from localhost.localdomain ([148.252.129.162])
+        by smtp.gmail.com with ESMTPSA id x11sm24092938wmi.3.2021.03.29.03.43.42
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 29 Mar 2021 03:43:43 -0700 (PDT)
+From:   Pavel Begunkov <asml.silence@gmail.com>
+To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
+Cc:     syzbot+0e905eb8228070c457a0@syzkaller.appspotmail.com
+Subject: [PATCH 5.12] io_uring: handle setup-failed ctx in kill_timeouts
+Date:   Mon, 29 Mar 2021 11:39:29 +0100
+Message-Id: <660261a48f0e7abf260c8e43c87edab3c16736fa.1617014345.git.asml.silence@gmail.com>
+X-Mailer: git-send-email 2.24.0
 MIME-Version: 1.0
-X-Received: by 2002:a05:6602:184c:: with SMTP id d12mr19247097ioi.8.1617003258247;
- Mon, 29 Mar 2021 00:34:18 -0700 (PDT)
-Date:   Mon, 29 Mar 2021 00:34:18 -0700
-X-Google-Appengine-App-Id: s~syzkaller
-X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <000000000000cefea605bea7e8c3@google.com>
-Subject: [syzbot] general protection fault in io_commit_cqring (2)
-From:   syzbot <syzbot+0e905eb8228070c457a0@syzkaller.appspotmail.com>
-To:     asml.silence@gmail.com, axboe@kernel.dk, io-uring@vger.kernel.org,
-        linux-kernel@vger.kernel.org, syzkaller-bugs@googlegroups.com
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Hello,
-
-syzbot found the following issue on:
-
-HEAD commit:    81b1d39f Merge tag '5.12-rc4-smb3' of git://git.samba.org/..
-git tree:       upstream
-console output: https://syzkaller.appspot.com/x/log.txt?x=10ce6fe6d00000
-kernel config:  https://syzkaller.appspot.com/x/.config?x=daeff30c2474a60f
-dashboard link: https://syzkaller.appspot.com/bug?extid=0e905eb8228070c457a0
-syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=10e0ed06d00000
-C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=1144754ed00000
-
-IMPORTANT: if you fix the issue, please add the following tag to the commit:
-Reported-by: syzbot+0e905eb8228070c457a0@syzkaller.appspotmail.com
-
-RBP: 00007ffe05a7c220 R08: 0000000000000001 R09: 0000000000000001
-R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000003
-R13: 431bde82d7b634db R14: 00000000004ae018 R15: 0000000000400488
-general protection fault, probably for non-canonical address 0xdffffc0000000018: 0000 [#1] PREEMPT SMP KASAN
-KASAN: null-ptr-deref in range [0x00000000000000c0-0x00000000000000c7]
-CPU: 1 PID: 8400 Comm: syz-executor278 Not tainted 5.12.0-rc4-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+general protection fault, probably for non-canonical address
+	0xdffffc0000000018: 0000 [#1] KASAN: null-ptr-deref
+	in range [0x00000000000000c0-0x00000000000000c7]
 RIP: 0010:io_commit_cqring+0x37f/0xc10 fs/io_uring.c:1318
-Code: 74 08 3c 03 0f 8e fa 05 00 00 48 8d bb c0 00 00 00 41 8b ac 24 00 06 00 00 48 b8 00 00 00 00 00 fc ff df 48 89 fa 48 c1 ea 03 <0f> b6 14 02 48 89 f8 83 e0 07 83 c0 03 38 d0 7c 08 84 d2 0f 85 b7
-RSP: 0018:ffffc90001c1fc78 EFLAGS: 00010006
-RAX: dffffc0000000000 RBX: 0000000000000000 RCX: 0000000000000000
-RDX: 0000000000000018 RSI: ffffffff81db8861 RDI: 00000000000000c0
-RBP: 0000000000000000 R08: 0000000000000001 R09: 0000000000000003
-R10: fffff52000383f8f R11: 0000000000000000 R12: ffff888018166000
-R13: 0000000000000000 R14: 1ffff92000383fab R15: ffff8880181660c0
-FS:  00000000006c7300(0000) GS:ffff8880b9d00000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00007fd3db1886c0 CR3: 0000000021099000 CR4: 00000000001506e0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
 Call Trace:
  io_kill_timeouts+0x2b5/0x320 fs/io_uring.c:8606
  io_ring_ctx_wait_and_kill+0x1da/0x400 fs/io_uring.c:8629
@@ -91,37 +80,35 @@ Call Trace:
  io_uring_setup+0x10da/0x2ae0 fs/io_uring.c:9599
  do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
  entry_SYSCALL_64_after_hwframe+0x44/0xae
-RIP: 0033:0x43ffd9
-Code: 28 00 00 00 75 05 48 83 c4 28 c3 e8 b1 14 00 00 90 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 c0 ff ff ff f7 d8 64 89 01 48
-RSP: 002b:00007ffe05a7c208 EFLAGS: 00000246 ORIG_RAX: 00000000000001a9
-RAX: ffffffffffffffda RBX: 0000000000000001 RCX: 000000000043ffd9
-RDX: 0000000000000020 RSI: 0000000020000080 RDI: 00000000000054ca
-RBP: 00007ffe05a7c220 R08: 0000000000000001 R09: 0000000000000001
-R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000003
-R13: 431bde82d7b634db R14: 00000000004ae018 R15: 0000000000400488
-Modules linked in:
----[ end trace a0b1f0cfec9b9808 ]---
-RIP: 0010:io_commit_cqring+0x37f/0xc10 fs/io_uring.c:1318
-Code: 74 08 3c 03 0f 8e fa 05 00 00 48 8d bb c0 00 00 00 41 8b ac 24 00 06 00 00 48 b8 00 00 00 00 00 fc ff df 48 89 fa 48 c1 ea 03 <0f> b6 14 02 48 89 f8 83 e0 07 83 c0 03 38 d0 7c 08 84 d2 0f 85 b7
-RSP: 0018:ffffc90001c1fc78 EFLAGS: 00010006
-RAX: dffffc0000000000 RBX: 0000000000000000 RCX: 0000000000000000
-RDX: 0000000000000018 RSI: ffffffff81db8861 RDI: 00000000000000c0
-RBP: 0000000000000000 R08: 0000000000000001 R09: 0000000000000003
-R10: fffff52000383f8f R11: 0000000000000000 R12: ffff888018166000
-R13: 0000000000000000 R14: 1ffff92000383fab R15: ffff8880181660c0
-FS:  00000000006c7300(0000) GS:ffff8880b9d00000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00007fd3db1886c0 CR3: 0000000021099000 CR4: 00000000001506e0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
 
+It can get into wait_and_kill() before setting up ctx->rings, and hence
+io_commit_cqring() fails. Mimic poll cancel and do it only when we
+completed events, there can't be any requests if it failed before
+initialising rings.
 
+Fixes: 80c4cbdb5ee60 ("io_uring: do post-completion chore on t-out cancel")
+Reported-by: syzbot+0e905eb8228070c457a0@syzkaller.appspotmail.com
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
-This report is generated by a bot. It may contain errors.
-See https://goo.gl/tpsmEJ for more information about syzbot.
-syzbot engineers can be reached at syzkaller@googlegroups.com.
+ fs/io_uring.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-syzbot will keep track of this issue. See:
-https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
-syzbot can test patches for this issue, for details see:
-https://goo.gl/tpsmEJ#testing-patches
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index a4a944da95a0..088a9d3c420a 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -8603,9 +8603,9 @@ static bool io_kill_timeouts(struct io_ring_ctx *ctx, struct task_struct *tsk,
+ 			canceled++;
+ 		}
+ 	}
+-	io_commit_cqring(ctx);
++	if (canceled != 0)
++		io_commit_cqring(ctx);
+ 	spin_unlock_irq(&ctx->completion_lock);
+-
+ 	if (canceled != 0)
+ 		io_cqring_ev_posted(ctx);
+ 	return canceled != 0;
+-- 
+2.24.0
+

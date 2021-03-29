@@ -2,85 +2,95 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-8.7 required=3.0 tests=BAYES_00,FROM_LOCAL_HEX,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E5135C433C1
-	for <io-uring@archiver.kernel.org>; Mon, 29 Mar 2021 00:12:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 75A0EC433DB
+	for <io-uring@archiver.kernel.org>; Mon, 29 Mar 2021 07:35:18 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9E5E36193D
-	for <io-uring@archiver.kernel.org>; Mon, 29 Mar 2021 00:12:52 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 187136193A
+	for <io-uring@archiver.kernel.org>; Mon, 29 Mar 2021 07:35:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230098AbhC2AMU (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sun, 28 Mar 2021 20:12:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56436 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229861AbhC2AMT (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Sun, 28 Mar 2021 20:12:19 -0400
-Received: from mail-pl1-x62b.google.com (mail-pl1-x62b.google.com [IPv6:2607:f8b0:4864:20::62b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2E8CC061756
-        for <io-uring@vger.kernel.org>; Sun, 28 Mar 2021 17:12:15 -0700 (PDT)
-Received: by mail-pl1-x62b.google.com with SMTP id l1so3561128plg.12
-        for <io-uring@vger.kernel.org>; Sun, 28 Mar 2021 17:12:15 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:references:from:message-id:date:user-agent:mime-version
-         :in-reply-to:content-language:content-transfer-encoding;
-        bh=1t48VipkRbtYNrjXF3vrvrQ/bA5UiJkWGk5pcek3Gns=;
-        b=fW/1QX6AzV12g6nqTKHawDRyjDQCXJhmQxWuUJ0wwNTedidcfaUW787MgyucS9LrtV
-         W1/SG8zlvO6tmRCp92USRALcPKZgAEe/ww37vKrmZt09LPK8Fk98B/6pcl5IYgPKYjc9
-         G8u4vr5jWNsa6szarUtV5tz7b1+JyU+JBeoUg2AuMouk/qDEIdhsKug1yMvALIPtBsNE
-         H1a0elI/mRw2dC2KL8kO/yxGJpnYjDgT6JDH17bhAeA9OwYlYifg8hHudu2/AJEGlf4U
-         YhK9HHNn+3J0d1NrFioTZAQjUsjSOQ8rbGkRdAROLv7KWi/kRRqNk+7HKNYgJ8vsf2Bo
-         bnsQ==
+        id S230252AbhC2Heo (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Mon, 29 Mar 2021 03:34:44 -0400
+Received: from mail-io1-f72.google.com ([209.85.166.72]:37020 "EHLO
+        mail-io1-f72.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230364AbhC2HeT (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Mon, 29 Mar 2021 03:34:19 -0400
+Received: by mail-io1-f72.google.com with SMTP id u23so1430168ioc.4
+        for <io-uring@vger.kernel.org>; Mon, 29 Mar 2021 00:34:18 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=1t48VipkRbtYNrjXF3vrvrQ/bA5UiJkWGk5pcek3Gns=;
-        b=ope342c/LyeU5+OD5/ug398vmjX9pJ9Ocou2NsBWaET2DsC2djipm7hlLYeo6Vcbe1
-         RsT2610iCPG2dpjdXnNky94FUsOfwt2H0Ckv2fosvX1DXhPZ+MTnwFQODU/RFuBMMRtL
-         rL3cnyxliYgZdZMQhbmeEYDQ3Ku0Ym4kh53U4Dyfow06yqhZc3l4qP6CE1Hy4AKTxT3T
-         NpYzC2AhaAmXSq4khmrU7p0t+uQJGsiomGMM9/VmcXGNgjLrvKDNjw3NJdoG5fW/FPLW
-         3XPp6PEFfeDHmulEMMnCSm3vfQLanF6ZznGP/PF6moeNfA2OKZ/kpvfL/1WfOhaCSMy7
-         z20A==
-X-Gm-Message-State: AOAM533ep7YkPnv9V/etS+2mg2xjXwORMtHS9mdor1KojHMsEdzPik/k
-        FhfzzolFESBiSy3dtdF+pfSMMgbv6FVo1w==
-X-Google-Smtp-Source: ABdhPJz8fWRjhp+FCbfwSsK9dF+B3SPXWykQHlOjxSCRJ0yQjIHJ7LUcsRMvU4Jx5Q6oUdkFPPuSTg==
-X-Received: by 2002:a17:902:e80e:b029:e4:b2b8:e36e with SMTP id u14-20020a170902e80eb02900e4b2b8e36emr26107048plg.45.1616976734224;
-        Sun, 28 Mar 2021 17:12:14 -0700 (PDT)
-Received: from [192.168.1.134] ([66.219.217.173])
-        by smtp.gmail.com with ESMTPSA id g26sm14968596pge.67.2021.03.28.17.12.12
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sun, 28 Mar 2021 17:12:13 -0700 (PDT)
-Subject: Re: [PATCH 5.12] io_uring: always go for cancellation spin on exec
-To:     Pavel Begunkov <asml.silence@gmail.com>, io-uring@vger.kernel.org
-References: <0a21bd6d794bb1629bc906dd57a57b2c2985a8ac.1616839147.git.asml.silence@gmail.com>
-From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <40f25e0d-6554-b9e4-4951-a407d6037543@kernel.dk>
-Date:   Sun, 28 Mar 2021 18:12:11 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        h=x-gm-message-state:mime-version:date:message-id:subject:from:to;
+        bh=lBStvjRDQ5cgv9i64/xI95nXksjc9KFyRlQBs2TGHqI=;
+        b=Ou8Ewy2bK312etXXcMJ/OQ5fmpTy6dW9JrFsO+RzFd9XM+qowTabW2KYC2D8wX7vN8
+         DlN8QZXeqXNA9qxpCwM+yCBHIyoi3IJtSXx1EincLAh7u6iE/MLYzFA5jHt7/+7Vjd/G
+         iSop1ByHpO90yVbnNsEaHiwFyYapVWxtEihjsbdgMt1Fz1rOOfebQ7NyCPGS2kUl2O4K
+         bQf3lmMuZMktlTzGgAeUbIz5CFW6d/ugzpY7NuydZQ/ybxgXsZrxs2yRLJF++VYBN4UR
+         ySSl6JIYKypOEyPvgfskt/4ZteXEdwnpOkmXIs6rmaimsHnggZydVqmWVsNkQraICzuA
+         AkfQ==
+X-Gm-Message-State: AOAM5324CyxpMcqG7zj9gs7zE1ik2uA2xHZtsIsouSiQSuUP9FD6VPOy
+        jlEXCVTgp3mEznqlscNRAagj96qplaJ2i3drv+CBfkKw1/Jb
+X-Google-Smtp-Source: ABdhPJySMKAh0t5qZNyTGzPjJ6vKcA86/lle9pjA3BOncntSeIqti786AppiH6+JKm8btWC9s4fDNnV10I801jQXkvV32DqMYugG
 MIME-Version: 1.0
-In-Reply-To: <0a21bd6d794bb1629bc906dd57a57b2c2985a8ac.1616839147.git.asml.silence@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+X-Received: by 2002:a5e:990f:: with SMTP id t15mr12105880ioj.180.1617003258436;
+ Mon, 29 Mar 2021 00:34:18 -0700 (PDT)
+Date:   Mon, 29 Mar 2021 00:34:18 -0700
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <000000000000d1e19505bea7e8b8@google.com>
+Subject: [syzbot] WARNING: suspicious RCU usage in io_sq_thread
+From:   syzbot <syzbot+0cbf22e728582ade44f2@syzkaller.appspotmail.com>
+To:     asml.silence@gmail.com, axboe@kernel.dk, io-uring@vger.kernel.org,
+        linux-kernel@vger.kernel.org, syzkaller-bugs@googlegroups.com
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 3/27/21 3:59 AM, Pavel Begunkov wrote:
-> Always try to do cancellation in __io_uring_task_cancel() at least once,
-> so it actually goes and cleans its sqpoll tasks (i.e. via
-> io_sqpoll_cancel_sync()), otherwise sqpoll task may submit new requests
-> after cancellation and it's racy for many reasons.
+Hello,
 
-Applied, thanks.
+syzbot found the following issue on:
 
--- 
-Jens Axboe
+HEAD commit:    81b1d39f Merge tag '5.12-rc4-smb3' of git://git.samba.org/..
+git tree:       upstream
+console output: https://syzkaller.appspot.com/x/log.txt?x=156f3d9ed00000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=d4e9addca54f3b44
+dashboard link: https://syzkaller.appspot.com/bug?extid=0cbf22e728582ade44f2
 
+Unfortunately, I don't have any reproducer for this issue yet.
+
+IMPORTANT: if you fix the issue, please add the following tag to the commit:
+Reported-by: syzbot+0cbf22e728582ade44f2@syzkaller.appspotmail.com
+
+WARNING: suspicious RCU usage
+5.12.0-rc4-syzkaller #0 Not tainted
+-----------------------------
+kernel/sched/core.c:8294 Illegal context switch in RCU-bh read-side critical section!
+
+other info that might help us debug this:
+
+
+rcu_scheduler_active = 2, debug_locks = 0
+1 lock held by iou-sqp-10136/10139:
+ #0: ffff88801a5a8c70 (&sqd->lock){+.+.}-{3:3}, at: io_sq_thread+0xff2/0x13a0 fs/io_uring.c:6794
+
+stack backtrace:
+CPU: 1 PID: 10139 Comm: iou-sqp-10136 Not tainted 5.12.0-rc4-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Call Trace:
+ __dump_stack lib/dump_stack.c:79 [inline]
+ dump_stack+0x141/0x1d7 lib/dump_stack.c:120
+ ___might_sleep+0x229/0x2c0 kernel/sched/core.c:8294
+ io_sq_thread+0xbae/0x13a0 fs/io_uring.c:6768
+ ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:294
+
+
+---
+This report is generated by a bot. It may contain errors.
+See https://goo.gl/tpsmEJ for more information about syzbot.
+syzbot engineers can be reached at syzkaller@googlegroups.com.
+
+syzbot will keep track of this issue. See:
+https://goo.gl/tpsmEJ#status for how to communicate with syzbot.

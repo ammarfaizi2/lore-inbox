@@ -2,121 +2,52 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E0C44C433E2
-	for <io-uring@archiver.kernel.org>; Tue, 30 Mar 2021 11:19:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 24DDCC433C1
+	for <io-uring@archiver.kernel.org>; Tue, 30 Mar 2021 11:23:41 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id AAE5D6199A
-	for <io-uring@archiver.kernel.org>; Tue, 30 Mar 2021 11:19:52 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id F0BAC6195C
+	for <io-uring@archiver.kernel.org>; Tue, 30 Mar 2021 11:23:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231154AbhC3LTT (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Tue, 30 Mar 2021 07:19:19 -0400
-Received: from hmm.wantstofly.org ([213.239.204.108]:40426 "EHLO
+        id S231792AbhC3LXJ (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Tue, 30 Mar 2021 07:23:09 -0400
+Received: from hmm.wantstofly.org ([213.239.204.108]:40452 "EHLO
         mail.wantstofly.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231794AbhC3LSr (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Tue, 30 Mar 2021 07:18:47 -0400
+        with ESMTP id S229801AbhC3LWz (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Tue, 30 Mar 2021 07:22:55 -0400
 Received: by mail.wantstofly.org (Postfix, from userid 1000)
-        id 1BA6A7F4C0; Tue, 30 Mar 2021 14:18:46 +0300 (EEST)
-Date:   Tue, 30 Mar 2021 14:18:46 +0300
+        id AED707F4C0; Tue, 30 Mar 2021 14:22:54 +0300 (EEST)
+Date:   Tue, 30 Mar 2021 14:22:54 +0300
 From:   Lennert Buytenhek <buytenh@wantstofly.org>
-To:     io-uring@vger.kernel.org
-Cc:     Al Viro <viro@zeniv.linux.org.uk>, linux-fsdevel@vger.kernel.org
-Subject: [PATCH v5 1/2] readdir: split the core of getdents64(2) out into
- vfs_getdents()
-Message-ID: <YGMJFjxf8VEWESsJ@wantstofly.org>
-References: <YGMIwcxAIJPAWGLu@wantstofly.org>
+To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
+Subject: Re: [PATCH liburing] IORING_OP_GETDENTS: add opcode, prep function,
+ test, man page section
+Message-ID: <YGMKDtEr85h5fJXH@wantstofly.org>
+References: <20210218122842.GD334506@wantstofly.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <YGMIwcxAIJPAWGLu@wantstofly.org>
+In-Reply-To: <20210218122842.GD334506@wantstofly.org>
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-So that IORING_OP_GETDENTS may use it, split out the core of the
-getdents64(2) syscall into a helper function, vfs_getdents().
+On Thu, Feb 18, 2021 at 02:28:42PM +0200, Lennert Buytenhek wrote:
 
-vfs_getdents() calls into filesystems' ->iterate{,_shared}() which
-expect serialization on struct file, which means that callers of
-vfs_getdents() are responsible for either using fdget_pos() or
-performing the equivalent serialization by hand.
+> Signed-off-by: Lennert Buytenhek <buytenh@wantstofly.org>
+> ---
 
-Cc: Al Viro <viro@zeniv.linux.org.uk>
-Signed-off-by: Lennert Buytenhek <buytenh@wantstofly.org>
----
- fs/readdir.c       | 25 +++++++++++++++++--------
- include/linux/fs.h |  4 ++++
- 2 files changed, 21 insertions(+), 8 deletions(-)
+I'll shortly send a v2 of this that will:
 
-diff --git a/fs/readdir.c b/fs/readdir.c
-index 19434b3c982c..f52167c1eb61 100644
---- a/fs/readdir.c
-+++ b/fs/readdir.c
-@@ -348,10 +348,9 @@ static int filldir64(struct dir_context *ctx, const char *name, int namlen,
- 	return -EFAULT;
- }
- 
--SYSCALL_DEFINE3(getdents64, unsigned int, fd,
--		struct linux_dirent64 __user *, dirent, unsigned int, count)
-+int vfs_getdents(struct file *file, struct linux_dirent64 __user *dirent,
-+		 unsigned int count)
- {
--	struct fd f;
- 	struct getdents_callback64 buf = {
- 		.ctx.actor = filldir64,
- 		.count = count,
-@@ -359,11 +358,7 @@ SYSCALL_DEFINE3(getdents64, unsigned int, fd,
- 	};
- 	int error;
- 
--	f = fdget_pos(fd);
--	if (!f.file)
--		return -EBADF;
--
--	error = iterate_dir(f.file, &buf.ctx);
-+	error = iterate_dir(file, &buf.ctx);
- 	if (error >= 0)
- 		error = buf.error;
- 	if (buf.prev_reclen) {
-@@ -376,6 +371,20 @@ SYSCALL_DEFINE3(getdents64, unsigned int, fd,
- 		else
- 			error = count - buf.count;
- 	}
-+	return error;
-+}
-+
-+SYSCALL_DEFINE3(getdents64, unsigned int, fd,
-+		struct linux_dirent64 __user *, dirent, unsigned int, count)
-+{
-+	struct fd f;
-+	int error;
-+
-+	f = fdget_pos(fd);
-+	if (!f.file)
-+		return -EBADF;
-+
-+	error = vfs_getdents(f.file, dirent, count);
- 	fdput_pos(f);
- 	return error;
- }
-diff --git a/include/linux/fs.h b/include/linux/fs.h
-index ec8f3ddf4a6a..c03235883e18 100644
---- a/include/linux/fs.h
-+++ b/include/linux/fs.h
-@@ -3227,6 +3227,10 @@ extern const struct inode_operations simple_symlink_inode_operations;
- 
- extern int iterate_dir(struct file *, struct dir_context *);
- 
-+struct linux_dirent64;
-+int vfs_getdents(struct file *file, struct linux_dirent64 __user *dirent,
-+		 unsigned int count);
-+
- int vfs_fstatat(int dfd, const char __user *filename, struct kstat *stat,
- 		int flags);
- int vfs_fstat(int fd, struct kstat *stat);
--- 
-2.30.2
+- update the man page to specify that the file offset is updated
+  unconditionally by IORING_OP_GETDENTS;
+
+- update the man pages to indicate that IORING_FEAT_RW_CUR_POS
+  also applies to IORING_OP_GETDENTS;
+
+- update the getdents test to verify that offset == -1 reads from
+  the current directory offset.

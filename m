@@ -2,48 +2,54 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,
+X-Spam-Status: No, score=0.0 required=3.0 tests=BAYES_50,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
 	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6CDA8C433E0
-	for <io-uring@archiver.kernel.org>; Wed, 31 Mar 2021 01:32:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E2B9CC43446
+	for <io-uring@archiver.kernel.org>; Wed, 31 Mar 2021 07:30:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 299C7619D3
-	for <io-uring@archiver.kernel.org>; Wed, 31 Mar 2021 01:32:46 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D03A5619B9
+	for <io-uring@archiver.kernel.org>; Wed, 31 Mar 2021 07:30:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233069AbhCaBcN (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Tue, 30 Mar 2021 21:32:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47432 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232874AbhCaBb6 (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Tue, 30 Mar 2021 21:31:58 -0400
-Received: from zeniv-ca.linux.org.uk (zeniv-ca.linux.org.uk [IPv6:2607:5300:60:148a::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7CD9C061574;
-        Tue, 30 Mar 2021 18:31:58 -0700 (PDT)
-Received: from viro by zeniv-ca.linux.org.uk with local (Exim 4.94 #2 (Red Hat Linux))
-        id 1lRPi5-001DjA-TS; Wed, 31 Mar 2021 01:31:53 +0000
-Date:   Wed, 31 Mar 2021 01:31:53 +0000
-From:   Al Viro <viro@zeniv.linux.org.uk>
-To:     Dmitry Kadashev <dkadashev@gmail.com>
-Cc:     Jens Axboe <axboe@kernel.dk>,
-        Pavel Begunkov <asml.silence@gmail.com>,
-        linux-fsdevel@vger.kernel.org, io-uring@vger.kernel.org
-Subject: Re: [PATCH v3 2/2] io_uring: add support for IORING_OP_MKDIRAT
-Message-ID: <YGPRCeimsXXaoCGZ@zeniv-ca.linux.org.uk>
-References: <20210330055957.3684579-1-dkadashev@gmail.com>
- <20210330055957.3684579-3-dkadashev@gmail.com>
+        id S234062AbhCaHaO convert rfc822-to-8bit (ORCPT
+        <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 31 Mar 2021 03:30:14 -0400
+Received: from bizcloud-power.sawafuji.co.jp ([128.199.220.203]:46712 "EHLO
+        mta0.sawafuji.co.jp" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S234081AbhCaHaI (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Wed, 31 Mar 2021 03:30:08 -0400
+X-Greylist: delayed 635 seconds by postgrey-1.27 at vger.kernel.org; Wed, 31 Mar 2021 03:30:08 EDT
+From:   Albert Bourla <info@universalautomation.com.pk>
+To:     io-uring@vger.kernel.org
+Subject: Bidding invitation
+Date:   31 Mar 2021 09:13:59 +0200
+Message-ID: <20210331091359.5B7CBDE53556FB29@universalautomation.com.pk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210330055957.3684579-3-dkadashev@gmail.com>
-Sender: Al Viro <viro@ftp.linux.org.uk>
+Content-Type: text/plain;
+        charset="utf-8"
+Content-Transfer-Encoding: 8BIT
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On Tue, Mar 30, 2021 at 12:59:57PM +0700, Dmitry Kadashev wrote:
-> IORING_OP_MKDIRAT behaves like mkdirat(2) and takes the same flags
-> and arguments.
+Good Day Sir/Ms,
 
-had the questions about interplay with audit been resolved?
+We are please to invite you or your company to quote the 
+following item listed below:
+ 
+Product/Model No: A702TH FYNE PRESSURE REGULATOR
+Model Number: A702TH
+Qty. 30 units
+
+
+Compulsory,Kindly send your quotation to: 
+quotation@pfizerbvsupply.com 
+for immediate approval.
+
+Kind Regards,
+Albert Bourla
+PFIZER B.V Supply Chain Manager
+Tel: +31(0)208080 880
+ADDRESS: Rivium Westlaan 142, 2909 LD
+Capelle aan den IJssel, Netherlands

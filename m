@@ -2,113 +2,131 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no
+X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 62AD3C433ED
-	for <io-uring@archiver.kernel.org>; Thu,  1 Apr 2021 18:19:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7E00AC43461
+	for <io-uring@archiver.kernel.org>; Thu,  1 Apr 2021 18:19:01 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 43DE660240
-	for <io-uring@archiver.kernel.org>; Thu,  1 Apr 2021 18:19:00 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 60B7D6023C
+	for <io-uring@archiver.kernel.org>; Thu,  1 Apr 2021 18:19:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235590AbhDASS4 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Thu, 1 Apr 2021 14:18:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35608 "EHLO
+        id S237196AbhDASS7 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Thu, 1 Apr 2021 14:18:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35630 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234637AbhDASKo (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Thu, 1 Apr 2021 14:10:44 -0400
-Received: from hr2.samba.org (hr2.samba.org [IPv6:2a01:4f8:192:486::2:0])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5DC4AC0045E5;
-        Thu,  1 Apr 2021 07:40:43 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=samba.org;
-         s=42; h=Date:Message-ID:Cc:To:From;
-        bh=JAhe/kVm5RlUfIXG3d28OFe9fHKwCAi5mQmsyoLxPQk=; b=prNxZCHuW5yBFgVGyBtP7FZl4l
-        /i+wo8cszkl1eQcXFS8t1iFq4e/yeYB0FlNrahfI0TurKnHnUchJL7hg9wfdtbG6FuepdJeXMM7D6
-        P+wGzfeHC+x02J86iR2X3CZBW20tKeXm9iqnz03yHppaXw9M4b0B40DEBpKzih3T9t0/vhHUSyriJ
-        J1Z3ldi794ZY0fVOq7Ng8XOHjDMt5HMO9stJ+lOVy45okLBR8wKNvfwYUThF79KJXONxnY+Vo3043
-        8TZseI1m+LKS/aTRjoe2rb7XSBwNWoSlRGDY0ihz4ZmezR6TCc/zhytUWr5xllkNYYpfM4cLJY7lc
-        qgFr6ikJu8UVp5biNZFOBrKk0AOIqjfFmaCNNJfaxyxWdBxl2u17aC4R+SNJZy0Fa+cj6XflOa9TD
-        VcBuXp1MBLleFc5ECSAjGyDf9GYRo1vX2K1GOMY9/JhWv5LcwRQRiotrnkItYwD1mo+5T1a1Az12v
-        nVd/7Zyy58F1QHU3RckVGznJ;
-Received: from [127.0.0.2] (localhost [127.0.0.1])
-        by hr2.samba.org with esmtpsa (TLS1.3:ECDHE_RSA_CHACHA20_POLY1305:256)
-        (Exim)
-        id 1lRyUy-0007Kf-A6; Thu, 01 Apr 2021 14:40:40 +0000
-From:   Stefan Metzmacher <metze@samba.org>
-To:     Jens Axboe <axboe@kernel.dk>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        "Eric W. Biederman" <ebiederm@xmission.com>
-Cc:     io-uring <io-uring@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Oleg Nesterov <oleg@redhat.com>
-References: <20210325164343.807498-1-axboe@kernel.dk>
- <m1ft0j3u5k.fsf@fess.ebiederm.org>
- <CAHk-=wjOXiEAjGLbn2mWRsxqpAYUPcwCj2x5WgEAh=gj+o0t4Q@mail.gmail.com>
- <CAHk-=wg1XpX=iAv=1HCUReMbEgeN5UogZ4_tbi+ehaHZG6d==g@mail.gmail.com>
- <CAHk-=wgUcVeaKhtBgJO3TfE69miJq-krtL8r_Wf_=LBTJw6WSg@mail.gmail.com>
- <ad21da2b-01ea-e77c-70b2-0401059e322b@kernel.dk>
- <f9bc0bac-2ad9-827e-7360-099e1e310df5@kernel.dk>
- <5563d244-52c0-dafb-5839-e84990340765@samba.org>
- <6a2c4fe3-a019-2744-2e17-34b6325967d7@kernel.dk>
- <04b006fd-f3fa-bd92-9ab6-4e2341315cc2@samba.org>
-Subject: Re: [PATCH 0/2] Don't show PF_IO_WORKER in /proc/<pid>/task/
-Message-ID: <a6a3961b-19a9-2476-effa-33bee33dd57b@samba.org>
-Date:   Thu, 1 Apr 2021 16:40:31 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.7.1
+        with ESMTP id S234948AbhDASKu (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Thu, 1 Apr 2021 14:10:50 -0400
+Received: from mail-wr1-x42d.google.com (mail-wr1-x42d.google.com [IPv6:2a00:1450:4864:20::42d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D359C0045F9
+        for <io-uring@vger.kernel.org>; Thu,  1 Apr 2021 07:48:26 -0700 (PDT)
+Received: by mail-wr1-x42d.google.com with SMTP id z2so2104828wrl.5
+        for <io-uring@vger.kernel.org>; Thu, 01 Apr 2021 07:48:26 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
+         :content-transfer-encoding;
+        bh=4ARJwuNAMMGt+m3kcxOnP2Vzq9zI3Aux7tP2KoVD+RY=;
+        b=OCtfEOgImCrtNj1gl+7zC3h+xKfIT6QyobMmQJWUgExLpBjyexnn+166W0WisuYwoL
+         Zouck4cm8s4lrhFzq9nVdhtR26ybUZhUZZByM8R3b5Rk04fHU3+PGQXyULV7JaBg4jKB
+         zq6uwgMquhu69WG4w85ImCmRyxGeTcq5TJnMRUdjU9NN6b2OQUg61es4zKKOhGZQWDrg
+         Rn6EXiACouqZXt+AyvXNkc+DfNCbiXxDfTpDFxt0U/wW50H5GRbWDyAELoW6W2Qt6cqX
+         wlXjq6pChWUJlt/AvnDQdMXpNTD2AyPPUs6vDq4mF8/9M31BwLg+ryhYlKwSzfnECyCQ
+         4Ftg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=4ARJwuNAMMGt+m3kcxOnP2Vzq9zI3Aux7tP2KoVD+RY=;
+        b=oKT7WD1AQgmWHAuqke6sx1AS8k5TNFIZ7obAkhZV6j2Mi4uVHGdmVgEy9PGCoJHh+F
+         Bmxh2Kbd3cAqSmuysME5A588QiIpoJ3C8q2WW7OZuivQUrhcfnv2ljM+nmZoLLGCXvyq
+         5zs/c161wU+cmeera3GRLEYwQkknPYEioyXN8YKytM81i94/A5bzYnZSwwNjFsHSzXoY
+         vrcud73K4vwEOqmUxqcZxS/HewytxB7CpjAxgLnfoT3LeoDSB7Xn/S9GvZe4D+W/26dm
+         Y6oftLrLb5k67gycaqDUdnU7mtTzIDvOhavSI7zLes8Wf82sZ1WEV8L5HcYWYuGGeBI3
+         EYFw==
+X-Gm-Message-State: AOAM532heOHEkyvKl+EwccE9MiG2tJ+BpPb54M2o5iipruJ5A1YdGlkK
+        9NVsU9/B8ndXfhKGYhfcePzgpJMXRkbGJw==
+X-Google-Smtp-Source: ABdhPJxAvPUOMkVbaXcGV+mhneUGvmCWT8TiUvPLO905LE3by4mF+y/8lZGdzUVyFE+4hIPznRV7kw==
+X-Received: by 2002:a5d:4105:: with SMTP id l5mr10587184wrp.105.1617288505151;
+        Thu, 01 Apr 2021 07:48:25 -0700 (PDT)
+Received: from localhost.localdomain ([148.252.132.152])
+        by smtp.gmail.com with ESMTPSA id x13sm8183948wmp.39.2021.04.01.07.48.24
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 01 Apr 2021 07:48:24 -0700 (PDT)
+From:   Pavel Begunkov <asml.silence@gmail.com>
+To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
+Subject: [PATCH v4 08/26] io_uring: reuse io_rsrc_node_destroy()
+Date:   Thu,  1 Apr 2021 15:43:47 +0100
+Message-Id: <cccafba41aee1e5bb59988704885b1340aef3a27.1617287883.git.asml.silence@gmail.com>
+X-Mailer: git-send-email 2.24.0
+In-Reply-To: <cover.1617287883.git.asml.silence@gmail.com>
+References: <cover.1617287883.git.asml.silence@gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <04b006fd-f3fa-bd92-9ab6-4e2341315cc2@samba.org>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Hi Jens,
+Reuse io_rsrc_node_destroy() in __io_rsrc_put_work(). Also move it to a
+more appropriate place -- to the other node routines, and remove forward
+declaration.
 
->> I know you brought this one up as part of your series, not sure I get
->> why you want it owned by root and read-only? cmdline and exe, yeah those
->> could be hidden, but is there really any point?
->>
->> Maybe I'm missing something here, if so, do clue me in!
-> 
-> I looked through /proc and I think it's mostly similar to
-> the unshare() case, if userspace wants to do stupid things
-> like changing "comm" of iothreads, it gets what was asked for.
-> 
-> But the "cmdline" hiding would be very useful.
-> 
-> While most tools use "comm", by default.
-> 
-> ps -eLf or 'iotop' use "cmdline".
-> 
-> Some processes use setproctitle to change "cmdline" in order
-> to identify the process better, without the 15 chars comm restriction,
-> that's why I very often press 'c' in 'top' to see the cmdline,
-> in that case it would be very helpful to see '[iou-wrk-1234]'
-> instead of the seeing the cmdline.
-> 
-> So I'd very much prefer if this could be applied:
-> https://lore.kernel.org/io-uring/d4487f959c778d0b1d4c5738b75bcff17d21df5b.1616197787.git.metze@samba.org/T/#u
-> 
-> If you want I can add a comment and a more verbose commit message...
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+---
+ fs/io_uring.c | 16 +++++++---------
+ 1 file changed, 7 insertions(+), 9 deletions(-)
 
-I noticed that 'iotop' actually appends ' [iou-wrk-1234]' to the cmdline value,
-so that leaves us with 'ps -eLf' and 'top' (with 'c').
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 47c76ec422ba..17e7bed2e945 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -1025,7 +1025,6 @@ static void io_uring_try_cancel_requests(struct io_ring_ctx *ctx,
+ 					 struct task_struct *task,
+ 					 struct files_struct *files);
+ static void io_uring_cancel_sqpoll(struct io_ring_ctx *ctx);
+-static void io_rsrc_node_destroy(struct io_rsrc_node *ref_node);
+ static struct io_rsrc_node *io_rsrc_node_alloc(struct io_ring_ctx *ctx);
+ static void io_ring_file_put(struct io_ring_ctx *ctx, struct io_rsrc_put *prsrc);
+ 
+@@ -7075,6 +7074,12 @@ static inline void io_rsrc_ref_unlock(struct io_ring_ctx *ctx)
+ 	spin_unlock_bh(&ctx->rsrc_ref_lock);
+ }
+ 
++static void io_rsrc_node_destroy(struct io_rsrc_node *ref_node)
++{
++	percpu_ref_exit(&ref_node->refs);
++	kfree(ref_node);
++}
++
+ static void io_rsrc_node_switch(struct io_ring_ctx *ctx,
+ 				struct io_rsrc_data *data_to_kill)
+ {
+@@ -7520,8 +7525,7 @@ static void __io_rsrc_put_work(struct io_rsrc_node *ref_node)
+ 		kfree(prsrc);
+ 	}
+ 
+-	percpu_ref_exit(&ref_node->refs);
+-	kfree(ref_node);
++	io_rsrc_node_destroy(ref_node);
+ 	percpu_ref_put(&rsrc_data->refs);
+ }
+ 
+@@ -7589,12 +7593,6 @@ static struct io_rsrc_node *io_rsrc_node_alloc(struct io_ring_ctx *ctx)
+ 	return ref_node;
+ }
+ 
+-static void io_rsrc_node_destroy(struct io_rsrc_node *ref_node)
+-{
+-	percpu_ref_exit(&ref_node->refs);
+-	kfree(ref_node);
+-}
+-
+ static int io_sqe_files_register(struct io_ring_ctx *ctx, void __user *arg,
+ 				 unsigned nr_args)
+ {
+-- 
+2.24.0
 
-pstree -a -t -p is also fine:
-      │   └─io_uring-cp,1315 /root/kernel/linux-image-5.12.0-rc2+-dbg_5.12.0-rc2+-5_amd64.deb file
-      │       ├─{iou-mgr-1315},1316
-      │       ├─{iou-wrk-1315},1317
-      │       ├─{iou-wrk-1315},1318
-      │       ├─{iou-wrk-1315},1319
-      │       ├─{iou-wrk-1315},1320
-
-
-In the spirit of "avoid special PF_IO_WORKER checks" I guess it's ok
-to leave of as is...
-
-metze

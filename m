@@ -2,94 +2,112 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,URIBL_BLOCKED autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1F10BC41536
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EB7D8C001BD
 	for <io-uring@archiver.kernel.org>; Thu,  1 Apr 2021 17:45:53 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id CDED26136D
-	for <io-uring@archiver.kernel.org>; Thu,  1 Apr 2021 17:45:50 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 729FA613CB
+	for <io-uring@archiver.kernel.org>; Thu,  1 Apr 2021 17:45:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236283AbhDARoR (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Thu, 1 Apr 2021 13:44:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57162 "EHLO
+        id S234342AbhDARoC (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Thu, 1 Apr 2021 13:44:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57266 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234702AbhDARjS (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Thu, 1 Apr 2021 13:39:18 -0400
-Received: from mail-wr1-x432.google.com (mail-wr1-x432.google.com [IPv6:2a00:1450:4864:20::432])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B101C0045FE
-        for <io-uring@vger.kernel.org>; Thu,  1 Apr 2021 07:48:31 -0700 (PDT)
-Received: by mail-wr1-x432.google.com with SMTP id x16so2104557wrn.4
-        for <io-uring@vger.kernel.org>; Thu, 01 Apr 2021 07:48:31 -0700 (PDT)
+        with ESMTP id S234531AbhDARhx (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Thu, 1 Apr 2021 13:37:53 -0400
+Received: from mail-lf1-x12f.google.com (mail-lf1-x12f.google.com [IPv6:2a00:1450:4864:20::12f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E230CC0225B2
+        for <io-uring@vger.kernel.org>; Thu,  1 Apr 2021 08:39:44 -0700 (PDT)
+Received: by mail-lf1-x12f.google.com with SMTP id g8so3450097lfv.12
+        for <io-uring@vger.kernel.org>; Thu, 01 Apr 2021 08:39:44 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
-         :content-transfer-encoding;
-        bh=+6V1gcmMJW+HhZl07X6y1rGQPOCvMHoxbm1Z544xQLs=;
-        b=GDwff2sFPPOR1eZAb10sQNwWThpZQz73olK5HdJEOpVA6+GPTR9XjX3gNjj7bs1cYu
-         LOzIwLORnciOpH5UZIslTPv9o8vnGpNQibJ4Z46ry+kWaUxVGnYDPByvzMzba2SZl56Y
-         TJRNgCWob90UxcVj5a5WEZ8IfNGLVaYUHY2yU4/Zm7gBX5DbI1MWJGeKd4r0dfbf1ohA
-         C/BjW1ythNE911UKhmLdeQMP4zGOj1tDebzeLhLF7q3hQqakQhYlqx/jhl5fZfG9Wq4f
-         jRC+sa6ULquxOpkBM/AZevBQ2wGVDJh7RGklaK2HF+qf+w2AisjdfzK721lm/2aZLQf/
-         cwBw==
+        d=linux-foundation.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=K4Yc9Fo8nH3qAbpV51g94tw6HmT4cWz0oodkJat7vyU=;
+        b=PnRMEbvuuxIgoHz2A8hVDovCixxBMZDtl8IbeTG0bOFd0hithGVS/NKIT9zCRfigpP
+         ZhaeGVhzMokB2fSjhktb5RZcFYv+z5OzyTdLl2flYiWVb2dGSZk5ZzfNTNxgshBcrMzG
+         aSaYYF0nnY0xEBSzCpbpl5LJz4L72gcFX1rt0=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=+6V1gcmMJW+HhZl07X6y1rGQPOCvMHoxbm1Z544xQLs=;
-        b=oH/HLujGc9L9s5S1wrcVnBS3h2/ptv/iyIPTjKzU1x/q84EcAIrmSPjMQiy8pkLX5I
-         32EZx6AItFMIBh3s5pXO+nehpIF9HZgWyldoaXuhyG8nqDCCGC+t/ESHXuM/EQshIVmx
-         4dldWUoCwQ+tmEDyohtUSU58zKg2SUVUnlksIEeJERzO3dXAvyNqCKiMmvpl8/fE/0U0
-         ZScnqOYfo/3VKSd40cqRYAG3tDFTkDH7Jc/0DmAog7YCA45MUqJyLRJ7O7cMx2J7SvUi
-         qK+N0/UCEXEED66ajzhGLsB2GlxgprS9tBw2yNKwD6LJDT50esgeMGsM0iV64S7Au452
-         annA==
-X-Gm-Message-State: AOAM530QkFs6MmFElYPa9ZkU7GMPCKxAW8UtXtrnu51RpVyjkmDQ53KJ
-        QqZxcWzCDzskj8IF6Gi/7j6Fd6g0TC5UKQ==
-X-Google-Smtp-Source: ABdhPJxWtsAW7e0+vHEQFrk/BvtktkGEo0V3o4acxCk+Ba0+Ld/4yqECCpCqNC43NdskhZgE02frLA==
-X-Received: by 2002:adf:f843:: with SMTP id d3mr9994261wrq.55.1617288510369;
-        Thu, 01 Apr 2021 07:48:30 -0700 (PDT)
-Received: from localhost.localdomain ([148.252.132.152])
-        by smtp.gmail.com with ESMTPSA id x13sm8183948wmp.39.2021.04.01.07.48.29
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 01 Apr 2021 07:48:30 -0700 (PDT)
-From:   Pavel Begunkov <asml.silence@gmail.com>
-To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH v4 13/26] io_uring: remove unused hash_wait
-Date:   Thu,  1 Apr 2021 15:43:52 +0100
-Message-Id: <e25cb83c233a5f75f15275596b49fbafbea606fa.1617287883.git.asml.silence@gmail.com>
-X-Mailer: git-send-email 2.24.0
-In-Reply-To: <cover.1617287883.git.asml.silence@gmail.com>
-References: <cover.1617287883.git.asml.silence@gmail.com>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=K4Yc9Fo8nH3qAbpV51g94tw6HmT4cWz0oodkJat7vyU=;
+        b=MiM4cXBYy5xbz2mZIKPzs2eU7o2WU8F7HGnlOmmaI4aKHRh0pwPvBea0x9BDQ1anTh
+         hJ25UOi4jnYR1xlOQnNgIeC9LWGw2++hNVa+cYzgRgZFGjVSnJStO/d2Fptc3sWmL0cV
+         yKp3bo2EqYfveySEuZRcw+xcNQWtPCkV/wFrlUOJxhpbbLk9KcnM8kUZ+UrGB9DvBM3l
+         zlY6w8MLQUPTmo0pDcIJlOilebLjspoHgPQqoudh4Zjo5zFyuJaM+0evvytE2RwHsYcL
+         oa1MuQkPLc473Vm3ilZwUl2v1UFN7zlhsw1kRuA7sseY0qeC1ItzsdMnnk18k8N9VBWF
+         8NLQ==
+X-Gm-Message-State: AOAM533nbwquuEn3/9qtdmlvU+qKQNYoc6smmqMUalg5TlRXUOyfw/gx
+        PVDiDPJQiRL6/fl4pIJXfy46odhNFSOUUA==
+X-Google-Smtp-Source: ABdhPJz2dHhMx+FaMGKc8NH2IDcisvxHhvTtikw3AC2nPq4ezq1y5n22Pj5GeBzqdEkHwGfSVucotA==
+X-Received: by 2002:a19:ca54:: with SMTP id h20mr5986462lfj.292.1617291583030;
+        Thu, 01 Apr 2021 08:39:43 -0700 (PDT)
+Received: from mail-lf1-f50.google.com (mail-lf1-f50.google.com. [209.85.167.50])
+        by smtp.gmail.com with ESMTPSA id z129sm575766lfa.127.2021.04.01.08.39.41
+        for <io-uring@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 01 Apr 2021 08:39:41 -0700 (PDT)
+Received: by mail-lf1-f50.google.com with SMTP id b14so3460993lfv.8
+        for <io-uring@vger.kernel.org>; Thu, 01 Apr 2021 08:39:41 -0700 (PDT)
+X-Received: by 2002:a05:6512:308b:: with SMTP id z11mr5648326lfd.487.1617291581178;
+ Thu, 01 Apr 2021 08:39:41 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20210326003928.978750-1-axboe@kernel.dk> <e6de934a-a794-f173-088d-a140d0645188@samba.org>
+ <f2c93b75-a18b-fc2c-7941-9208c19869c1@kernel.dk> <8efd9977-003b-be65-8ae2-4b04d8dd1224@samba.org>
+ <358c5225-c23f-de08-65cb-ca3349793c0e@samba.org> <5bb47c3a-2990-e4c4-69c6-1b5d1749a241@samba.org>
+In-Reply-To: <5bb47c3a-2990-e4c4-69c6-1b5d1749a241@samba.org>
+From:   Linus Torvalds <torvalds@linux-foundation.org>
+Date:   Thu, 1 Apr 2021 08:39:25 -0700
+X-Gmail-Original-Message-ID: <CAHk-=whEObPkZBe4766DmR46-=5QTUiatWbSOaD468eTgYc1tg@mail.gmail.com>
+Message-ID: <CAHk-=whEObPkZBe4766DmR46-=5QTUiatWbSOaD468eTgYc1tg@mail.gmail.com>
+Subject: Re: [PATCH 0/6] Allow signals for IO threads
+To:     Stefan Metzmacher <metze@samba.org>
+Cc:     Jens Axboe <axboe@kernel.dk>, io-uring <io-uring@vger.kernel.org>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Oleg Nesterov <oleg@redhat.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-No users of io_uring_ctx::hash_wait left, kill it.
+On Thu, Apr 1, 2021 at 7:58 AM Stefan Metzmacher <metze@samba.org> wrote:
+>
+> >
+> > Ok, the following makes gdb happy again:
+> >
+> > --- a/arch/x86/kernel/process.c
+> > +++ b/arch/x86/kernel/process.c
+> > @@ -163,6 +163,8 @@ int copy_thread(unsigned long clone_flags, unsigned long sp, unsigned long arg,
+> >         /* Kernel thread ? */
+> >         if (unlikely(p->flags & (PF_KTHREAD | PF_IO_WORKER))) {
+> >                 memset(childregs, 0, sizeof(struct pt_regs));
+> > +               if (p->flags & PF_IO_WORKER)
+> > +                       childregs->cs = current_pt_regs()->cs;
+> >                 kthread_frame_init(frame, sp, arg);
+> >                 return 0;
+> >         }
+>
+> Would it be possible to fix this remaining problem before 5.12 final?
 
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
----
- fs/io_uring.c | 2 --
- 1 file changed, 2 deletions(-)
+Please not that way.
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index bf3eeabda71d..4314e738c2ad 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -455,8 +455,6 @@ struct io_ring_ctx {
- 	/* exit task_work */
- 	struct callback_head		*exit_task_work;
- 
--	struct wait_queue_head		hash_wait;
--
- 	/* Keep this last, we don't need it for the fast path */
- 	struct work_struct		exit_work;
- 	struct list_head		tctx_list;
--- 
-2.24.0
+But doing something like
 
+        childregs->cs = __USER_CS;
+        childregs->ss = __USER_DS;
+        childregs->ds = __USER_DS;
+        childregs->es = __USER_DS;
+
+might make sense (just do it unconditionally, rather than making it
+special to PF_IO_WORKER).
+
+Does that make gdb happy too?
+
+           Linus

@@ -2,65 +2,65 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.9 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNWANTED_LANGUAGE_BODY,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AD979C43460
-	for <io-uring@archiver.kernel.org>; Thu,  1 Apr 2021 17:54:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BCE15C43470
+	for <io-uring@archiver.kernel.org>; Thu,  1 Apr 2021 17:59:03 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 839AF6112F
-	for <io-uring@archiver.kernel.org>; Thu,  1 Apr 2021 17:54:08 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8B26461285
+	for <io-uring@archiver.kernel.org>; Thu,  1 Apr 2021 17:59:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235183AbhDARyF (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Thu, 1 Apr 2021 13:54:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59908 "EHLO
+        id S236426AbhDAR7B (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Thu, 1 Apr 2021 13:59:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32870 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235373AbhDARtG (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Thu, 1 Apr 2021 13:49:06 -0400
-Received: from mail-wm1-x330.google.com (mail-wm1-x330.google.com [IPv6:2a00:1450:4864:20::330])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4DA95C0045F5
-        for <io-uring@vger.kernel.org>; Thu,  1 Apr 2021 07:48:21 -0700 (PDT)
-Received: by mail-wm1-x330.google.com with SMTP id g25so1203690wmh.0
-        for <io-uring@vger.kernel.org>; Thu, 01 Apr 2021 07:48:21 -0700 (PDT)
+        with ESMTP id S236973AbhDAR4k (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Thu, 1 Apr 2021 13:56:40 -0400
+Received: from mail-wr1-x429.google.com (mail-wr1-x429.google.com [IPv6:2a00:1450:4864:20::429])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C8B5C0045AE
+        for <io-uring@vger.kernel.org>; Thu,  1 Apr 2021 07:48:44 -0700 (PDT)
+Received: by mail-wr1-x429.google.com with SMTP id v4so2078141wrp.13
+        for <io-uring@vger.kernel.org>; Thu, 01 Apr 2021 07:48:44 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=qQT4wHF0buoMk6Rvf+YgZ3s+3RkhrAIuvXek3tRvAVk=;
-        b=V1ERIwCSRVrRjP803idpHllNIDxtIY68swClTSSxadvpTsPgh1vDU8xVILvecJDY6C
-         1nqjXcMCLx/EMVCCi3RqELZDYhFfIBUpf0d4OgHDcp6VY1wbqruOja1FSldcDzB9uCiV
-         PWb+94LQws5lkn50ENSS+zpdiS3yF7XnK7tiijYj5yXk+uGTE9z3ZK9vl7El2J3m2IKe
-         PwtEPAV/ozFmHANmc2+slOAO/2DJX71fUefGXWaLAWFS+7tWJbtEO15mD3bV3tEG6UqZ
-         Mt9f0cVDUymevSbelRIca1MTvCGtGgp2Mn4d+AqCWe3OnfnCBO6FNqXJQxu0wBBgvW+U
-         oA0g==
+        bh=RhIVYRCEBp2P76QiFo+AOMrQ2AaXGewjKYXOu/DMYlY=;
+        b=IbgISJmKXOnk19WZS3J2ySq3FVtnrxDi4hLax9YvS6t1XBCNhXjxpk679NzsW2fdgV
+         w54k2SjAZ3TpaU7EWId4lgguNTVU601a6QexPvk5+ZD20SZ8RgIz6uvE3pDJu2g+TrTp
+         VKGmM4M5iQqsIJASRziFNeZ8KOR8CGyOUjYr4JHyvOCpXLzeJvIvvKKBM3EctNu29n5v
+         vyK7DWUhBDPx9q3/kF0V1aFsM2UGYmVduu6o12IRfYYno3+bSFQm8DsPlvEr5uz/Hu8O
+         cuIyDhbq74GigNCXA7DO7LvefBscwd1YsE2z4Lry+SP4qm1jO8Oq3eedd+WMhpN/CQI0
+         kNUA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=qQT4wHF0buoMk6Rvf+YgZ3s+3RkhrAIuvXek3tRvAVk=;
-        b=QUVwxnNtZPRqK7L1JVcmy6w52jJldI55teQ1RFCMT7zdWCCQobJEr/hFAdJ6gkh3ou
-         yzj3ypbxA6Wd5ZJXUmkbvrV9FSILTJv+hFiH654DWxnaDUOfDkiun4/hH6GrjF/ym120
-         Rsmqs5oy6Q9eMGwWc/WO2whd7OJe7bj+JNGTqhjHATmi2Va1hNDcLGNu2/VPhX73hqq3
-         IL/gPvU0OBXQzO8cd7FofM2f+FjcgtLVVaPtd4jU8zdHee71AOpmp7muChgD8F5Fjsq8
-         Tq0fUEIT7IZmwyrea9GwcIMNJ+wP870BJJLQiLaBdB1W6bmSSilZgpPMDgFf1/+59V/N
-         0BUg==
-X-Gm-Message-State: AOAM5320v821kjDi2M3QMWRPpuLIGPXFRQgISSHX9CVnBixVnCNrqBLC
-        9gf4qzUgG63NADhtjZoTVxo=
-X-Google-Smtp-Source: ABdhPJw5x/Gcpcn+7L0LzPjLignJCzqsPMTpE1pp0p6VXPUO78aWSMBsrphoS/mCNMi1KcQ0DFJX0Q==
-X-Received: by 2002:a05:600c:198c:: with SMTP id t12mr8375146wmq.183.1617288500081;
-        Thu, 01 Apr 2021 07:48:20 -0700 (PDT)
+        bh=RhIVYRCEBp2P76QiFo+AOMrQ2AaXGewjKYXOu/DMYlY=;
+        b=Yu0Gd9hIxpYx+3rqn8ltQhghsm5JcE38XGJ/Oi1AB4PgXNgGCYYnnmTw67YJHkWuJt
+         2sfcRUQ/DJY2UT5khpYj3WEP80/5L1TVhAOPBVPhGPqWPYKm80LzWGM/e2JgaES1RQoq
+         rHyQUdhQDO2BxXaKX7knbWzfl7cUizQQcPJ0PdqnDnrWA+7YnHFFDSR5rDm9kg/J3zRZ
+         MB7qgryBlNNgwr97oFUsy9Ao5vMvNlfOhXoivBj1nwH5N6qqJbLmERcHEoHdrnCEefXb
+         jB78v0oGirE2z/MyzZdkLXBt7nhIqlNypVMkQJigkqxGDSFmWtS9x1efs1CJPs5PjOlc
+         MNew==
+X-Gm-Message-State: AOAM533obSetca9s6mHwnGR9UUomHTfbyBj3kYUB7rgqwsaua7DJQ8x9
+        AXC4VSMIS1QeL0RCmYPy36jZGbV7NXglIw==
+X-Google-Smtp-Source: ABdhPJz3FAPhCBkTBF6tKUr3aQxZoVpxlNtWRzdL1bslbqmRtc5kicABYfB4fZknrhzuqF/aeCEIZQ==
+X-Received: by 2002:adf:e4c7:: with SMTP id v7mr10231107wrm.245.1617288523242;
+        Thu, 01 Apr 2021 07:48:43 -0700 (PDT)
 Received: from localhost.localdomain ([148.252.132.152])
-        by smtp.gmail.com with ESMTPSA id x13sm8183948wmp.39.2021.04.01.07.48.18
+        by smtp.gmail.com with ESMTPSA id x13sm8183948wmp.39.2021.04.01.07.48.42
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 01 Apr 2021 07:48:19 -0700 (PDT)
+        Thu, 01 Apr 2021 07:48:42 -0700 (PDT)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH v4 04/26] io_uring: encapsulate rsrc node manipulations
-Date:   Thu,  1 Apr 2021 15:43:43 +0100
-Message-Id: <0827b080b2e61b3dec795380f7e1a1995595d41f.1617287883.git.asml.silence@gmail.com>
+Subject: [PATCH v4 26/26] io_uring: kill outdated comment about splice punt
+Date:   Thu,  1 Apr 2021 15:44:05 +0100
+Message-Id: <892a549c89c3d422b679677b8e68ffd3fcb736b6.1617287883.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <cover.1617287883.git.asml.silence@gmail.com>
 References: <cover.1617287883.git.asml.silence@gmail.com>
@@ -70,116 +70,29 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-io_rsrc_node_get() and io_rsrc_node_set() are always used together,
-merge them into one so most users don't even see io_rsrc_node and don't
-need to care about it.
-
-It helped to catch io_sqe_files_register() inferring rsrc data argument
-for get and set differently, not a problem but a good sign.
+The splice/tee comment in io_prep_async_work() isn't relevant since the
+section was moved, delete it.
 
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
- fs/io_uring.c | 39 +++++++++++++--------------------------
- 1 file changed, 13 insertions(+), 26 deletions(-)
+ fs/io_uring.c | 4 ----
+ 1 file changed, 4 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index b53ccac47440..3d9b58d8eb90 100644
+index c1d9fface7f4..b20fec2e2be6 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -7076,8 +7076,17 @@ static inline void io_rsrc_ref_unlock(struct io_ring_ctx *ctx)
- 
- static void io_rsrc_node_set(struct io_ring_ctx *ctx,
- 			     struct io_rsrc_data *rsrc_data,
--			     struct io_rsrc_node *rsrc_node)
-+			     void (*rsrc_put)(struct io_ring_ctx *ctx,
-+			                      struct io_rsrc_put *prsrc))
- {
-+	struct io_rsrc_node *rsrc_node = ctx->rsrc_backup_node;
-+
-+	WARN_ON_ONCE(!rsrc_node);
-+
-+	ctx->rsrc_backup_node = NULL;
-+	rsrc_node->rsrc_data = rsrc_data;
-+	rsrc_node->rsrc_put = rsrc_put;
-+
- 	io_rsrc_ref_lock(ctx);
- 	rsrc_data->node = rsrc_node;
- 	list_add_tail(&rsrc_node->node, &ctx->rsrc_ref_list);
-@@ -7105,28 +7114,11 @@ static int io_rsrc_node_prealloc(struct io_ring_ctx *ctx)
- 	return ctx->rsrc_backup_node ? 0 : -ENOMEM;
- }
- 
--static struct io_rsrc_node *
--io_rsrc_node_get(struct io_ring_ctx *ctx,
--		 struct io_rsrc_data *rsrc_data,
--		 void (*rsrc_put)(struct io_ring_ctx *ctx,
--		                  struct io_rsrc_put *prsrc))
--{
--	struct io_rsrc_node *node = ctx->rsrc_backup_node;
--
--	WARN_ON_ONCE(!node);
--
--	ctx->rsrc_backup_node = NULL;
--	node->rsrc_data = rsrc_data;
--	node->rsrc_put = rsrc_put;
--	return node;
--}
--
- static int io_rsrc_ref_quiesce(struct io_rsrc_data *data,
- 			       struct io_ring_ctx *ctx,
- 			       void (*rsrc_put)(struct io_ring_ctx *ctx,
- 			                        struct io_rsrc_put *prsrc))
- {
--	struct io_rsrc_node *node;
- 	int ret;
- 
- 	if (data->quiesce)
-@@ -7146,8 +7138,7 @@ static int io_rsrc_ref_quiesce(struct io_rsrc_data *data,
- 			break;
- 
- 		percpu_ref_resurrect(&data->refs);
--		node = io_rsrc_node_get(ctx, data, rsrc_put);
--		io_rsrc_node_set(ctx, data, node);
-+		io_rsrc_node_set(ctx, data, rsrc_put);
- 		reinit_completion(&data->done);
- 
- 		mutex_unlock(&ctx->uring_lock);
-@@ -7618,7 +7609,6 @@ static int io_sqe_files_register(struct io_ring_ctx *ctx, void __user *arg,
- 	unsigned nr_tables, i;
- 	struct file *file;
- 	int fd, ret;
--	struct io_rsrc_node *ref_node;
- 	struct io_rsrc_data *file_data;
- 
- 	if (ctx->file_data)
-@@ -7689,8 +7679,7 @@ static int io_sqe_files_register(struct io_ring_ctx *ctx, void __user *arg,
- 		return ret;
- 	}
- 
--	ref_node = io_rsrc_node_get(ctx, ctx->file_data, io_ring_file_put);
--	io_rsrc_node_set(ctx, file_data, ref_node);
-+	io_rsrc_node_set(ctx, file_data, io_ring_file_put);
- 	return ret;
- out_fput:
- 	for (i = 0; i < ctx->nr_user_files; i++) {
-@@ -7776,7 +7765,6 @@ static int __io_sqe_files_update(struct io_ring_ctx *ctx,
- 				 unsigned nr_args)
- {
- 	struct io_rsrc_data *data = ctx->file_data;
--	struct io_rsrc_node *ref_node;
- 	struct file *file, **file_slot;
- 	__s32 __user *fds;
- 	int fd, i, err;
-@@ -7843,8 +7831,7 @@ static int __io_sqe_files_update(struct io_ring_ctx *ctx,
- 
- 	if (needs_switch) {
- 		percpu_ref_kill(&data->node->refs);
--		ref_node = io_rsrc_node_get(ctx, data, io_ring_file_put);
--		io_rsrc_node_set(ctx, data, ref_node);
-+		io_rsrc_node_set(ctx, data, io_ring_file_put);
- 	}
- 	return done ? done : err;
- }
+@@ -1224,10 +1224,6 @@ static void io_prep_async_work(struct io_kiocb *req)
+ 	switch (req->opcode) {
+ 	case IORING_OP_SPLICE:
+ 	case IORING_OP_TEE:
+-		/*
+-		 * Splice operation will be punted aync, and here need to
+-		 * modify io_wq_work.flags, so initialize io_wq_work firstly.
+-		 */
+ 		if (!S_ISREG(file_inode(req->splice.file_in)->i_mode))
+ 			req->work.flags |= IO_WQ_WORK_UNBOUND;
+ 		break;
 -- 
 2.24.0
 

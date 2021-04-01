@@ -8,59 +8,59 @@ X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,USER_AGENT_GIT autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 22AAFC43600
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 23A9AC47063
 	for <io-uring@archiver.kernel.org>; Thu,  1 Apr 2021 17:45:55 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E80EA61165
+	by mail.kernel.org (Postfix) with ESMTP id 5E9EA613D0
 	for <io-uring@archiver.kernel.org>; Thu,  1 Apr 2021 17:45:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236351AbhDARoX (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Thu, 1 Apr 2021 13:44:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57248 "EHLO
+        id S236324AbhDARoU (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Thu, 1 Apr 2021 13:44:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57208 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234825AbhDARk2 (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Thu, 1 Apr 2021 13:40:28 -0400
-Received: from mail-wm1-x334.google.com (mail-wm1-x334.google.com [IPv6:2a00:1450:4864:20::334])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0778AC0045F4
-        for <io-uring@vger.kernel.org>; Thu,  1 Apr 2021 07:48:20 -0700 (PDT)
-Received: by mail-wm1-x334.google.com with SMTP id g20so1180725wmk.3
-        for <io-uring@vger.kernel.org>; Thu, 01 Apr 2021 07:48:19 -0700 (PDT)
+        with ESMTP id S234711AbhDARjU (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Thu, 1 Apr 2021 13:39:20 -0400
+Received: from mail-wm1-x32c.google.com (mail-wm1-x32c.google.com [IPv6:2a00:1450:4864:20::32c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F8A6C0045FD
+        for <io-uring@vger.kernel.org>; Thu,  1 Apr 2021 07:48:30 -0700 (PDT)
+Received: by mail-wm1-x32c.google.com with SMTP id 12so1180057wmf.5
+        for <io-uring@vger.kernel.org>; Thu, 01 Apr 2021 07:48:30 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=J1ws8wADQ5zbdUYwYFwOasStGVDaUKDGtt0yYiKwPMI=;
-        b=fKiqpDds5OZ01af/0WIfLorJM1VcQy7v0VU6rxMIsyjEdu3Gv1cNOmyGS/+qDXZX8v
-         KL6UnUSwE1BrZQd4rKGGrwKO2S7q11PL5f1KCdx334YA09E9izBWQfBnTpU1aAilxn3J
-         /pG3jO1DMCoIcHUtDpuJvfNGIu+WS8qQAuezf644mG15ujDXHbPlEJHCL3pvYsEsYqED
-         X79oYHAnMYs3qLu3MXiHOCXZSkDezuOgeKplxP8fkGRwTnMg5MHl9jEyhSKd1opPEfew
-         nQjHFxS1PCPUghVTteKYDt1o8zBf6BW5U6sfWvmZ423GEu39APqn7il0GFzgVGwIFgLf
-         O92g==
+        bh=va+DMaUPpcC5b2FUdXa9GOf2WrafA7WZA1VBL0yavDQ=;
+        b=f2Llp5dLDsve/VDOghEoor7NJBk26x74ANMTrYdnmSJzdYwdCEBq4w+rgNtw6fbcWW
+         ShkoV/Tt62ROP2zJYstY9QKF6xh2WkFcV+UKlhSXz9ehoHWs31aLHuRbbCXzXv3Rp+25
+         UtVEWtzGbWioSnlBjaebMgzaEf+IT4VdaNOPxNZOqlw3zuDq3aOZ4Ojv96IyWIjhQkeV
+         AaIH2OOvM5UpZS7kIcxUYRx8iI6Gmym3SRKSrZUTbNinaDfWuFfKbVdhEprF13F2Nbf9
+         AQnGrmlrTwlVhw67rx0UBXH9PMO4wpOYmBZcxJPjFcu+ZHoN07kyLU2Ht7O3t9lIvzpa
+         Gbcg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=J1ws8wADQ5zbdUYwYFwOasStGVDaUKDGtt0yYiKwPMI=;
-        b=gBWvDJNms17jwYE4zV3ki+uvGOtOD31DkrqTJ+SgXI2/rbOnanPpcr5Chys9fU+2zw
-         BXYEWHx8CW5O5jDMDa9zZBpj6KcTszsBvInDin9+5LCiCz1jPVFbNyWkRPXBGfrWKY4S
-         pxiZbivnNNc0b5wmbLlXFcqnReuTMqG6doxMuamne3xnkZja3kJRPd+q4W08nGIQa7l7
-         sF1p4pcmp3gR+TW0EdHWlYeR+5xgVLgr55A59AX5rwCJU7iteuEfqnBZAsdFgRJR0yrh
-         XcukblY7yO8othGIxIFfOvSXZscBInMzNTIdEQjSSh7ovYkn4FDSsVv/X8Y04ECdzWDc
-         uIiA==
-X-Gm-Message-State: AOAM532ry1p1SqD49aLpclDmOoPy5rm2/isQVFKHlUhASGwye6zd8Zgi
-        uWgbTiYi7RFG9mS6/pRvTRjRu4OHRfLxDg==
-X-Google-Smtp-Source: ABdhPJxorOSDvuR5c+RzYf+78M3+Cevl4BwsDX2jbT4XepmarsnVyXD59/E0qpByw/NB98Q6axgWEw==
-X-Received: by 2002:a1c:f701:: with SMTP id v1mr8445196wmh.69.1617288498847;
-        Thu, 01 Apr 2021 07:48:18 -0700 (PDT)
+        bh=va+DMaUPpcC5b2FUdXa9GOf2WrafA7WZA1VBL0yavDQ=;
+        b=glntX2NNwLcBCjAsK0bIhNzUnkq0gyyDbO/LZfPcXcQfeH5s4wIS/b+NeWEmCYpcZv
+         tbxrlp9EYy/54D0Z5bt8oRvWcEcpRj9RH7zsvtu8mEaRD2bW5qY4MEDmBINktQlbV212
+         g6rR9TUOtVnBgVTviwJINswg1oOf73I3QhSz8Mek+9ulBWrwvRVxtr0r6WMDA99z6IDd
+         FxyLIgqvgMLzSfz/FOWFrSqKk57RSiauP0L7n3mzmVBy5jTn2gjB198UHdBZxQGQEbBU
+         IS+tT7RoNhNfEUiRklTz93tRvNEXZ03cN0J/4hk2gRDELBtg0aAvVFAevFUdIJIXtyDe
+         N9tA==
+X-Gm-Message-State: AOAM530bsgs7W2TIxUqTaLgP8Yc/3D3br9SU331jQYDZnhiIKWn8GvBP
+        Z5YqvUFA6oFAmYxAPEGsoSWMmjHBphgGiQ==
+X-Google-Smtp-Source: ABdhPJy4ZEs3gtgMxBxPwBhLLGNJf1Q6x5zpk/sROAEIoNmse2UZDZmCDO5iEcY1L/MfDFbWfPfQOA==
+X-Received: by 2002:a05:600c:214d:: with SMTP id v13mr8538480wml.162.1617288509445;
+        Thu, 01 Apr 2021 07:48:29 -0700 (PDT)
 Received: from localhost.localdomain ([148.252.132.152])
-        by smtp.gmail.com with ESMTPSA id x13sm8183948wmp.39.2021.04.01.07.48.17
+        by smtp.gmail.com with ESMTPSA id x13sm8183948wmp.39.2021.04.01.07.48.28
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 01 Apr 2021 07:48:18 -0700 (PDT)
+        Thu, 01 Apr 2021 07:48:29 -0700 (PDT)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH v4 03/26] io_uring: use rsrc prealloc infra for files reg
-Date:   Thu,  1 Apr 2021 15:43:42 +0100
-Message-Id: <cf87321e6be5e38f4dc7fe5079d2aa6945b1ace0.1617287883.git.asml.silence@gmail.com>
+Subject: [PATCH v4 12/26] io_uring: better ref handling in poll_remove_one
+Date:   Thu,  1 Apr 2021 15:43:51 +0100
+Message-Id: <85b5774ce13ae55cc2e705abdc8cbafe1212f1bd.1617287883.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <cover.1617287883.git.asml.silence@gmail.com>
 References: <cover.1617287883.git.asml.silence@gmail.com>
@@ -70,75 +70,27 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Keep it consistent with update and use io_rsrc_node_prealloc() +
-io_rsrc_node_get() in io_sqe_files_register() as well, that will be used
-in future patches, not as error prone and allows to deduplicate
-rsrc_node init.
+Instead of io_put_req() to drop not a final ref, use req_ref_put(),
+which is slimmer and will also check the invariant.
 
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
- fs/io_uring.c | 21 ++++++---------------
- 1 file changed, 6 insertions(+), 15 deletions(-)
+ fs/io_uring.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index f1a96988c3f5..b53ccac47440 100644
+index 9ebdd288653f..bf3eeabda71d 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -7605,13 +7605,6 @@ static struct io_rsrc_node *io_rsrc_node_alloc(struct io_ring_ctx *ctx)
- 	return ref_node;
- }
- 
--static void init_fixed_file_ref_node(struct io_ring_ctx *ctx,
--				     struct io_rsrc_node *ref_node)
--{
--	ref_node->rsrc_data = ctx->file_data;
--	ref_node->rsrc_put = io_ring_file_put;
--}
--
- static void io_rsrc_node_destroy(struct io_rsrc_node *ref_node)
- {
- 	percpu_ref_exit(&ref_node->refs);
-@@ -7624,7 +7617,7 @@ static int io_sqe_files_register(struct io_ring_ctx *ctx, void __user *arg,
- 	__s32 __user *fds = (__s32 __user *) arg;
- 	unsigned nr_tables, i;
- 	struct file *file;
--	int fd, ret = -ENOMEM;
-+	int fd, ret;
- 	struct io_rsrc_node *ref_node;
- 	struct io_rsrc_data *file_data;
- 
-@@ -7634,12 +7627,16 @@ static int io_sqe_files_register(struct io_ring_ctx *ctx, void __user *arg,
- 		return -EINVAL;
- 	if (nr_args > IORING_MAX_FIXED_FILES)
- 		return -EMFILE;
-+	ret = io_rsrc_node_prealloc(ctx);
-+	if (ret)
-+		return ret;
- 
- 	file_data = io_rsrc_data_alloc(ctx);
- 	if (!file_data)
- 		return -ENOMEM;
- 	ctx->file_data = file_data;
- 
-+	ret = -ENOMEM;
- 	nr_tables = DIV_ROUND_UP(nr_args, IORING_MAX_FILES_TABLE);
- 	file_data->table = kcalloc(nr_tables, sizeof(*file_data->table),
- 				   GFP_KERNEL);
-@@ -7692,13 +7689,7 @@ static int io_sqe_files_register(struct io_ring_ctx *ctx, void __user *arg,
- 		return ret;
- 	}
- 
--	ref_node = io_rsrc_node_alloc(ctx);
--	if (!ref_node) {
--		io_sqe_files_unregister(ctx);
--		return -ENOMEM;
--	}
--	init_fixed_file_ref_node(ctx, ref_node);
--
-+	ref_node = io_rsrc_node_get(ctx, ctx->file_data, io_ring_file_put);
- 	io_rsrc_node_set(ctx, file_data, ref_node);
- 	return ret;
- out_fput:
+@@ -5224,7 +5224,7 @@ static bool io_poll_remove_waitqs(struct io_kiocb *req)
+ 		/* non-poll requests have submit ref still */
+ 		do_complete = __io_poll_remove_one(req, &apoll->poll, true);
+ 		if (do_complete) {
+-			io_put_req(req);
++			req_ref_put(req);
+ 			kfree(apoll->double_poll);
+ 			kfree(apoll);
+ 		}
 -- 
 2.24.0
 

@@ -8,104 +8,89 @@ X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A0065C43611
-	for <io-uring@archiver.kernel.org>; Thu,  1 Apr 2021 18:07:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F03DEC43461
+	for <io-uring@archiver.kernel.org>; Thu,  1 Apr 2021 18:11:42 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8150861001
-	for <io-uring@archiver.kernel.org>; Thu,  1 Apr 2021 18:07:06 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CA8596112E
+	for <io-uring@archiver.kernel.org>; Thu,  1 Apr 2021 18:11:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235060AbhDASHE (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Thu, 1 Apr 2021 14:07:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34212 "EHLO
+        id S236881AbhDASLh (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Thu, 1 Apr 2021 14:11:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34418 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236572AbhDASCl (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Thu, 1 Apr 2021 14:02:41 -0400
-Received: from mail-wr1-x432.google.com (mail-wr1-x432.google.com [IPv6:2a00:1450:4864:20::432])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C80EC061797
-        for <io-uring@vger.kernel.org>; Thu,  1 Apr 2021 04:23:00 -0700 (PDT)
-Received: by mail-wr1-x432.google.com with SMTP id o16so1478006wrn.0
-        for <io-uring@vger.kernel.org>; Thu, 01 Apr 2021 04:23:00 -0700 (PDT)
+        with ESMTP id S238085AbhDASFY (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Thu, 1 Apr 2021 14:05:24 -0400
+Received: from mail-wr1-x429.google.com (mail-wr1-x429.google.com [IPv6:2a00:1450:4864:20::429])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9E05C0045FF
+        for <io-uring@vger.kernel.org>; Thu,  1 Apr 2021 07:48:32 -0700 (PDT)
+Received: by mail-wr1-x429.google.com with SMTP id j7so2117447wrd.1
+        for <io-uring@vger.kernel.org>; Thu, 01 Apr 2021 07:48:32 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:subject:date:message-id:mime-version
+        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=a3Ap4GWo0s8Kh06mIvQLPBPMXhF9Ofj6fc1qjeAPf7A=;
-        b=FuKdrzSBUrMn7vTCRBk0PhOc1v8n5Oftv5+6TjHplMSinShb/rRcsM3L9JiWWwzSDk
-         5motFJAlKPELBGQAtbwzrS3TohKhqa/W1S4XFQ8kzTofqCTTRtFJsJxjFZ6uL6pA0knK
-         xgHC4jWUYF7WJypJYG7aZptl5EttL+7IbkqHNG5wffsYQfHZ/mKWKY4ipVtU63FZ6Jjj
-         VSs9hBn79PqCoWie5qMNblONIBic7fft8frgW25mGg3+ZdFElvEKV2RdJv/KXlfZhFxf
-         IcmAZAXrYUqnvm11r3AWf49GQET3PN+FpP/d4G8eP0SElhSabMXDNROAOBAiicox9G1k
-         hcwQ==
+        bh=6vNsxzzdQBpD3WSNpgkTA5459Jsgdzq6EQD/NZyVvk8=;
+        b=bC0xl0l1SUcAynNAuV+WItMevW6u3BVwE+AWdUFlXGnrczzpY4arkLH46H/IxnwMPv
+         EbnrkBLSy2vwrZVwp1xt4B1tIBBKkJIa3X3U2ST1kjzqbvN1A/iovVrIQz7548f1SbrA
+         lladWMUUrGxe03HcpYx6+qbKzG4+NDQzpLfSypZKaOuFgsJQsnfHfYrL+Qn3fy3pcrii
+         6Y6ikirVJG5A54g/o5Ps4Rj+aZpk6JtHi6iHBYrUNuknDr7FHH/ELVbH8ISxPj+B4doF
+         GsTYNntOwtaHAUXyR30EJE01NOT3nhknZXGxMEgWvTWGK+nnRJFiJkSRdJHmVfX9GkTb
+         vUpw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=a3Ap4GWo0s8Kh06mIvQLPBPMXhF9Ofj6fc1qjeAPf7A=;
-        b=JL6X3ukTjz7gki84vvzcD2g1yKsWV+zhcq/a71LhriYurf1LjhdnoajcuwuyJ81USl
-         sEQa1q6cfYUzb7SlyRmfbuSzNQP3mP7BXqtmrfdQgVYGdXVZ6b1ITxkEW2m7s/YEvi4m
-         saCVdC0I3YPv2yn5DP7VYgpGk6s8wOSrX845hkvx+xfOjkU1h8jSo6d6Wvjfk5YqScQ5
-         0p25HTYJRGw0PnX030GTRlvn7UUtANdJOtNggJGIa2hIPESTm3eCHO8u9cXkW8mkajKz
-         AxMVlxgC+aa8VqsTm7kA6n5BJdaFK7EFUFivApRixk4GdyPygrYd+Qp779EmO2Po3ica
-         bOSg==
-X-Gm-Message-State: AOAM531h6JXdSI5eKkFbOs8KNfmkJ7gU/KEL3R4JFpwwdC4K8T4enQ86
-        FsylOFqLyvfvwObQ3rJtXbM=
-X-Google-Smtp-Source: ABdhPJwnTDXPWkesWaKtu9IvgbhT0/NNOJBQ6OKapDKRYM8hMX5VXbVpGcWCnBTGs+8d+C5RjJWbdQ==
-X-Received: by 2002:adf:c40b:: with SMTP id v11mr8972391wrf.320.1617276179317;
-        Thu, 01 Apr 2021 04:22:59 -0700 (PDT)
+        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=6vNsxzzdQBpD3WSNpgkTA5459Jsgdzq6EQD/NZyVvk8=;
+        b=b8xJskqUWkhlS64ACr3Kjl/5lvh2CxoTOitYEfFmhgqIMO+bcvy393WTEtzx69/gO5
+         ykHsBRG+6lkRK9lQjw3vkGESrCum2NzHTmxaPVEw6olyo0VFy5+0RffvZ6eslDr2ydoh
+         bAyqh56Vd7KROYeOoIqciLVN8Cs3Ar17IYKCFizT5D8lsrQ3vCtc73zX9W+dtELmWSGU
+         8MUDtGitNpQHgC0gH63KCLn1SZueJDoJpez5apnPfWM17vMyJO4Lvr/Z1YaJ8sG8i+Rm
+         P5F4v5MTPK9L6xBGvo30TNeS9S48ziz2/RzZHa8X5ua5rTTRxVr01WF6XFTCUMZ/StZs
+         mWpA==
+X-Gm-Message-State: AOAM532yMWKrjb8Vz3yQ8mGm3LeqVpgChpXnhrAGzc+LvmnosS8GG45q
+        MN7PQVw3fGxmztiMtwKkvYrJU1qVDR7c5w==
+X-Google-Smtp-Source: ABdhPJwzRAowhTCMvzWvPHNZdsx/Vsp+HTwUy1l6q4QpxkIqkC44PrIjN69eBsGIyWxRUWpZG1+8KA==
+X-Received: by 2002:a5d:4564:: with SMTP id a4mr10148584wrc.3.1617288511493;
+        Thu, 01 Apr 2021 07:48:31 -0700 (PDT)
 Received: from localhost.localdomain ([148.252.132.152])
-        by smtp.gmail.com with ESMTPSA id s9sm8600673wmh.31.2021.04.01.04.22.58
+        by smtp.gmail.com with ESMTPSA id x13sm8183948wmp.39.2021.04.01.07.48.30
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 01 Apr 2021 04:22:58 -0700 (PDT)
+        Thu, 01 Apr 2021 07:48:31 -0700 (PDT)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH 5.12] io_uring: fix EIOCBQUEUED iter revert
-Date:   Thu,  1 Apr 2021 12:18:48 +0100
-Message-Id: <9d5b65f57375f80c771e286a33db5105f216e36f.1617275847.git.asml.silence@gmail.com>
+Subject: [PATCH v4 14/26] io_uring: refactor io_async_cancel()
+Date:   Thu,  1 Apr 2021 15:43:53 +0100
+Message-Id: <70c2a8b958d942e86958a28af0452966ce1095b0.1617287883.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.24.0
+In-Reply-To: <cover.1617287883.git.asml.silence@gmail.com>
+References: <cover.1617287883.git.asml.silence@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-iov_iter_revert() is done in completion handlers that happensf before
-read/write returns -EIOCBQUEUED, no need to repeat reverting afterwards.
-Moreover, even though it may appear being just a no-op, it's actually
-races with 1) user forging a new iovec of a different size 2) reissue,
-that is done via io-wq continues completely asynchronously.
+Remove extra tctx==NULL checks that are already done by
+io_async_cancel_one().
 
-Fixes: 3e6a0d3c7571c ("io_uring: fix -EAGAIN retry with IOPOLL")
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
-
-p.s. same is already done for-5.13 as a part of a larger patch,
-should be trivial to merge.
-
- fs/io_uring.c | 4 ----
- 1 file changed, 4 deletions(-)
+ fs/io_uring.c | 2 --
+ 1 file changed, 2 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index c8ceb5ef66a7..3cd8bfe554e2 100644
+index 4314e738c2ad..c3cbc3dfa7f3 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -3284,8 +3284,6 @@ static int io_read(struct io_kiocb *req, unsigned int issue_flags)
- 	ret = io_iter_do_read(req, iter);
+@@ -5804,8 +5804,6 @@ static int io_async_cancel(struct io_kiocb *req, unsigned int issue_flags)
+ 	list_for_each_entry(node, &ctx->tctx_list, ctx_node) {
+ 		struct io_uring_task *tctx = node->task->io_uring;
  
- 	if (ret == -EIOCBQUEUED) {
--		if (req->async_data)
--			iov_iter_revert(iter, io_size - iov_iter_count(iter));
- 		goto out_free;
- 	} else if (ret == -EAGAIN) {
- 		/* IOPOLL retry should happen for io-wq threads */
-@@ -3418,8 +3416,6 @@ static int io_write(struct io_kiocb *req, unsigned int issue_flags)
- 	/* no retry on NONBLOCK nor RWF_NOWAIT */
- 	if (ret2 == -EAGAIN && (req->flags & REQ_F_NOWAIT))
- 		goto done;
--	if (ret2 == -EIOCBQUEUED && req->async_data)
--		iov_iter_revert(iter, io_size - iov_iter_count(iter));
- 	if (!force_nonblock || ret2 != -EAGAIN) {
- 		/* IOPOLL retry should happen for io-wq threads */
- 		if ((req->ctx->flags & IORING_SETUP_IOPOLL) && ret2 == -EAGAIN)
+-		if (!tctx || !tctx->io_wq)
+-			continue;
+ 		ret = io_async_cancel_one(tctx, req->cancel.addr, ctx);
+ 		if (ret != -ENOENT)
+ 			break;
 -- 
 2.24.0
 

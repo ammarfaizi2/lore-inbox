@@ -2,166 +2,113 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E7AB6C43460
-	for <io-uring@archiver.kernel.org>; Thu,  1 Apr 2021 17:48:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 70B0EC433B4
+	for <io-uring@archiver.kernel.org>; Thu,  1 Apr 2021 17:54:05 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C00A260FF3
-	for <io-uring@archiver.kernel.org>; Thu,  1 Apr 2021 17:48:45 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 44D6F61108
+	for <io-uring@archiver.kernel.org>; Thu,  1 Apr 2021 17:54:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235054AbhDARse (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Thu, 1 Apr 2021 13:48:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47286 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235535AbhDARq0 (ORCPT <rfc822;io-uring@vger.kernel.org>);
-        Thu, 1 Apr 2021 13:46:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2BF6261165;
-        Thu,  1 Apr 2021 17:46:17 +0000 (UTC)
-Date:   Thu, 1 Apr 2021 19:46:13 +0200
-From:   Christian Brauner <christian.brauner@ubuntu.com>
-To:     Jens Axboe <axboe@kernel.dk>
-Cc:     syzbot <syzbot+c88a7030da47945a3cc3@syzkaller.appspotmail.com>,
-        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-        syzkaller-bugs@googlegroups.com, viro@zeniv.linux.org.uk,
-        io-uring@vger.kernel.org
-Subject: Re: [syzbot] WARNING in mntput_no_expire (2)
-Message-ID: <20210401174613.vymhhrfsemypougv@wittgenstein>
-References: <0000000000003a565e05bee596f2@google.com>
- <20210401154515.k24qdd2lzhtneu47@wittgenstein>
- <90e7e339-eaec-adb2-cfed-6dc058a117a3@kernel.dk>
+        id S236239AbhDARyC (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Thu, 1 Apr 2021 13:54:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58382 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S236481AbhDARpK (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Thu, 1 Apr 2021 13:45:10 -0400
+Received: from mail-wr1-x42a.google.com (mail-wr1-x42a.google.com [IPv6:2a00:1450:4864:20::42a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF22FC0045F3
+        for <io-uring@vger.kernel.org>; Thu,  1 Apr 2021 07:48:18 -0700 (PDT)
+Received: by mail-wr1-x42a.google.com with SMTP id e18so2095920wrt.6
+        for <io-uring@vger.kernel.org>; Thu, 01 Apr 2021 07:48:18 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
+         :content-transfer-encoding;
+        bh=wSAK0e7/IBWDROvXMtOQAaYtESS5vD07LmS60Uvyj/8=;
+        b=jJtoFRNE7ka5SxnJEksG4OlsxuBJXFknUK+P4MiV7vSKMQn8BzribFhkgXX0f3+cvI
+         4vbqrHQ2KsmJ66LEKbN1sBdfuQkiAHzfpQy/yvL4+HXM9Ze0c3r65Ph+Y6ITYi8wYGXu
+         ZgEPx21mmn/SHq1+IZXWYD4QLJLjcy32Aal9oreuC9FhSUsV82zhaQFw2lHKpDD1j6Gy
+         hWrHfMhQdOKMQLf702XLyLFSLjZGYalwGs1qKNtFFPIFgIpoQI1NAURYOEofhLVoE9Dr
+         lrnN9/Gh/5Tf1TGMjZ7+3aHC8w3G8G5y69KCqxmWGt1QOw6nOrUVAS/mZYejhkzkLYB4
+         7ncg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=wSAK0e7/IBWDROvXMtOQAaYtESS5vD07LmS60Uvyj/8=;
+        b=TzSeRpl/8Uum5974fY8TPu44mi5sdVfIMH5OSA3LzJNRlhgcfHP8aPJDbwTJO9/25K
+         ShxBhOVcODjeZ9tc6vxxDCvqZ1GfmEcxntyja7CrI6dSKsukwPDbS+c6D4lrTCXI6FEg
+         FtqkEQncN1PsBVR0OcorkejWlVaptSZIpLBKb599eY+CEtDx9kqQGc5292xl7L31QP5E
+         nPHSKKiPai0rDzD9Wv6jgjfRO95GqSj8//xdOHKBz6f9EpxwGLvvUJEAV74KaTLfLlXR
+         Oh15sYUxDwHfK7LkThknDCYZzbaaeHuKslsp1+4Dta63LR1WnMAvnnei1KkqUdVo1MHu
+         jx2A==
+X-Gm-Message-State: AOAM530nInMJYTXPDLCmAAHx8+uV5tGJDDlgbJDOcsW7c2ABIGSnUHig
+        mfdQTtaWIgI4DKxLG4aTLJ0fCA7P67R0eQ==
+X-Google-Smtp-Source: ABdhPJzcqhNqA0msLdefhaKwBqIvBQFuBMKze0PLB/EBRke9Pd03ZE79x1/Sr8FVsUn95jI1YiLxtw==
+X-Received: by 2002:a5d:6152:: with SMTP id y18mr10224311wrt.255.1617288497694;
+        Thu, 01 Apr 2021 07:48:17 -0700 (PDT)
+Received: from localhost.localdomain ([148.252.132.152])
+        by smtp.gmail.com with ESMTPSA id x13sm8183948wmp.39.2021.04.01.07.48.16
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 01 Apr 2021 07:48:17 -0700 (PDT)
+From:   Pavel Begunkov <asml.silence@gmail.com>
+To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
+Subject: [PATCH v4 02/26] io_uring: simplify io_rsrc_node_ref_zero
+Date:   Thu,  1 Apr 2021 15:43:41 +0100
+Message-Id: <3b2b23e3a1ea4bbf789cd61815d33e05d9ff945e.1617287883.git.asml.silence@gmail.com>
+X-Mailer: git-send-email 2.24.0
+In-Reply-To: <cover.1617287883.git.asml.silence@gmail.com>
+References: <cover.1617287883.git.asml.silence@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <90e7e339-eaec-adb2-cfed-6dc058a117a3@kernel.dk>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On Thu, Apr 01, 2021 at 10:09:18AM -0600, Jens Axboe wrote:
-> On 4/1/21 9:45 AM, Christian Brauner wrote:
-> > On Thu, Apr 01, 2021 at 02:09:20AM -0700, syzbot wrote:
-> >> Hello,
-> >>
-> >> syzbot found the following issue on:
-> >>
-> >> HEAD commit:    d19cc4bf Merge tag 'trace-v5.12-rc5' of git://git.kernel.o..
-> >> git tree:       upstream
-> >> console output: https://syzkaller.appspot.com/x/log.txt?x=1018f281d00000
-> >> kernel config:  https://syzkaller.appspot.com/x/.config?x=d1a3d65a48dbd1bc
-> >> dashboard link: https://syzkaller.appspot.com/bug?extid=c88a7030da47945a3cc3
-> >> syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=12f50d11d00000
-> >> C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=137694a1d00000
-> >>
-> >> IMPORTANT: if you fix the issue, please add the following tag to the commit:
-> >> Reported-by: syzbot+c88a7030da47945a3cc3@syzkaller.appspotmail.com
-> >>
-> >> ------------[ cut here ]------------
-> >> WARNING: CPU: 1 PID: 8409 at fs/namespace.c:1186 mntput_no_expire+0xaca/0xcb0 fs/namespace.c:1186
-> >> Modules linked in:
-> >> CPU: 1 PID: 8409 Comm: syz-executor035 Not tainted 5.12.0-rc5-syzkaller #0
-> >> Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-> >> RIP: 0010:mntput_no_expire+0xaca/0xcb0 fs/namespace.c:1186
-> >> Code: ff 48 c7 c2 e0 cb 78 89 be c2 02 00 00 48 c7 c7 a0 cb 78 89 c6 05 e5 6d e5 0b 01 e8 ff e1 f6 06 e9 3f fd ff ff e8 c6 a5 a8 ff <0f> 0b e9 fc fc ff ff e8 ba a5 a8 ff e8 55 dc 94 ff 31 ff 89 c5 89
-> >> RSP: 0018:ffffc9000165fc78 EFLAGS: 00010293
-> >> RAX: 0000000000000000 RBX: 1ffff920002cbf95 RCX: 0000000000000000
-> >> RDX: ffff88802072d4c0 RSI: ffffffff81cb4b8a RDI: 0000000000000003
-> >> RBP: ffff888011656900 R08: 0000000000000000 R09: ffffffff8fa978af
-> >> R10: ffffffff81cb4884 R11: 0000000000000000 R12: 0000000000000008
-> >> R13: ffffc9000165fcc8 R14: dffffc0000000000 R15: 00000000ffffffff
-> >> FS:  0000000000000000(0000) GS:ffff8880b9d00000(0000) knlGS:0000000000000000
-> >> CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-> >> CR2: 000055a722053160 CR3: 000000000bc8e000 CR4: 00000000001506e0
-> >> DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-> >> DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-> >> Call Trace:
-> >>  mntput fs/namespace.c:1232 [inline]
-> >>  cleanup_mnt+0x523/0x530 fs/namespace.c:1132
-> >>  task_work_run+0xdd/0x1a0 kernel/task_work.c:140
-> >>  exit_task_work include/linux/task_work.h:30 [inline]
-> >>  do_exit+0xbfc/0x2a60 kernel/exit.c:825
-> >>  do_group_exit+0x125/0x310 kernel/exit.c:922
-> >>  __do_sys_exit_group kernel/exit.c:933 [inline]
-> >>  __se_sys_exit_group kernel/exit.c:931 [inline]
-> >>  __x64_sys_exit_group+0x3a/0x50 kernel/exit.c:931
-> >>  do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
-> >>  entry_SYSCALL_64_after_hwframe+0x44/0xae
-> >> RIP: 0033:0x446af9
-> >> Code: Unable to access opcode bytes at RIP 0x446acf.
-> >> RSP: 002b:00000000005dfe48 EFLAGS: 00000246 ORIG_RAX: 00000000000000e7
-> >> RAX: ffffffffffffffda RBX: 00000000004ce450 RCX: 0000000000446af9
-> >> RDX: 000000000000003c RSI: 00000000000000e7 RDI: 0000000000000001
-> >> RBP: 0000000000000001 R08: ffffffffffffffbc R09: 0000000000000000
-> >> R10: 0000000000000000 R11: 0000000000000246 R12: 00000000004ce450
-> >> R13: 0000000000000001 R14: 0000000000000000 R15: 0000000000000001
-> > 
-> > [+Cc Jens + io_uring]
-> > 
-> > Hm, this reproducer uses io_uring and it's the io_uring_enter() that
-> > triggers this reliably. With this reproducer I've managed to reproduce
-> > the issue on v5.12-rc4, and v5.12-rc3, v5.12-rc2 and v5.12-rc1.
-> > It's not reproducible at
-> > 9820b4dca0f9c6b7ab8b4307286cdace171b724d
-> > which is the commit immediately before the first v5.12 io_uring merge.
-> > It's first reproducible with the first io_uring merge for v5.12, i.e.
-> > 5bbb336ba75d95611a7b9456355b48705016bdb1
-> 
-> Thanks, that's good info. I'll take a look at it and see if I can
-> reproduce.
+Replace queue_delayed_work() with mod_delayed_work() in
+io_rsrc_node_ref_zero() as the later one can schedule a new work, and
+cleanup it further for better readability.
 
-Ok, I was deep into this anyway and it didn't make much sense to do
-anything else at that point so I bisected this a bit further. The first
-bad commit is:
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+---
+ fs/io_uring.c | 12 ++++--------
+ 1 file changed, 4 insertions(+), 8 deletions(-)
 
-commit 3a81fd02045c329f25e5900fa61f613c9b317644
-Author: Jens Axboe <axboe@kernel.dk>
-Date:   Thu Dec 10 12:25:36 2020 -0700
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 5dfd33753471..f1a96988c3f5 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -7565,7 +7565,7 @@ static void io_rsrc_node_ref_zero(struct percpu_ref *ref)
+ 	struct io_rsrc_data *data = node->rsrc_data;
+ 	struct io_ring_ctx *ctx = data->ctx;
+ 	bool first_add = false;
+-	int delay = HZ;
++	int delay;
+ 
+ 	io_rsrc_ref_lock(ctx);
+ 	node->done = true;
+@@ -7581,13 +7581,9 @@ static void io_rsrc_node_ref_zero(struct percpu_ref *ref)
+ 	}
+ 	io_rsrc_ref_unlock(ctx);
+ 
+-	if (percpu_ref_is_dying(&data->refs))
+-		delay = 0;
+-
+-	if (!delay)
+-		mod_delayed_work(system_wq, &ctx->rsrc_put_work, 0);
+-	else if (first_add)
+-		queue_delayed_work(system_wq, &ctx->rsrc_put_work, delay);
++	delay = percpu_ref_is_dying(&data->refs) ? 0 : HZ;
++	if (first_add || !delay)
++		mod_delayed_work(system_wq, &ctx->rsrc_put_work, delay);
+ }
+ 
+ static struct io_rsrc_node *io_rsrc_node_alloc(struct io_ring_ctx *ctx)
+-- 
+2.24.0
 
-    io_uring: enable LOOKUP_CACHED path resolution for filename lookups
-
-    Instead of being pessimistic and assume that path lookup will block, use
-    LOOKUP_CACHED to attempt just a cached lookup. This ensures that the
-    fast path is always done inline, and we only punt to async context if
-    IO is needed to satisfy the lookup.
-
-    For forced nonblock open attempts, mark the file O_NONBLOCK over the
-    actual ->open() call as well. We can safely clear this again before
-    doing fd_install(), so it'll never be user visible that we fiddled with
-    it.
-
-    This greatly improves the performance of file open where the dentry is
-    already cached:
-
-    ached           5.10-git        5.10-git+LOOKUP_CACHED  Speedup
-    ---------------------------------------------------------------
-    33%             1,014,975       900,474                 1.1x
-    89%              545,466        292,937                 1.9x
-    100%             435,636        151,475                 2.9x
-
-    The more cache hot we are, the faster the inline LOOKUP_CACHED
-    optimization helps. This is unsurprising and expected, as a thread
-    offload becomes a more dominant part of the total overhead. If we look
-    at io_uring tracing, doing an IORING_OP_OPENAT on a file that isn't in
-    the dentry cache will yield:
-
-    275.550481: io_uring_create: ring 00000000ddda6278, fd 3 sq size 8, cq size 16, flags 0
-    275.550491: io_uring_submit_sqe: ring 00000000ddda6278, op 18, data 0x0, non block 1, sq_thread 0
-    275.550498: io_uring_queue_async_work: ring 00000000ddda6278, request 00000000c0267d17, flags 69760, normal queue, work 000000003d683991
-    275.550502: io_uring_cqring_wait: ring 00000000ddda6278, min_events 1
-    275.550556: io_uring_complete: ring 00000000ddda6278, user_data 0x0, result 4
-
-    which shows a failed nonblock lookup, then punt to worker, and then we
-    complete with fd == 4. This takes 65 usec in total. Re-running the same
-    test case again:
-
-    281.253956: io_uring_create: ring 0000000008207252, fd 3 sq size 8, cq size 16, flags 0
-    281.253967: io_uring_submit_sqe: ring 0000000008207252, op 18, data 0x0, non block 1, sq_thread 0
-    281.253973: io_uring_complete: ring 0000000008207252, user_data 0x0, result 4
-
-    shows the same request completing inline, also returning fd == 4. This
-    takes 6 usec.
-
-    Signed-off-by: Jens Axboe <axboe@kernel.dk>

@@ -2,113 +2,99 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-12.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 70B0EC433B4
-	for <io-uring@archiver.kernel.org>; Thu,  1 Apr 2021 17:54:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 47B9CC4360C
+	for <io-uring@archiver.kernel.org>; Thu,  1 Apr 2021 17:54:06 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 44D6F61108
-	for <io-uring@archiver.kernel.org>; Thu,  1 Apr 2021 17:54:05 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 20FB36112E
+	for <io-uring@archiver.kernel.org>; Thu,  1 Apr 2021 17:54:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236239AbhDARyC (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Thu, 1 Apr 2021 13:54:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58382 "EHLO
+        id S236257AbhDARyE (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Thu, 1 Apr 2021 13:54:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59754 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236481AbhDARpK (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Thu, 1 Apr 2021 13:45:10 -0400
-Received: from mail-wr1-x42a.google.com (mail-wr1-x42a.google.com [IPv6:2a00:1450:4864:20::42a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF22FC0045F3
-        for <io-uring@vger.kernel.org>; Thu,  1 Apr 2021 07:48:18 -0700 (PDT)
-Received: by mail-wr1-x42a.google.com with SMTP id e18so2095920wrt.6
-        for <io-uring@vger.kernel.org>; Thu, 01 Apr 2021 07:48:18 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
-         :content-transfer-encoding;
-        bh=wSAK0e7/IBWDROvXMtOQAaYtESS5vD07LmS60Uvyj/8=;
-        b=jJtoFRNE7ka5SxnJEksG4OlsxuBJXFknUK+P4MiV7vSKMQn8BzribFhkgXX0f3+cvI
-         4vbqrHQ2KsmJ66LEKbN1sBdfuQkiAHzfpQy/yvL4+HXM9Ze0c3r65Ph+Y6ITYi8wYGXu
-         ZgEPx21mmn/SHq1+IZXWYD4QLJLjcy32Aal9oreuC9FhSUsV82zhaQFw2lHKpDD1j6Gy
-         hWrHfMhQdOKMQLf702XLyLFSLjZGYalwGs1qKNtFFPIFgIpoQI1NAURYOEofhLVoE9Dr
-         lrnN9/Gh/5Tf1TGMjZ7+3aHC8w3G8G5y69KCqxmWGt1QOw6nOrUVAS/mZYejhkzkLYB4
-         7ncg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=wSAK0e7/IBWDROvXMtOQAaYtESS5vD07LmS60Uvyj/8=;
-        b=TzSeRpl/8Uum5974fY8TPu44mi5sdVfIMH5OSA3LzJNRlhgcfHP8aPJDbwTJO9/25K
-         ShxBhOVcODjeZ9tc6vxxDCvqZ1GfmEcxntyja7CrI6dSKsukwPDbS+c6D4lrTCXI6FEg
-         FtqkEQncN1PsBVR0OcorkejWlVaptSZIpLBKb599eY+CEtDx9kqQGc5292xl7L31QP5E
-         nPHSKKiPai0rDzD9Wv6jgjfRO95GqSj8//xdOHKBz6f9EpxwGLvvUJEAV74KaTLfLlXR
-         Oh15sYUxDwHfK7LkThknDCYZzbaaeHuKslsp1+4Dta63LR1WnMAvnnei1KkqUdVo1MHu
-         jx2A==
-X-Gm-Message-State: AOAM530nInMJYTXPDLCmAAHx8+uV5tGJDDlgbJDOcsW7c2ABIGSnUHig
-        mfdQTtaWIgI4DKxLG4aTLJ0fCA7P67R0eQ==
-X-Google-Smtp-Source: ABdhPJzcqhNqA0msLdefhaKwBqIvBQFuBMKze0PLB/EBRke9Pd03ZE79x1/Sr8FVsUn95jI1YiLxtw==
-X-Received: by 2002:a5d:6152:: with SMTP id y18mr10224311wrt.255.1617288497694;
-        Thu, 01 Apr 2021 07:48:17 -0700 (PDT)
-Received: from localhost.localdomain ([148.252.132.152])
-        by smtp.gmail.com with ESMTPSA id x13sm8183948wmp.39.2021.04.01.07.48.16
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 01 Apr 2021 07:48:17 -0700 (PDT)
-From:   Pavel Begunkov <asml.silence@gmail.com>
-To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH v4 02/26] io_uring: simplify io_rsrc_node_ref_zero
-Date:   Thu,  1 Apr 2021 15:43:41 +0100
-Message-Id: <3b2b23e3a1ea4bbf789cd61815d33e05d9ff945e.1617287883.git.asml.silence@gmail.com>
-X-Mailer: git-send-email 2.24.0
-In-Reply-To: <cover.1617287883.git.asml.silence@gmail.com>
-References: <cover.1617287883.git.asml.silence@gmail.com>
+        with ESMTP id S236375AbhDARsZ (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Thu, 1 Apr 2021 13:48:25 -0400
+Received: from hr2.samba.org (hr2.samba.org [IPv6:2a01:4f8:192:486::2:0])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4399FC00F7C9;
+        Thu,  1 Apr 2021 08:05:33 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=samba.org;
+         s=42; h=Date:Message-ID:From:Cc:To;
+        bh=9An728KlZVjFf0+wENS6eedafMqAahJG4Eij/X4oC/A=; b=qsotVAOsAg8OcFq9zC5lgMb9GG
+        MurbuwzIaErbn6IKjPavhYlcQzwF3VkGyyEeE5qZ7Z5Rh1nT2gqMB3fe6VIe4jGiTxGk2Hb2jrMxY
+        TPd0KHj+62YMLei1/cpln9i8/osy4zGPYFVH5/ZXKBmuvpJXGE18p3jHCV0ouuRcdEX91zs8mZMLB
+        B5Yjzj6ZgxySQMFUEW1q9361RLEtX5Nxsw8GzqhM0Yu8F6R8HtME2Wl9w4xYxFytlYeEqE+tmsBsi
+        JQsEirprZ0bVIRYgnWSX/fE/+Rpc6MmMW+uCodPy0fLyD4qEwkFhUcTB+fKeBoOcULcE0yp/Ohy5m
+        Dj4jlWmc6rk4anGQsw/kDht1WQwF0Qpe5T1G8r4ts4yK9ROwpfmo7x015b4OYbuuhT9hXxm+J5LDU
+        ARXpwmeARIXcuUP8/ktzb9754M3xWrfplDaBqnd1EWZ6qHjpbB81AOSKiAAuW6IAbvxQw9/Pd1JIU
+        teYLJXz18h/IPJJHsgm+UNcO;
+Received: from [127.0.0.2] (localhost [127.0.0.1])
+        by hr2.samba.org with esmtpsa (TLS1.3:ECDHE_RSA_CHACHA20_POLY1305:256)
+        (Exim)
+        id 1lRysz-0007XZ-En; Thu, 01 Apr 2021 15:05:29 +0000
+To:     Alexey Dobriyan <adobriyan@gmail.com>,
+        Christoph Hellwig <hch@infradead.org>,
+        Jens Axboe <axboe@kernel.dk>
+Cc:     Andy Lutomirski <luto@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Linux API <linux-api@vger.kernel.org>, fw@deneb.enyo.de,
+        io-uring <io-uring@vger.kernel.org>
+References: <YFYjOB1jpbqyNPAp@localhost.localdomain>
+ <CALCETrUPAvUOr8V5db0gu5RKVftKFwbBEkh6Aob57v+D-xdEig@mail.gmail.com>
+ <20210322075310.GA1946905@infradead.org>
+ <YGTMTJ7h5aspTQ5M@localhost.localdomain>
+From:   Stefan Metzmacher <metze@samba.org>
+Subject: Re: [PATCH] Document that PF_KTHREAD _is_ ABI
+Message-ID: <5992461c-1aad-3ba4-47d6-4dad10b6903a@samba.org>
+Date:   Thu, 1 Apr 2021 17:05:20 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.7.1
 MIME-Version: 1.0
+In-Reply-To: <YGTMTJ7h5aspTQ5M@localhost.localdomain>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Replace queue_delayed_work() with mod_delayed_work() in
-io_rsrc_node_ref_zero() as the later one can schedule a new work, and
-cleanup it further for better readability.
 
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
----
- fs/io_uring.c | 12 ++++--------
- 1 file changed, 4 insertions(+), 8 deletions(-)
+Am 31.03.21 um 21:23 schrieb Alexey Dobriyan:
+> On Mon, Mar 22, 2021 at 07:53:10AM +0000, Christoph Hellwig wrote:
+>> On Sat, Mar 20, 2021 at 10:23:12AM -0700, Andy Lutomirski wrote:
+>>>> https://github.com/systemd/systemd/blob/main/src/basic/process-util.c#L354
+>>>> src/basic/process-util.c:is_kernel_thread()
+>>>
+>>> Eww.
+>>>
+>>> Could we fix it differently and more permanently by modifying the proc
+>>> code to display the values systemd expects?
+>>
+>> Yes, do_task_stat needs a mapping from kernel flags to UABI flags.  And
+>> we should already discard everything we think we can from the UABI
+>> now, and only add the ones back that are required to not break
+>> userspace.
+> 
+> Sure we do. Who is going to find all the flags? I found PF_KTHREAD. :^)
+> 
+> More seriously,
+> 
+> /proc/$pid/stat was expanded to include tsk->flags in 0.99.1 (!!!)
+> 
+> Developers kept adding and shuffling flags probably not even realising
+> what's going on. The last incident happened at 5.10 when PF_IO_WORKER
+> was exchanged with PF_VCPU for smaller codegen.
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 5dfd33753471..f1a96988c3f5 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -7565,7 +7565,7 @@ static void io_rsrc_node_ref_zero(struct percpu_ref *ref)
- 	struct io_rsrc_data *data = node->rsrc_data;
- 	struct io_ring_ctx *ctx = data->ctx;
- 	bool first_add = false;
--	int delay = HZ;
-+	int delay;
- 
- 	io_rsrc_ref_lock(ctx);
- 	node->done = true;
-@@ -7581,13 +7581,9 @@ static void io_rsrc_node_ref_zero(struct percpu_ref *ref)
- 	}
- 	io_rsrc_ref_unlock(ctx);
- 
--	if (percpu_ref_is_dying(&data->refs))
--		delay = 0;
--
--	if (!delay)
--		mod_delayed_work(system_wq, &ctx->rsrc_put_work, 0);
--	else if (first_add)
--		queue_delayed_work(system_wq, &ctx->rsrc_put_work, delay);
-+	delay = percpu_ref_is_dying(&data->refs) ? 0 : HZ;
-+	if (first_add || !delay)
-+		mod_delayed_work(system_wq, &ctx->rsrc_put_work, delay);
- }
- 
- static struct io_rsrc_node *io_rsrc_node_alloc(struct io_ring_ctx *ctx)
--- 
-2.24.0
+With the create_io_thread(), the impact of PF_IO_WORKER becomes more broadly
+visible and userspace might start to look at it in order to find the difference
+between userspace and kernel io threads. (I also think it should actually be renamed to
+PF_IO_THREAD...)
 
+Jens, what do you think about that?
+
+metze

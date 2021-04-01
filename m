@@ -2,85 +2,166 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 39D8AC433ED
-	for <io-uring@archiver.kernel.org>; Thu,  1 Apr 2021 17:48:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E7AB6C43460
+	for <io-uring@archiver.kernel.org>; Thu,  1 Apr 2021 17:48:45 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id EDCAB6101A
-	for <io-uring@archiver.kernel.org>; Thu,  1 Apr 2021 17:48:05 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C00A260FF3
+	for <io-uring@archiver.kernel.org>; Thu,  1 Apr 2021 17:48:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234954AbhDARsC (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Thu, 1 Apr 2021 13:48:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58368 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235584AbhDARnA (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Thu, 1 Apr 2021 13:43:00 -0400
-Received: from mail-io1-xd33.google.com (mail-io1-xd33.google.com [IPv6:2607:f8b0:4864:20::d33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6A1DC022597
-        for <io-uring@vger.kernel.org>; Thu,  1 Apr 2021 08:21:27 -0700 (PDT)
-Received: by mail-io1-xd33.google.com with SMTP id k25so2570588iob.6
-        for <io-uring@vger.kernel.org>; Thu, 01 Apr 2021 08:21:27 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=+QYEIi6yMazIqkEu7x5PeloazytQGf3O76kbZP93pvs=;
-        b=gA1l80M1chUyFRBfOPfClAndC6TNUVs3aJ/6iRCUSXsTAUccpG4qXFlInAM+z2eeM8
-         IisfkUbGbF5w3kFsbNp0kh0ilTU5A9Xx78GQ2ylz73X+zRnOoFnL8J72OmGBdW8w7+79
-         FJT/t8fxGI4iIAFOEXX6SvIJ2wPaySWTDExKodmW+oB9wY3rpq9Q6Uq3Eu3eq38GiTpy
-         McrKvzvfSPzVwhNZCZSlJag1LWB5h/RI7kbQtr97fYhYZelpyosrMIJnjYCdQOYNUNBS
-         3srh+h8/L3s0Y+cpc9lz714z7ei23qDTOD/nTLwHlV68l+F+qoH+DuwkvGEpwelS8F+s
-         3mrA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=+QYEIi6yMazIqkEu7x5PeloazytQGf3O76kbZP93pvs=;
-        b=YfpJG7VLHAIwhBR4U3mqReobVbb2FUB/n3URNylZZDmi0dAV3AMoYGeMZ6OCK4o2E8
-         5BBo0kyuBh2XnlOBoF1nfj/Tdg5B5fTkvENNWFP5IHFNmznc+NkOLuOrWu4LyqxCe4Co
-         X+YSLag2VQ4M6B6Af71GUnH3mHx/vJ7qwy5f6cNwsP7/l0NRTIc63JtpuS9p3KQ2fEDD
-         TSW0YhSQJ6lxTatogZVISU36V9ShHZhljdDslLnaAmeZNU1cBRt9L2hJiPl/1lZNtj8j
-         hvkthUCBoElCGk8LAKkozb0NUeD9vgsKTI4trjRCYMLGJmTXfXpn/04AXWu2EuEeEikK
-         D8Fg==
-X-Gm-Message-State: AOAM532gCN9BgNENoeLq0MNZYT3j0mFD/Mrh4yI6ndpKp4YJPq9tO9RF
-        qVXvKzPWO5m6XnUWMEyUlkcKlg==
-X-Google-Smtp-Source: ABdhPJzDzeGMX8ZemzOJaVBVamJz0a06zm8ftbU9JowZSTex//XvsY6FZP24I5ydL0tFqdSo1JZ0yg==
-X-Received: by 2002:a5e:8d09:: with SMTP id m9mr6818047ioj.29.1617290487283;
-        Thu, 01 Apr 2021 08:21:27 -0700 (PDT)
-Received: from [192.168.1.30] ([65.144.74.34])
-        by smtp.gmail.com with ESMTPSA id a7sm2650026iln.82.2021.04.01.08.21.26
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 01 Apr 2021 08:21:26 -0700 (PDT)
-Subject: Re: [PATCH 5.12] io_uring/io-wq: protect against sprintf overflow
-To:     Pavel Begunkov <asml.silence@gmail.com>, io-uring@vger.kernel.org
-Cc:     Alexey Dobriyan <adobriyan@gmail.com>
-References: <1702c6145d7e1c46fbc382f28334c02e1a3d3994.1617267273.git.asml.silence@gmail.com>
-From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <38787c96-0ac6-6284-a980-898593b5e056@kernel.dk>
-Date:   Thu, 1 Apr 2021 09:21:26 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        id S235054AbhDARse (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Thu, 1 Apr 2021 13:48:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47286 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S235535AbhDARq0 (ORCPT <rfc822;io-uring@vger.kernel.org>);
+        Thu, 1 Apr 2021 13:46:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2BF6261165;
+        Thu,  1 Apr 2021 17:46:17 +0000 (UTC)
+Date:   Thu, 1 Apr 2021 19:46:13 +0200
+From:   Christian Brauner <christian.brauner@ubuntu.com>
+To:     Jens Axboe <axboe@kernel.dk>
+Cc:     syzbot <syzbot+c88a7030da47945a3cc3@syzkaller.appspotmail.com>,
+        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        syzkaller-bugs@googlegroups.com, viro@zeniv.linux.org.uk,
+        io-uring@vger.kernel.org
+Subject: Re: [syzbot] WARNING in mntput_no_expire (2)
+Message-ID: <20210401174613.vymhhrfsemypougv@wittgenstein>
+References: <0000000000003a565e05bee596f2@google.com>
+ <20210401154515.k24qdd2lzhtneu47@wittgenstein>
+ <90e7e339-eaec-adb2-cfed-6dc058a117a3@kernel.dk>
 MIME-Version: 1.0
-In-Reply-To: <1702c6145d7e1c46fbc382f28334c02e1a3d3994.1617267273.git.asml.silence@gmail.com>
 Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <90e7e339-eaec-adb2-cfed-6dc058a117a3@kernel.dk>
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 4/1/21 2:55 AM, Pavel Begunkov wrote:
-> task_pid may be large enough to not fit into the left space of
-> TASK_COMM_LEN-sized buffers and overflow in sprintf. We not so care
-> about uniqueness, so replace it with safer snprintf().
+On Thu, Apr 01, 2021 at 10:09:18AM -0600, Jens Axboe wrote:
+> On 4/1/21 9:45 AM, Christian Brauner wrote:
+> > On Thu, Apr 01, 2021 at 02:09:20AM -0700, syzbot wrote:
+> >> Hello,
+> >>
+> >> syzbot found the following issue on:
+> >>
+> >> HEAD commit:    d19cc4bf Merge tag 'trace-v5.12-rc5' of git://git.kernel.o..
+> >> git tree:       upstream
+> >> console output: https://syzkaller.appspot.com/x/log.txt?x=1018f281d00000
+> >> kernel config:  https://syzkaller.appspot.com/x/.config?x=d1a3d65a48dbd1bc
+> >> dashboard link: https://syzkaller.appspot.com/bug?extid=c88a7030da47945a3cc3
+> >> syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=12f50d11d00000
+> >> C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=137694a1d00000
+> >>
+> >> IMPORTANT: if you fix the issue, please add the following tag to the commit:
+> >> Reported-by: syzbot+c88a7030da47945a3cc3@syzkaller.appspotmail.com
+> >>
+> >> ------------[ cut here ]------------
+> >> WARNING: CPU: 1 PID: 8409 at fs/namespace.c:1186 mntput_no_expire+0xaca/0xcb0 fs/namespace.c:1186
+> >> Modules linked in:
+> >> CPU: 1 PID: 8409 Comm: syz-executor035 Not tainted 5.12.0-rc5-syzkaller #0
+> >> Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+> >> RIP: 0010:mntput_no_expire+0xaca/0xcb0 fs/namespace.c:1186
+> >> Code: ff 48 c7 c2 e0 cb 78 89 be c2 02 00 00 48 c7 c7 a0 cb 78 89 c6 05 e5 6d e5 0b 01 e8 ff e1 f6 06 e9 3f fd ff ff e8 c6 a5 a8 ff <0f> 0b e9 fc fc ff ff e8 ba a5 a8 ff e8 55 dc 94 ff 31 ff 89 c5 89
+> >> RSP: 0018:ffffc9000165fc78 EFLAGS: 00010293
+> >> RAX: 0000000000000000 RBX: 1ffff920002cbf95 RCX: 0000000000000000
+> >> RDX: ffff88802072d4c0 RSI: ffffffff81cb4b8a RDI: 0000000000000003
+> >> RBP: ffff888011656900 R08: 0000000000000000 R09: ffffffff8fa978af
+> >> R10: ffffffff81cb4884 R11: 0000000000000000 R12: 0000000000000008
+> >> R13: ffffc9000165fcc8 R14: dffffc0000000000 R15: 00000000ffffffff
+> >> FS:  0000000000000000(0000) GS:ffff8880b9d00000(0000) knlGS:0000000000000000
+> >> CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+> >> CR2: 000055a722053160 CR3: 000000000bc8e000 CR4: 00000000001506e0
+> >> DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+> >> DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+> >> Call Trace:
+> >>  mntput fs/namespace.c:1232 [inline]
+> >>  cleanup_mnt+0x523/0x530 fs/namespace.c:1132
+> >>  task_work_run+0xdd/0x1a0 kernel/task_work.c:140
+> >>  exit_task_work include/linux/task_work.h:30 [inline]
+> >>  do_exit+0xbfc/0x2a60 kernel/exit.c:825
+> >>  do_group_exit+0x125/0x310 kernel/exit.c:922
+> >>  __do_sys_exit_group kernel/exit.c:933 [inline]
+> >>  __se_sys_exit_group kernel/exit.c:931 [inline]
+> >>  __x64_sys_exit_group+0x3a/0x50 kernel/exit.c:931
+> >>  do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
+> >>  entry_SYSCALL_64_after_hwframe+0x44/0xae
+> >> RIP: 0033:0x446af9
+> >> Code: Unable to access opcode bytes at RIP 0x446acf.
+> >> RSP: 002b:00000000005dfe48 EFLAGS: 00000246 ORIG_RAX: 00000000000000e7
+> >> RAX: ffffffffffffffda RBX: 00000000004ce450 RCX: 0000000000446af9
+> >> RDX: 000000000000003c RSI: 00000000000000e7 RDI: 0000000000000001
+> >> RBP: 0000000000000001 R08: ffffffffffffffbc R09: 0000000000000000
+> >> R10: 0000000000000000 R11: 0000000000000246 R12: 00000000004ce450
+> >> R13: 0000000000000001 R14: 0000000000000000 R15: 0000000000000001
+> > 
+> > [+Cc Jens + io_uring]
+> > 
+> > Hm, this reproducer uses io_uring and it's the io_uring_enter() that
+> > triggers this reliably. With this reproducer I've managed to reproduce
+> > the issue on v5.12-rc4, and v5.12-rc3, v5.12-rc2 and v5.12-rc1.
+> > It's not reproducible at
+> > 9820b4dca0f9c6b7ab8b4307286cdace171b724d
+> > which is the commit immediately before the first v5.12 io_uring merge.
+> > It's first reproducible with the first io_uring merge for v5.12, i.e.
+> > 5bbb336ba75d95611a7b9456355b48705016bdb1
+> 
+> Thanks, that's good info. I'll take a look at it and see if I can
+> reproduce.
 
-Applied, thanks.
+Ok, I was deep into this anyway and it didn't make much sense to do
+anything else at that point so I bisected this a bit further. The first
+bad commit is:
 
--- 
-Jens Axboe
+commit 3a81fd02045c329f25e5900fa61f613c9b317644
+Author: Jens Axboe <axboe@kernel.dk>
+Date:   Thu Dec 10 12:25:36 2020 -0700
 
+    io_uring: enable LOOKUP_CACHED path resolution for filename lookups
+
+    Instead of being pessimistic and assume that path lookup will block, use
+    LOOKUP_CACHED to attempt just a cached lookup. This ensures that the
+    fast path is always done inline, and we only punt to async context if
+    IO is needed to satisfy the lookup.
+
+    For forced nonblock open attempts, mark the file O_NONBLOCK over the
+    actual ->open() call as well. We can safely clear this again before
+    doing fd_install(), so it'll never be user visible that we fiddled with
+    it.
+
+    This greatly improves the performance of file open where the dentry is
+    already cached:
+
+    ached           5.10-git        5.10-git+LOOKUP_CACHED  Speedup
+    ---------------------------------------------------------------
+    33%             1,014,975       900,474                 1.1x
+    89%              545,466        292,937                 1.9x
+    100%             435,636        151,475                 2.9x
+
+    The more cache hot we are, the faster the inline LOOKUP_CACHED
+    optimization helps. This is unsurprising and expected, as a thread
+    offload becomes a more dominant part of the total overhead. If we look
+    at io_uring tracing, doing an IORING_OP_OPENAT on a file that isn't in
+    the dentry cache will yield:
+
+    275.550481: io_uring_create: ring 00000000ddda6278, fd 3 sq size 8, cq size 16, flags 0
+    275.550491: io_uring_submit_sqe: ring 00000000ddda6278, op 18, data 0x0, non block 1, sq_thread 0
+    275.550498: io_uring_queue_async_work: ring 00000000ddda6278, request 00000000c0267d17, flags 69760, normal queue, work 000000003d683991
+    275.550502: io_uring_cqring_wait: ring 00000000ddda6278, min_events 1
+    275.550556: io_uring_complete: ring 00000000ddda6278, user_data 0x0, result 4
+
+    which shows a failed nonblock lookup, then punt to worker, and then we
+    complete with fd == 4. This takes 65 usec in total. Re-running the same
+    test case again:
+
+    281.253956: io_uring_create: ring 0000000008207252, fd 3 sq size 8, cq size 16, flags 0
+    281.253967: io_uring_submit_sqe: ring 0000000008207252, op 18, data 0x0, non block 1, sq_thread 0
+    281.253973: io_uring_complete: ring 0000000008207252, user_data 0x0, result 4
+
+    shows the same request completing inline, also returning fd == 4. This
+    takes 6 usec.
+
+    Signed-off-by: Jens Axboe <axboe@kernel.dk>

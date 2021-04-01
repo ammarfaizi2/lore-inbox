@@ -2,234 +2,189 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,
+X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
-	autolearn=ham autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 851C7C43460
-	for <io-uring@archiver.kernel.org>; Thu,  1 Apr 2021 18:02:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 109D0C43619
+	for <io-uring@archiver.kernel.org>; Thu,  1 Apr 2021 18:07:06 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 517C16112F
-	for <io-uring@archiver.kernel.org>; Thu,  1 Apr 2021 18:02:10 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DBB82610C7
+	for <io-uring@archiver.kernel.org>; Thu,  1 Apr 2021 18:07:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236077AbhDASCH (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Thu, 1 Apr 2021 14:02:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34048 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237315AbhDAR7x (ORCPT <rfc822;io-uring@vger.kernel.org>);
-        Thu, 1 Apr 2021 13:59:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4083661001;
-        Thu,  1 Apr 2021 17:59:22 +0000 (UTC)
-Date:   Thu, 1 Apr 2021 19:59:19 +0200
-From:   Christian Brauner <christian.brauner@ubuntu.com>
-To:     Jens Axboe <axboe@kernel.dk>, viro@zeniv.linux.org.uk
-Cc:     syzbot <syzbot+c88a7030da47945a3cc3@syzkaller.appspotmail.com>,
-        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-        syzkaller-bugs@googlegroups.com, io-uring@vger.kernel.org
-Subject: Re: [syzbot] WARNING in mntput_no_expire (2)
-Message-ID: <20210401175919.jpiylhfrlb4xb67u@wittgenstein>
-References: <0000000000003a565e05bee596f2@google.com>
- <20210401154515.k24qdd2lzhtneu47@wittgenstein>
- <90e7e339-eaec-adb2-cfed-6dc058a117a3@kernel.dk>
- <20210401174613.vymhhrfsemypougv@wittgenstein>
+        id S236321AbhDASHD (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Thu, 1 Apr 2021 14:07:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34002 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234948AbhDASBg (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Thu, 1 Apr 2021 14:01:36 -0400
+Received: from mail-wr1-x431.google.com (mail-wr1-x431.google.com [IPv6:2a00:1450:4864:20::431])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7211FC0045AD
+        for <io-uring@vger.kernel.org>; Thu,  1 Apr 2021 07:48:43 -0700 (PDT)
+Received: by mail-wr1-x431.google.com with SMTP id j7so2118037wrd.1
+        for <io-uring@vger.kernel.org>; Thu, 01 Apr 2021 07:48:43 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
+         :content-transfer-encoding;
+        bh=s22CuATe5GCgeX1rZ2yZpcLd6X6eiNLeecA60QJEAK8=;
+        b=cq/65Vw0deQVXsVMF109QEQiKVZ7QdUK65FN2tDW3F8kwm3gotIivUTI+Nz8J3XQnD
+         LlkWytSUcIFGLYsy4N+5zUwl566Sq2OR17u6POlRDgO+NaClaBs//wXxsgDnJoSlnuta
+         cMIlvfeaao+FKFGXaQOBuWtsCI1hdE2Bnn+NAj6k0MTt+D+7Y90EjpAQ2nvhVWFXs/tR
+         tCJG5EUw3HJ3MW63K/OaTmyNczVJ2HfsFIkXQnwk8OKB16YqbJzjU72W2TU9dTZtAqxU
+         HvFBkCV5QW5TqzNjCC7TrC2fKpeiXRI5RFW3uP5hu9/wx3YmIUS9Vm/WtzywMJdZ5+0W
+         qR4w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=s22CuATe5GCgeX1rZ2yZpcLd6X6eiNLeecA60QJEAK8=;
+        b=mB8l8tmZ0Ik2R/MbRRnKtcNkoZ4ze5wwoXccwbJ3IXLqkIXt9Nb4F0dtm3PT6iAbFq
+         t6+8YwNi9nfjVGNfFUR5xUnfMPkOXBm0o3/URhkF23flWny0YRpSyyFeYWIkm7MPbH0s
+         /h5dh5MfEW8rJ47asgujZvIe9hc5aN6qSw38vaaZA3ziPMT0hOh/xqF7UKZ4SfkHPaXB
+         JZ2gTpDmdCzugNtzmLSDTlX4aER12LVuXv9mEQSiaxU1qAn5Xm1NUntWgYijx7jnHTfm
+         cgMts4HBF7yujLctvLNzmHfx14/lMrbuzVr/xXGBFqEoudiPCl88t8myiJISiRLhLNFj
+         WL1A==
+X-Gm-Message-State: AOAM5316L0tMv0MTq8AhjrKAO21Z/82p6fjITZFhyKLRTNLjFWKr71Gh
+        7zTwu7K3o1J82r8tpxR6p0Y=
+X-Google-Smtp-Source: ABdhPJwlPoZaZJEwoRS6LNQQykoa3orHDc9i+4DyliSW0sNqW9kL2XHr+ZckMfoMzS7fW0i/WhV0xQ==
+X-Received: by 2002:a05:6000:1789:: with SMTP id e9mr10275445wrg.237.1617288522293;
+        Thu, 01 Apr 2021 07:48:42 -0700 (PDT)
+Received: from localhost.localdomain ([148.252.132.152])
+        by smtp.gmail.com with ESMTPSA id x13sm8183948wmp.39.2021.04.01.07.48.41
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 01 Apr 2021 07:48:41 -0700 (PDT)
+From:   Pavel Begunkov <asml.silence@gmail.com>
+To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
+Subject: [PATCH v4 25/26] io_uring: encapsulate fixed files into struct
+Date:   Thu,  1 Apr 2021 15:44:04 +0100
+Message-Id: <78669731a605a7614c577c3de552631cfaf0869a.1617287883.git.asml.silence@gmail.com>
+X-Mailer: git-send-email 2.24.0
+In-Reply-To: <cover.1617287883.git.asml.silence@gmail.com>
+References: <cover.1617287883.git.asml.silence@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20210401174613.vymhhrfsemypougv@wittgenstein>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On Thu, Apr 01, 2021 at 07:46:13PM +0200, Christian Brauner wrote:
-> On Thu, Apr 01, 2021 at 10:09:18AM -0600, Jens Axboe wrote:
-> > On 4/1/21 9:45 AM, Christian Brauner wrote:
-> > > On Thu, Apr 01, 2021 at 02:09:20AM -0700, syzbot wrote:
-> > >> Hello,
-> > >>
-> > >> syzbot found the following issue on:
-> > >>
-> > >> HEAD commit:    d19cc4bf Merge tag 'trace-v5.12-rc5' of git://git.kernel.o..
-> > >> git tree:       upstream
-> > >> console output: https://syzkaller.appspot.com/x/log.txt?x=1018f281d00000
-> > >> kernel config:  https://syzkaller.appspot.com/x/.config?x=d1a3d65a48dbd1bc
-> > >> dashboard link: https://syzkaller.appspot.com/bug?extid=c88a7030da47945a3cc3
-> > >> syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=12f50d11d00000
-> > >> C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=137694a1d00000
-> > >>
-> > >> IMPORTANT: if you fix the issue, please add the following tag to the commit:
-> > >> Reported-by: syzbot+c88a7030da47945a3cc3@syzkaller.appspotmail.com
-> > >>
-> > >> ------------[ cut here ]------------
-> > >> WARNING: CPU: 1 PID: 8409 at fs/namespace.c:1186 mntput_no_expire+0xaca/0xcb0 fs/namespace.c:1186
-> > >> Modules linked in:
-> > >> CPU: 1 PID: 8409 Comm: syz-executor035 Not tainted 5.12.0-rc5-syzkaller #0
-> > >> Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-> > >> RIP: 0010:mntput_no_expire+0xaca/0xcb0 fs/namespace.c:1186
-> > >> Code: ff 48 c7 c2 e0 cb 78 89 be c2 02 00 00 48 c7 c7 a0 cb 78 89 c6 05 e5 6d e5 0b 01 e8 ff e1 f6 06 e9 3f fd ff ff e8 c6 a5 a8 ff <0f> 0b e9 fc fc ff ff e8 ba a5 a8 ff e8 55 dc 94 ff 31 ff 89 c5 89
-> > >> RSP: 0018:ffffc9000165fc78 EFLAGS: 00010293
-> > >> RAX: 0000000000000000 RBX: 1ffff920002cbf95 RCX: 0000000000000000
-> > >> RDX: ffff88802072d4c0 RSI: ffffffff81cb4b8a RDI: 0000000000000003
-> > >> RBP: ffff888011656900 R08: 0000000000000000 R09: ffffffff8fa978af
-> > >> R10: ffffffff81cb4884 R11: 0000000000000000 R12: 0000000000000008
-> > >> R13: ffffc9000165fcc8 R14: dffffc0000000000 R15: 00000000ffffffff
-> > >> FS:  0000000000000000(0000) GS:ffff8880b9d00000(0000) knlGS:0000000000000000
-> > >> CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-> > >> CR2: 000055a722053160 CR3: 000000000bc8e000 CR4: 00000000001506e0
-> > >> DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-> > >> DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-> > >> Call Trace:
-> > >>  mntput fs/namespace.c:1232 [inline]
-> > >>  cleanup_mnt+0x523/0x530 fs/namespace.c:1132
-> > >>  task_work_run+0xdd/0x1a0 kernel/task_work.c:140
-> > >>  exit_task_work include/linux/task_work.h:30 [inline]
-> > >>  do_exit+0xbfc/0x2a60 kernel/exit.c:825
-> > >>  do_group_exit+0x125/0x310 kernel/exit.c:922
-> > >>  __do_sys_exit_group kernel/exit.c:933 [inline]
-> > >>  __se_sys_exit_group kernel/exit.c:931 [inline]
-> > >>  __x64_sys_exit_group+0x3a/0x50 kernel/exit.c:931
-> > >>  do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
-> > >>  entry_SYSCALL_64_after_hwframe+0x44/0xae
-> > >> RIP: 0033:0x446af9
-> > >> Code: Unable to access opcode bytes at RIP 0x446acf.
-> > >> RSP: 002b:00000000005dfe48 EFLAGS: 00000246 ORIG_RAX: 00000000000000e7
-> > >> RAX: ffffffffffffffda RBX: 00000000004ce450 RCX: 0000000000446af9
-> > >> RDX: 000000000000003c RSI: 00000000000000e7 RDI: 0000000000000001
-> > >> RBP: 0000000000000001 R08: ffffffffffffffbc R09: 0000000000000000
-> > >> R10: 0000000000000000 R11: 0000000000000246 R12: 00000000004ce450
-> > >> R13: 0000000000000001 R14: 0000000000000000 R15: 0000000000000001
-> > > 
-> > > [+Cc Jens + io_uring]
-> > > 
-> > > Hm, this reproducer uses io_uring and it's the io_uring_enter() that
-> > > triggers this reliably. With this reproducer I've managed to reproduce
-> > > the issue on v5.12-rc4, and v5.12-rc3, v5.12-rc2 and v5.12-rc1.
-> > > It's not reproducible at
-> > > 9820b4dca0f9c6b7ab8b4307286cdace171b724d
-> > > which is the commit immediately before the first v5.12 io_uring merge.
-> > > It's first reproducible with the first io_uring merge for v5.12, i.e.
-> > > 5bbb336ba75d95611a7b9456355b48705016bdb1
-> > 
-> > Thanks, that's good info. I'll take a look at it and see if I can
-> > reproduce.
-> 
-> Ok, I was deep into this anyway and it didn't make much sense to do
-> anything else at that point so I bisected this a bit further. The first
-> bad commit is:
-> 
-> commit 3a81fd02045c329f25e5900fa61f613c9b317644
-> Author: Jens Axboe <axboe@kernel.dk>
-> Date:   Thu Dec 10 12:25:36 2020 -0700
-> 
->     io_uring: enable LOOKUP_CACHED path resolution for filename lookups
-> 
->     Instead of being pessimistic and assume that path lookup will block, use
->     LOOKUP_CACHED to attempt just a cached lookup. This ensures that the
->     fast path is always done inline, and we only punt to async context if
->     IO is needed to satisfy the lookup.
-> 
->     For forced nonblock open attempts, mark the file O_NONBLOCK over the
->     actual ->open() call as well. We can safely clear this again before
->     doing fd_install(), so it'll never be user visible that we fiddled with
->     it.
-> 
->     This greatly improves the performance of file open where the dentry is
->     already cached:
-> 
->     ached           5.10-git        5.10-git+LOOKUP_CACHED  Speedup
->     ---------------------------------------------------------------
->     33%             1,014,975       900,474                 1.1x
->     89%              545,466        292,937                 1.9x
->     100%             435,636        151,475                 2.9x
-> 
->     The more cache hot we are, the faster the inline LOOKUP_CACHED
->     optimization helps. This is unsurprising and expected, as a thread
->     offload becomes a more dominant part of the total overhead. If we look
->     at io_uring tracing, doing an IORING_OP_OPENAT on a file that isn't in
->     the dentry cache will yield:
-> 
->     275.550481: io_uring_create: ring 00000000ddda6278, fd 3 sq size 8, cq size 16, flags 0
->     275.550491: io_uring_submit_sqe: ring 00000000ddda6278, op 18, data 0x0, non block 1, sq_thread 0
->     275.550498: io_uring_queue_async_work: ring 00000000ddda6278, request 00000000c0267d17, flags 69760, normal queue, work 000000003d683991
->     275.550502: io_uring_cqring_wait: ring 00000000ddda6278, min_events 1
->     275.550556: io_uring_complete: ring 00000000ddda6278, user_data 0x0, result 4
-> 
->     which shows a failed nonblock lookup, then punt to worker, and then we
->     complete with fd == 4. This takes 65 usec in total. Re-running the same
->     test case again:
-> 
->     281.253956: io_uring_create: ring 0000000008207252, fd 3 sq size 8, cq size 16, flags 0
->     281.253967: io_uring_submit_sqe: ring 0000000008207252, op 18, data 0x0, non block 1, sq_thread 0
->     281.253973: io_uring_complete: ring 0000000008207252, user_data 0x0, result 4
-> 
->     shows the same request completing inline, also returning fd == 4. This
->     takes 6 usec.
-> 
->     Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Add struct io_fixed_file representing a single registered file, first to
+hide ugly struct file **, which may be misleading, and secondly to
+retype it to unsigned long as conversions to it and back to file * for
+handling and masking FFS_* flags are getting nasty.
 
-I _think_ I see what the issue is. It seems that an assumption made in
-this commit might be wrong and we're missing a mnt_add_count() bump that
-we would otherwise have gotten if we've moved the failure handling into
-the unlazy helpers themselves.
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+---
+ fs/io_uring.c | 32 +++++++++++++++++++-------------
+ 1 file changed, 19 insertions(+), 13 deletions(-)
 
-Al, does that sound plausible?
-
-commit eacd9aa8cedeb412842c7b339adbaa0477fdd5ad
-Author: Al Viro <viro@zeniv.linux.org.uk>
-Date:   Mon Feb 15 12:03:23 2021 -0500
-
-    fix handling of nd->depth on LOOKUP_CACHED failures in try_to_unlazy*
-
-    After switching to non-RCU mode, we want nd->depth to match the number
-    of entries in nd->stack[] that need eventual path_put().
-    legitimize_links() takes care of that on failures; unfortunately,
-    failure exits added for LOOKUP_CACHED do not.
-
-    We could add the logics for that into those failure exits, both in
-    try_to_unlazy() and in try_to_unlazy_next(), but since both checks
-    are immediately followed by legitimize_links() and there's no calls
-    of legitimize_links() other than those two...  It's easier to
-    move the check (and required handling of nd->depth on failure) into
-    legitimize_links() itself.
-
-    [caught by Jens: ... and since we are zeroing ->depth here, we need
-    to do drop_links() first]
-
-    Fixes: 6c6ec2b0a3e0 "fs: add support for LOOKUP_CACHED"
-    Tested-by: Jens Axboe <axboe@kernel.dk>
-    Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
-
-diff --git a/fs/namei.c b/fs/namei.c
-index 4cae88733a5c..de74ad2bc6e2 100644
---- a/fs/namei.c
-+++ b/fs/namei.c
-@@ -630,6 +630,11 @@ static inline bool legitimize_path(struct nameidata *nd,
- static bool legitimize_links(struct nameidata *nd)
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index a9984ca025ba..c1d9fface7f4 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -207,6 +207,11 @@ struct io_overflow_cqe {
+ 	struct list_head list;
+ };
+ 
++struct io_fixed_file {
++	/* file * with additional FFS_* flags */
++	unsigned long file_ptr;
++};
++
+ struct io_rsrc_put {
+ 	struct list_head list;
+ 	union {
+@@ -216,7 +221,7 @@ struct io_rsrc_put {
+ };
+ 
+ struct fixed_rsrc_table {
+-	struct file		**files;
++	struct io_fixed_file *files;
+ };
+ 
+ struct io_rsrc_node {
+@@ -6255,8 +6260,8 @@ static void io_wq_submit_work(struct io_wq_work *work)
+ #endif
+ #define FFS_MASK		~(FFS_ASYNC_READ|FFS_ASYNC_WRITE|FFS_ISREG)
+ 
+-static inline struct file **io_fixed_file_slot(struct io_rsrc_data *file_data,
+-					       unsigned i)
++static inline struct io_fixed_file *io_fixed_file_slot(struct io_rsrc_data *file_data,
++						      unsigned i)
  {
-        int i;
-+       if (unlikely(nd->flags & LOOKUP_CACHED)) {
-+               drop_links(nd);
-+               nd->depth = 0;
-+               return false;
-+       }
-        for (i = 0; i < nd->depth; i++) {
-                struct saved *last = nd->stack + i;
-                if (unlikely(!legitimize_path(nd, &last->link, last->seq))) {
-@@ -686,8 +691,6 @@ static bool try_to_unlazy(struct nameidata *nd)
-        BUG_ON(!(nd->flags & LOOKUP_RCU));
+ 	struct fixed_rsrc_table *table;
+ 
+@@ -6267,12 +6272,12 @@ static inline struct file **io_fixed_file_slot(struct io_rsrc_data *file_data,
+ static inline struct file *io_file_from_index(struct io_ring_ctx *ctx,
+ 					      int index)
+ {
+-	struct file **file_slot = io_fixed_file_slot(ctx->file_data, index);
++	struct io_fixed_file *slot = io_fixed_file_slot(ctx->file_data, index);
+ 
+-	return (struct file *) ((unsigned long) *file_slot & FFS_MASK);
++	return (struct file *) (slot->file_ptr & FFS_MASK);
+ }
+ 
+-static void io_fixed_file_set(struct file **file_slot, struct file *file)
++static void io_fixed_file_set(struct io_fixed_file *file_slot, struct file *file)
+ {
+ 	unsigned long file_ptr = (unsigned long) file;
+ 
+@@ -6282,7 +6287,7 @@ static void io_fixed_file_set(struct file **file_slot, struct file *file)
+ 		file_ptr |= FFS_ASYNC_WRITE;
+ 	if (S_ISREG(file_inode(file)->i_mode))
+ 		file_ptr |= FFS_ISREG;
+-	*file_slot = (struct file *)file_ptr;
++	file_slot->file_ptr = file_ptr;
+ }
+ 
+ static struct file *io_file_get(struct io_submit_state *state,
+@@ -6297,7 +6302,7 @@ static struct file *io_file_get(struct io_submit_state *state,
+ 		if (unlikely((unsigned int)fd >= ctx->nr_user_files))
+ 			return NULL;
+ 		fd = array_index_nospec(fd, ctx->nr_user_files);
+-		file_ptr = (unsigned long) *io_fixed_file_slot(ctx->file_data, fd);
++		file_ptr = io_fixed_file_slot(ctx->file_data, fd)->file_ptr;
+ 		file = (struct file *) (file_ptr & FFS_MASK);
+ 		file_ptr &= ~FFS_MASK;
+ 		/* mask in overlapping REQ_F and FFS bits */
+@@ -7733,7 +7738,8 @@ static int __io_sqe_files_update(struct io_ring_ctx *ctx,
+ 				 unsigned nr_args)
+ {
+ 	struct io_rsrc_data *data = ctx->file_data;
+-	struct file *file, **file_slot;
++	struct io_fixed_file *file_slot;
++	struct file *file;
+ 	__s32 __user *fds;
+ 	int fd, i, err;
+ 	__u32 done;
+@@ -7760,12 +7766,12 @@ static int __io_sqe_files_update(struct io_ring_ctx *ctx,
+ 		i = array_index_nospec(up->offset + done, ctx->nr_user_files);
+ 		file_slot = io_fixed_file_slot(ctx->file_data, i);
+ 
+-		if (*file_slot) {
+-			file = (struct file *) ((unsigned long) *file_slot & FFS_MASK);
++		if (file_slot->file_ptr) {
++			file = (struct file *)(file_slot->file_ptr & FFS_MASK);
+ 			err = io_queue_rsrc_removal(data, ctx->rsrc_node, file);
+ 			if (err)
+ 				break;
+-			*file_slot = NULL;
++			file_slot->file_ptr = 0;
+ 			needs_switch = true;
+ 		}
+ 		if (fd != -1) {
+@@ -7790,7 +7796,7 @@ static int __io_sqe_files_update(struct io_ring_ctx *ctx,
+ 			io_fixed_file_set(file_slot, file);
+ 			err = io_sqe_file_register(ctx, file, i);
+ 			if (err) {
+-				*file_slot = NULL;
++				file_slot->file_ptr = 0;
+ 				fput(file);
+ 				break;
+ 			}
+-- 
+2.24.0
 
-        nd->flags &= ~LOOKUP_RCU;
--       if (nd->flags & LOOKUP_CACHED)
--               goto out1;
-        if (unlikely(!legitimize_links(nd)))
-                goto out1;
-        if (unlikely(!legitimize_path(nd, &nd->path, nd->seq)))
-@@ -724,8 +727,6 @@ static bool try_to_unlazy_next(struct nameidata *nd, struct dentry *dentry, unsi
-        BUG_ON(!(nd->flags & LOOKUP_RCU));
-
-        nd->flags &= ~LOOKUP_RCU;
--       if (nd->flags & LOOKUP_CACHED)
--               goto out2;
-        if (unlikely(!legitimize_links(nd)))
-                goto out2;
-        if (unlikely(!legitimize_mnt(nd->path.mnt, nd->m_seq)))

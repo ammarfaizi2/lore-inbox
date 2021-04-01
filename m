@@ -2,113 +2,107 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6B548C433ED
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CF27DC43470
 	for <io-uring@archiver.kernel.org>; Thu,  1 Apr 2021 18:19:02 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4D0386023C
+	by mail.kernel.org (Postfix) with ESMTP id A9A4F60FF1
 	for <io-uring@archiver.kernel.org>; Thu,  1 Apr 2021 18:19:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234606AbhDASTA (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Thu, 1 Apr 2021 14:19:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35768 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236803AbhDASLh (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Thu, 1 Apr 2021 14:11:37 -0400
-Received: from mail-wm1-x331.google.com (mail-wm1-x331.google.com [IPv6:2a00:1450:4864:20::331])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B6A3C0045F1
-        for <io-uring@vger.kernel.org>; Thu,  1 Apr 2021 07:48:16 -0700 (PDT)
-Received: by mail-wm1-x331.google.com with SMTP id k128so1176037wmk.4
-        for <io-uring@vger.kernel.org>; Thu, 01 Apr 2021 07:48:16 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=4ZbW0C79n1HBmope1KTocXF9fxmetWyzGvzNfB0znqY=;
-        b=iPKiwSm+YHTsV/c7rcb1fqhr9uvumBBbXpsiGVtM8T7QtU0y/Z1ewdZT6Dg/76wfxt
-         Fs9BituvxouSPOCkI29dTP+MZv9OIsmaLgQIAr1Hg/E+csT+ZZJDuGMggV8cJVksTF53
-         8zPjkECdRZZ3FVbxFkhWE/QHPZLSCy8ydITgy4cl1Rf8SO08otKOhNGAIpsLbWBK45HL
-         nPlRsnGODEUzU5zE30TE/BwXEPTSrjCtK75L1WkZX2L98qmPZ/u970zVuPZSnL2WwET7
-         yrVH1nbD8FkV7ngGG5Gc2L92tWdAvp0FP+8bYew9dm5XPZizfb8Rd1BcLXk79/X8vQnI
-         niZQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=4ZbW0C79n1HBmope1KTocXF9fxmetWyzGvzNfB0znqY=;
-        b=dmdw5oUoYvVtC5Cp4NZebVkUnKO0baKNUz4781GXSpZSIiLVeN2dJJW25B7CS2C7B4
-         lWDYfKxNiQxE7Nu8Ei4VjXdpLV7eYJhbm/EOE0uvDMwQ4BwVVuWE2v2eQr0BGWyr3WDl
-         7PF2qwL1uaz5LKyemRHMw2utiSx2NKaf6NV+681Nm/5K5P9ZlLtMtiU8HsqSXtQS2Inf
-         uhyhivaCFLYoDkWgHZ6orogxExsgOWfr/EFrBp7Qh88xzaPjcqTMvSL2zKUeKnJQK3dv
-         CFr613Ic9d9VtcwuTtG88oVvkiA9qCCuNEnLcezG1Tdu3S4eptV7phA6XRjA/yuTZ2RE
-         neKw==
-X-Gm-Message-State: AOAM533hdlUMmJ1F+t3hsu2yx5nxSrZoFP27pEAbs9OqVN7HPLtDUW0k
-        Hrqq5c9DaRckMWQQ4o9lSgQ=
-X-Google-Smtp-Source: ABdhPJyAEv4mIJy9W5YgoEtfad/BKcrbboVz4mL9fVW0ZUZfP9iQBF3XQRtS2LRHSAc+WJ+iIoL1Cg==
-X-Received: by 2002:a7b:c1c9:: with SMTP id a9mr8245437wmj.145.1617288495163;
-        Thu, 01 Apr 2021 07:48:15 -0700 (PDT)
-Received: from localhost.localdomain ([148.252.132.152])
-        by smtp.gmail.com with ESMTPSA id x13sm8183948wmp.39.2021.04.01.07.48.14
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 01 Apr 2021 07:48:14 -0700 (PDT)
-From:   Pavel Begunkov <asml.silence@gmail.com>
-To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH v4 00/26] ctx wide rsrc nodes +
-Date:   Thu,  1 Apr 2021 15:43:39 +0100
-Message-Id: <cover.1617287883.git.asml.silence@gmail.com>
-X-Mailer: git-send-email 2.24.0
+        id S237209AbhDASTB (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Thu, 1 Apr 2021 14:19:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46022 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S239646AbhDASQo (ORCPT <rfc822;io-uring@vger.kernel.org>);
+        Thu, 1 Apr 2021 14:16:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 534F5610E6;
+        Thu,  1 Apr 2021 15:45:18 +0000 (UTC)
+Date:   Thu, 1 Apr 2021 17:45:15 +0200
+From:   Christian Brauner <christian.brauner@ubuntu.com>
+To:     syzbot <syzbot+c88a7030da47945a3cc3@syzkaller.appspotmail.com>,
+        axboe@kernel.dk
+Cc:     linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        syzkaller-bugs@googlegroups.com, viro@zeniv.linux.org.uk,
+        io-uring@vger.kernel.org
+Subject: Re: [syzbot] WARNING in mntput_no_expire (2)
+Message-ID: <20210401154515.k24qdd2lzhtneu47@wittgenstein>
+References: <0000000000003a565e05bee596f2@google.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <0000000000003a565e05bee596f2@google.com>
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-1-7 implement ctx wide rsrc nodes. The main idea here is to make make
-rsrc nodes (aka ref nodes) to be per ctx rather than per rsrc_data, that
-is a requirement for having multiple resource types. All the meat to it
-in 7/7. Btw improve rsrc API, because it was too easy to misuse.
+On Thu, Apr 01, 2021 at 02:09:20AM -0700, syzbot wrote:
+> Hello,
+> 
+> syzbot found the following issue on:
+> 
+> HEAD commit:    d19cc4bf Merge tag 'trace-v5.12-rc5' of git://git.kernel.o..
+> git tree:       upstream
+> console output: https://syzkaller.appspot.com/x/log.txt?x=1018f281d00000
+> kernel config:  https://syzkaller.appspot.com/x/.config?x=d1a3d65a48dbd1bc
+> dashboard link: https://syzkaller.appspot.com/bug?extid=c88a7030da47945a3cc3
+> syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=12f50d11d00000
+> C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=137694a1d00000
+> 
+> IMPORTANT: if you fix the issue, please add the following tag to the commit:
+> Reported-by: syzbot+c88a7030da47945a3cc3@syzkaller.appspotmail.com
+> 
+> ------------[ cut here ]------------
+> WARNING: CPU: 1 PID: 8409 at fs/namespace.c:1186 mntput_no_expire+0xaca/0xcb0 fs/namespace.c:1186
+> Modules linked in:
+> CPU: 1 PID: 8409 Comm: syz-executor035 Not tainted 5.12.0-rc5-syzkaller #0
+> Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+> RIP: 0010:mntput_no_expire+0xaca/0xcb0 fs/namespace.c:1186
+> Code: ff 48 c7 c2 e0 cb 78 89 be c2 02 00 00 48 c7 c7 a0 cb 78 89 c6 05 e5 6d e5 0b 01 e8 ff e1 f6 06 e9 3f fd ff ff e8 c6 a5 a8 ff <0f> 0b e9 fc fc ff ff e8 ba a5 a8 ff e8 55 dc 94 ff 31 ff 89 c5 89
+> RSP: 0018:ffffc9000165fc78 EFLAGS: 00010293
+> RAX: 0000000000000000 RBX: 1ffff920002cbf95 RCX: 0000000000000000
+> RDX: ffff88802072d4c0 RSI: ffffffff81cb4b8a RDI: 0000000000000003
+> RBP: ffff888011656900 R08: 0000000000000000 R09: ffffffff8fa978af
+> R10: ffffffff81cb4884 R11: 0000000000000000 R12: 0000000000000008
+> R13: ffffc9000165fcc8 R14: dffffc0000000000 R15: 00000000ffffffff
+> FS:  0000000000000000(0000) GS:ffff8880b9d00000(0000) knlGS:0000000000000000
+> CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+> CR2: 000055a722053160 CR3: 000000000bc8e000 CR4: 00000000001506e0
+> DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+> DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+> Call Trace:
+>  mntput fs/namespace.c:1232 [inline]
+>  cleanup_mnt+0x523/0x530 fs/namespace.c:1132
+>  task_work_run+0xdd/0x1a0 kernel/task_work.c:140
+>  exit_task_work include/linux/task_work.h:30 [inline]
+>  do_exit+0xbfc/0x2a60 kernel/exit.c:825
+>  do_group_exit+0x125/0x310 kernel/exit.c:922
+>  __do_sys_exit_group kernel/exit.c:933 [inline]
+>  __se_sys_exit_group kernel/exit.c:931 [inline]
+>  __x64_sys_exit_group+0x3a/0x50 kernel/exit.c:931
+>  do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
+>  entry_SYSCALL_64_after_hwframe+0x44/0xae
+> RIP: 0033:0x446af9
+> Code: Unable to access opcode bytes at RIP 0x446acf.
+> RSP: 002b:00000000005dfe48 EFLAGS: 00000246 ORIG_RAX: 00000000000000e7
+> RAX: ffffffffffffffda RBX: 00000000004ce450 RCX: 0000000000446af9
+> RDX: 000000000000003c RSI: 00000000000000e7 RDI: 0000000000000001
+> RBP: 0000000000000001 R08: ffffffffffffffbc R09: 0000000000000000
+> R10: 0000000000000000 R11: 0000000000000246 R12: 00000000004ce450
+> R13: 0000000000000001 R14: 0000000000000000 R15: 0000000000000001
 
-Others are further cleanups
+[+Cc Jens + io_uring]
 
-v2: io_rsrc_node_destroy() last rsrc_node on ctx_free()
-v3: the series is growing
-v4: keep growing...
+Hm, this reproducer uses io_uring and it's the io_uring_enter() that
+triggers this reliably. With this reproducer I've managed to reproduce
+the issue on v5.12-rc4, and v5.12-rc3, v5.12-rc2 and v5.12-rc1.
+It's not reproducible at
+9820b4dca0f9c6b7ab8b4307286cdace171b724d
+which is the commit immediately before the first v5.12 io_uring merge.
+It's first reproducible with the first io_uring merge for v5.12, i.e.
+5bbb336ba75d95611a7b9456355b48705016bdb1
 
-Pavel Begunkov (26):
-  io_uring: name rsrc bits consistently
-  io_uring: simplify io_rsrc_node_ref_zero
-  io_uring: use rsrc prealloc infra for files reg
-  io_uring: encapsulate rsrc node manipulations
-  io_uring: move rsrc_put callback into io_rsrc_data
-  io_uring: refactor io_queue_rsrc_removal()
-  io_uring: ctx-wide rsrc nodes
-  io_uring: reuse io_rsrc_node_destroy()
-  io_uring: remove useless is_dying check on quiesce
-  io_uring: refactor rw reissue
-  io_uring: combine lock/unlock sections on exit
-  io_uring: better ref handling in poll_remove_one
-  io_uring: remove unused hash_wait
-  io_uring: refactor io_async_cancel()
-  io_uring: improve import_fixed overflow checks
-  io_uring: store reg buffer end instead of length
-  io_uring: kill unused forward decls
-  io_uring: lock annotate timeouts and poll
-  io_uring: simplify overflow handling
-  io_uring: put link timeout req consistently
-  io_uring: deduplicate NOSIGNAL setting
-  io_uring: set proper FFS* flags on reg file update
-  io_uring: don't quiesce intial files register
-  io_uring: refactor file tables alloc/free
-  io_uring: encapsulate fixed files into struct
-  io_uring: kill outdated comment about splice punt
-
- fs/io_uring.c | 504 ++++++++++++++++++++++----------------------------
- 1 file changed, 222 insertions(+), 282 deletions(-)
-
--- 
-2.24.0
-
+Christian

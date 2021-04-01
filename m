@@ -2,141 +2,113 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+X-Spam-Status: No, score=-7.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0E4CDC43461
-	for <io-uring@archiver.kernel.org>; Thu,  1 Apr 2021 18:11:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 62AD3C433ED
+	for <io-uring@archiver.kernel.org>; Thu,  1 Apr 2021 18:19:00 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id DD4536112E
-	for <io-uring@archiver.kernel.org>; Thu,  1 Apr 2021 18:11:50 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 43DE660240
+	for <io-uring@archiver.kernel.org>; Thu,  1 Apr 2021 18:19:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235304AbhDASLq (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Thu, 1 Apr 2021 14:11:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35812 "EHLO
+        id S235590AbhDASS4 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Thu, 1 Apr 2021 14:18:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35608 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236750AbhDASHh (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Thu, 1 Apr 2021 14:07:37 -0400
-Received: from mail-wm1-x32d.google.com (mail-wm1-x32d.google.com [IPv6:2a00:1450:4864:20::32d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6481C00458F
-        for <io-uring@vger.kernel.org>; Thu,  1 Apr 2021 07:48:40 -0700 (PDT)
-Received: by mail-wm1-x32d.google.com with SMTP id b2-20020a7bc2420000b029010be1081172so1051421wmj.1
-        for <io-uring@vger.kernel.org>; Thu, 01 Apr 2021 07:48:40 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
-         :content-transfer-encoding;
-        bh=2LjyfYXzXA1la/QDFN+3KlX8lUV8vmHzNnU55kjgdmU=;
-        b=pHADcGhikEhOG8SE5H/H+fnQQ0Z3bZ2SPyaYeS7It+k8O+pBO3XdIuNVNH0wTSHfkw
-         gs8UQ1xesQ4ZBdD4WO+wWELwT1JajAAdjrz+k3qXR3/38Zov9GmR2ScgvYK8YB9aDhXG
-         Lf4KELz7Jvtnubgs15YDOLsoPyaxOqmkYGjNOpyTU8DKB9iH7PjypPC9dtNRq/GyKAFj
-         iAQ2oZuoxU8iZuf6yuaU3ae+BjilZGgXEwD4Kb2oCP4yUysHrN4kD+LQ46i78t6Nh3oX
-         CT/KdohCnXgBA7qhfjpbc+BMxE3l2h6l6GNiLWbOkpZBRnE/DzntC9EDMNj/wTTINJt/
-         mFSg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=2LjyfYXzXA1la/QDFN+3KlX8lUV8vmHzNnU55kjgdmU=;
-        b=ob7OeyHm0dhneA9FloITzHgAuG9E9hZ4zrxQONdyeQg6ZhMtOITKqXlMIMCX5CEH2F
-         RevPAKp6J9cG906+fEW07qr7qAP/3I2ewLNvuYwNjKncOzCCNcVCFE/3tetJ9jCigVM5
-         flCKXpufNifXwYbiLDL4QNrlaRnnRbZraq3sGILrBNbYSozIDzr9Yva4z1PncLC9D8hG
-         qy4DpcteXUqBcapZUA5CCpbcrcqblq9NQ/t2IirqCyx+BMJkuBDNxOSHMqXwKFjXX05m
-         68B6yMrrRd6/TrbkTAYg4UOLBuHjrhzLxYMrmshwv5dtsqxv8JKMDKbOIDOd/cv6v+EQ
-         ADGA==
-X-Gm-Message-State: AOAM532FSOH/7mU4SBmQ2pOf6GXcxZX9JnbGX5Du/cYt7XRqRp88H000
-        h49Xz4vuPKAD9wOIcSSPSnF0ZrAEwcsKqw==
-X-Google-Smtp-Source: ABdhPJwDjgJJSnjYnUt5yJ4TUoh1gl7tpmsrxX/qRxMvIZZIhvKgkcMmHg8a1yHGD0bk7NpNtdg2tw==
-X-Received: by 2002:a1c:f701:: with SMTP id v1mr8446693wmh.69.1617288519509;
-        Thu, 01 Apr 2021 07:48:39 -0700 (PDT)
-Received: from localhost.localdomain ([148.252.132.152])
-        by smtp.gmail.com with ESMTPSA id x13sm8183948wmp.39.2021.04.01.07.48.38
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 01 Apr 2021 07:48:39 -0700 (PDT)
-From:   Pavel Begunkov <asml.silence@gmail.com>
-To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH v4 22/26] io_uring: set proper FFS* flags on reg file update
-Date:   Thu,  1 Apr 2021 15:44:01 +0100
-Message-Id: <df29a841a2d3d3695b509cdffce5070777d9d942.1617287883.git.asml.silence@gmail.com>
-X-Mailer: git-send-email 2.24.0
-In-Reply-To: <cover.1617287883.git.asml.silence@gmail.com>
-References: <cover.1617287883.git.asml.silence@gmail.com>
+        with ESMTP id S234637AbhDASKo (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Thu, 1 Apr 2021 14:10:44 -0400
+Received: from hr2.samba.org (hr2.samba.org [IPv6:2a01:4f8:192:486::2:0])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5DC4AC0045E5;
+        Thu,  1 Apr 2021 07:40:43 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=samba.org;
+         s=42; h=Date:Message-ID:Cc:To:From;
+        bh=JAhe/kVm5RlUfIXG3d28OFe9fHKwCAi5mQmsyoLxPQk=; b=prNxZCHuW5yBFgVGyBtP7FZl4l
+        /i+wo8cszkl1eQcXFS8t1iFq4e/yeYB0FlNrahfI0TurKnHnUchJL7hg9wfdtbG6FuepdJeXMM7D6
+        P+wGzfeHC+x02J86iR2X3CZBW20tKeXm9iqnz03yHppaXw9M4b0B40DEBpKzih3T9t0/vhHUSyriJ
+        J1Z3ldi794ZY0fVOq7Ng8XOHjDMt5HMO9stJ+lOVy45okLBR8wKNvfwYUThF79KJXONxnY+Vo3043
+        8TZseI1m+LKS/aTRjoe2rb7XSBwNWoSlRGDY0ihz4ZmezR6TCc/zhytUWr5xllkNYYpfM4cLJY7lc
+        qgFr6ikJu8UVp5biNZFOBrKk0AOIqjfFmaCNNJfaxyxWdBxl2u17aC4R+SNJZy0Fa+cj6XflOa9TD
+        VcBuXp1MBLleFc5ECSAjGyDf9GYRo1vX2K1GOMY9/JhWv5LcwRQRiotrnkItYwD1mo+5T1a1Az12v
+        nVd/7Zyy58F1QHU3RckVGznJ;
+Received: from [127.0.0.2] (localhost [127.0.0.1])
+        by hr2.samba.org with esmtpsa (TLS1.3:ECDHE_RSA_CHACHA20_POLY1305:256)
+        (Exim)
+        id 1lRyUy-0007Kf-A6; Thu, 01 Apr 2021 14:40:40 +0000
+From:   Stefan Metzmacher <metze@samba.org>
+To:     Jens Axboe <axboe@kernel.dk>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        "Eric W. Biederman" <ebiederm@xmission.com>
+Cc:     io-uring <io-uring@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Oleg Nesterov <oleg@redhat.com>
+References: <20210325164343.807498-1-axboe@kernel.dk>
+ <m1ft0j3u5k.fsf@fess.ebiederm.org>
+ <CAHk-=wjOXiEAjGLbn2mWRsxqpAYUPcwCj2x5WgEAh=gj+o0t4Q@mail.gmail.com>
+ <CAHk-=wg1XpX=iAv=1HCUReMbEgeN5UogZ4_tbi+ehaHZG6d==g@mail.gmail.com>
+ <CAHk-=wgUcVeaKhtBgJO3TfE69miJq-krtL8r_Wf_=LBTJw6WSg@mail.gmail.com>
+ <ad21da2b-01ea-e77c-70b2-0401059e322b@kernel.dk>
+ <f9bc0bac-2ad9-827e-7360-099e1e310df5@kernel.dk>
+ <5563d244-52c0-dafb-5839-e84990340765@samba.org>
+ <6a2c4fe3-a019-2744-2e17-34b6325967d7@kernel.dk>
+ <04b006fd-f3fa-bd92-9ab6-4e2341315cc2@samba.org>
+Subject: Re: [PATCH 0/2] Don't show PF_IO_WORKER in /proc/<pid>/task/
+Message-ID: <a6a3961b-19a9-2476-effa-33bee33dd57b@samba.org>
+Date:   Thu, 1 Apr 2021 16:40:31 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.7.1
 MIME-Version: 1.0
+In-Reply-To: <04b006fd-f3fa-bd92-9ab6-4e2341315cc2@samba.org>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Set FFS_* flags (e.g. FFS_ASYNC_READ) not only in initial registration
-but also on registered files update. Not a bug, but may miss getting
-profit out of the feature.
+Hi Jens,
 
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
----
- fs/io_uring.c | 26 +++++++++++++++-----------
- 1 file changed, 15 insertions(+), 11 deletions(-)
+>> I know you brought this one up as part of your series, not sure I get
+>> why you want it owned by root and read-only? cmdline and exe, yeah those
+>> could be hidden, but is there really any point?
+>>
+>> Maybe I'm missing something here, if so, do clue me in!
+> 
+> I looked through /proc and I think it's mostly similar to
+> the unshare() case, if userspace wants to do stupid things
+> like changing "comm" of iothreads, it gets what was asked for.
+> 
+> But the "cmdline" hiding would be very useful.
+> 
+> While most tools use "comm", by default.
+> 
+> ps -eLf or 'iotop' use "cmdline".
+> 
+> Some processes use setproctitle to change "cmdline" in order
+> to identify the process better, without the 15 chars comm restriction,
+> that's why I very often press 'c' in 'top' to see the cmdline,
+> in that case it would be very helpful to see '[iou-wrk-1234]'
+> instead of the seeing the cmdline.
+> 
+> So I'd very much prefer if this could be applied:
+> https://lore.kernel.org/io-uring/d4487f959c778d0b1d4c5738b75bcff17d21df5b.1616197787.git.metze@samba.org/T/#u
+> 
+> If you want I can add a comment and a more verbose commit message...
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 421e9d7d02fd..c5dd00babf59 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -6272,6 +6272,19 @@ static inline struct file *io_file_from_index(struct io_ring_ctx *ctx,
- 	return (struct file *) ((unsigned long) *file_slot & FFS_MASK);
- }
- 
-+static void io_fixed_file_set(struct file **file_slot, struct file *file)
-+{
-+	unsigned long file_ptr = (unsigned long) file;
-+
-+	if (__io_file_supports_async(file, READ))
-+		file_ptr |= FFS_ASYNC_READ;
-+	if (__io_file_supports_async(file, WRITE))
-+		file_ptr |= FFS_ASYNC_WRITE;
-+	if (S_ISREG(file_inode(file)->i_mode))
-+		file_ptr |= FFS_ISREG;
-+	*file_slot = (struct file *)file_ptr;
-+}
-+
- static struct file *io_file_get(struct io_submit_state *state,
- 				struct io_kiocb *req, int fd, bool fixed)
- {
-@@ -7608,8 +7621,6 @@ static int io_sqe_files_register(struct io_ring_ctx *ctx, void __user *arg,
- 		goto out_free;
- 
- 	for (i = 0; i < nr_args; i++, ctx->nr_user_files++) {
--		unsigned long file_ptr;
--
- 		if (copy_from_user(&fd, &fds[i], sizeof(fd))) {
- 			ret = -EFAULT;
- 			goto out_fput;
-@@ -7634,14 +7645,7 @@ static int io_sqe_files_register(struct io_ring_ctx *ctx, void __user *arg,
- 			fput(file);
- 			goto out_fput;
- 		}
--		file_ptr = (unsigned long) file;
--		if (__io_file_supports_async(file, READ))
--			file_ptr |= FFS_ASYNC_READ;
--		if (__io_file_supports_async(file, WRITE))
--			file_ptr |= FFS_ASYNC_WRITE;
--		if (S_ISREG(file_inode(file)->i_mode))
--			file_ptr |= FFS_ISREG;
--		*io_fixed_file_slot(file_data, i) = (struct file *) file_ptr;
-+		io_fixed_file_set(io_fixed_file_slot(file_data, i), file);
- 	}
- 
- 	ret = io_sqe_files_scm(ctx);
-@@ -7783,7 +7787,7 @@ static int __io_sqe_files_update(struct io_ring_ctx *ctx,
- 				err = -EBADF;
- 				break;
- 			}
--			*file_slot = file;
-+			io_fixed_file_set(file_slot, file);
- 			err = io_sqe_file_register(ctx, file, i);
- 			if (err) {
- 				*file_slot = NULL;
--- 
-2.24.0
+I noticed that 'iotop' actually appends ' [iou-wrk-1234]' to the cmdline value,
+so that leaves us with 'ps -eLf' and 'top' (with 'c').
 
+pstree -a -t -p is also fine:
+      │   └─io_uring-cp,1315 /root/kernel/linux-image-5.12.0-rc2+-dbg_5.12.0-rc2+-5_amd64.deb file
+      │       ├─{iou-mgr-1315},1316
+      │       ├─{iou-wrk-1315},1317
+      │       ├─{iou-wrk-1315},1318
+      │       ├─{iou-wrk-1315},1319
+      │       ├─{iou-wrk-1315},1320
+
+
+In the spirit of "avoid special PF_IO_WORKER checks" I guess it's ok
+to leave of as is...
+
+metze

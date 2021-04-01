@@ -8,59 +8,59 @@ X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D2848C43603
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EF7C1C43616
 	for <io-uring@archiver.kernel.org>; Thu,  1 Apr 2021 17:45:51 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8B046613CF
+	by mail.kernel.org (Postfix) with ESMTP id B50F96138D
 	for <io-uring@archiver.kernel.org>; Thu,  1 Apr 2021 17:45:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234290AbhDARoD (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Thu, 1 Apr 2021 13:44:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57168 "EHLO
+        id S234925AbhDARoF (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Thu, 1 Apr 2021 13:44:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57160 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234563AbhDARiC (ORCPT
+        with ESMTP id S234562AbhDARiC (ORCPT
         <rfc822;io-uring@vger.kernel.org>); Thu, 1 Apr 2021 13:38:02 -0400
-Received: from mail-wr1-x429.google.com (mail-wr1-x429.google.com [IPv6:2a00:1450:4864:20::429])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8EDD8C004593
-        for <io-uring@vger.kernel.org>; Thu,  1 Apr 2021 07:48:41 -0700 (PDT)
-Received: by mail-wr1-x429.google.com with SMTP id o16so2130908wrn.0
-        for <io-uring@vger.kernel.org>; Thu, 01 Apr 2021 07:48:41 -0700 (PDT)
+Received: from mail-wm1-x330.google.com (mail-wm1-x330.google.com [IPv6:2a00:1450:4864:20::330])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E781C0045F7
+        for <io-uring@vger.kernel.org>; Thu,  1 Apr 2021 07:48:23 -0700 (PDT)
+Received: by mail-wm1-x330.google.com with SMTP id a132-20020a1c668a0000b029010f141fe7c2so3022848wmc.0
+        for <io-uring@vger.kernel.org>; Thu, 01 Apr 2021 07:48:23 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=751Gqch0rT59Zvg6aVoR1Vgc/ywvQ75X0+XYDNYxxRI=;
-        b=vHqdCJH/jAkInnTbMEGNEZZTbT+kaq8ut4d6Pwh2RkU4EPzoKkunfRRSbXbUaaq4B0
-         o9snBOERCaSKzexNm+MH7rLt/upd073FNGxclGRc/mPhYcFcBscPKXinpvZiydsoP/Qx
-         2PDidcf8LY34rEfflGgwT7aChed2jKBpXUfLFzwHhdIMRGgLr1Ka0r9rJxPwF23lhaVY
-         kFOXPJlgxqU37LWGh2C4dav0v6tsSrgM+9IWY0WnXKX8nZAJiQDaMedu0zRnsKIbkuKZ
-         U4l/9g9FZhxoWmbW/X/qkv2MRHqkuhW2Slnm3TZF7Aqam3NaqcdduRF7U1WqD55EQDNp
-         MPYA==
+        bh=7JVxNs4jmV2401yDe5x3o9vCuQ9nG239eaawJDoTaAg=;
+        b=H7ddL2qkOoQcvuCyCk0lGiSNoo/ONmjCJ6cbHm/LfaGfK99iPCVnx56hFIPzsFQ/GQ
+         UZePlF4ae8W56pQi+FlaN4J9bHoYCioFFukWw+PWn/EmxMNLZCsUCqD+nQFz1FC2We3J
+         1G2pj44I5W5Dwq82LYsUD6PqhPN8MBRHokqYMbSMafSiaWkIqXcNXD3QcUBidpwSFqAt
+         nRn/S1joPhu7r90oGy2Cu5hebQB+dUTk7QFO9w5ki1d6Hr5nCgffgvk4b3vQcldqo7al
+         FLdACOCgIRPYtIGCCtGfx3N0X9KgxlH/Do9aNWPptCPQg/RAkK297gIw8s+Tc6oR9F2s
+         UufQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=751Gqch0rT59Zvg6aVoR1Vgc/ywvQ75X0+XYDNYxxRI=;
-        b=e4XivhWQedIXSjAg6MxVZnWCQsy/yrfUOZunZHzHOk9qV6s+5Ugl87lv1COSots5Hw
-         vmgd+b5F7Ws4xe5NXN3/jtdQM0TvypB9rWH2OykLbFrj1Aoz4IuZFlqnQV+i5J2etYMz
-         VoZ4uR8/L5b8FZcGAUnMqdldeKdlviVRjd4M3T/BNq59zfVK/UOFf4A+e3uCfVZwWge2
-         xg7LPlxlWSo03Ns9gIHJVHGfTtalV/549Q8iBFan3PYA9VW7wpRrhX3vZu1Jb28DNrzx
-         ZZFKgY5l1joO/4+0PWOJ7ka6nge/EKj/mqXhRS2FpzgXLSxfsBF1n8dqO8YaNgTeR86M
-         2cSg==
-X-Gm-Message-State: AOAM533NnWaw9oiFze5y7SRtm9oAtHiGlcIgW2GoBNWvWipzCPeNWv+P
-        v5UL0ctF9DONcHXIZNApicY=
-X-Google-Smtp-Source: ABdhPJyTC/Kbc0TmdhtdafwnqVOzkuzr8Jh5XzAPpnPJTBTGPkY0bcK+qCk11bvUssr6U1Xa+nubBQ==
-X-Received: by 2002:a5d:6b84:: with SMTP id n4mr10150603wrx.258.1617288520424;
-        Thu, 01 Apr 2021 07:48:40 -0700 (PDT)
+        bh=7JVxNs4jmV2401yDe5x3o9vCuQ9nG239eaawJDoTaAg=;
+        b=f+7/qVa9kOvk9LzaTjvnKU7f0e25YT9WYNgUaa7lN6AaWIX2A2i2drBrRqCbWOIVQE
+         kZeVaTO0aziQhAUIF8dKUBRA+ct/SJVUkgxY3MEQv7SkhTAf3sMFMqsMBQ2UwxCgcFEb
+         bFr3DNjn8QyLECpdzfWAcwqnRVYY3eRNn0Mid9Qwssh5PtiGjdWW39IV7s5+G5GYIr+8
+         W0qjrS/UY236p5GbnacXzA6a7y2gh1q3m3qz/p1DUbkMSwic8uP6wrk0B0nIOpeTO0NH
+         rMbBUysA0JNGMSRYMCW43Oe8lc6dDNXNCZGNYans5rsuC1phJ0I8iqp8A+e+I3sI5bZj
+         +Saw==
+X-Gm-Message-State: AOAM531Jmno/se2qm88ZBUzebVxrGkMDDiMDxuKMLcHu+KbQKpxg2MIm
+        YoE8jrpPJsvYu6ABLABYxGhH6hJ0PZwrLQ==
+X-Google-Smtp-Source: ABdhPJw9c55tx5CnvYblTK2Mgrj2ceGjjqOSpjGXyerO0LOTxvxInQ4ee+0DpeGVtzYawrcJEp++wA==
+X-Received: by 2002:a05:600c:2282:: with SMTP id 2mr8385884wmf.93.1617288502401;
+        Thu, 01 Apr 2021 07:48:22 -0700 (PDT)
 Received: from localhost.localdomain ([148.252.132.152])
-        by smtp.gmail.com with ESMTPSA id x13sm8183948wmp.39.2021.04.01.07.48.39
+        by smtp.gmail.com with ESMTPSA id x13sm8183948wmp.39.2021.04.01.07.48.21
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 01 Apr 2021 07:48:40 -0700 (PDT)
+        Thu, 01 Apr 2021 07:48:21 -0700 (PDT)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH v4 23/26] io_uring: don't quiesce intial files register
-Date:   Thu,  1 Apr 2021 15:44:02 +0100
-Message-Id: <563bb8060bb2d3efbc32fce6101678281c574d2a.1617287883.git.asml.silence@gmail.com>
+Subject: [PATCH v4 06/26] io_uring: refactor io_queue_rsrc_removal()
+Date:   Thu,  1 Apr 2021 15:43:45 +0100
+Message-Id: <002889ce4de7baf287f2b010eef86ffe889174c6.1617287883.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <cover.1617287883.git.asml.silence@gmail.com>
 References: <cover.1617287883.git.asml.silence@gmail.com>
@@ -70,26 +70,58 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-There is no reason why we would want to fully quiesce ring on
-IORING_REGISTER_FILES, if it's already registered we fail.
+Pass rsrc_node into io_queue_rsrc_removal() explicitly. Just a
+simple preparation patch, makes following changes nicer.
 
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
- fs/io_uring.c | 1 +
- 1 file changed, 1 insertion(+)
+ fs/io_uring.c | 15 ++++-----------
+ 1 file changed, 4 insertions(+), 11 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index c5dd00babf59..2b8496f76baa 100644
+index 42c9ef85800e..5dc4f6bb643a 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -9790,6 +9790,7 @@ static int io_register_enable_rings(struct io_ring_ctx *ctx)
- static bool io_register_op_must_quiesce(int op)
+@@ -7736,27 +7736,20 @@ static int io_sqe_file_register(struct io_ring_ctx *ctx, struct file *file,
+ #endif
+ }
+ 
+-static int io_queue_rsrc_removal(struct io_rsrc_data *data, void *rsrc)
++static int io_queue_rsrc_removal(struct io_rsrc_data *data,
++				 struct io_rsrc_node *node, void *rsrc)
  {
- 	switch (op) {
-+	case IORING_REGISTER_FILES:
- 	case IORING_UNREGISTER_FILES:
- 	case IORING_REGISTER_FILES_UPDATE:
- 	case IORING_REGISTER_PROBE:
+ 	struct io_rsrc_put *prsrc;
+-	struct io_rsrc_node *ref_node = data->node;
+ 
+ 	prsrc = kzalloc(sizeof(*prsrc), GFP_KERNEL);
+ 	if (!prsrc)
+ 		return -ENOMEM;
+ 
+ 	prsrc->rsrc = rsrc;
+-	list_add(&prsrc->list, &ref_node->rsrc_list);
+-
++	list_add(&prsrc->list, &node->rsrc_list);
+ 	return 0;
+ }
+ 
+-static inline int io_queue_file_removal(struct io_rsrc_data *data,
+-					struct file *file)
+-{
+-	return io_queue_rsrc_removal(data, (void *)file);
+-}
+-
+ static int __io_sqe_files_update(struct io_ring_ctx *ctx,
+ 				 struct io_uring_rsrc_update *up,
+ 				 unsigned nr_args)
+@@ -7791,7 +7784,7 @@ static int __io_sqe_files_update(struct io_ring_ctx *ctx,
+ 
+ 		if (*file_slot) {
+ 			file = (struct file *) ((unsigned long) *file_slot & FFS_MASK);
+-			err = io_queue_file_removal(data, file);
++			err = io_queue_rsrc_removal(data, data->node, file);
+ 			if (err)
+ 				break;
+ 			*file_slot = NULL;
 -- 
 2.24.0
 

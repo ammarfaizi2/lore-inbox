@@ -2,80 +2,210 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-12.9 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNWANTED_LANGUAGE_BODY,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 64B0AC433ED
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 47C5DC433B4
 	for <io-uring@archiver.kernel.org>; Thu,  1 Apr 2021 18:02:07 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 2F60561159
+	by mail.kernel.org (Postfix) with ESMTP id 1AEAF61165
 	for <io-uring@archiver.kernel.org>; Thu,  1 Apr 2021 18:02:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235953AbhDASB7 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Thu, 1 Apr 2021 14:01:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60810 "EHLO
+        id S234311AbhDASB6 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Thu, 1 Apr 2021 14:01:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32876 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236065AbhDAR5R (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Thu, 1 Apr 2021 13:57:17 -0400
-Received: from hr2.samba.org (hr2.samba.org [IPv6:2a01:4f8:192:486::2:0])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60FFBC0D9426;
-        Thu,  1 Apr 2021 07:53:23 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=samba.org;
-         s=42; h=Date:Message-ID:Cc:To:From;
-        bh=8jYVTSHcDUfHY7lSnRvxzqvV+XEOiioVeMCNkU5pL/U=; b=gmeqKFSfEmZMR4ikxGpeC9sR6z
-        HstPDGcPczEeSWVvfeQryWdLv5R0S8Lvi/AS+peqlhACr6i8pQZvrjTYs8gXY5UGXcNAh11PcNS9h
-        L4rOw1MMvCOPtEg7gPMyfgcuEIKpI+SsdA1FnVDympI0txP4z1iGSHrA3YpHoJjq1YCuDNAu04YSN
-        GQ2RP1MO7lwug85uFQi7RCikLv5eL9DW8VmzFnPV9DVPXKQnQ68TODydm0GPBcNefySbrIi6JVebG
-        dXpnluVTE8W71WJ5ORgMnuBsJlp3ot2ldpSPuXaP93I+7leTSMfTBM6j4kFtCrrlSJXRUyOiHxedD
-        qhfjLZo0vOT54tB7E4WWwA/g60y9moxBetQSLwZklwq3ny8AgUd95GtqLA39O29qHkdA3J949aHsx
-        TvowkICdfdpaqLCdV/7V2UtVaXPzLpt+qjNcX/xRDAcRPZBxJFt/tVQ3bK8XevOdoCql1pTR3Tpoy
-        ArP01jTDNK8Xbe9/GkJ5X9Ae;
-Received: from [127.0.0.2] (localhost [127.0.0.1])
-        by hr2.samba.org with esmtpsa (TLS1.3:ECDHE_RSA_CHACHA20_POLY1305:256)
-        (Exim)
-        id 1lRyhE-0007Rp-QU; Thu, 01 Apr 2021 14:53:20 +0000
-Subject: Re: [PATCH 2/8] kernel: unmask SIGSTOP for IO threads
-From:   Stefan Metzmacher <metze@samba.org>
-To:     Jens Axboe <axboe@kernel.dk>, Oleg Nesterov <oleg@redhat.com>
-Cc:     io-uring@vger.kernel.org, torvalds@linux-foundation.org,
-        ebiederm@xmission.com, linux-kernel@vger.kernel.org
-References: <20210326003928.978750-1-axboe@kernel.dk>
- <20210326003928.978750-3-axboe@kernel.dk> <20210326134840.GA1290@redhat.com>
- <a179ad33-5656-b644-0d92-e74a6bd26cc8@kernel.dk>
- <8f2a4b48-77c9-393f-5194-100ed63c05fc@samba.org>
- <58f67a8b-166e-f19c-ccac-157153e4f17c@kernel.dk>
- <c61fc5eb-c997-738b-1a60-5e3db2754f49@samba.org>
-Message-ID: <a891f9b7-81fb-5534-891c-306593961156@samba.org>
-Date:   Thu, 1 Apr 2021 16:53:12 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.7.1
+        with ESMTP id S236985AbhDAR4l (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Thu, 1 Apr 2021 13:56:41 -0400
+Received: from mail-wr1-x42c.google.com (mail-wr1-x42c.google.com [IPv6:2a00:1450:4864:20::42c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61FA1C0045F6
+        for <io-uring@vger.kernel.org>; Thu,  1 Apr 2021 07:48:22 -0700 (PDT)
+Received: by mail-wr1-x42c.google.com with SMTP id c8so2085172wrq.11
+        for <io-uring@vger.kernel.org>; Thu, 01 Apr 2021 07:48:22 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
+         :content-transfer-encoding;
+        bh=VLF4MmcuiCquoKpCD7d2s0Nvahpq7i5R56MDS9qvPxo=;
+        b=rhGWB3GUhOwoH1Xux66jXFCZQj3QG8W+wcssrrWybuKlY+Td0M42WNNNNWB0kKC0CR
+         RicoT46ObXwwHBGXJ9KeaZNcNdYYnjVsiA5IDJ0qTdug6sqfcVNOBaksTExColcwt54/
+         XRDH12hWcLsTbhxl8mk7xK8JLUTGLycBHgNmxyAQj4FZwKnbSkRQY6Wvlmsz8MRV5Aue
+         cjMFawCAgJSpg5ZNdoG0t8Tt7MI6IO3WCSiVSQorGjq3fFO5gCLtMlzA0o/GuIlTroOS
+         6gu5rTAVnsmWFGCuNWqCBlgnYLbo3bSNxkGhE+JAc0yMPDGk/JHJYIoQVmOyIdwLom3+
+         V/Cw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=VLF4MmcuiCquoKpCD7d2s0Nvahpq7i5R56MDS9qvPxo=;
+        b=UqGvcyewD1GRx4NeKv8cWvN/S7FUkFVv48zsruPWv/6mJg8WQxWuQSZ4XYbhUR5u6J
+         d3BBKRMvZRBEqqgB4p46EnI5qc+wcCk2vmjDp8Sjr1TOSAkCcSzDh2+KEajtWfM1dpZF
+         GyqpEiauhcaSwo/t7KNkPF+CEcaL04VbEXGhNWSpB67C3dti6dOo9jUo+f7i5XIFcCof
+         zAc1ewdWi2gr2t7PJcQS55JZ0eWJY4ZVs794lUmf5+SXRuo/3myGr0o6ZyKUVuOh7QTi
+         SozPNfttJ/NumYDT0xO9inn81t2P1q3ZzG1ePiqjkcizjr1THM/QnVBhZtU5SjyeTkAf
+         mJog==
+X-Gm-Message-State: AOAM532fakLX7nfthcb6fKGYudbClfTXp8PuKhY2/6yhCDVfZK7yLmpT
+        ySt1ZAuhbM7kScFt94sgGXs=
+X-Google-Smtp-Source: ABdhPJwKBMqP+XlEjsBzCNCVlJ5jVlhkEedTQEFXXIeIUNVxIHN8pbOzIB/8I8U42Wy7VNO0J3QVHQ==
+X-Received: by 2002:adf:d217:: with SMTP id j23mr10474744wrh.113.1617288501199;
+        Thu, 01 Apr 2021 07:48:21 -0700 (PDT)
+Received: from localhost.localdomain ([148.252.132.152])
+        by smtp.gmail.com with ESMTPSA id x13sm8183948wmp.39.2021.04.01.07.48.20
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 01 Apr 2021 07:48:20 -0700 (PDT)
+From:   Pavel Begunkov <asml.silence@gmail.com>
+To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
+Subject: [PATCH v4 05/26] io_uring: move rsrc_put callback into io_rsrc_data
+Date:   Thu,  1 Apr 2021 15:43:44 +0100
+Message-Id: <9417c2fba3c09e8668f05747006a603d416d34b4.1617287883.git.asml.silence@gmail.com>
+X-Mailer: git-send-email 2.24.0
+In-Reply-To: <cover.1617287883.git.asml.silence@gmail.com>
+References: <cover.1617287883.git.asml.silence@gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <c61fc5eb-c997-738b-1a60-5e3db2754f49@samba.org>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Hi Jens,
+io_rsrc_node's callback operates only on a single io_rsrc_data and only
+with its resources, so rsrc_put() callback is actually a property of
+io_rsrc_data. Move it there, it makes code much nicecr.
 
->>> I don't assume signals wanted by userspace should potentially handled in an io_thread...
->>> e.g. things set with fcntl(fd, F_SETSIG,) used together with F_SETLEASE?
->>
->> I guess we do actually need it, if we're not fiddling with
->> wants_signal() for them. To quell Oleg's concerns, we can just move it
->> to post dup_task_struct(), that should eliminate any race concerns
->> there.
-> 
-> If that one is racy, don' we better also want this one?
-> https://lore.kernel.org/io-uring/438b738c1e4827a7fdfe43087da88bbe17eedc72.1616197787.git.metze@samba.org/T/#u
-> 
-> And clear tsk->pf_io_worker ?
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+---
+ fs/io_uring.c | 31 ++++++++++++++-----------------
+ 1 file changed, 14 insertions(+), 17 deletions(-)
 
-As the workers don't clone other workers I guess it's fine to defer this to 5.13.
-
-metze
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 3d9b58d8eb90..42c9ef85800e 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -224,16 +224,17 @@ struct io_rsrc_node {
+ 	struct list_head		node;
+ 	struct list_head		rsrc_list;
+ 	struct io_rsrc_data		*rsrc_data;
+-	void				(*rsrc_put)(struct io_ring_ctx *ctx,
+-						    struct io_rsrc_put *prsrc);
+ 	struct llist_node		llist;
+ 	bool				done;
+ };
+ 
++typedef void (rsrc_put_fn)(struct io_ring_ctx *ctx, struct io_rsrc_put *prsrc);
++
+ struct io_rsrc_data {
+ 	struct fixed_rsrc_table		*table;
+ 	struct io_ring_ctx		*ctx;
+ 
++	rsrc_put_fn			*do_put;
+ 	struct io_rsrc_node		*node;
+ 	struct percpu_ref		refs;
+ 	struct completion		done;
+@@ -7075,9 +7076,7 @@ static inline void io_rsrc_ref_unlock(struct io_ring_ctx *ctx)
+ }
+ 
+ static void io_rsrc_node_set(struct io_ring_ctx *ctx,
+-			     struct io_rsrc_data *rsrc_data,
+-			     void (*rsrc_put)(struct io_ring_ctx *ctx,
+-			                      struct io_rsrc_put *prsrc))
++			     struct io_rsrc_data *rsrc_data)
+ {
+ 	struct io_rsrc_node *rsrc_node = ctx->rsrc_backup_node;
+ 
+@@ -7085,7 +7084,6 @@ static void io_rsrc_node_set(struct io_ring_ctx *ctx,
+ 
+ 	ctx->rsrc_backup_node = NULL;
+ 	rsrc_node->rsrc_data = rsrc_data;
+-	rsrc_node->rsrc_put = rsrc_put;
+ 
+ 	io_rsrc_ref_lock(ctx);
+ 	rsrc_data->node = rsrc_node;
+@@ -7114,10 +7112,7 @@ static int io_rsrc_node_prealloc(struct io_ring_ctx *ctx)
+ 	return ctx->rsrc_backup_node ? 0 : -ENOMEM;
+ }
+ 
+-static int io_rsrc_ref_quiesce(struct io_rsrc_data *data,
+-			       struct io_ring_ctx *ctx,
+-			       void (*rsrc_put)(struct io_ring_ctx *ctx,
+-			                        struct io_rsrc_put *prsrc))
++static int io_rsrc_ref_quiesce(struct io_rsrc_data *data, struct io_ring_ctx *ctx)
+ {
+ 	int ret;
+ 
+@@ -7138,7 +7133,7 @@ static int io_rsrc_ref_quiesce(struct io_rsrc_data *data,
+ 			break;
+ 
+ 		percpu_ref_resurrect(&data->refs);
+-		io_rsrc_node_set(ctx, data, rsrc_put);
++		io_rsrc_node_set(ctx, data);
+ 		reinit_completion(&data->done);
+ 
+ 		mutex_unlock(&ctx->uring_lock);
+@@ -7150,7 +7145,8 @@ static int io_rsrc_ref_quiesce(struct io_rsrc_data *data,
+ 	return ret;
+ }
+ 
+-static struct io_rsrc_data *io_rsrc_data_alloc(struct io_ring_ctx *ctx)
++static struct io_rsrc_data *io_rsrc_data_alloc(struct io_ring_ctx *ctx,
++					       rsrc_put_fn *do_put)
+ {
+ 	struct io_rsrc_data *data;
+ 
+@@ -7164,6 +7160,7 @@ static struct io_rsrc_data *io_rsrc_data_alloc(struct io_ring_ctx *ctx)
+ 		return NULL;
+ 	}
+ 	data->ctx = ctx;
++	data->do_put = do_put;
+ 	init_completion(&data->done);
+ 	return data;
+ }
+@@ -7188,7 +7185,7 @@ static int io_sqe_files_unregister(struct io_ring_ctx *ctx)
+ 	 */
+ 	if (!data || percpu_ref_is_dying(&data->refs))
+ 		return -ENXIO;
+-	ret = io_rsrc_ref_quiesce(data, ctx, io_ring_file_put);
++	ret = io_rsrc_ref_quiesce(data, ctx);
+ 	if (ret)
+ 		return ret;
+ 
+@@ -7523,7 +7520,7 @@ static void __io_rsrc_put_work(struct io_rsrc_node *ref_node)
+ 
+ 	list_for_each_entry_safe(prsrc, tmp, &ref_node->rsrc_list, list) {
+ 		list_del(&prsrc->list);
+-		ref_node->rsrc_put(ctx, prsrc);
++		rsrc_data->do_put(ctx, prsrc);
+ 		kfree(prsrc);
+ 	}
+ 
+@@ -7621,7 +7618,7 @@ static int io_sqe_files_register(struct io_ring_ctx *ctx, void __user *arg,
+ 	if (ret)
+ 		return ret;
+ 
+-	file_data = io_rsrc_data_alloc(ctx);
++	file_data = io_rsrc_data_alloc(ctx, io_ring_file_put);
+ 	if (!file_data)
+ 		return -ENOMEM;
+ 	ctx->file_data = file_data;
+@@ -7679,7 +7676,7 @@ static int io_sqe_files_register(struct io_ring_ctx *ctx, void __user *arg,
+ 		return ret;
+ 	}
+ 
+-	io_rsrc_node_set(ctx, file_data, io_ring_file_put);
++	io_rsrc_node_set(ctx, file_data);
+ 	return ret;
+ out_fput:
+ 	for (i = 0; i < ctx->nr_user_files; i++) {
+@@ -7831,7 +7828,7 @@ static int __io_sqe_files_update(struct io_ring_ctx *ctx,
+ 
+ 	if (needs_switch) {
+ 		percpu_ref_kill(&data->node->refs);
+-		io_rsrc_node_set(ctx, data, io_ring_file_put);
++		io_rsrc_node_set(ctx, data);
+ 	}
+ 	return done ? done : err;
+ }
+-- 
+2.24.0
 

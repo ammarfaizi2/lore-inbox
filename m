@@ -2,106 +2,143 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,NICE_REPLY_A,URIBL_BLOCKED,USER_AGENT_SANE_1
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 22F03C47062
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 22AAFC43600
 	for <io-uring@archiver.kernel.org>; Thu,  1 Apr 2021 17:45:55 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 70B4361284
-	for <io-uring@archiver.kernel.org>; Thu,  1 Apr 2021 17:45:50 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E80EA61165
+	for <io-uring@archiver.kernel.org>; Thu,  1 Apr 2021 17:45:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236255AbhDARoO (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Thu, 1 Apr 2021 13:44:14 -0400
+        id S236351AbhDARoX (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Thu, 1 Apr 2021 13:44:23 -0400
 Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57248 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234574AbhDARiF (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Thu, 1 Apr 2021 13:38:05 -0400
-Received: from hr2.samba.org (hr2.samba.org [IPv6:2a01:4f8:192:486::2:0])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8BB4CC02FE94;
-        Thu,  1 Apr 2021 09:00:50 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=samba.org;
-         s=42; h=Date:Message-ID:From:Cc:To;
-        bh=m/fhQBoIS2Ry4FN35jTMDrpVXQElvBfJuR2zw8YjBR8=; b=rjM/JiaSCTDtwzRn1bvABQ1ETe
-        ESRd9Axo3R60B+iHazD05eaRpyJagq1NfzDf1+A3kZJBP7tDY33G9L0KtQz78lnyfCeVWizBZk0Y+
-        L1GPrVCHtHWPRJOi6+7pGZdCQhlBgYdDq9Z7BuVwIBOMK7GkLZiznxtR2G4aPPCwHzrhTmRrxujWO
-        XMhmTpPC2LKD8FnU8Q1jn6BkU8qjTyYqdNFLLk0fD7nwXUdDQ8qTZrfBpKVxXaRY7fSRJiNAUFA0S
-        eSJCmLldPegdfFcRVYBQYOYmH9n0khNekPsLqstFxpxohWyj+hEGDBm6QQ10JGCtAtZ/opQGojC5N
-        UXssgbHlMBR4T7I7fy68avXlhlHnyArnMuOee3LQKmjCo6SSDnHvoogfVCjxXY/+1stFrcN/dvBb6
-        TGhq6M9viPslWohIqtZpsEnu9zUaI2/wX6IpDa95Q9quzetuDIgNL1o22rC6iz1+mzu1UmxoUEBqj
-        o7I+cLYX+oSeRdjLQmV3LSdU;
-Received: from [127.0.0.2] (localhost [127.0.0.1])
-        by hr2.samba.org with esmtpsa (TLS1.3:ECDHE_RSA_CHACHA20_POLY1305:256)
-        (Exim)
-        id 1lRzkW-00080B-18; Thu, 01 Apr 2021 16:00:48 +0000
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     Jens Axboe <axboe@kernel.dk>, io-uring <io-uring@vger.kernel.org>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Oleg Nesterov <oleg@redhat.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20210326003928.978750-1-axboe@kernel.dk>
- <e6de934a-a794-f173-088d-a140d0645188@samba.org>
- <f2c93b75-a18b-fc2c-7941-9208c19869c1@kernel.dk>
- <8efd9977-003b-be65-8ae2-4b04d8dd1224@samba.org>
- <358c5225-c23f-de08-65cb-ca3349793c0e@samba.org>
- <5bb47c3a-2990-e4c4-69c6-1b5d1749a241@samba.org>
- <CAHk-=whEObPkZBe4766DmR46-=5QTUiatWbSOaD468eTgYc1tg@mail.gmail.com>
-From:   Stefan Metzmacher <metze@samba.org>
-Subject: Re: [PATCH 0/6] Allow signals for IO threads
-Message-ID: <2d8a73ef-2f18-6872-bad1-a34deb20f641@samba.org>
-Date:   Thu, 1 Apr 2021 18:00:39 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.7.1
+        with ESMTP id S234825AbhDARk2 (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Thu, 1 Apr 2021 13:40:28 -0400
+Received: from mail-wm1-x334.google.com (mail-wm1-x334.google.com [IPv6:2a00:1450:4864:20::334])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0778AC0045F4
+        for <io-uring@vger.kernel.org>; Thu,  1 Apr 2021 07:48:20 -0700 (PDT)
+Received: by mail-wm1-x334.google.com with SMTP id g20so1180725wmk.3
+        for <io-uring@vger.kernel.org>; Thu, 01 Apr 2021 07:48:19 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
+         :content-transfer-encoding;
+        bh=J1ws8wADQ5zbdUYwYFwOasStGVDaUKDGtt0yYiKwPMI=;
+        b=fKiqpDds5OZ01af/0WIfLorJM1VcQy7v0VU6rxMIsyjEdu3Gv1cNOmyGS/+qDXZX8v
+         KL6UnUSwE1BrZQd4rKGGrwKO2S7q11PL5f1KCdx334YA09E9izBWQfBnTpU1aAilxn3J
+         /pG3jO1DMCoIcHUtDpuJvfNGIu+WS8qQAuezf644mG15ujDXHbPlEJHCL3pvYsEsYqED
+         X79oYHAnMYs3qLu3MXiHOCXZSkDezuOgeKplxP8fkGRwTnMg5MHl9jEyhSKd1opPEfew
+         nQjHFxS1PCPUghVTteKYDt1o8zBf6BW5U6sfWvmZ423GEu39APqn7il0GFzgVGwIFgLf
+         O92g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=J1ws8wADQ5zbdUYwYFwOasStGVDaUKDGtt0yYiKwPMI=;
+        b=gBWvDJNms17jwYE4zV3ki+uvGOtOD31DkrqTJ+SgXI2/rbOnanPpcr5Chys9fU+2zw
+         BXYEWHx8CW5O5jDMDa9zZBpj6KcTszsBvInDin9+5LCiCz1jPVFbNyWkRPXBGfrWKY4S
+         pxiZbivnNNc0b5wmbLlXFcqnReuTMqG6doxMuamne3xnkZja3kJRPd+q4W08nGIQa7l7
+         sF1p4pcmp3gR+TW0EdHWlYeR+5xgVLgr55A59AX5rwCJU7iteuEfqnBZAsdFgRJR0yrh
+         XcukblY7yO8othGIxIFfOvSXZscBInMzNTIdEQjSSh7ovYkn4FDSsVv/X8Y04ECdzWDc
+         uIiA==
+X-Gm-Message-State: AOAM532ry1p1SqD49aLpclDmOoPy5rm2/isQVFKHlUhASGwye6zd8Zgi
+        uWgbTiYi7RFG9mS6/pRvTRjRu4OHRfLxDg==
+X-Google-Smtp-Source: ABdhPJxorOSDvuR5c+RzYf+78M3+Cevl4BwsDX2jbT4XepmarsnVyXD59/E0qpByw/NB98Q6axgWEw==
+X-Received: by 2002:a1c:f701:: with SMTP id v1mr8445196wmh.69.1617288498847;
+        Thu, 01 Apr 2021 07:48:18 -0700 (PDT)
+Received: from localhost.localdomain ([148.252.132.152])
+        by smtp.gmail.com with ESMTPSA id x13sm8183948wmp.39.2021.04.01.07.48.17
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 01 Apr 2021 07:48:18 -0700 (PDT)
+From:   Pavel Begunkov <asml.silence@gmail.com>
+To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
+Subject: [PATCH v4 03/26] io_uring: use rsrc prealloc infra for files reg
+Date:   Thu,  1 Apr 2021 15:43:42 +0100
+Message-Id: <cf87321e6be5e38f4dc7fe5079d2aa6945b1ace0.1617287883.git.asml.silence@gmail.com>
+X-Mailer: git-send-email 2.24.0
+In-Reply-To: <cover.1617287883.git.asml.silence@gmail.com>
+References: <cover.1617287883.git.asml.silence@gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <CAHk-=whEObPkZBe4766DmR46-=5QTUiatWbSOaD468eTgYc1tg@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
+Keep it consistent with update and use io_rsrc_node_prealloc() +
+io_rsrc_node_get() in io_sqe_files_register() as well, that will be used
+in future patches, not as error prone and allows to deduplicate
+rsrc_node init.
 
-Am 01.04.21 um 17:39 schrieb Linus Torvalds:
-> On Thu, Apr 1, 2021 at 7:58 AM Stefan Metzmacher <metze@samba.org> wrote:
->>
->>>
->>> Ok, the following makes gdb happy again:
->>>
->>> --- a/arch/x86/kernel/process.c
->>> +++ b/arch/x86/kernel/process.c
->>> @@ -163,6 +163,8 @@ int copy_thread(unsigned long clone_flags, unsigned long sp, unsigned long arg,
->>>         /* Kernel thread ? */
->>>         if (unlikely(p->flags & (PF_KTHREAD | PF_IO_WORKER))) {
->>>                 memset(childregs, 0, sizeof(struct pt_regs));
->>> +               if (p->flags & PF_IO_WORKER)
->>> +                       childregs->cs = current_pt_regs()->cs;
->>>                 kthread_frame_init(frame, sp, arg);
->>>                 return 0;
->>>         }
->>
->> Would it be possible to fix this remaining problem before 5.12 final?
-> 
-> Please not that way.
-> 
-> But doing something like
-> 
->         childregs->cs = __USER_CS;
->         childregs->ss = __USER_DS;
->         childregs->ds = __USER_DS;
->         childregs->es = __USER_DS;
-> 
-> might make sense (just do it unconditionally, rather than making it
-> special to PF_IO_WORKER).
-> 
-> Does that make gdb happy too?
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+---
+ fs/io_uring.c | 21 ++++++---------------
+ 1 file changed, 6 insertions(+), 15 deletions(-)
 
-I haven't tried it, but it seems gdb tries to use PTRACE_PEEKUSR
-against the last thread tid listed under /proc/<pid>/tasks/ in order to
-get the architecture for the userspace application, so my naive assumption
-would be that it wouldn't allow the detection of a 32-bit application
-using a 64-bit kernel.
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index f1a96988c3f5..b53ccac47440 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -7605,13 +7605,6 @@ static struct io_rsrc_node *io_rsrc_node_alloc(struct io_ring_ctx *ctx)
+ 	return ref_node;
+ }
+ 
+-static void init_fixed_file_ref_node(struct io_ring_ctx *ctx,
+-				     struct io_rsrc_node *ref_node)
+-{
+-	ref_node->rsrc_data = ctx->file_data;
+-	ref_node->rsrc_put = io_ring_file_put;
+-}
+-
+ static void io_rsrc_node_destroy(struct io_rsrc_node *ref_node)
+ {
+ 	percpu_ref_exit(&ref_node->refs);
+@@ -7624,7 +7617,7 @@ static int io_sqe_files_register(struct io_ring_ctx *ctx, void __user *arg,
+ 	__s32 __user *fds = (__s32 __user *) arg;
+ 	unsigned nr_tables, i;
+ 	struct file *file;
+-	int fd, ret = -ENOMEM;
++	int fd, ret;
+ 	struct io_rsrc_node *ref_node;
+ 	struct io_rsrc_data *file_data;
+ 
+@@ -7634,12 +7627,16 @@ static int io_sqe_files_register(struct io_ring_ctx *ctx, void __user *arg,
+ 		return -EINVAL;
+ 	if (nr_args > IORING_MAX_FIXED_FILES)
+ 		return -EMFILE;
++	ret = io_rsrc_node_prealloc(ctx);
++	if (ret)
++		return ret;
+ 
+ 	file_data = io_rsrc_data_alloc(ctx);
+ 	if (!file_data)
+ 		return -ENOMEM;
+ 	ctx->file_data = file_data;
+ 
++	ret = -ENOMEM;
+ 	nr_tables = DIV_ROUND_UP(nr_args, IORING_MAX_FILES_TABLE);
+ 	file_data->table = kcalloc(nr_tables, sizeof(*file_data->table),
+ 				   GFP_KERNEL);
+@@ -7692,13 +7689,7 @@ static int io_sqe_files_register(struct io_ring_ctx *ctx, void __user *arg,
+ 		return ret;
+ 	}
+ 
+-	ref_node = io_rsrc_node_alloc(ctx);
+-	if (!ref_node) {
+-		io_sqe_files_unregister(ctx);
+-		return -ENOMEM;
+-	}
+-	init_fixed_file_ref_node(ctx, ref_node);
+-
++	ref_node = io_rsrc_node_get(ctx, ctx->file_data, io_ring_file_put);
+ 	io_rsrc_node_set(ctx, file_data, ref_node);
+ 	return ret;
+ out_fput:
+-- 
+2.24.0
 
-metze

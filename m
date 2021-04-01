@@ -2,126 +2,85 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 42DC3C47061
-	for <io-uring@archiver.kernel.org>; Thu,  1 Apr 2021 17:45:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 39D8AC433ED
+	for <io-uring@archiver.kernel.org>; Thu,  1 Apr 2021 17:48:06 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id AB3B2613D3
-	for <io-uring@archiver.kernel.org>; Thu,  1 Apr 2021 17:45:51 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id EDCAB6101A
+	for <io-uring@archiver.kernel.org>; Thu,  1 Apr 2021 17:48:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236336AbhDARoV (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Thu, 1 Apr 2021 13:44:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57212 "EHLO
+        id S234954AbhDARsC (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Thu, 1 Apr 2021 13:48:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58368 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234713AbhDARjV (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Thu, 1 Apr 2021 13:39:21 -0400
-Received: from mail-wr1-x42d.google.com (mail-wr1-x42d.google.com [IPv6:2a00:1450:4864:20::42d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97592C004589
-        for <io-uring@vger.kernel.org>; Thu,  1 Apr 2021 07:48:34 -0700 (PDT)
-Received: by mail-wr1-x42d.google.com with SMTP id j7so2117572wrd.1
-        for <io-uring@vger.kernel.org>; Thu, 01 Apr 2021 07:48:34 -0700 (PDT)
+        with ESMTP id S235584AbhDARnA (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Thu, 1 Apr 2021 13:43:00 -0400
+Received: from mail-io1-xd33.google.com (mail-io1-xd33.google.com [IPv6:2607:f8b0:4864:20::d33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6A1DC022597
+        for <io-uring@vger.kernel.org>; Thu,  1 Apr 2021 08:21:27 -0700 (PDT)
+Received: by mail-io1-xd33.google.com with SMTP id k25so2570588iob.6
+        for <io-uring@vger.kernel.org>; Thu, 01 Apr 2021 08:21:27 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
-         :content-transfer-encoding;
-        bh=40wYh3UdHMe47UUwlrN0dox4PnP9hwD4pIYHxZ1WNTg=;
-        b=hNBCoASysQzoXqXd8lOpbdSwYMu+BsjKbfOVzkqgrRo8ZHJfhrMqvQEb/L+508MWal
-         CL3x4fePKc7Wd4zvZ2tCP1srwQ0zKS07kpCfCsbP8Ngob4C3CuBfzi48Nx2ZABg5Kpan
-         j1rG8k2HQdW+k0lhRRqOuiC/u+gpx8UIM+duGvtwyhL2tF2XTnUsv6o8mKMJTuOkZnv4
-         NpvAWihpyZ1OyWMBwmXF3PqIYfYfDqj+SDgcobO4HKrFkAWWLtvddI3+hBc/yjRhpLRj
-         LeGi1k0jgLVkL4sl2rDVi/dBkB+dK0Fmgts4XYB6PlRTRw/GgxzyqOtJGr81E9whU3Li
-         EmxQ==
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=+QYEIi6yMazIqkEu7x5PeloazytQGf3O76kbZP93pvs=;
+        b=gA1l80M1chUyFRBfOPfClAndC6TNUVs3aJ/6iRCUSXsTAUccpG4qXFlInAM+z2eeM8
+         IisfkUbGbF5w3kFsbNp0kh0ilTU5A9Xx78GQ2ylz73X+zRnOoFnL8J72OmGBdW8w7+79
+         FJT/t8fxGI4iIAFOEXX6SvIJ2wPaySWTDExKodmW+oB9wY3rpq9Q6Uq3Eu3eq38GiTpy
+         McrKvzvfSPzVwhNZCZSlJag1LWB5h/RI7kbQtr97fYhYZelpyosrMIJnjYCdQOYNUNBS
+         3srh+h8/L3s0Y+cpc9lz714z7ei23qDTOD/nTLwHlV68l+F+qoH+DuwkvGEpwelS8F+s
+         3mrA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=40wYh3UdHMe47UUwlrN0dox4PnP9hwD4pIYHxZ1WNTg=;
-        b=Ym2mLXsChktlP0fdaFZJk/zLsuM5Lqx5rANqPtKaTdCWBDr50zqkuxmyJERh3fV27v
-         qi7UNqbTeMxkFGwStboQSYzHnJFLjpP4EvLBAuisi90I8D0bKKa4u+qKgUu04R8onGRX
-         ngYhsetFAe4vSEZV2hTg2BI+FttMuBXyk6aKeyHnknXtlFcplR+qH+AWB7TWbKFO6LCK
-         E/9guK5x6QNe4kSuepKNRVn2eulpk1JC8M5o1yVNdL+5Ise2iVCZQIa3w1jDuhuH+b5n
-         MYYxEtepU0svh+s4a2nYrD2ItsyHmpZb3gvmdMwpJRuWmnuDhcmSIwFA19mlWAhdLQ8X
-         unSg==
-X-Gm-Message-State: AOAM533SWS/8Gw+8nnqDzn9BPG0c8waDTbJpKrADGIuZPyGX2jjOYBdi
-        /u0pgDcB1Gkgcuj6XiRPg2q2wJ9TjhQecA==
-X-Google-Smtp-Source: ABdhPJwDrV4DICwFVFspnHR7u8O5/GNhj6CdstyWgqS1/xLlsMpmctF4TIpAusaqvbOnR0HcbMK/2Q==
-X-Received: by 2002:adf:e7cf:: with SMTP id e15mr10244543wrn.346.1617288513395;
-        Thu, 01 Apr 2021 07:48:33 -0700 (PDT)
-Received: from localhost.localdomain ([148.252.132.152])
-        by smtp.gmail.com with ESMTPSA id x13sm8183948wmp.39.2021.04.01.07.48.32
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 01 Apr 2021 07:48:33 -0700 (PDT)
-From:   Pavel Begunkov <asml.silence@gmail.com>
-To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH v4 16/26] io_uring: store reg buffer end instead of length
-Date:   Thu,  1 Apr 2021 15:43:55 +0100
-Message-Id: <39164403fe92f1dc437af134adeec2423cdf9395.1617287883.git.asml.silence@gmail.com>
-X-Mailer: git-send-email 2.24.0
-In-Reply-To: <cover.1617287883.git.asml.silence@gmail.com>
-References: <cover.1617287883.git.asml.silence@gmail.com>
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=+QYEIi6yMazIqkEu7x5PeloazytQGf3O76kbZP93pvs=;
+        b=YfpJG7VLHAIwhBR4U3mqReobVbb2FUB/n3URNylZZDmi0dAV3AMoYGeMZ6OCK4o2E8
+         5BBo0kyuBh2XnlOBoF1nfj/Tdg5B5fTkvENNWFP5IHFNmznc+NkOLuOrWu4LyqxCe4Co
+         X+YSLag2VQ4M6B6Af71GUnH3mHx/vJ7qwy5f6cNwsP7/l0NRTIc63JtpuS9p3KQ2fEDD
+         TSW0YhSQJ6lxTatogZVISU36V9ShHZhljdDslLnaAmeZNU1cBRt9L2hJiPl/1lZNtj8j
+         hvkthUCBoElCGk8LAKkozb0NUeD9vgsKTI4trjRCYMLGJmTXfXpn/04AXWu2EuEeEikK
+         D8Fg==
+X-Gm-Message-State: AOAM532gCN9BgNENoeLq0MNZYT3j0mFD/Mrh4yI6ndpKp4YJPq9tO9RF
+        qVXvKzPWO5m6XnUWMEyUlkcKlg==
+X-Google-Smtp-Source: ABdhPJzDzeGMX8ZemzOJaVBVamJz0a06zm8ftbU9JowZSTex//XvsY6FZP24I5ydL0tFqdSo1JZ0yg==
+X-Received: by 2002:a5e:8d09:: with SMTP id m9mr6818047ioj.29.1617290487283;
+        Thu, 01 Apr 2021 08:21:27 -0700 (PDT)
+Received: from [192.168.1.30] ([65.144.74.34])
+        by smtp.gmail.com with ESMTPSA id a7sm2650026iln.82.2021.04.01.08.21.26
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 01 Apr 2021 08:21:26 -0700 (PDT)
+Subject: Re: [PATCH 5.12] io_uring/io-wq: protect against sprintf overflow
+To:     Pavel Begunkov <asml.silence@gmail.com>, io-uring@vger.kernel.org
+Cc:     Alexey Dobriyan <adobriyan@gmail.com>
+References: <1702c6145d7e1c46fbc382f28334c02e1a3d3994.1617267273.git.asml.silence@gmail.com>
+From:   Jens Axboe <axboe@kernel.dk>
+Message-ID: <38787c96-0ac6-6284-a980-898593b5e056@kernel.dk>
+Date:   Thu, 1 Apr 2021 09:21:26 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <1702c6145d7e1c46fbc382f28334c02e1a3d3994.1617267273.git.asml.silence@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-It's a bit more convenient for us to store a registered buffer end
-address instead of length, see struct io_mapped_ubuf, as it allow to not
-recompute it every time.
+On 4/1/21 2:55 AM, Pavel Begunkov wrote:
+> task_pid may be large enough to not fit into the left space of
+> TASK_COMM_LEN-sized buffers and overflow in sprintf. We not so care
+> about uniqueness, so replace it with safer snprintf().
 
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
----
- fs/io_uring.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+Applied, thanks.
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 053baa4ca02e..bafe84ad5b32 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -194,7 +194,7 @@ enum io_uring_cmd_flags {
- 
- struct io_mapped_ubuf {
- 	u64		ubuf;
--	size_t		len;
-+	u64		ubuf_end;
- 	struct		bio_vec *bvec;
- 	unsigned int	nr_bvecs;
- 	unsigned long	acct_pages;
-@@ -2783,7 +2783,7 @@ static int io_import_fixed(struct io_kiocb *req, int rw, struct iov_iter *iter)
- 	if (unlikely(check_add_overflow(buf_addr, (u64)len, &buf_end)))
- 		return -EFAULT;
- 	/* not inside the mapped region */
--	if (buf_addr < imu->ubuf || buf_end > imu->ubuf + imu->len)
-+	if (unlikely(buf_addr < imu->ubuf || buf_end > imu->ubuf_end))
- 		return -EFAULT;
- 
- 	/*
-@@ -8296,7 +8296,7 @@ static int io_sqe_buffer_register(struct io_ring_ctx *ctx, struct iovec *iov,
- 	}
- 	/* store original address for later verification */
- 	imu->ubuf = ubuf;
--	imu->len = iov->iov_len;
-+	imu->ubuf_end = ubuf + iov->iov_len;
- 	imu->nr_bvecs = nr_pages;
- 	ret = 0;
- done:
-@@ -9353,9 +9353,9 @@ static void __io_uring_show_fdinfo(struct io_ring_ctx *ctx, struct seq_file *m)
- 	seq_printf(m, "UserBufs:\t%u\n", ctx->nr_user_bufs);
- 	for (i = 0; has_lock && i < ctx->nr_user_bufs; i++) {
- 		struct io_mapped_ubuf *buf = &ctx->user_bufs[i];
-+		unsigned int len = buf->ubuf_end - buf->ubuf;
- 
--		seq_printf(m, "%5u: 0x%llx/%u\n", i, buf->ubuf,
--						(unsigned int) buf->len);
-+		seq_printf(m, "%5u: 0x%llx/%u\n", i, buf->ubuf, len);
- 	}
- 	if (has_lock && !xa_empty(&ctx->personalities)) {
- 		unsigned long index;
 -- 
-2.24.0
+Jens Axboe
 

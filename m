@@ -2,86 +2,166 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no
+X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1D635C433B4
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9FE87C43461
 	for <io-uring@archiver.kernel.org>; Thu,  1 Apr 2021 18:11:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id EE5426112E
-	for <io-uring@archiver.kernel.org>; Thu,  1 Apr 2021 18:11:45 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 844326112F
+	for <io-uring@archiver.kernel.org>; Thu,  1 Apr 2021 18:11:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237002AbhDASLn (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Thu, 1 Apr 2021 14:11:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35620 "EHLO
+        id S237013AbhDASLo (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Thu, 1 Apr 2021 14:11:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35766 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234976AbhDASGn (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Thu, 1 Apr 2021 14:06:43 -0400
-Received: from hr2.samba.org (hr2.samba.org [IPv6:2a01:4f8:192:486::2:0])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A552EC00F7EC
-        for <io-uring@vger.kernel.org>; Thu,  1 Apr 2021 08:09:21 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=samba.org;
-         s=42; h=Date:Message-ID:From:Cc:To;
-        bh=fhByhXQt3cgT8dORAyRiRmoTAIsa21eOzx/s/2SElXU=; b=c3K7OiWoAwNPSgTiIaJ7LaaVK+
-        7+rpVaPR05N4Bxf9yX5RaUoBmqFQ60XgSYkChDYhGJFs2NDXvcZWXu1FVFZ8/aV8J784vsfJ9nEWp
-        jN0jZ1WX2JpnvoUJZbvof9m5Cu7xkgyOemA1U1drTHf7lxve0f+3dAGghm9h4uu9W0XV6wigv3Vt0
-        ubM1d09Tt9INx/rci53IqIGABFSj8TDogFxS2HolwDWeH3RsAOX1oM22Y1Kaz+GhGUJ3hvljf60rb
-        WWod9A7uyx3LgUFLinVgHerwUddjSo7fOFSSmm2o5hR99m1DdyvXubQGfz+BGVaNPeiLcRsnusHM8
-        upuPt4ysdISt3oUzfHgTed+XO6szh+9K+HILjof67U1XD+X1qQ4PmtTq+u5dxJHvKWyrRusf4I0pV
-        JaSqVMA08yIOk6wZdh6i8YtGthhXmCFvci3wWVwFqezRE4vTuYAJ/xjFxupU4VmHvgnSsgETF8cwT
-        ikrl7BAj6fTcSqAaM5ivg68s;
-Received: from [127.0.0.2] (localhost [127.0.0.1])
-        by hr2.samba.org with esmtpsa (TLS1.3:ECDHE_RSA_CHACHA20_POLY1305:256)
-        (Exim)
-        id 1lRywi-0007a1-3K; Thu, 01 Apr 2021 15:09:20 +0000
-Subject: Re: buffer overflow in io_sq_thread()
-To:     Pavel Begunkov <asml.silence@gmail.com>,
-        Alexey Dobriyan <adobriyan@gmail.com>, axboe@kernel.dk
-Cc:     io-uring@vger.kernel.org
-References: <YGTamC6s+HyF+4BA@localhost.localdomain>
- <55d32b30-ea39-c8b2-2912-8e7081e0f624@gmail.com>
-From:   Stefan Metzmacher <metze@samba.org>
-Message-ID: <6a5273f0-e54b-ac4b-21f6-3129aca72ec6@samba.org>
-Date:   Thu, 1 Apr 2021 17:09:11 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.7.1
+        with ESMTP id S236519AbhDASH0 (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Thu, 1 Apr 2021 14:07:26 -0400
+Received: from mail-wm1-x334.google.com (mail-wm1-x334.google.com [IPv6:2a00:1450:4864:20::334])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A824AC00458B
+        for <io-uring@vger.kernel.org>; Thu,  1 Apr 2021 07:48:36 -0700 (PDT)
+Received: by mail-wm1-x334.google.com with SMTP id w203-20020a1c49d40000b029010c706d0642so3999844wma.0
+        for <io-uring@vger.kernel.org>; Thu, 01 Apr 2021 07:48:36 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
+         :content-transfer-encoding;
+        bh=NmExFTpGFaKKTwHwMhh2BP9udcIgF9lVL9NcWszLAcg=;
+        b=L1rlZNlORtrz/6eWFqBu7LmPfHV2vQVbsH7CFjiC3GehLyDzqhuPJIhccrhaIrrmzi
+         FZmVUGCi89pfSKDe6uztiC+LLeJiFwzmigM3Lj7bG+o4EmfO6x5caeFm3OrLmq+7hvFn
+         XKt+rulvL/WP2IREvIpZ/TXFtmospq7Edbymxo1OlEzFNyK9hpJfWiOt31r3uBDrIf0f
+         fTHm0OYqvuxhcjmSSdVFHOVmiU+TDikT8CVuRIB57hmVwzXstNCOySW+yJdMw/73nUag
+         7c3HbaGsR5FCYqXAjgBK/tL28UCs2daWkZCZw39O1//49sNXTJp84xblSdFXLSXUxzoe
+         NXEw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=NmExFTpGFaKKTwHwMhh2BP9udcIgF9lVL9NcWszLAcg=;
+        b=U1HLSpKeUMIc5BJMkIXzVFmEP0Ny9vQE2p9FyAE+uU+ht/i52VblClp+uCil7ZWG25
+         HNYc64KH6SprE2onecG0gmFLxx/aeRPKUET0aNLrGP+rmSgv4o+rOmCz5CGSUaZ46Okl
+         QbfKdlV/c28NwzbL2nO9WikS/9QhIiIuhnuGPOZj0md+MojlacmOAQd/s6eg/1WtWu5j
+         J/gO55hkQxGMUi/hyh+Lq1JiqxLjOxCA1BwmMPQiHSeTbFMLPyApi3d9zE+cB+AP9zy8
+         9CnwadLhoOoucFZ2TQxHERHjsbcJxVv4533aq3YmfYG7nWCPAiwaDCI3jI1X6JI0ReVK
+         6v6A==
+X-Gm-Message-State: AOAM533+Pwx2YCD8We6uIcOxSon9WHVBTYoSbWT141dyBGOQsjnGXE0k
+        9TvdWms6zHBeJkoKWehY57M=
+X-Google-Smtp-Source: ABdhPJzXT/3R2EpNgJkYU/oolklDYAb7JwW1orAmJRA3oQ2/rTHrKnqyUfW5kx0/1GVucjftKd7lYA==
+X-Received: by 2002:a7b:c195:: with SMTP id y21mr8400376wmi.178.1617288515521;
+        Thu, 01 Apr 2021 07:48:35 -0700 (PDT)
+Received: from localhost.localdomain ([148.252.132.152])
+        by smtp.gmail.com with ESMTPSA id x13sm8183948wmp.39.2021.04.01.07.48.34
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 01 Apr 2021 07:48:35 -0700 (PDT)
+From:   Pavel Begunkov <asml.silence@gmail.com>
+To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
+Subject: [PATCH v4 18/26] io_uring: lock annotate timeouts and poll
+Date:   Thu,  1 Apr 2021 15:43:57 +0100
+Message-Id: <2345325643093d41543383ba985a735aeb899eac.1617287883.git.asml.silence@gmail.com>
+X-Mailer: git-send-email 2.24.0
+In-Reply-To: <cover.1617287883.git.asml.silence@gmail.com>
+References: <cover.1617287883.git.asml.silence@gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <55d32b30-ea39-c8b2-2912-8e7081e0f624@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Am 01.04.21 um 10:51 schrieb Pavel Begunkov:
-> On 31/03/2021 21:24, Alexey Dobriyan wrote:
->> The code below will overflow because TASK_COMM_LEN is 16 but PID can be
->> as large as 1 billion which is 10 digit number.
->>
->> Currently not even Fedora ships pid_max that large but still...
-> 
-> And is safer limited in any case. Thanks
-> 
->>
->> 	Alexey
->>
->> static int io_sq_thread(void *data)
->> {
->>         struct io_sq_data *sqd = data;
->>         struct io_ring_ctx *ctx;
->>         unsigned long timeout = 0;
->>         char buf[TASK_COMM_LEN];
->>         DEFINE_WAIT(wait);
->>
->>         sprintf(buf, "iou-sqp-%d", sqd->task_pid);
+Add timeout and poll ->comletion_lock annotations for Sparse, makes life
+easier while looking at the functions.
 
-I have patches for this see
-https://lore.kernel.org/io-uring/1213a929-30f2-592d-86a2-ddcf84139940@kernel.dk/T/#m9a9707c76e0ca73b54676b5d0fe198587b36c1b4
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+---
+ fs/io_uring.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-As there's no urgent problem in 5.12 I'll repost them for 5.13...
-
-metze
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 352c231571dd..683db49a766e 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -4865,6 +4865,7 @@ static struct io_poll_iocb *io_poll_get_single(struct io_kiocb *req)
+ }
+ 
+ static void io_poll_remove_double(struct io_kiocb *req)
++	__must_hold(&req->ctx->completion_lock)
+ {
+ 	struct io_poll_iocb *poll = io_poll_get_double(req);
+ 
+@@ -4883,6 +4884,7 @@ static void io_poll_remove_double(struct io_kiocb *req)
+ }
+ 
+ static bool io_poll_complete(struct io_kiocb *req, __poll_t mask, int error)
++	__must_hold(&req->ctx->completion_lock)
+ {
+ 	struct io_ring_ctx *ctx = req->ctx;
+ 	unsigned flags = IORING_CQE_F_MORE;
+@@ -5188,6 +5190,7 @@ static bool io_arm_poll_handler(struct io_kiocb *req)
+ 
+ static bool __io_poll_remove_one(struct io_kiocb *req,
+ 				 struct io_poll_iocb *poll, bool do_cancel)
++	__must_hold(&req->ctx->completion_lock)
+ {
+ 	bool do_complete = false;
+ 
+@@ -5206,6 +5209,7 @@ static bool __io_poll_remove_one(struct io_kiocb *req,
+ }
+ 
+ static bool io_poll_remove_waitqs(struct io_kiocb *req)
++	__must_hold(&req->ctx->completion_lock)
+ {
+ 	bool do_complete;
+ 
+@@ -5229,6 +5233,7 @@ static bool io_poll_remove_waitqs(struct io_kiocb *req)
+ }
+ 
+ static bool io_poll_remove_one(struct io_kiocb *req)
++	__must_hold(&req->ctx->completion_lock)
+ {
+ 	bool do_complete;
+ 
+@@ -5272,6 +5277,7 @@ static bool io_poll_remove_all(struct io_ring_ctx *ctx, struct task_struct *tsk,
+ }
+ 
+ static struct io_kiocb *io_poll_find(struct io_ring_ctx *ctx, __u64 sqe_addr)
++	__must_hold(&ctx->completion_lock)
+ {
+ 	struct hlist_head *list;
+ 	struct io_kiocb *req;
+@@ -5287,6 +5293,7 @@ static struct io_kiocb *io_poll_find(struct io_ring_ctx *ctx, __u64 sqe_addr)
+ }
+ 
+ static int io_poll_cancel(struct io_ring_ctx *ctx, __u64 sqe_addr)
++	__must_hold(&ctx->completion_lock)
+ {
+ 	struct io_kiocb *req;
+ 
+@@ -5493,6 +5500,7 @@ static enum hrtimer_restart io_timeout_fn(struct hrtimer *timer)
+ 
+ static struct io_kiocb *io_timeout_extract(struct io_ring_ctx *ctx,
+ 					   __u64 user_data)
++	__must_hold(&ctx->completion_lock)
+ {
+ 	struct io_timeout_data *io;
+ 	struct io_kiocb *req;
+@@ -5517,6 +5525,7 @@ static struct io_kiocb *io_timeout_extract(struct io_ring_ctx *ctx,
+ }
+ 
+ static int io_timeout_cancel(struct io_ring_ctx *ctx, __u64 user_data)
++	__must_hold(&ctx->completion_lock)
+ {
+ 	struct io_kiocb *req = io_timeout_extract(ctx, user_data);
+ 
+@@ -5531,6 +5540,7 @@ static int io_timeout_cancel(struct io_ring_ctx *ctx, __u64 user_data)
+ 
+ static int io_timeout_update(struct io_ring_ctx *ctx, __u64 user_data,
+ 			     struct timespec64 *ts, enum hrtimer_mode mode)
++	__must_hold(&ctx->completion_lock)
+ {
+ 	struct io_kiocb *req = io_timeout_extract(ctx, user_data);
+ 	struct io_timeout_data *data;
+-- 
+2.24.0
 

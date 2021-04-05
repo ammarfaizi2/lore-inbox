@@ -2,221 +2,79 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AC8F4C433B4
-	for <io-uring@archiver.kernel.org>; Sun,  4 Apr 2021 23:07:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BE63BC433ED
+	for <io-uring@archiver.kernel.org>; Mon,  5 Apr 2021 07:36:36 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 69C4D61381
-	for <io-uring@archiver.kernel.org>; Sun,  4 Apr 2021 23:07:42 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 718CE61398
+	for <io-uring@archiver.kernel.org>; Mon,  5 Apr 2021 07:36:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230323AbhDDXHq (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sun, 4 Apr 2021 19:07:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39666 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230286AbhDDXHq (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Sun, 4 Apr 2021 19:07:46 -0400
-Received: from mail-pj1-x102d.google.com (mail-pj1-x102d.google.com [IPv6:2607:f8b0:4864:20::102d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4100C061756
-        for <io-uring@vger.kernel.org>; Sun,  4 Apr 2021 16:07:40 -0700 (PDT)
-Received: by mail-pj1-x102d.google.com with SMTP id q6-20020a17090a4306b02900c42a012202so4955605pjg.5
-        for <io-uring@vger.kernel.org>; Sun, 04 Apr 2021 16:07:40 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=fV8JkO5prrA4CPUyRccSuL+jZkNl9aRpdUmiSPloxO8=;
-        b=fgS6BLS4jjpJUsn8uWq7lFbuxgrrhosCFZI94Jqh9SbdZcWT4gMtxxAPmI1zW0Ri3v
-         7v34IC8lziQIWOQjwkrwOaFQ3pD0ORyDE2CR3DBP09dKmyWI+EXP8CeU4I8Wgxgr+gKg
-         srxjJe3wtuK3wt+qv3j7QVLIcxODUCA7ZykKUMB5044wGijk3EXgjCkKsbqxTZ4KgfVt
-         ss9jWayeLbsqiNhmdKwe0NdbvD0Cx6uTjOnbEjX8c1rvM7gWJ1EvFl/uHSAa+f+WjwkM
-         3RqdfDt6PIB4l5BBmrDf1I8L8hCIJM67Rhu7hzjecgBtZ2BwsU3PJmThn0b8jIbjoyWG
-         1kdw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=fV8JkO5prrA4CPUyRccSuL+jZkNl9aRpdUmiSPloxO8=;
-        b=s7c2EdGgrN35UiR/I8Accr+Fv0sGnfYAP/l5tY8WEnkoG09TQNGUQ97dODP+i9CPjO
-         8VQdlXwvQDKV4Jj4EJR3jxyLTsig+bM6ogJrsiG01Tsum+ue9CMwentR6P1KRvBw9F6+
-         TiuVmzdkk4t4LQtqEfgcYoWr50Bl+4S91d8k//dmelLXuw3pXrHFUl0O5SJfNMfbR8vQ
-         N3hzO07gKIDv7BGoBH0+1ZzSpPwfs7nIDh53/t+IrT0Ysx7KSsK3bT9AMYVHf0/qCnsP
-         JKMfOBfeBRqMlDA7e6CQ4UIPi4yhlCXHmdmgpUSs+f5wXLdU466Q6UXqkvMSwlvDYi0x
-         BH5g==
-X-Gm-Message-State: AOAM531KPn3lBGnb7B/nkxThjH1Hd/GQwmsEb2dqfhUIdjTo8jQky4zV
-        vbb0D6zPkptqG/38cu1UCHrOqUy6nJZSig==
-X-Google-Smtp-Source: ABdhPJzpsDAxuOzHDARoY6O+rFV2h6xbvlclMn+ZB1sjhevE+z8bqhhVbxT/VCuT5eMPjTlAtMHexw==
-X-Received: by 2002:a17:90a:3e49:: with SMTP id t9mr23612086pjm.9.1617577660056;
-        Sun, 04 Apr 2021 16:07:40 -0700 (PDT)
-Received: from [192.168.1.134] ([66.219.217.173])
-        by smtp.gmail.com with ESMTPSA id 12sm13527879pgw.18.2021.04.04.16.07.38
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sun, 04 Apr 2021 16:07:39 -0700 (PDT)
-Subject: Re: [PATCH for-5.13] io_uring: maintain drain requests' logic
-To:     Hao Xu <haoxu@linux.alibaba.com>,
-        Pavel Begunkov <asml.silence@gmail.com>
-Cc:     io-uring@vger.kernel.org, Joseph Qi <joseph.qi@linux.alibaba.com>
-References: <1617181262-66724-1-git-send-email-haoxu@linux.alibaba.com>
- <55b29f0f-967d-fc91-a959-60e01acc55a3@gmail.com>
- <652e4b3b-4b98-54db-a86c-31478ca33355@linux.alibaba.com>
- <b3db5da8-1bce-530b-5542-c6f9b589a191@gmail.com>
- <49152a6e-6d8a-21f1-fd9c-8b764c21b2d3@linux.alibaba.com>
- <59d15355-4317-99af-c7c4-364d0e7c1682@gmail.com>
- <bc90166c-99ce-46c5-da7e-462dee896ad7@linux.alibaba.com>
-From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <dc62f2aa-3f08-2f6f-e2bc-274ea8b3910c@kernel.dk>
-Date:   Sun, 4 Apr 2021 17:07:38 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
-MIME-Version: 1.0
-In-Reply-To: <bc90166c-99ce-46c5-da7e-462dee896ad7@linux.alibaba.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+        id S231697AbhDEHgl (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Mon, 5 Apr 2021 03:36:41 -0400
+Received: from out30-44.freemail.mail.aliyun.com ([115.124.30.44]:50411 "EHLO
+        out30-44.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231523AbhDEHgl (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Mon, 5 Apr 2021 03:36:41 -0400
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R751e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=alimailimapcm10staff010182156082;MF=haoxu@linux.alibaba.com;NM=1;PH=DS;RN=4;SR=0;TI=SMTPD_---0UUW--Sf_1617608182;
+Received: from e18g09479.et15sqa.tbsite.net(mailfrom:haoxu@linux.alibaba.com fp:SMTPD_---0UUW--Sf_1617608182)
+          by smtp.aliyun-inc.com(127.0.0.1);
+          Mon, 05 Apr 2021 15:36:33 +0800
+From:   Hao Xu <haoxu@linux.alibaba.com>
+To:     Jens Axboe <axboe@kernel.dk>
+Cc:     io-uring@vger.kernel.org, Pavel Begunkov <asml.silence@gmail.com>,
+        Joseph Qi <joseph.qi@linux.alibaba.com>
+Subject: [PATCH v2] io-wq: simplify code in __io_worker_busy
+Date:   Mon,  5 Apr 2021 15:36:22 +0800
+Message-Id: <1617608182-202901-1-git-send-email-haoxu@linux.alibaba.com>
+X-Mailer: git-send-email 1.8.3.1
+In-Reply-To: <91175ea9-950a-868b-bddf-dfe4c0184225@gmail.com>
+References: <91175ea9-950a-868b-bddf-dfe4c0184225@gmail.com>
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 4/3/21 12:58 AM, Hao Xu wrote:
-> 在 2021/4/2 上午6:29, Pavel Begunkov 写道:
->> On 01/04/2021 15:55, Hao Xu wrote:
->>> 在 2021/4/1 下午6:25, Pavel Begunkov 写道:
->>>> On 01/04/2021 07:53, Hao Xu wrote:
->>>>> 在 2021/4/1 上午6:06, Pavel Begunkov 写道:
->>>>>>
->>>>>>
->>>>>> On 31/03/2021 10:01, Hao Xu wrote:
->>>>>>> Now that we have multishot poll requests, one sqe can emit multiple
->>>>>>> cqes. given below example:
->>>>>>>        sqe0(multishot poll)-->sqe1-->sqe2(drain req)
->>>>>>> sqe2 is designed to issue after sqe0 and sqe1 completed, but since sqe0
->>>>>>> is a multishot poll request, sqe2 may be issued after sqe0's event
->>>>>>> triggered twice before sqe1 completed. This isn't what users leverage
->>>>>>> drain requests for.
->>>>>>> Here a simple solution is to ignore all multishot poll cqes, which means
->>>>>>> drain requests  won't wait those request to be done.
->>>>>>>
->>>>>>> Signed-off-by: Hao Xu <haoxu@linux.alibaba.com>
->>>>>>> ---
->>>>>>>     fs/io_uring.c | 9 +++++++--
->>>>>>>     1 file changed, 7 insertions(+), 2 deletions(-)
->>>>>>>
->>>>>>> diff --git a/fs/io_uring.c b/fs/io_uring.c
->>>>>>> index 513096759445..cd6d44cf5940 100644
->>>>>>> --- a/fs/io_uring.c
->>>>>>> +++ b/fs/io_uring.c
->>>>>>> @@ -455,6 +455,7 @@ struct io_ring_ctx {
->>>>>>>         struct callback_head        *exit_task_work;
->>>>>>>           struct wait_queue_head        hash_wait;
->>>>>>> +    unsigned                        multishot_cqes;
->>>>>>>           /* Keep this last, we don't need it for the fast path */
->>>>>>>         struct work_struct        exit_work;
->>>>>>> @@ -1181,8 +1182,8 @@ static bool req_need_defer(struct io_kiocb *req, u32 seq)
->>>>>>>         if (unlikely(req->flags & REQ_F_IO_DRAIN)) {
->>>>>>>             struct io_ring_ctx *ctx = req->ctx;
->>>>>>>     -        return seq != ctx->cached_cq_tail
->>>>>>> -                + READ_ONCE(ctx->cached_cq_overflow);
->>>>>>> +        return seq + ctx->multishot_cqes != ctx->cached_cq_tail
->>>>>>> +            + READ_ONCE(ctx->cached_cq_overflow);
->>>>>>>         }
->>>>>>>           return false;
->>>>>>> @@ -4897,6 +4898,7 @@ static bool io_poll_complete(struct io_kiocb *req, __poll_t mask, int error)
->>>>>>>     {
->>>>>>>         struct io_ring_ctx *ctx = req->ctx;
->>>>>>>         unsigned flags = IORING_CQE_F_MORE;
->>>>>>> +    bool multishot_poll = !(req->poll.events & EPOLLONESHOT);
->>>>>>>           if (!error && req->poll.canceled) {
->>>>>>>             error = -ECANCELED;
->>>>>>> @@ -4911,6 +4913,9 @@ static bool io_poll_complete(struct io_kiocb *req, __poll_t mask, int error)
->>>>>>>             req->poll.done = true;
->>>>>>>             flags = 0;
->>>>>>>         }
->>>>>>> +    if (multishot_poll)
->>>>>>> +        ctx->multishot_cqes++;
->>>>>>> +
->>>>>>
->>>>>> We need to make sure we do that only for a non-final complete, i.e.
->>>>>> not killing request, otherwise it'll double account the last one.
->>>>> Hi Pavel, I saw a killing request like iopoll_remove or async_cancel call io_cqring_fill_event() to create an ECANCELED cqe for the original poll request. So there could be cases like(even for single poll request):
->>>>>     (1). add poll --> cancel poll, an ECANCELED cqe.
->>>>>                                                     1sqe:1cqe   all good
->>>>>     (2). add poll --> trigger event(queued to task_work) --> cancel poll,            an ECANCELED cqe --> task_work runs, another ECANCELED cqe.
->>>>>                                                     1sqe:2cqes
->>>>
->>>> Those should emit a CQE on behalf of the request they're cancelling
->>>> only when it's definitely cancelled and not going to fill it
->>>> itself. E.g. if io_poll_cancel() found it and removed from
->>>> all the list and core's poll infra.
->>>>
->>>> At least before multi-cqe it should have been working fine.
->>>>
->>> I haven't done a test for this, but from the code logic, there could be
->>> case below:
->>>
->>> io_poll_add()                         | io_poll_remove
->>> (event happen)io_poll_wake()          | io_poll_remove_one
->>>                                        | io_poll_remove_waitqs
->>>                                        | io_cqring_fill_event(-ECANCELED)
->>>                                        |
->>> task_work run(io_poll_task_func)      |
->>> io_poll_complete()                    |
->>> req->poll.canceled is true, \         |
->>> __io_cqring_fill_event(-ECANCELED)    |
->>>
->>> two ECANCELED cqes, is there anything I missed?
->>
->> Definitely may be be, but need to take a closer look
->>
-> I'll do some test to test if this issue exists, and make some change if 
-> it does.
+leverage xor to simplify code in __io_worker_busy
 
-How about something like this? Seems pointless to have an extra
-variable for this, when we already track if we're going to do more
-completions for this event or not. Also places the variable where
-it makes the most sense, and plenty of pad space there too.
+Signed-off-by: Hao Xu <haoxu@linux.alibaba.com>
+---
 
-Warning: totally untested. Would be great if you could, and hoping
-you're going to send out a v2.
+I thought about [IO_WQ_ACCT_UNBOUND + IO_WQ_ACCT_BOUND - index], but it
+is not antithetical, so I finally choose to calculate two indexes
+respectively.
 
+ fs/io-wq.c | 14 +++++---------
+ 1 file changed, 5 insertions(+), 9 deletions(-)
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index f94b32b43429..1eea4998ad9b 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -423,6 +423,7 @@ struct io_ring_ctx {
- 		unsigned		cq_mask;
- 		atomic_t		cq_timeouts;
- 		unsigned		cq_last_tm_flush;
-+		unsigned		cq_extra;
- 		unsigned long		cq_check_overflow;
- 		struct wait_queue_head	cq_wait;
- 		struct fasync_struct	*cq_fasync;
-@@ -1183,8 +1184,8 @@ static bool req_need_defer(struct io_kiocb *req, u32 seq)
- 	if (unlikely(req->flags & REQ_F_IO_DRAIN)) {
- 		struct io_ring_ctx *ctx = req->ctx;
- 
--		return seq != ctx->cached_cq_tail
--				+ READ_ONCE(ctx->cached_cq_overflow);
-+		return seq + ctx->cq_extra != ctx->cached_cq_tail
-+			+ READ_ONCE(ctx->cached_cq_overflow);
- 	}
- 
- 	return false;
-@@ -4894,6 +4895,9 @@ static bool io_poll_complete(struct io_kiocb *req, __poll_t mask, int error)
- 		req->poll.done = true;
- 		flags = 0;
- 	}
-+	if (flags & IORING_CQE_F_MORE)
-+		ctx->cq_extra++;
-+
- 	io_commit_cqring(ctx);
- 	return !(flags & IORING_CQE_F_MORE);
+diff --git a/fs/io-wq.c b/fs/io-wq.c
+index 433c4d3c3c1c..7ec2948838ca 100644
+--- a/fs/io-wq.c
++++ b/fs/io-wq.c
+@@ -292,16 +292,12 @@ static void __io_worker_busy(struct io_wqe *wqe, struct io_worker *worker,
+ 	worker_bound = (worker->flags & IO_WORKER_F_BOUND) != 0;
+ 	work_bound = (work->flags & IO_WQ_WORK_UNBOUND) == 0;
+ 	if (worker_bound != work_bound) {
++		int index0 = work_bound ? IO_WQ_ACCT_UNBOUND : IO_WQ_ACCT_BOUND;
++		int index1 = work_bound ? IO_WQ_ACCT_BOUND : IO_WQ_ACCT_UNBOUND;
+ 		io_wqe_dec_running(worker);
+-		if (work_bound) {
+-			worker->flags |= IO_WORKER_F_BOUND;
+-			wqe->acct[IO_WQ_ACCT_UNBOUND].nr_workers--;
+-			wqe->acct[IO_WQ_ACCT_BOUND].nr_workers++;
+-		} else {
+-			worker->flags &= ~IO_WORKER_F_BOUND;
+-			wqe->acct[IO_WQ_ACCT_UNBOUND].nr_workers++;
+-			wqe->acct[IO_WQ_ACCT_BOUND].nr_workers--;
+-		}
++		worker->flags ^= IO_WORKER_F_BOUND;
++		wqe->acct[index0].nr_workers--;
++		wqe->acct[index1].nr_workers++;
+ 		io_wqe_inc_running(worker);
+ 	 }
  }
-
 -- 
-Jens Axboe
+1.8.3.1
 

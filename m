@@ -7,19 +7,19 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B29BFC433ED
-	for <io-uring@archiver.kernel.org>; Wed,  7 Apr 2021 11:23:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0E983C433B4
+	for <io-uring@archiver.kernel.org>; Wed,  7 Apr 2021 11:24:19 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 90DAF6136A
-	for <io-uring@archiver.kernel.org>; Wed,  7 Apr 2021 11:23:48 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C688C6136A
+	for <io-uring@archiver.kernel.org>; Wed,  7 Apr 2021 11:24:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234656AbhDGLX5 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Wed, 7 Apr 2021 07:23:57 -0400
-Received: from out30-130.freemail.mail.aliyun.com ([115.124.30.130]:52295 "EHLO
-        out30-130.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S234598AbhDGLXm (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Wed, 7 Apr 2021 07:23:42 -0400
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R821e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04400;MF=haoxu@linux.alibaba.com;NM=1;PH=DS;RN=4;SR=0;TI=SMTPD_---0UUnhk8L_1617794605;
+        id S232655AbhDGLY1 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 7 Apr 2021 07:24:27 -0400
+Received: from out30-56.freemail.mail.aliyun.com ([115.124.30.56]:46804 "EHLO
+        out30-56.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S245718AbhDGLYQ (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Wed, 7 Apr 2021 07:24:16 -0400
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R751e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e01424;MF=haoxu@linux.alibaba.com;NM=1;PH=DS;RN=4;SR=0;TI=SMTPD_---0UUnhk8L_1617794605;
 Received: from e18g09479.et15sqa.tbsite.net(mailfrom:haoxu@linux.alibaba.com fp:SMTPD_---0UUnhk8L_1617794605)
           by smtp.aliyun-inc.com(127.0.0.1);
           Wed, 07 Apr 2021 19:23:31 +0800
@@ -27,9 +27,9 @@ From:   Hao Xu <haoxu@linux.alibaba.com>
 To:     Jens Axboe <axboe@kernel.dk>
 Cc:     io-uring@vger.kernel.org, Pavel Begunkov <asml.silence@gmail.com>,
         Joseph Qi <joseph.qi@linux.alibaba.com>
-Subject: [PATCH 1/3] io_uring: add IOSQE_MULTI_CQES/REQ_F_MULTI_CQES for multishot requests
-Date:   Wed,  7 Apr 2021 19:23:23 +0800
-Message-Id: <1617794605-35748-2-git-send-email-haoxu@linux.alibaba.com>
+Subject: [PATCH 3/3] io_uring: use REQ_F_MULTI_CQES for multipoll IORING_OP_ADD
+Date:   Wed,  7 Apr 2021 19:23:25 +0800
+Message-Id: <1617794605-35748-4-git-send-email-haoxu@linux.alibaba.com>
 X-Mailer: git-send-email 1.8.3.1
 In-Reply-To: <1617794605-35748-1-git-send-email-haoxu@linux.alibaba.com>
 References: <1617794605-35748-1-git-send-email-haoxu@linux.alibaba.com>
@@ -37,67 +37,68 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Since we now have requests that may generate multiple cqes, we need a
-new flag to mark them, so that we can maintain features like drain io
-easily for them.
+leverage REQ_F_MULTI_CQES to suppoort IORING_OP_ADD multishot.
 
 Signed-off-by: Hao Xu <haoxu@linux.alibaba.com>
 ---
- fs/io_uring.c                 | 5 ++++-
- include/uapi/linux/io_uring.h | 3 +++
- 2 files changed, 7 insertions(+), 1 deletion(-)
+ fs/io_uring.c                 | 13 ++++++++++---
+ include/uapi/linux/io_uring.h |  5 -----
+ 2 files changed, 10 insertions(+), 8 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 81e5d156af1c..192463bb977a 100644
+index a7bd223ce2cc..952ad0ddb2db 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -102,7 +102,7 @@
+@@ -5361,20 +5361,27 @@ static int io_poll_add_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe
+ {
+ 	struct io_poll_iocb *poll = &req->poll;
+ 	u32 events, flags;
++	bool multishot = req->flags & REQ_F_MULTI_CQES;
++	u32 update_bits = IORING_POLL_UPDATE_EVENTS |
++		IORING_POLL_UPDATE_USER_DATA;
  
- #define SQE_VALID_FLAGS	(IOSQE_FIXED_FILE|IOSQE_IO_DRAIN|IOSQE_IO_LINK|	\
- 				IOSQE_IO_HARDLINK | IOSQE_ASYNC | \
--				IOSQE_BUFFER_SELECT)
-+				IOSQE_BUFFER_SELECT | IOSQE_MULTI_CQES)
- 
- struct io_uring {
- 	u32 head ____cacheline_aligned_in_smp;
-@@ -700,6 +700,7 @@ enum {
- 	REQ_F_HARDLINK_BIT	= IOSQE_IO_HARDLINK_BIT,
- 	REQ_F_FORCE_ASYNC_BIT	= IOSQE_ASYNC_BIT,
- 	REQ_F_BUFFER_SELECT_BIT	= IOSQE_BUFFER_SELECT_BIT,
-+	REQ_F_MULTI_CQES_BIT	= IOSQE_MULTI_CQES_BIT,
- 
- 	REQ_F_FAIL_LINK_BIT,
- 	REQ_F_INFLIGHT_BIT,
-@@ -766,6 +767,8 @@ enum {
- 	REQ_F_ASYNC_WRITE	= BIT(REQ_F_ASYNC_WRITE_BIT),
- 	/* regular file */
- 	REQ_F_ISREG		= BIT(REQ_F_ISREG_BIT),
-+	/* a request can generate multiple cqes */
-+	REQ_F_MULTI_CQES	= BIT(REQ_F_MULTI_CQES_BIT),
- };
- 
- struct async_poll {
+ 	if (unlikely(req->ctx->flags & IORING_SETUP_IOPOLL))
+ 		return -EINVAL;
+ 	if (sqe->ioprio || sqe->buf_index)
+ 		return -EINVAL;
+ 	flags = READ_ONCE(sqe->len);
+-	if (flags & ~(IORING_POLL_ADD_MULTI | IORING_POLL_UPDATE_EVENTS |
+-			IORING_POLL_UPDATE_USER_DATA))
++	/*
++	 * can't set REQ_F_MULTI_CQES with UPDATE flags, otherwise we count
++	 * IO_POLL_ADD(IORING_POLL_UPDATE_*)'s cqe to ctx->cq_extra, which
++	 * we shouldn't
++	 */
++	if ((flags & ~update_bits) || (multishot && (flags & update_bits)))
+ 		return -EINVAL;
+ 	events = READ_ONCE(sqe->poll32_events);
+ #ifdef __BIG_ENDIAN
+ 	events = swahw32(events);
+ #endif
+-	if (!(flags & IORING_POLL_ADD_MULTI))
++	if (!multishot)
+ 		events |= EPOLLONESHOT;
+ 	poll->update_events = poll->update_user_data = false;
+ 	if (flags & IORING_POLL_UPDATE_EVENTS) {
 diff --git a/include/uapi/linux/io_uring.h b/include/uapi/linux/io_uring.h
-index 5beaa6bbc6db..303ac8005572 100644
+index 303ac8005572..a3cd943b228e 100644
 --- a/include/uapi/linux/io_uring.h
 +++ b/include/uapi/linux/io_uring.h
-@@ -70,6 +70,7 @@ enum {
- 	IOSQE_IO_HARDLINK_BIT,
- 	IOSQE_ASYNC_BIT,
- 	IOSQE_BUFFER_SELECT_BIT,
-+	IOSQE_MULTI_CQES_BIT,
- };
+@@ -166,14 +166,9 @@ enum {
+  * POLL_ADD flags. Note that since sqe->poll_events is the flag space, the
+  * command flags for POLL_ADD are stored in sqe->len.
+  *
+- * IORING_POLL_ADD_MULTI	Multishot poll. Sets IORING_CQE_F_MORE if
+- *				the poll handler will continue to report
+- *				CQEs on behalf of the same SQE.
+- *
+  * IORING_POLL_UPDATE		Update existing poll request, matching
+  *				sqe->addr as the old user_data field.
+  */
+-#define IORING_POLL_ADD_MULTI	(1U << 0)
+ #define IORING_POLL_UPDATE_EVENTS	(1U << 1)
+ #define IORING_POLL_UPDATE_USER_DATA	(1U << 2)
  
- /*
-@@ -87,6 +88,8 @@ enum {
- #define IOSQE_ASYNC		(1U << IOSQE_ASYNC_BIT)
- /* select buffer from sqe->buf_group */
- #define IOSQE_BUFFER_SELECT	(1U << IOSQE_BUFFER_SELECT_BIT)
-+/* may generate multiple cqes */
-+#define IOSQE_MULTI_CQES	(1U << IOSQE_MULTI_CQES_BIT)
- 
- /*
-  * io_uring_setup() flags
 -- 
 1.8.3.1
 

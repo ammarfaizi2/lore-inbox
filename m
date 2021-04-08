@@ -8,59 +8,59 @@ X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8558FC43460
-	for <io-uring@archiver.kernel.org>; Thu,  8 Apr 2021 00:58:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9BB9DC433B4
+	for <io-uring@archiver.kernel.org>; Thu,  8 Apr 2021 00:59:00 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6511B61205
-	for <io-uring@archiver.kernel.org>; Thu,  8 Apr 2021 00:58:58 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 771AA61205
+	for <io-uring@archiver.kernel.org>; Thu,  8 Apr 2021 00:59:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229966AbhDHA7I (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Wed, 7 Apr 2021 20:59:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44812 "EHLO
+        id S229862AbhDHA7J (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 7 Apr 2021 20:59:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44822 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229505AbhDHA7H (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Wed, 7 Apr 2021 20:59:07 -0400
-Received: from mail-wr1-x434.google.com (mail-wr1-x434.google.com [IPv6:2a00:1450:4864:20::434])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D10B6C061760
-        for <io-uring@vger.kernel.org>; Wed,  7 Apr 2021 17:58:56 -0700 (PDT)
-Received: by mail-wr1-x434.google.com with SMTP id s7so111034wru.6
-        for <io-uring@vger.kernel.org>; Wed, 07 Apr 2021 17:58:56 -0700 (PDT)
+        with ESMTP id S229505AbhDHA7I (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Wed, 7 Apr 2021 20:59:08 -0400
+Received: from mail-wr1-x42b.google.com (mail-wr1-x42b.google.com [IPv6:2a00:1450:4864:20::42b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 829F0C061760
+        for <io-uring@vger.kernel.org>; Wed,  7 Apr 2021 17:58:58 -0700 (PDT)
+Received: by mail-wr1-x42b.google.com with SMTP id a4so253316wrr.2
+        for <io-uring@vger.kernel.org>; Wed, 07 Apr 2021 17:58:58 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=VzZClwmJ0QXLGWALoXeSx2HEesPrzrVUdZEWJtMZzs4=;
-        b=HZyuu/+ZC2Ecv0dre89FyrSXCkHebBOs0CW+A2TK+YvcxPs0H8urMYza9awEqEu+7B
-         W0NpgBFLMXYDX6aQE5We/fAjPXGPABP3s/VT5BaD8WgwTp8YoybZBkjDvQQOp44WC3gh
-         5q8BvI5oBs17GA0yEWQCl4f2bFvdqhICqmihCM2ug1AbzEhSOz2k8zfzJDd9gs26UqyS
-         9994eoSA1t11thmVdOSVntZBAXJL81wVg8SCRjfghDQ8p7CdwEJGJVCtAtg72H3mWCht
-         b0OJAZdsG+ALf60fFH6bxOWj6RAsUnC3d9BmQR6d4PjKMegey5TGFfDnXfwQDJOulFr6
-         azTg==
+        bh=syC+GdFnCob3DTPUkWMFswmoy6bCsfBnXBIXr4QmVCw=;
+        b=hoBr2cmT79mbESp4t1BFF8fCLGPz1OyU3SqbfUH0ZbQCwEt84KjU2DjTXWaPC1tP7J
+         kq9OPzpf4wY6KOO4brMVdilUPszUnHnb27gshIbaNqQzQPdIwmG2F84LXZtiqoDnQfDZ
+         +GQEHi5+u8RJzVjCWeuyT+Ci8vsIFZoM3YXJjGhMzxslJnRdg2/5Nm3l95BnnW5QAofS
+         9+R7LMfd6AgAcIJaZegNv0HqLoEMvYHjznMnqQF8ugT6FkMMTiAQ0mNJU+5D8c+2EKHh
+         hgzYOhR6BHIkWrjDkkud6z5/K1At6H8ZM8oNf2sL+Dz7RRYYl8cQ5Fvyu2Y40AJDfVbu
+         J75A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=VzZClwmJ0QXLGWALoXeSx2HEesPrzrVUdZEWJtMZzs4=;
-        b=Sv0wsKqg8QCj5TkEqM0MdPt0KWVfnwLuGX4IFxRWrXty83T25Lywf9bxCcL+VXZLuW
-         22suqPaBZ3UL++lrsu8J/hM2vA1g5deCikygJghHRxaba4mgBZVCw1oSfNIwtWPhEH+I
-         tKj/Je+jIG64J/iGE8EloTrUVRxv4mMOmGues5id733RFH8ztqJq8CV9uej269gNEXmx
-         If7emBu99I81xdA+1clQ9g0tg15acmdeihzPdiJ18BuKq5PgoF+QEj3HkUtuapZ5+XZ/
-         gpyotlSWkLKarLav2i7V5NJgHLGZiqTmkQbhKe/r9R30ncvgs5Y0iJbErsbdpahLIUJt
-         LBAg==
-X-Gm-Message-State: AOAM531g7bKp5YdYsj2VtSb85p8yK4nRgDafFQlKx5Ta2Sw8+Hcy1zUy
-        ofEng/rFQeA47NBImr1+uto=
-X-Google-Smtp-Source: ABdhPJyOC7REuxhTirjKmCx9KQC92QKgYb3O1ByYE/deM/xv9hF0aK7/00tt6dTQr2sd6rEJMKsA6g==
-X-Received: by 2002:a05:6000:83:: with SMTP id m3mr7320287wrx.321.1617843535665;
-        Wed, 07 Apr 2021 17:58:55 -0700 (PDT)
+        bh=syC+GdFnCob3DTPUkWMFswmoy6bCsfBnXBIXr4QmVCw=;
+        b=YpLj37IxMUgEJ/EE/3MSLsBduuJdTW1rWvl1vvG4UmU7DJSSl5hnleFJLg+SqBz+se
+         h4mZzfmUKWs92Yo6P28h7G3FRd+zZawEIaWFHL25vM4yFp2Azf2c4IngzgtzCh4d61E0
+         GAQT6VuMf6s2eWEkomBpatlPFOm67ISRJZC1hYrkPNSdZxwhkOKxRLCPmSaMF4ifBfoa
+         APf7Dlqjhx+rCFfL5NYZk7yAwCE+NTOEIbf/QJLiiqP0DLQOriUOl3GzCBJ/XH45Gk51
+         SvY18VYNUE70z9MtLVnJfXUumU+auKyeHi1P7Udw3pFfBzR5dWMZ5l9btiylRMTxpsNV
+         r5SA==
+X-Gm-Message-State: AOAM532MHqRHEMdrTnZeSOfVTAVIc+ybVV9wwwkTy7oZnWMObpuNxeEd
+        j6Ee3nzNuEG0flCvt401UhxvSDMPysZOVg==
+X-Google-Smtp-Source: ABdhPJwW39HuROTlwbKkuVJcacMfwrd2njkgD8JuELK6lrgADbrAKi//+UOsfptQuM6PHRMVAKlX9A==
+X-Received: by 2002:a5d:5082:: with SMTP id a2mr7482641wrt.267.1617843537367;
+        Wed, 07 Apr 2021 17:58:57 -0700 (PDT)
 Received: from localhost.localdomain ([148.252.132.202])
-        by smtp.gmail.com with ESMTPSA id s9sm12219287wmh.31.2021.04.07.17.58.54
+        by smtp.gmail.com with ESMTPSA id s9sm12219287wmh.31.2021.04.07.17.58.56
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 07 Apr 2021 17:58:55 -0700 (PDT)
+        Wed, 07 Apr 2021 17:58:57 -0700 (PDT)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH 1/4] io_uring: clear F_REISSUE right after getting it
-Date:   Thu,  8 Apr 2021 01:54:39 +0100
-Message-Id: <11dcead939343f4e27cab0074d34afcab771bfa4.1617842918.git.asml.silence@gmail.com>
+Subject: [PATCH 3/4] io_uring: fix poll_rewait racing for ->canceled
+Date:   Thu,  8 Apr 2021 01:54:41 +0100
+Message-Id: <f6d92429952fbcb27eed4236238564d84e0f26cc.1617842918.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <cover.1617842918.git.asml.silence@gmail.com>
 References: <cover.1617842918.git.asml.silence@gmail.com>
@@ -70,51 +70,38 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-There are lots of ways r/w request may continue its path after getting
-REQ_F_REISSUE, it's not necessarily io-wq and can be, e.g. apoll,
-and submitted via  io_async_task_func() -> __io_req_task_submit()
+poll->canceled may be set from different contexts, even async, so
+io_poll_rewait() should be prepared that it can change and not read it
+twice.
 
-Clear the flag right after getting it, so the next attempt is well
-prepared regardless how the request will be executed.
-
-Fixes: 230d50d448ac ("io_uring: move reissue into regular IO path")
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
- fs/io_uring.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ fs/io_uring.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 65a17d560a73..f1881ac0744b 100644
+index de5822350345..376d9c875dc2 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -3294,6 +3294,7 @@ static int io_read(struct io_kiocb *req, unsigned int issue_flags)
- 	ret = io_iter_do_read(req, iter);
+@@ -4897,15 +4897,16 @@ static bool io_poll_rewait(struct io_kiocb *req, struct io_poll_iocb *poll)
+ 	__acquires(&req->ctx->completion_lock)
+ {
+ 	struct io_ring_ctx *ctx = req->ctx;
++	bool canceled = READ_ONCE(poll->canceled);
  
- 	if (ret == -EAGAIN || (req->flags & REQ_F_REISSUE)) {
-+		req->flags &= ~REQ_F_REISSUE;
- 		/* IOPOLL retry should happen for io-wq threads */
- 		if (!force_nonblock && !(req->ctx->flags & IORING_SETUP_IOPOLL))
- 			goto done;
-@@ -3417,8 +3418,10 @@ static int io_write(struct io_kiocb *req, unsigned int issue_flags)
- 	else
- 		ret2 = -EINVAL;
+-	if (!req->result && !READ_ONCE(poll->canceled)) {
++	if (!req->result && !canceled) {
+ 		struct poll_table_struct pt = { ._key = poll->events };
  
--	if (req->flags & REQ_F_REISSUE)
-+	if (req->flags & REQ_F_REISSUE) {
-+		req->flags &= ~REQ_F_REISSUE;
- 		ret2 = -EAGAIN;
-+	}
+ 		req->result = vfs_poll(req->file, &pt) & poll->events;
+ 	}
  
- 	/*
- 	 * Raw bdev writes will return -EOPNOTSUPP for IOCB_NOWAIT. Just
-@@ -6173,7 +6176,6 @@ static void io_wq_submit_work(struct io_wq_work *work)
- 		ret = -ECANCELED;
- 
- 	if (!ret) {
--		req->flags &= ~REQ_F_REISSUE;
- 		do {
- 			ret = io_issue_sqe(req, 0);
- 			/*
+ 	spin_lock_irq(&ctx->completion_lock);
+-	if (!req->result && !READ_ONCE(poll->canceled)) {
++	if (!req->result && !canceled) {
+ 		add_wait_queue(poll->head, &poll->wait);
+ 		return true;
+ 	}
 -- 
 2.24.0
 

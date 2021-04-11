@@ -8,59 +8,59 @@ X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7650DC433ED
-	for <io-uring@archiver.kernel.org>; Sun, 11 Apr 2021 00:51:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2D2FAC43462
+	for <io-uring@archiver.kernel.org>; Sun, 11 Apr 2021 00:51:02 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 46AE4610E5
-	for <io-uring@archiver.kernel.org>; Sun, 11 Apr 2021 00:51:01 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0940E610E5
+	for <io-uring@archiver.kernel.org>; Sun, 11 Apr 2021 00:51:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234926AbhDKAvQ (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        id S234928AbhDKAvQ (ORCPT <rfc822;io-uring@archiver.kernel.org>);
         Sat, 10 Apr 2021 20:51:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47982 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47992 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234548AbhDKAvP (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Sat, 10 Apr 2021 20:51:15 -0400
-Received: from mail-wr1-x430.google.com (mail-wr1-x430.google.com [IPv6:2a00:1450:4864:20::430])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56E3DC06138B
-        for <io-uring@vger.kernel.org>; Sat, 10 Apr 2021 17:50:59 -0700 (PDT)
-Received: by mail-wr1-x430.google.com with SMTP id 12so9254342wrz.7
-        for <io-uring@vger.kernel.org>; Sat, 10 Apr 2021 17:50:59 -0700 (PDT)
+        with ESMTP id S234903AbhDKAvQ (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Sat, 10 Apr 2021 20:51:16 -0400
+Received: from mail-wr1-x434.google.com (mail-wr1-x434.google.com [IPv6:2a00:1450:4864:20::434])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 059DCC06138B
+        for <io-uring@vger.kernel.org>; Sat, 10 Apr 2021 17:51:01 -0700 (PDT)
+Received: by mail-wr1-x434.google.com with SMTP id w4so5503855wrt.5
+        for <io-uring@vger.kernel.org>; Sat, 10 Apr 2021 17:51:00 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=oX3WzSPm28qN2TSO7/GZJkVzb6DpFAQFRkb/DPJbjww=;
-        b=CVi3Bi484yXU64ph4SDgo3f9fPdhlocw/1xKc5joqVeXTo6NWOU2MyNsA98mhZjskS
-         CeN/ISdGSCbWn1Vdec0yu6JvG9iZnqTAURVhH3TaslBcPQIlpFrlfVQseKbT4qhiyyvY
-         ajIF03Ba76VnPf7oZrb7xyPbtLuB9R1uvcZxNk/bQdj7us/qrJBy7jw/nyW80456A3W1
-         TsZHlNGj9vy+RusbK2tNi6ApFqmD/xFhPWdgefHBXwoMcR118sWq6c5GkdgjhaAUMZ7t
-         J+YrwTLyRjA0dVGw5Mb6HGoTNCQVsKz8S7vNWy5w1JiXq0E7Z1M7ZsEHfR0l6efaO9YK
-         kzzw==
+        bh=QfyIzYm8iEWiD65dVqhBGeRaLv0OOCUOHYYH1D5GYJQ=;
+        b=hwXHUsdaasQSmj23G4UYBxH8aptg94W8AmhycW4Wju8fPTrUDG6iiCzt20zUck/MJG
+         eF4sj+N/VkX2vCZDuGmQuND8e0WDnYaFAnpR26VWJsbbDM28uHA6Uzfje/jLYCYgA/t2
+         IEqzccvQnhfuS5KxoXcMWcpjDgcgmw/2ICQdAhDuDPv/faBfjYqWVlXdKSqvpBR0uNVu
+         mutUIbUWorHshEqfaWMPZx9E3yJz64ZDDmP0dDOIsc+j/7uFiPBPuqIJBPgREyxRoSIu
+         47Lyehe/gHVe4KwRfoDaIvtBWxQcvGV9S75KnOszqwa/b2uI3lKB3C14HV1n4RsPZv+K
+         mSdQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=oX3WzSPm28qN2TSO7/GZJkVzb6DpFAQFRkb/DPJbjww=;
-        b=OHuVePZ0qA2jCZ7Hk6QM7rka+tIrhlXcOxmIDvNc1URQfM347sXvmGjDj/wj9Xf/KZ
-         Ef7lv34/90lL12+Gwbp4TIkhUSif9DgeJ9sbVZ0WG+857KyyebipZyvO6cY9pXnuQWJF
-         JRJ7OrbFWjDTe2kjO26emGTV3I4L1w/ckJEqOMNg79U70FxAY0TgZJT0b6PETz63RSrh
-         mvISmqdIa1QciD0nr42IPgLFNk/SyqkQf3J6MVieps4aytKtnasPptcOQJcnYn+wA27E
-         l9yqaatdgiov1Hcrc0/jiviEltfN6ljwCKPMtvMzTmC36eMQfi2kYXaEGEH9HkRKmv2/
-         yDsw==
-X-Gm-Message-State: AOAM533IelyiPa2+NbQ7wU+MLECl19BAzoR4lfctGAwoWFwIBMVBL+AX
-        h8gU6XtChUZrXDmTh1AAaGwRe3qWf4pwMQ==
-X-Google-Smtp-Source: ABdhPJylzmsCcts2XWwrIIG2ow0LiWdKSbooWFVJu8uhxRMLCdpcuqZzP3UJ0GVXp0E1ToI/xhjOjQ==
-X-Received: by 2002:adf:e541:: with SMTP id z1mr23838287wrm.383.1618102258210;
-        Sat, 10 Apr 2021 17:50:58 -0700 (PDT)
+        bh=QfyIzYm8iEWiD65dVqhBGeRaLv0OOCUOHYYH1D5GYJQ=;
+        b=TuS2yxeeIrfySUAXKfm4xX0imB9wtl1DLD21zpKLG9TkB4T3LdsIegOW+7u5U7Rp5t
+         LsrmZDbwx3fwqAbS4JyGrDU6yGs/PuNg+tgCiN1Qq909rOTOCIupqBfmP06CYMzvggJ/
+         uILij0X7wfe9/yHgfllKxG5SIdsWm7I3qHp6FonE40Xmp6k4Pk+/5TfizlOurP1aqgHU
+         Lxoz8/V3fBbsJRgG76vPC5cvxxysvhl0syrPX43T2OjI/lj9sGPgwFuvZZ6wrCulIUSY
+         27NtIMR6zvl3jC8BBOCTXgwxCvjTlbhRSrAdEN9mIfWsx5JEtqr3PduYz604ywyHJ9qQ
+         uFWA==
+X-Gm-Message-State: AOAM531NsYmAmZAm/3e8JnGQ6G+Cs9L9CZf5xd19LjMT5dWBy9iQU5by
+        trr5dGVNL1E16iSk7tiR7is=
+X-Google-Smtp-Source: ABdhPJydnwI9XYUsW+I9umczqiizhW9emCLGgqVh3Gz/yEp8/69Mdf6FmH8nRFSuQUMHe9l6bF99Kg==
+X-Received: by 2002:a05:6000:1a89:: with SMTP id f9mr21838176wry.288.1618102259833;
+        Sat, 10 Apr 2021 17:50:59 -0700 (PDT)
 Received: from localhost.localdomain ([85.255.237.117])
-        by smtp.gmail.com with ESMTPSA id y20sm9204735wma.45.2021.04.10.17.50.57
+        by smtp.gmail.com with ESMTPSA id y20sm9204735wma.45.2021.04.10.17.50.59
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 10 Apr 2021 17:50:57 -0700 (PDT)
+        Sat, 10 Apr 2021 17:50:59 -0700 (PDT)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH 05/16] io_uring: enable inline completion for more cases
-Date:   Sun, 11 Apr 2021 01:46:29 +0100
-Message-Id: <0badc7512e82f7350b73bb09abbebbecbdd5dab8.1618101759.git.asml.silence@gmail.com>
+Subject: [PATCH 07/16] io_uring: optimise non-eventfd post-event
+Date:   Sun, 11 Apr 2021 01:46:31 +0100
+Message-Id: <42fdaa51c68d39479f02cef4fe5bcb24624d60fa.1618101759.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <cover.1618101759.git.asml.silence@gmail.com>
 References: <cover.1618101759.git.asml.silence@gmail.com>
@@ -70,47 +70,35 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Take advantage of delayed/inline completion flushing and pass right
-issue flags for completion of open, open2, fadvise and poll remove
-opcodes. All others either already use it or always punted and never
-executed inline.
+Eventfd is not the canonical way of using io_uring, annotate
+io_should_trigger_evfd() with likely so it improves code generation for
+non-eventfd branch.
 
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
- fs/io_uring.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ fs/io_uring.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 2b6177c63b50..cfd77500e16c 100644
+index dd9dffbd4da6..87c1c614411c 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -3848,7 +3848,7 @@ static int io_openat2(struct io_kiocb *req, unsigned int issue_flags)
- 	req->flags &= ~REQ_F_NEED_CLEANUP;
- 	if (ret < 0)
- 		req_set_fail_links(req);
--	io_req_complete(req, ret);
-+	__io_req_complete(req, issue_flags, ret, 0);
- 	return 0;
+@@ -1357,13 +1357,11 @@ static struct io_uring_cqe *io_get_cqring(struct io_ring_ctx *ctx)
+ 
+ static inline bool io_should_trigger_evfd(struct io_ring_ctx *ctx)
+ {
+-	if (!ctx->cq_ev_fd)
++	if (likely(!ctx->cq_ev_fd))
+ 		return false;
+ 	if (READ_ONCE(ctx->rings->cq_flags) & IORING_CQ_EVENTFD_DISABLED)
+ 		return false;
+-	if (!ctx->eventfd_async)
+-		return true;
+-	return io_wq_current_is_worker();
++	return !ctx->eventfd_async || io_wq_current_is_worker();
  }
  
-@@ -4126,7 +4126,7 @@ static int io_fadvise(struct io_kiocb *req, unsigned int issue_flags)
- 	ret = vfs_fadvise(req->file, fa->offset, fa->len, fa->advice);
- 	if (ret < 0)
- 		req_set_fail_links(req);
--	io_req_complete(req, ret);
-+	__io_req_complete(req, issue_flags, ret, 0);
- 	return 0;
- }
- 
-@@ -5322,7 +5322,7 @@ static int io_poll_remove(struct io_kiocb *req, unsigned int issue_flags)
- 
- 	if (ret < 0)
- 		req_set_fail_links(req);
--	io_req_complete(req, ret);
-+	__io_req_complete(req, issue_flags, ret, 0);
- 	return 0;
- }
- 
+ static void io_cqring_ev_posted(struct io_ring_ctx *ctx)
 -- 
 2.24.0
 

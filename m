@@ -2,66 +2,65 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.9 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNWANTED_LANGUAGE_BODY,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9C1D9C43460
-	for <io-uring@archiver.kernel.org>; Tue, 13 Apr 2021 02:03:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9836EC43462
+	for <io-uring@archiver.kernel.org>; Tue, 13 Apr 2021 02:03:07 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 78E0761369
-	for <io-uring@archiver.kernel.org>; Tue, 13 Apr 2021 02:03:06 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7E6986135C
+	for <io-uring@archiver.kernel.org>; Tue, 13 Apr 2021 02:03:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241504AbhDMCDY (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Mon, 12 Apr 2021 22:03:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37306 "EHLO
+        id S241534AbhDMCDZ (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Mon, 12 Apr 2021 22:03:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37314 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240831AbhDMCDY (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Mon, 12 Apr 2021 22:03:24 -0400
-Received: from mail-wr1-x42f.google.com (mail-wr1-x42f.google.com [IPv6:2a00:1450:4864:20::42f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C57EC061574;
-        Mon, 12 Apr 2021 19:03:05 -0700 (PDT)
-Received: by mail-wr1-x42f.google.com with SMTP id f12so14833863wro.0;
-        Mon, 12 Apr 2021 19:03:04 -0700 (PDT)
+        with ESMTP id S240831AbhDMCDZ (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Mon, 12 Apr 2021 22:03:25 -0400
+Received: from mail-wr1-x435.google.com (mail-wr1-x435.google.com [IPv6:2a00:1450:4864:20::435])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 87571C061574
+        for <io-uring@vger.kernel.org>; Mon, 12 Apr 2021 19:03:06 -0700 (PDT)
+Received: by mail-wr1-x435.google.com with SMTP id x7so14769961wrw.10
+        for <io-uring@vger.kernel.org>; Mon, 12 Apr 2021 19:03:06 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=KgTdmIPWjlDYb1zlzGsCYbP8TgXluOQ1r6Ejfcu4Ea8=;
-        b=hRG6T0AuCgm5Ro8YvgKy0y8L6EdJ7FnjibCwkO1IqIy4AUzo6xDoRjIRJ+ACEaaHMG
-         gmJX3VbKuhxRQ6UHcyRZrdGOLIXNFSkmP4JIuuqrcDUEBbosXjCMYTvXJB9s76hTpp6k
-         ntPqYUyVWBaYNRiBauZf75mGGa90lUukfIV/9wcIVlXrYlAFmIc/6JqrTfVtoK/Wi8c4
-         jX0UOcGn5HO4ZRPHRXJBArqFU2kjSlGRSnWvoGfa6AHS+5tqB6W7gFx8kGAMpKrpJCvR
-         QwHQkjIttNtjqsUh8RRwsUFpar+VQJmHVISWkjmc0scw7iJRdg+BH1ib8Oz79DNnJxdI
-         MAMA==
+        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
+         :content-transfer-encoding;
+        bh=JeFz+lmXcjVpyElCUwnX9oIcPADby33iJPGlltemOTk=;
+        b=FWE2rGzRpvKHq0nHJWjcfrQ8wdc9Br8/6NktSuPWNzwzzjI3R24CVTtWnyLi5vSwNl
+         CXW7KqnbQ9JsK81z9nVgL7XjpOzTyq2sjHMWCA3XDqKEmuWDVvYEhAA6305gg4di4+tY
+         L1wvfiYVl4mCnb8U0sdKhlTX4xW3xL6KTsm7vtfk0brY+GeLzrYmp86BT72q5bRT20Bx
+         C5Ugvo3ZuVHUN11fjyhZOZdSdaQDIQQubTfzn/2IlO6Idgz7mtCyItOixvAwUFcZasg0
+         O8TeRdvchaPDjK/jfhaQ5lpMccm0HIYrUhwMurEzsCw85fNzPDhUSfhBe2lgHn3e9Ryv
+         aFdg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=KgTdmIPWjlDYb1zlzGsCYbP8TgXluOQ1r6Ejfcu4Ea8=;
-        b=qkKrFK3PzNlIRGSoEk/WXO4o/jGawrFfWmGzX4FUCoO5v8v3U+j6XpxufPFAyDJGW7
-         /w4ojCodJ21WWkDinCZnRd37QGPGH7akGeMO1dtI8CkBnCmFJB0UFeKZ9uDdt7YTJeUp
-         M5sQvQk2fjoWKdnzwUUlJjDdwwkhqS3HSS7OXwNYq0k8hkoabd4AkA0DNRqYg57+hevh
-         kY6nQOAfMapejy1KqY28FvfIqmKmfXLL/7JD7OPK0o/pcu5KM8aMkIgd2gd1P2bET/uD
-         ITb37z2XV6LfNfcS7vDALzqjVf/h36+DOfaaoP6SytwlGL5L2zdRkJfBzF2+DBZe/cU8
-         ps7A==
-X-Gm-Message-State: AOAM530aIMU56SjFVBUqK7llJpbF+hnFVZVXtquQqyLit29ZddyL1Zav
-        T8JIwB9Y0Lc0XkEuVnvnb/Z/ZFHEjZ8=
-X-Google-Smtp-Source: ABdhPJxENjq673bL/JceROU/asRr0Pp8tdxaSCPbs9Eo5ns5SHshu6S8Sg8Cp9US+qqHmT/vX5uChw==
-X-Received: by 2002:adf:9cc1:: with SMTP id h1mr33672126wre.135.1618279383584;
-        Mon, 12 Apr 2021 19:03:03 -0700 (PDT)
+        bh=JeFz+lmXcjVpyElCUwnX9oIcPADby33iJPGlltemOTk=;
+        b=I946hXmD4mJQoCaSPDhEtJlgZcjSoEQ/Du6aso5ElrNbZ16/te9oTdQY6/ajrYMUsU
+         z9xJXQnarpmetrHMp4EXWUZkKaiJCPwr+5f5Y1SqBG6Evyzoqy1mlWNASkMlp/16S2QL
+         TD0CdVMMHY+cuvLIaxfeE+Kv1dd3KA6/aufDEamc4xvLnCdGqa3Ma6o+eD6JyfkX0wx+
+         GspHfrWxN0NoN8Xez3zBpJFYzwKho+cnEK/V8StC7rMMEEpFHrNjFRFigrcrWFxKPBre
+         DIj4Lebn9jqF8pm194QyNaey+syjw9GpS6zh6i3Xsk3C46DqiYliqKW/8sRH3oCBPW8B
+         BKXA==
+X-Gm-Message-State: AOAM531bAZJGoMhZ4LkWzx8QqPIb1OZziswYEK61UbiEGSNK7ZS98h+7
+        X/tqaEGFap+l56hCLGSOE4QsTQTNrLU=
+X-Google-Smtp-Source: ABdhPJzKYXxdh/AXX54xr4YhNgIMZaDy632hM2msTU/+ZogefuY6wP3ZTphOv3ktBJNA18rdHVylLg==
+X-Received: by 2002:a5d:6d05:: with SMTP id e5mr32849548wrq.324.1618279385348;
+        Mon, 12 Apr 2021 19:03:05 -0700 (PDT)
 Received: from localhost.localdomain ([148.252.128.208])
-        by smtp.gmail.com with ESMTPSA id k7sm18771331wrw.64.2021.04.12.19.03.02
+        by smtp.gmail.com with ESMTPSA id k7sm18771331wrw.64.2021.04.12.19.03.04
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 12 Apr 2021 19:03:03 -0700 (PDT)
+        Mon, 12 Apr 2021 19:03:05 -0700 (PDT)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Cc:     stable@vger.kernel.org
-Subject: [PATCH 1/9] io_uring: fix leaking reg files on exit
-Date:   Tue, 13 Apr 2021 02:58:38 +0100
-Message-Id: <e696e9eade571b51997d0dc1d01f144c6d685c05.1618278933.git.asml.silence@gmail.com>
+Subject: [PATCH 3/9] io_uring: split poll and poll update structures
+Date:   Tue, 13 Apr 2021 02:58:40 +0100
+Message-Id: <b2f74d64ffebb57a648f791681af086c7211e3a4.1618278933.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <cover.1618278933.git.asml.silence@gmail.com>
 References: <cover.1618278933.git.asml.silence@gmail.com>
@@ -71,83 +70,154 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-If io_sqe_files_unregister() faults on io_rsrc_ref_quiesce(), it will
-fail to do unregister leaving files referenced. And that may well happen
-because of a strayed signal or just because it does allocations inside.
+struct io_poll_iocb became pretty nasty combining also update fields.
+Split them, so we would have more clarity to it.
 
-In io_ring_ctx_free() do an unsafe version of unregister, as it's
-guaranteed to not have requests by that point and so quiesce is useless.
-
-Cc: stable@vger.kernel.org
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
- fs/io_uring.c | 29 +++++++++++++++--------------
- 1 file changed, 15 insertions(+), 14 deletions(-)
+ fs/io_uring.c | 55 ++++++++++++++++++++++++++++++---------------------
+ 1 file changed, 32 insertions(+), 23 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 257eddd4cd82..44342ff5c4e1 100644
+index 429ee5fd9044..a0f207e62e32 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -7094,6 +7094,10 @@ static void __io_sqe_files_unregister(struct io_ring_ctx *ctx)
- 			fput(file);
- 	}
+@@ -490,15 +490,16 @@ struct io_poll_iocb {
+ 	__poll_t			events;
+ 	bool				done;
+ 	bool				canceled;
++	struct wait_queue_entry		wait;
++};
++
++struct io_poll_update {
++	struct file			*file;
++	u64				old_user_data;
++	u64				new_user_data;
++	__poll_t			events;
+ 	bool				update_events;
+ 	bool				update_user_data;
+-	union {
+-		struct wait_queue_entry	wait;
+-		struct {
+-			u64		old_user_data;
+-			u64		new_user_data;
+-		};
+-	};
+ };
+ 
+ struct io_poll_remove {
+@@ -715,6 +716,7 @@ enum {
+ 	REQ_F_COMPLETE_INLINE_BIT,
+ 	REQ_F_REISSUE_BIT,
+ 	REQ_F_DONT_REISSUE_BIT,
++	REQ_F_POLL_UPDATE_BIT,
+ 	/* keep async read/write and isreg together and in order */
+ 	REQ_F_ASYNC_READ_BIT,
+ 	REQ_F_ASYNC_WRITE_BIT,
+@@ -762,6 +764,8 @@ enum {
+ 	REQ_F_REISSUE		= BIT(REQ_F_REISSUE_BIT),
+ 	/* don't attempt request reissue, see io_rw_reissue() */
+ 	REQ_F_DONT_REISSUE	= BIT(REQ_F_DONT_REISSUE_BIT),
++	/* switches between poll and poll update */
++	REQ_F_POLL_UPDATE	= BIT(REQ_F_POLL_UPDATE_BIT),
+ 	/* supports async reads */
+ 	REQ_F_ASYNC_READ	= BIT(REQ_F_ASYNC_READ_BIT),
+ 	/* supports async writes */
+@@ -791,6 +795,7 @@ struct io_kiocb {
+ 		struct file		*file;
+ 		struct io_rw		rw;
+ 		struct io_poll_iocb	poll;
++		struct io_poll_update	poll_update;
+ 		struct io_poll_remove	poll_remove;
+ 		struct io_accept	accept;
+ 		struct io_sync		sync;
+@@ -4989,7 +4994,6 @@ static void io_init_poll_iocb(struct io_poll_iocb *poll, __poll_t events,
+ 	poll->head = NULL;
+ 	poll->done = false;
+ 	poll->canceled = false;
+-	poll->update_events = poll->update_user_data = false;
+ #define IO_POLL_UNMASK	(EPOLLERR|EPOLLHUP|EPOLLNVAL|EPOLLRDHUP)
+ 	/* mask in events that we always want/need */
+ 	poll->events = events | IO_POLL_UNMASK;
+@@ -5366,7 +5370,6 @@ static void io_poll_queue_proc(struct file *file, struct wait_queue_head *head,
+ 
+ static int io_poll_add_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
+ {
+-	struct io_poll_iocb *poll = &req->poll;
+ 	u32 events, flags;
+ 
+ 	if (unlikely(req->ctx->flags & IORING_SETUP_IOPOLL))
+@@ -5383,20 +5386,26 @@ static int io_poll_add_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe
  #endif
-+	io_free_file_tables(&ctx->file_table, ctx->nr_user_files);
-+	kfree(ctx->file_data);
-+	ctx->file_data = NULL;
-+	ctx->nr_user_files = 0;
+ 	if (!(flags & IORING_POLL_ADD_MULTI))
+ 		events |= EPOLLONESHOT;
+-	poll->update_events = poll->update_user_data = false;
++	events = demangle_poll(events) |
++				(events & (EPOLLEXCLUSIVE|EPOLLONESHOT));
+ 
+ 	if (flags & (IORING_POLL_UPDATE_EVENTS|IORING_POLL_UPDATE_USER_DATA)) {
+-		poll->old_user_data = READ_ONCE(sqe->addr);
+-		poll->update_events = flags & IORING_POLL_UPDATE_EVENTS;
+-		poll->update_user_data = flags & IORING_POLL_UPDATE_USER_DATA;
+-		if (poll->update_user_data)
+-			poll->new_user_data = READ_ONCE(sqe->off);
++		struct io_poll_update *poll_upd = &req->poll_update;
++
++		req->flags |= REQ_F_POLL_UPDATE;
++		poll_upd->events = events;
++		poll_upd->old_user_data = READ_ONCE(sqe->addr);
++		poll_upd->update_events = flags & IORING_POLL_UPDATE_EVENTS;
++		poll_upd->update_user_data = flags & IORING_POLL_UPDATE_USER_DATA;
++		if (poll_upd->update_user_data)
++			poll_upd->new_user_data = READ_ONCE(sqe->off);
+ 	} else {
++		struct io_poll_iocb *poll = &req->poll;
++
++		poll->events = events;
+ 		if (sqe->off || sqe->addr)
+ 			return -EINVAL;
+ 	}
+-	poll->events = demangle_poll(events) |
+-				(events & (EPOLLEXCLUSIVE|EPOLLONESHOT));
+ 	return 0;
  }
  
- static inline void io_rsrc_ref_lock(struct io_ring_ctx *ctx)
-@@ -7200,21 +7204,14 @@ static struct io_rsrc_data *io_rsrc_data_alloc(struct io_ring_ctx *ctx,
- 
- static int io_sqe_files_unregister(struct io_ring_ctx *ctx)
- {
--	struct io_rsrc_data *data = ctx->file_data;
+@@ -5434,7 +5443,7 @@ static int io_poll_update(struct io_kiocb *req)
  	int ret;
  
--	if (!data)
-+	if (!ctx->file_data)
- 		return -ENXIO;
--	ret = io_rsrc_ref_quiesce(data, ctx);
--	if (ret)
--		return ret;
--
--	__io_sqe_files_unregister(ctx);
--	io_free_file_tables(&ctx->file_table, ctx->nr_user_files);
--	kfree(data);
--	ctx->file_data = NULL;
--	ctx->nr_user_files = 0;
--	return 0;
-+	ret = io_rsrc_ref_quiesce(ctx->file_data, ctx);
-+	if (!ret)
-+		__io_sqe_files_unregister(ctx);
-+	return ret;
+ 	spin_lock_irq(&ctx->completion_lock);
+-	preq = io_poll_find(ctx, req->poll.old_user_data);
++	preq = io_poll_find(ctx, req->poll_update.old_user_data);
+ 	if (!preq) {
+ 		ret = -ENOENT;
+ 		goto err;
+@@ -5464,13 +5473,13 @@ static int io_poll_update(struct io_kiocb *req)
+ 		return 0;
+ 	}
+ 	/* only mask one event flags, keep behavior flags */
+-	if (req->poll.update_events) {
++	if (req->poll_update.update_events) {
+ 		preq->poll.events &= ~0xffff;
+-		preq->poll.events |= req->poll.events & 0xffff;
++		preq->poll.events |= req->poll_update.events & 0xffff;
+ 		preq->poll.events |= IO_POLL_UNMASK;
+ 	}
+-	if (req->poll.update_user_data)
+-		preq->user_data = req->poll.new_user_data;
++	if (req->poll_update.update_user_data)
++		preq->user_data = req->poll_update.new_user_data;
+ 
+ 	spin_unlock_irq(&ctx->completion_lock);
+ 
+@@ -5489,7 +5498,7 @@ static int io_poll_update(struct io_kiocb *req)
+ 
+ static int io_poll_add(struct io_kiocb *req, unsigned int issue_flags)
+ {
+-	if (!req->poll.update_events && !req->poll.update_user_data)
++	if (!(req->flags & REQ_F_POLL_UPDATE))
+ 		return __io_poll_add(req);
+ 	return io_poll_update(req);
  }
- 
- static void io_sq_thread_unpark(struct io_sq_data *sqd)
-@@ -7664,7 +7661,7 @@ static int io_sqe_files_register(struct io_ring_ctx *ctx, void __user *arg,
- 
- 	ret = io_sqe_files_scm(ctx);
- 	if (ret) {
--		io_sqe_files_unregister(ctx);
-+		__io_sqe_files_unregister(ctx);
- 		return ret;
- 	}
- 
-@@ -8465,7 +8462,11 @@ static void io_ring_ctx_free(struct io_ring_ctx *ctx)
- 	}
- 
- 	mutex_lock(&ctx->uring_lock);
--	io_sqe_files_unregister(ctx);
-+	if (ctx->file_data) {
-+		if (!atomic_dec_and_test(&ctx->file_data->refs))
-+			wait_for_completion(&ctx->file_data->done);
-+		__io_sqe_files_unregister(ctx);
-+	}
- 	if (ctx->rings)
- 		__io_cqring_overflow_flush(ctx, true);
- 	mutex_unlock(&ctx->uring_lock);
 -- 
 2.24.0
 

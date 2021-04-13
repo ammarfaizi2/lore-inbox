@@ -8,59 +8,59 @@ X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DC312C433ED
-	for <io-uring@archiver.kernel.org>; Tue, 13 Apr 2021 02:03:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BD2B2C433B4
+	for <io-uring@archiver.kernel.org>; Tue, 13 Apr 2021 02:03:08 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C00A06135B
-	for <io-uring@archiver.kernel.org>; Tue, 13 Apr 2021 02:03:07 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9902F61369
+	for <io-uring@archiver.kernel.org>; Tue, 13 Apr 2021 02:03:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240831AbhDMCDZ (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Mon, 12 Apr 2021 22:03:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37316 "EHLO
+        id S241547AbhDMCD0 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Mon, 12 Apr 2021 22:03:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37320 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241515AbhDMCDZ (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Mon, 12 Apr 2021 22:03:25 -0400
-Received: from mail-wm1-x32c.google.com (mail-wm1-x32c.google.com [IPv6:2a00:1450:4864:20::32c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91EA0C061756
-        for <io-uring@vger.kernel.org>; Mon, 12 Apr 2021 19:03:06 -0700 (PDT)
-Received: by mail-wm1-x32c.google.com with SMTP id o20-20020a05600c4fd4b0290114265518afso7888197wmq.4
-        for <io-uring@vger.kernel.org>; Mon, 12 Apr 2021 19:03:06 -0700 (PDT)
+        with ESMTP id S241515AbhDMCD0 (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Mon, 12 Apr 2021 22:03:26 -0400
+Received: from mail-wm1-x331.google.com (mail-wm1-x331.google.com [IPv6:2a00:1450:4864:20::331])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B040C061574
+        for <io-uring@vger.kernel.org>; Mon, 12 Apr 2021 19:03:07 -0700 (PDT)
+Received: by mail-wm1-x331.google.com with SMTP id w7-20020a1cdf070000b0290125f388fb34so7233660wmg.0
+        for <io-uring@vger.kernel.org>; Mon, 12 Apr 2021 19:03:07 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=qIPKg6rNfbUAk2i73teHSTQ6gemwzFXb3v82vbeafJI=;
-        b=ZCvvMuqDpjErJG4VG9KmnE+1V94vDTLq99mplnmedgR6J+xGJqhAK5e9BvqVGhpy+i
-         ubCt+77ZWgZQXY2mpCT2lRV4CvsHYTZWGAtJDefS2CXVO+hSYmMkYtS/GtOvc+jkmQv3
-         QCccxhl3i7XrvnVHs7nLtA8+9e9NPl4ReApjeFacn1Ka/laxYl6w+VjgyLcmawWipGMJ
-         FOm67qI/pyyS/Fz77ENG133L7sG3pPzbH/AOKfZmY4kd9DkffPt3Lk1q6ivdzdObVlAD
-         +a9/5fJMIc/O5vRRXHXPrsMMYLlgnhCZZqYMFTZvXLg36zaECyXzTwYRDvNniEaXKKVF
-         fokg==
+        bh=tEVCg4ybGNNIH9IeQQvksiWm4r8oRf+iULnBmFxmVW0=;
+        b=Gs0YojdmBqskuD/AjqU0XRQ05BhOzrwbciYxGyk4R/l+grwO4WVlBEo2Q5kZQzlnTa
+         6ECf93pxhe1k8Dh1XeSdPspdYkKXIuL3tVuN3cOOPnTaaZ2i4x0hOfyfM9hYyVbucXR5
+         FQqEcUIv9BVirgu42eICGVxL5XVdPjFoiFl5Dea1//vYeVTjKUrrILy052MG0NguhS3E
+         SxNA+CGaziYxJnHdWW3AowjJSXNnOQ6kvC6din1+MjfAmz09O6D2l1qWQgp4Trmwoqrh
+         cWKNRXImHdQbZyXf3A4c/PMve0CCqKXTaYBs4bO8lki20g8Qa6jazr2wyvgEzyiv/nWI
+         OyCw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=qIPKg6rNfbUAk2i73teHSTQ6gemwzFXb3v82vbeafJI=;
-        b=Uabdcu2l5j8XYmo+piyrosTvtLGiiIvHd3+Cx8ASx5lqKQ+Tg5poNUQKSKOkoHQsS1
-         jNO0vDqhKtL1riir0rlKr0wqwJFhtDTwLPxL7PRgeDEjXyjsm+YeigeLMa0NQspv0Dt/
-         kRevmJliETMrEudqRA1CselttGGwE1MwM5H0xTPjfnUlofTkYzqEOKoUWrtPLkmxSZ+4
-         EUqUZX0+P/h0yn4uZbMOuRnW+QAkm+N6UNprVh6XkoWCYabvcl29LUD0aHH6LQ3hS5BQ
-         cILDuavNQoYPcAiXLVxzno/AgFNQr2HansKTov/Za3bv9HR5gr1AlDNJT2uuqjWpXK4g
-         DnmA==
-X-Gm-Message-State: AOAM531r5gYm7BRU+8w2N8cmOUocW3xBuIdzYrT6KtEwKY8fflTkYOib
-        kLsEBqka0X/Cl8RgNaQoZfA=
-X-Google-Smtp-Source: ABdhPJzme+OsZHyEUHHpz3AaSdOV5dLiAo37J7uT3wvlHjYBsJD3LiccOZvm23/hMxAsyoDgEgP/Hw==
-X-Received: by 2002:a1c:4d19:: with SMTP id o25mr1670498wmh.137.1618279384495;
-        Mon, 12 Apr 2021 19:03:04 -0700 (PDT)
+        bh=tEVCg4ybGNNIH9IeQQvksiWm4r8oRf+iULnBmFxmVW0=;
+        b=Ze8J2/fcD1K5UzjtVY1JqB1Vx4SzS7JtfhO4TGjPPHXDI+bzY3B3a+q9mR8YYIR4an
+         g9ncCxBzax83KA8JfdCTriuMQToQTQ4DuPHR3RCTqT7EQRitk1+5GGZGKNeX5QAeGvF9
+         UHIlYX5Fe7P/PJr5/Cl4aM541AG8eCSRW1WCrrxmaiCw6VTPahaS+OLky+7ntIn/guT3
+         YWcEvEuakul2mtbCNutSXS6My969td3T3AF3+atXoAn9u7s6URWsAGjHMH21exgFbM4v
+         ZyE8KS16kcR9ORK7j/t73J7zv2q61iX2bfsI1K4SEh44ZdZPT4jPOH77dbR4FjhIHv7p
+         yG6A==
+X-Gm-Message-State: AOAM531f8xsaA2TDT66MUge3nk/jqXlIOLP7JdwtC+8eO22nOqvewPCD
+        8n/crt9MiFH+MDa7h22UbFrVH+/1wOY=
+X-Google-Smtp-Source: ABdhPJwoph4keMYYeFE8A0kk34OAzyZ/EdxZ55P0/LOB5T6Pu7GzTVbgD28H8HRGl4E3PhUzZpjsOA==
+X-Received: by 2002:a7b:c770:: with SMTP id x16mr1676648wmk.78.1618279386349;
+        Mon, 12 Apr 2021 19:03:06 -0700 (PDT)
 Received: from localhost.localdomain ([148.252.128.208])
-        by smtp.gmail.com with ESMTPSA id k7sm18771331wrw.64.2021.04.12.19.03.03
+        by smtp.gmail.com with ESMTPSA id k7sm18771331wrw.64.2021.04.12.19.03.05
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 12 Apr 2021 19:03:04 -0700 (PDT)
+        Mon, 12 Apr 2021 19:03:05 -0700 (PDT)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH 2/9] io_uring: fix uninit old data for poll event upd
-Date:   Tue, 13 Apr 2021 02:58:39 +0100
-Message-Id: <ab08fd35b7652e977f9a475f01741b04102297f1.1618278933.git.asml.silence@gmail.com>
+Subject: [PATCH 4/9] io_uring: add timeout completion_lock annotation
+Date:   Tue, 13 Apr 2021 02:58:41 +0100
+Message-Id: <bdbb22026024eac29203c1aa0045c4954a2488d1.1618278933.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <cover.1618278933.git.asml.silence@gmail.com>
 References: <cover.1618278933.git.asml.silence@gmail.com>
@@ -70,46 +70,26 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Both IORING_POLL_UPDATE_EVENTS and IORING_POLL_UPDATE_USER_DATA need
-old_user_data to find/cancel a poll request, but it's set only for the
-first one.
+Add one more sparse locking annotation for readability in
+io_kill_timeout().
 
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
- fs/io_uring.c | 18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+ fs/io_uring.c | 1 +
+ 1 file changed, 1 insertion(+)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 44342ff5c4e1..429ee5fd9044 100644
+index a0f207e62e32..eaa8f1af29cc 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -5384,17 +5384,17 @@ static int io_poll_add_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe
- 	if (!(flags & IORING_POLL_ADD_MULTI))
- 		events |= EPOLLONESHOT;
- 	poll->update_events = poll->update_user_data = false;
--	if (flags & IORING_POLL_UPDATE_EVENTS) {
--		poll->update_events = true;
-+
-+	if (flags & (IORING_POLL_UPDATE_EVENTS|IORING_POLL_UPDATE_USER_DATA)) {
- 		poll->old_user_data = READ_ONCE(sqe->addr);
-+		poll->update_events = flags & IORING_POLL_UPDATE_EVENTS;
-+		poll->update_user_data = flags & IORING_POLL_UPDATE_USER_DATA;
-+		if (poll->update_user_data)
-+			poll->new_user_data = READ_ONCE(sqe->off);
-+	} else {
-+		if (sqe->off || sqe->addr)
-+			return -EINVAL;
- 	}
--	if (flags & IORING_POLL_UPDATE_USER_DATA) {
--		poll->update_user_data = true;
--		poll->new_user_data = READ_ONCE(sqe->off);
--	}
--	if (!(poll->update_events || poll->update_user_data) &&
--	     (sqe->off || sqe->addr))
--		return -EINVAL;
- 	poll->events = demangle_poll(events) |
- 				(events & (EPOLLEXCLUSIVE|EPOLLONESHOT));
- 	return 0;
+@@ -1269,6 +1269,7 @@ static void io_queue_async_work(struct io_kiocb *req)
+ }
+ 
+ static void io_kill_timeout(struct io_kiocb *req, int status)
++	__must_hold(&req->ctx->completion_lock)
+ {
+ 	struct io_timeout_data *io = req->async_data;
+ 	int ret;
 -- 
 2.24.0
 

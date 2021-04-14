@@ -8,59 +8,59 @@ X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 92DC5C433ED
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C25D2C43460
 	for <io-uring@archiver.kernel.org>; Wed, 14 Apr 2021 10:48:15 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7002B613C4
+	by mail.kernel.org (Postfix) with ESMTP id 9FC5D613D1
 	for <io-uring@archiver.kernel.org>; Wed, 14 Apr 2021 10:48:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233862AbhDNKsf (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Wed, 14 Apr 2021 06:48:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42126 "EHLO
+        id S233833AbhDNKsg (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 14 Apr 2021 06:48:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42120 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233833AbhDNKse (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Wed, 14 Apr 2021 06:48:34 -0400
-Received: from mail-wr1-x436.google.com (mail-wr1-x436.google.com [IPv6:2a00:1450:4864:20::436])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7680FC061756
-        for <io-uring@vger.kernel.org>; Wed, 14 Apr 2021 03:48:13 -0700 (PDT)
-Received: by mail-wr1-x436.google.com with SMTP id j5so18433854wrn.4
-        for <io-uring@vger.kernel.org>; Wed, 14 Apr 2021 03:48:13 -0700 (PDT)
+        with ESMTP id S233163AbhDNKsf (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Wed, 14 Apr 2021 06:48:35 -0400
+Received: from mail-wr1-x42f.google.com (mail-wr1-x42f.google.com [IPv6:2a00:1450:4864:20::42f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CBFDBC061574
+        for <io-uring@vger.kernel.org>; Wed, 14 Apr 2021 03:48:11 -0700 (PDT)
+Received: by mail-wr1-x42f.google.com with SMTP id h4so10376229wrt.12
+        for <io-uring@vger.kernel.org>; Wed, 14 Apr 2021 03:48:11 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=oscbcssEEKnxt7QXNK9v0Xg30qtm5zAwyV5HW8WuKBg=;
-        b=tfQFNPf7al5EXeugSbKYvohRp0sZ8gn5ra0+Xg78Qql5e0BfojYQF/H2jbf4vAZ2Xv
-         UToV5cmYPxAqbgG7j9mNboi22SYQc4T1wk1sC1UGM1pZXJNaVHyZ+D0bS9DRA6oYVBxb
-         nYXqftj67KiX20tAbnq5YrKvKSF0JaYs2Vtyi2h+Tem48uNPIfhnX0pJnWTfgjfEZuuS
-         abMsgk9Vf0p6uRskk7488nwdf4uLlfptn9rXQQp0lpL0+DbTwsyOYqKz/KAkYevBRlX5
-         XjKNHcwCv5iEMADX60W/2fK+O1mBnVdGuRFdAmGJ+Mbg8WM0LHuoGsmhDZq0trTSg+hA
-         CJpA==
+        bh=r2rUyVx69NtQe/JuEWNbtS17jy4jnwfRvpUBRCF96P0=;
+        b=icwNIWhC2V6yCVrGNWVCOQ4qDpjrPxV77q6mv4aHvss1eaAJ0PYaqIfJetuGTLnvme
+         mkT7kXKMcRtvgaxn8rCT043jD9B/Ar2ClA355tD1z01+AWce4caYtmKjAjOmlVTuDOcL
+         /1YYVAGU1USVY0cgF6xLUDPK4qdYZORs1j4wpP58MsNizqTa+sBBqzOcnKu9Ffn6nGCW
+         EMut+EuzoDXZYzdBA3vyB1aPKWI3z38tVJe10AkvJpX9IhVulrOiO82gx5hcNCDzcxWd
+         YEWs87PDCqdfe5YuvGVNmSC5W5xEJJ2vecb9IEyRGKYCN9ITiSWaEidSRQftGl5B/R1z
+         Pq0w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=oscbcssEEKnxt7QXNK9v0Xg30qtm5zAwyV5HW8WuKBg=;
-        b=apUPl5Hbl0U2j3aQesk5uZAvMFj+pQupPtsdtCf4SPj1cwLj69Nzd/HUi/YMWpaPdQ
-         DrhcDANyZckrbz0YfGcRm6RrJgXwsqXJzKz+r+gJ3ewl9jvkaaDqyvMqBcVw9m9gTaTX
-         jBXhVM5eBT5AHq7jI151nhOV6gb7zZ3nPIc/p0xYYMH5ClrN0/z6OMshLhPUrtfgjClP
-         BCJWFMUxhfAaTc+xeedmvDoraKK9MbNCvTfCBkUzFk63MsTAs0jC53isutKUTskRIsg2
-         Hxu8EUvrm3UAhZvmCs8qwbtt8tSuWeMr5x6qG6+QLIFnv+oPhCEY3JgHgC3sRgOIz2og
-         j05g==
-X-Gm-Message-State: AOAM532oSa1XNX2uF2VQtz1rfxV8kP7gp7y4anIDTsqpsdeU3mAJqOSq
-        MRr/20CSuazS2FtmC3Tl5Gs=
-X-Google-Smtp-Source: ABdhPJwRtLvgo6iuT+FNB/3pT9JB5PLXSxRM/6ZLO42VH8HWmFutVy0rMhM8n4hkyANuiYY1Wdpelw==
-X-Received: by 2002:a5d:6c62:: with SMTP id r2mr43858198wrz.62.1618397292324;
-        Wed, 14 Apr 2021 03:48:12 -0700 (PDT)
+        bh=r2rUyVx69NtQe/JuEWNbtS17jy4jnwfRvpUBRCF96P0=;
+        b=ryWhlrhL0gch14v5vTmrVquiDi3nm7LNTfS16y7JVAgiiiLLnrEeHxMv7TOZ76MdrW
+         oWLqkIE/IamDpoSFSBsiHPmk+f6PjZ3f1+W24yoShxrDUcr44UPYEAX6s9n2t2xD/P4V
+         ePdcxaWXGTboNXyu24sTzuotaVk9ClBE4VbLSq6vpoipO81yi5vOtR+x0RY53wma+MJN
+         OFIR6er06ycUPSqst/fhRrifP6b4vx+Rl41q5QQK82/39sNAikQxAzWuTbivzQwPG4z1
+         M9p/ogqRG75LDOGAZALDD9BpOLIl4sAk5006xkvQ8eXKeUv3PeP/biaCM5zzJAv9A8Ut
+         WJug==
+X-Gm-Message-State: AOAM532m4ALl8cGHBcDzBgmWOOHGL7D5okAPVWzjT5xKb5LPXnShPdXR
+        egzU+ahqS+aUcEMPh+tHpOA=
+X-Google-Smtp-Source: ABdhPJwy4kLihgC2sGnCShOShbH5JneHpySPR5nHEl5qfhPTQjxWTUXjF1WF2GfVc/04hYeUR76+AQ==
+X-Received: by 2002:adf:a40f:: with SMTP id d15mr33338692wra.375.1618397290607;
+        Wed, 14 Apr 2021 03:48:10 -0700 (PDT)
 Received: from localhost.localdomain ([148.252.128.163])
-        by smtp.gmail.com with ESMTPSA id n14sm5003002wmk.5.2021.04.14.03.48.11
+        by smtp.gmail.com with ESMTPSA id n14sm5003002wmk.5.2021.04.14.03.48.09
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 14 Apr 2021 03:48:12 -0700 (PDT)
+        Wed, 14 Apr 2021 03:48:10 -0700 (PDT)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH 3/5] io_uring: fix POLL_REMOVE removing apoll
-Date:   Wed, 14 Apr 2021 11:43:52 +0100
-Message-Id: <50808409506c69dcaaa8aefdc49689e6b25c1522.1618396838.git.asml.silence@gmail.com>
+Subject: [PATCH 1/5] io_uring: improve sqpoll event/state handling
+Date:   Wed, 14 Apr 2021 11:43:50 +0100
+Message-Id: <2c8c6e0710653bf6396ea011be106dcb57e175fc.1618396838.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <cover.1618396838.git.asml.silence@gmail.com>
 References: <cover.1618396838.git.asml.silence@gmail.com>
@@ -70,97 +70,99 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Don't allow REQ_OP_POLL_REMOVE to kill apoll requests, users should not
-know about it. Also, remove weird -EACCESS in io_poll_update(), it
-shouldn't know anything about apoll, and have to work even if happened
-to have a poll and an async poll'ed request with same user_data.
+As sqd->state changes rarely, don't check every event one by one but
+look them all at once. Add a helper function. Also don't go into event
+waiting sleeping with STOP flag set.
 
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
- fs/io_uring.c | 23 +++++++++++------------
- 1 file changed, 11 insertions(+), 12 deletions(-)
+ fs/io_uring.c | 45 ++++++++++++++++++++++++++++-----------------
+ 1 file changed, 28 insertions(+), 17 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 6a70bf455c49..ce75a859a376 100644
+index e3b679c5547e..693fb5c5e58c 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -5258,7 +5258,8 @@ static bool io_poll_remove_all(struct io_ring_ctx *ctx, struct task_struct *tsk,
- 	return posted != 0;
+@@ -6742,6 +6742,11 @@ static int io_submit_sqes(struct io_ring_ctx *ctx, unsigned int nr)
+ 	return submitted;
  }
  
--static struct io_kiocb *io_poll_find(struct io_ring_ctx *ctx, __u64 sqe_addr)
-+static struct io_kiocb *io_poll_find(struct io_ring_ctx *ctx, __u64 sqe_addr,
-+				     bool poll_only)
- 	__must_hold(&ctx->completion_lock)
++static inline bool io_sqd_events_pending(struct io_sq_data *sqd)
++{
++	return READ_ONCE(sqd->state);
++}
++
+ static inline void io_ring_set_wakeup_flag(struct io_ring_ctx *ctx)
  {
- 	struct hlist_head *list;
-@@ -5268,18 +5269,20 @@ static struct io_kiocb *io_poll_find(struct io_ring_ctx *ctx, __u64 sqe_addr)
- 	hlist_for_each_entry(req, list, hash_node) {
- 		if (sqe_addr != req->user_data)
- 			continue;
-+		if (poll_only && req->opcode != IORING_OP_POLL_ADD)
-+			continue;
- 		return req;
- 	}
+ 	/* Tell userspace we may need a wakeup call */
+@@ -6796,6 +6801,24 @@ static void io_sqd_update_thread_idle(struct io_sq_data *sqd)
+ 	sqd->sq_thread_idle = sq_thread_idle;
+ }
+ 
++static bool io_sqd_handle_event(struct io_sq_data *sqd)
++{
++	bool did_sig = false;
++	struct ksignal ksig;
++
++	if (test_bit(IO_SQ_THREAD_SHOULD_PARK, &sqd->state) ||
++	    signal_pending(current)) {
++		mutex_unlock(&sqd->lock);
++		if (signal_pending(current))
++			did_sig = get_signal(&ksig);
++		cond_resched();
++		mutex_lock(&sqd->lock);
++	}
++	io_run_task_work();
++	io_run_task_work_head(&sqd->park_task_work);
++	return did_sig || test_bit(IO_SQ_THREAD_SHOULD_STOP, &sqd->state);
++}
++
+ static int io_sq_thread(void *data)
+ {
+ 	struct io_sq_data *sqd = data;
+@@ -6818,29 +6841,17 @@ static int io_sq_thread(void *data)
+ 	/* a user may had exited before the thread wstarted */
+ 	io_run_task_work_head(&sqd->park_task_work);
+ 
+-	while (!test_bit(IO_SQ_THREAD_SHOULD_STOP, &sqd->state)) {
++	while (1) {
+ 		int ret;
+ 		bool cap_entries, sqt_spin, needs_sched;
+ 
+-		if (test_bit(IO_SQ_THREAD_SHOULD_PARK, &sqd->state) ||
+-		    signal_pending(current)) {
+-			bool did_sig = false;
 -
- 	return NULL;
- }
+-			mutex_unlock(&sqd->lock);
+-			if (signal_pending(current)) {
+-				struct ksignal ksig;
+-
+-				did_sig = get_signal(&ksig);
+-			}
+-			cond_resched();
+-			mutex_lock(&sqd->lock);
+-			io_run_task_work();
+-			io_run_task_work_head(&sqd->park_task_work);
+-			if (did_sig)
++		if (io_sqd_events_pending(sqd) || signal_pending(current)) {
++			if (io_sqd_handle_event(sqd))
+ 				break;
+ 			timeout = jiffies + sqd->sq_thread_idle;
+ 			continue;
+ 		}
++
+ 		sqt_spin = false;
+ 		cap_entries = !list_is_singular(&sqd->ctx_list);
+ 		list_for_each_entry(ctx, &sqd->ctx_list, sqd_list) {
+@@ -6877,7 +6888,7 @@ static int io_sq_thread(void *data)
+ 			}
+ 		}
  
--static int io_poll_cancel(struct io_ring_ctx *ctx, __u64 sqe_addr)
-+static int io_poll_cancel(struct io_ring_ctx *ctx, __u64 sqe_addr,
-+			  bool poll_only)
- 	__must_hold(&ctx->completion_lock)
- {
- 	struct io_kiocb *req;
+-		if (needs_sched && !test_bit(IO_SQ_THREAD_SHOULD_PARK, &sqd->state)) {
++		if (needs_sched && !io_sqd_events_pending(sqd)) {
+ 			list_for_each_entry(ctx, &sqd->ctx_list, sqd_list)
+ 				io_ring_set_wakeup_flag(ctx);
  
--	req = io_poll_find(ctx, sqe_addr);
-+	req = io_poll_find(ctx, sqe_addr, poll_only);
- 	if (!req)
- 		return -ENOENT;
- 	if (io_poll_remove_one(req))
-@@ -5311,7 +5314,7 @@ static int io_poll_remove(struct io_kiocb *req, unsigned int issue_flags)
- 	int ret;
- 
- 	spin_lock_irq(&ctx->completion_lock);
--	ret = io_poll_cancel(ctx, req->poll_remove.addr);
-+	ret = io_poll_cancel(ctx, req->poll_remove.addr, true);
- 	spin_unlock_irq(&ctx->completion_lock);
- 
- 	if (ret < 0)
-@@ -5412,14 +5415,10 @@ static int io_poll_update(struct io_kiocb *req)
- 	int ret;
- 
- 	spin_lock_irq(&ctx->completion_lock);
--	preq = io_poll_find(ctx, req->poll_update.old_user_data);
-+	preq = io_poll_find(ctx, req->poll_update.old_user_data, true);
- 	if (!preq) {
- 		ret = -ENOENT;
- 		goto err;
--	} else if (preq->opcode != IORING_OP_POLL_ADD) {
--		/* don't allow internal poll updates */
--		ret = -EACCES;
--		goto err;
- 	}
- 
- 	/*
-@@ -5748,7 +5747,7 @@ static void io_async_find_and_cancel(struct io_ring_ctx *ctx,
- 	ret = io_timeout_cancel(ctx, sqe_addr);
- 	if (ret != -ENOENT)
- 		goto done;
--	ret = io_poll_cancel(ctx, sqe_addr);
-+	ret = io_poll_cancel(ctx, sqe_addr, false);
- done:
- 	if (!ret)
- 		ret = success_ret;
-@@ -5790,7 +5789,7 @@ static int io_async_cancel(struct io_kiocb *req, unsigned int issue_flags)
- 	ret = io_timeout_cancel(ctx, sqe_addr);
- 	if (ret != -ENOENT)
- 		goto done;
--	ret = io_poll_cancel(ctx, sqe_addr);
-+	ret = io_poll_cancel(ctx, sqe_addr, false);
- 	if (ret != -ENOENT)
- 		goto done;
- 	spin_unlock_irq(&ctx->completion_lock);
 -- 
 2.24.0
 

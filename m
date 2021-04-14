@@ -2,86 +2,118 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DEB69C43460
-	for <io-uring@archiver.kernel.org>; Wed, 14 Apr 2021 10:48:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 91273C433B4
+	for <io-uring@archiver.kernel.org>; Wed, 14 Apr 2021 10:48:14 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C3E4B61249
-	for <io-uring@archiver.kernel.org>; Wed, 14 Apr 2021 10:48:13 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6D95E613D1
+	for <io-uring@archiver.kernel.org>; Wed, 14 Apr 2021 10:48:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233795AbhDNKse (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        id S233742AbhDNKse (ORCPT <rfc822;io-uring@archiver.kernel.org>);
         Wed, 14 Apr 2021 06:48:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42110 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42122 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233742AbhDNKsc (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Wed, 14 Apr 2021 06:48:32 -0400
-Received: from mail-wr1-x435.google.com (mail-wr1-x435.google.com [IPv6:2a00:1450:4864:20::435])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E3301C061756
-        for <io-uring@vger.kernel.org>; Wed, 14 Apr 2021 03:48:10 -0700 (PDT)
-Received: by mail-wr1-x435.google.com with SMTP id x7so19385622wrw.10
-        for <io-uring@vger.kernel.org>; Wed, 14 Apr 2021 03:48:10 -0700 (PDT)
+        with ESMTP id S233163AbhDNKsd (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Wed, 14 Apr 2021 06:48:33 -0400
+Received: from mail-wr1-x42e.google.com (mail-wr1-x42e.google.com [IPv6:2a00:1450:4864:20::42e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6FF7C061756
+        for <io-uring@vger.kernel.org>; Wed, 14 Apr 2021 03:48:12 -0700 (PDT)
+Received: by mail-wr1-x42e.google.com with SMTP id 12so19423927wrz.7
+        for <io-uring@vger.kernel.org>; Wed, 14 Apr 2021 03:48:12 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:subject:date:message-id:mime-version
+        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=UClraf7P1R3peIOL5r6K4wlKKIsYihJEcAzUU1axiHw=;
-        b=Mm2Pxjsw0xpB5P8AB858KWWYf/Mv0IzG0lwJsfNj3Y1q/EerKHs71UBitynkpyjPuO
-         Ag+HtK7KwIrj+MlQn49ZMfMHIVPs0Ve0fumYaddCdmkfmrbh6yJDa+s4zOA3pnIlaJX3
-         dI2J4dtL2/MTTqJ2xcyPlWDPQKwjwv89WaI5cdeaPYOopYjxmQJNLjIvmLusizrPo0ZD
-         UVJEdXR8NQ/9jmLuAOW0fyJe0cGV5Ou7vZH+3tusmwNfLQrMnGoT0Wnf8KdoUE2PRLuk
-         98PlnRZ9B8NIQWTcKPn+OZ6Uc7CWdNSEttuRrXJojyConCOoCtoI0SoyhlSYSFQ8Agrc
-         l0zw==
+        bh=VI1fw/7EK9qWyY0VWzJLFtkCSBonMMUYXtzaKXPeiKA=;
+        b=ieiGAYMRXERBfzofXjPeQS7hZ1R0EYtiKOC3IcZrALTW45mPjD9xsbECfqxEfb+Z/r
+         p4ookxyuNv3fnYrAas7pKEnf6AqF+pkHXvSc4mCWNQh1V7va4qe3vM/sSBHJrT/8EqKJ
+         0u/Z28tKwh4M3dtStHzqj0Bt0AP4nFJCXPat5WVUNQG1Lb30pEMb2bO58VR3Aqm+znGz
+         ZEL0woOYuFMaXlNItcSRPc2LxsJugWIiUifeh8NwS6kwNp6zelDAUfQinwHl8h5W8Iga
+         3TKmWvjq8+7GkZWlOZ9wzE2fccqzN7S4GivMX4XDWarJ54ysmX+lWUKlm3AR2KRCXloe
+         6y1Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=UClraf7P1R3peIOL5r6K4wlKKIsYihJEcAzUU1axiHw=;
-        b=OQkiH54mKf3nsPTjRD+HCbHJ+YgBiqRtBCT+rveeIUVCa+TOE3Uo+sOU57nbSmeqfh
-         /mD6ZSgQBkoMnnPE8pkanYZOK7oLgALH5wmkSB7J87zshSNGNCzwRRH4iTVGC5p46RuY
-         tV5dXui2IZCur/lcmnFrjPV7aLgPxtxipyw/t7GcrEzCYFLq3UKdkJLdtOo9gB2tZYQ4
-         fGsOUwpFJm6DwHgAgFOXBe/Hg2KUXEJYHP7lUKBu3Q/Pdr8pSoyEiBOD36Sy38ho34hU
-         C4nfHRmmVXkhLdZZgOzAPwWuz0Qq2Qsse5hAnlxeLdyH2AFsoUm4Ckuo/KqfU+jJxaIP
-         Az3A==
-X-Gm-Message-State: AOAM530B1SjfIyoL9KSJPwH7Uf2sUdVY/LAJ1eT8fPPFNwtS8HYM0Xtq
-        QQkUpg38gd+I4+WDcDAdwNE=
-X-Google-Smtp-Source: ABdhPJz+1U+6auZx4G/i4sDCXACiIO8JUS5RelbLaX+y+fdENXdOrFI3X4crY90CVWg7f4vVRoQskw==
-X-Received: by 2002:a5d:564a:: with SMTP id j10mr3120024wrw.108.1618397289713;
-        Wed, 14 Apr 2021 03:48:09 -0700 (PDT)
+        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=VI1fw/7EK9qWyY0VWzJLFtkCSBonMMUYXtzaKXPeiKA=;
+        b=IBVa7osWgtLZC+f7v/l8YdL2op2cTcDH4YzVU+CQmML8xFlXLEO8Wwu7d1C3fDtxK2
+         94sKhdaTHn7cuW2HEVa0ZrE34FJegy/kYrdOxcO3KBuNjZjhZidYoXdiwNdK6qtpbOwO
+         5GOgAKdqNpBP9L9SbstunKqTLZbzQQi1q9eP6QwKg76s1+mNBE+ZMpqDX6Hau6t0GSh/
+         tcgXRK5+ZCokZX2W9w4Rno+iaHkEgwjc5PyLRdPz4X759S3oQQBZJzOg5iHjvT36sYpd
+         J/r5BtUT4lnfiaQp5zbvKgVYDsys4ADEeLK6+N6ja/tRE8aaAFHVvJmp9LNZDo2kG0NL
+         PX5Q==
+X-Gm-Message-State: AOAM532M6zKHF0e/+uVgiXV0Z6yu3fItV9OPOZ85y/XW+cUSFL0GgSkc
+        fRyja1MXFmZjD1ynxZmKm9c=
+X-Google-Smtp-Source: ABdhPJz+HbWVOKKDB3ZcT0zhKHn0MJZe2cQTsl0KRnWTAUihWcfjLpTZwWozUYButqDI0KPjSZNAeg==
+X-Received: by 2002:a5d:6607:: with SMTP id n7mr33375170wru.146.1618397291466;
+        Wed, 14 Apr 2021 03:48:11 -0700 (PDT)
 Received: from localhost.localdomain ([148.252.128.163])
-        by smtp.gmail.com with ESMTPSA id n14sm5003002wmk.5.2021.04.14.03.48.08
+        by smtp.gmail.com with ESMTPSA id n14sm5003002wmk.5.2021.04.14.03.48.10
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 14 Apr 2021 03:48:09 -0700 (PDT)
+        Wed, 14 Apr 2021 03:48:11 -0700 (PDT)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH 5.13 0/5] poll update into poll remove
-Date:   Wed, 14 Apr 2021 11:43:49 +0100
-Message-Id: <cover.1618396838.git.asml.silence@gmail.com>
+Subject: [PATCH 2/5] io_uring: refactor io_ring_exit_work()
+Date:   Wed, 14 Apr 2021 11:43:51 +0100
+Message-Id: <8042ff02416ca0ced8305c30417b635c59ac570a.1618396838.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.24.0
+In-Reply-To: <cover.1618396838.git.asml.silence@gmail.com>
+References: <cover.1618396838.git.asml.silence@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-1-2 are are small improvements
+Don't reinit io_ring_exit_work()'s exit work/completions on each
+iteration, that's wasteful. Also add list_rotate_left(), so if we failed
+to complete the task job, we don't try it again and again but defer it
+until others are processed.
 
-The rest moves all poll update into IORING_OP_POLL_REMOVE,
-see 5/5 for justification.
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+---
+ fs/io_uring.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-Pavel Begunkov (5):
-  io_uring: improve sqpoll event/state handling
-  io_uring: refactor io_ring_exit_work()
-  io_uring: fix POLL_REMOVE removing apoll
-  io_uring: add helper for parsing poll events
-  io_uring: move poll update into remove not add
-
- fs/io_uring.c | 197 ++++++++++++++++++++++++--------------------------
- 1 file changed, 94 insertions(+), 103 deletions(-)
-
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 693fb5c5e58c..6a70bf455c49 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -8601,6 +8601,9 @@ static void io_ring_exit_work(struct work_struct *work)
+ 		WARN_ON_ONCE(time_after(jiffies, timeout));
+ 	} while (!wait_for_completion_timeout(&ctx->ref_comp, HZ/20));
+ 
++	init_completion(&exit.completion);
++	init_task_work(&exit.task_work, io_tctx_exit_cb);
++	exit.ctx = ctx;
+ 	/*
+ 	 * Some may use context even when all refs and requests have been put,
+ 	 * and they are free to do so while still holding uring_lock or
+@@ -8613,9 +8616,8 @@ static void io_ring_exit_work(struct work_struct *work)
+ 
+ 		node = list_first_entry(&ctx->tctx_list, struct io_tctx_node,
+ 					ctx_node);
+-		exit.ctx = ctx;
+-		init_completion(&exit.completion);
+-		init_task_work(&exit.task_work, io_tctx_exit_cb);
++		/* don't spin on a single task if cancellation failed */
++		list_rotate_left(&ctx->tctx_list);
+ 		ret = task_work_add(node->task, &exit.task_work, TWA_SIGNAL);
+ 		if (WARN_ON_ONCE(ret))
+ 			continue;
+@@ -8623,7 +8625,6 @@ static void io_ring_exit_work(struct work_struct *work)
+ 
+ 		mutex_unlock(&ctx->uring_lock);
+ 		wait_for_completion(&exit.completion);
+-		cond_resched();
+ 		mutex_lock(&ctx->uring_lock);
+ 	}
+ 	mutex_unlock(&ctx->uring_lock);
 -- 
 2.24.0
 

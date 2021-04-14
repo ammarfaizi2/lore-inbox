@@ -2,138 +2,355 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-4.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-17.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A3AF4C433ED
-	for <io-uring@archiver.kernel.org>; Wed, 14 Apr 2021 19:36:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A58C6C433ED
+	for <io-uring@archiver.kernel.org>; Wed, 14 Apr 2021 21:29:15 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7E7B461166
-	for <io-uring@archiver.kernel.org>; Wed, 14 Apr 2021 19:36:30 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7064661179
+	for <io-uring@archiver.kernel.org>; Wed, 14 Apr 2021 21:29:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353424AbhDNTgu (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Wed, 14 Apr 2021 15:36:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45230 "EHLO
+        id S236715AbhDNV3g (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 14 Apr 2021 17:29:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41524 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353449AbhDNTgs (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Wed, 14 Apr 2021 15:36:48 -0400
-Received: from mail-wr1-x42e.google.com (mail-wr1-x42e.google.com [IPv6:2a00:1450:4864:20::42e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F4ACC061574
-        for <io-uring@vger.kernel.org>; Wed, 14 Apr 2021 12:36:23 -0700 (PDT)
-Received: by mail-wr1-x42e.google.com with SMTP id j5so19995671wrn.4
-        for <io-uring@vger.kernel.org>; Wed, 14 Apr 2021 12:36:23 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=subject:to:references:from:autocrypt:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=3nQZOTSwvpg/vV7zCoPFBLa91cmSpyTn5CWGyrpXQNM=;
-        b=QbdAmDQ5aKDrPi8cCRsFV8kLQP3ptDX+XFUyvCS19rtvYyTjsMnn/fScMGUQ0u8V+/
-         TbbLtnBh39n1tcSsmJ8Z+jZEkTIFgLq5nIGu9Xg/krZ807JnvEcl+RIyI3giZb597g13
-         ZoXImLcBM7d0VeX+1+TzpcOY+f8H0V0T96w4RluOWhu4Ekn/n7XTDQLrxsgL5x6wU8Ov
-         zO3TI62P8HQSyGckr4r3ihcs0SWY3fESwrvb+iHthQKpbJ5UbtIjwO4A/eXdMGOm4CzH
-         3Evd77hWg2xKaH38C4Cm/aeMD4rzZvfS24fQc6razi0GRi3jNyI7DkPKY7tuPUMr36GP
-         7BJg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:references:from:autocrypt:message-id
-         :date:user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=3nQZOTSwvpg/vV7zCoPFBLa91cmSpyTn5CWGyrpXQNM=;
-        b=BmieYKHVnRTyu9HI4mxyQAQh70jl/MbuYzh1hVFs6mMGmNlJRzsHvIwQFdDO9WiniL
-         tFtaZsb1QkKqBZlcAlihJXv1o49o3uEa3JiJr6c9cx3MNkGi8XzGuL14V7g6cpVN+lsw
-         RkyCH2sBHnm0x1IbM5imsDWGm/cuNcHbPJH3odG5S30JzkyX3jIGP0cpQ6yrxwlvcMUH
-         YLn3aE7WhWm58SluE7IpxQ7CbLUtRJcFfIokP7tR/ybsknKZChP0/5O7VPY7ZRMTDLtA
-         HLF2FmogqkSOR0NuVsLQ3vyUa/SaNnTJ1jhS5vbdfIwZ//HV93etQxmqOZRDxijhbb93
-         M1Qw==
-X-Gm-Message-State: AOAM530al82zzas2vgzdDwUCo7zHTZFJRGp16+hmYq4oAQZnnPmcyqIM
-        +QlRKVy/f4attc+YmnjMk/nD6BTHHkMJOg==
-X-Google-Smtp-Source: ABdhPJymljGv37lBEq4yN1BlGLn5TgI2PV7e82BWPRAJSGK6zxp/vZGT3aEfmV+AgXQns2tKPmDHjg==
-X-Received: by 2002:adf:dd48:: with SMTP id u8mr43851798wrm.139.1618428981785;
-        Wed, 14 Apr 2021 12:36:21 -0700 (PDT)
-Received: from [192.168.8.186] ([185.69.144.21])
-        by smtp.gmail.com with ESMTPSA id a3sm362199wru.40.2021.04.14.12.36.20
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 14 Apr 2021 12:36:21 -0700 (PDT)
-Subject: Re: [PATCH v2 5.13 0/5] poll update into poll remove
-To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-References: <cover.1618403742.git.asml.silence@gmail.com>
- <66cf75ca-05d9-2c92-1038-253377ba0fd5@kernel.dk>
-From:   Pavel Begunkov <asml.silence@gmail.com>
-Autocrypt: addr=asml.silence@gmail.com; prefer-encrypt=mutual; keydata=
- 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 bA==
-Message-ID: <e9de7a38-5bb1-e04e-3685-c8db6c5e5846@gmail.com>
-Date:   Wed, 14 Apr 2021 20:32:11 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.3.0
+        with ESMTP id S231280AbhDNV3L (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Wed, 14 Apr 2021 17:29:11 -0400
+Received: from hr2.samba.org (hr2.samba.org [IPv6:2a01:4f8:192:486::2:0])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98172C061574;
+        Wed, 14 Apr 2021 14:28:48 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=samba.org;
+         s=42; h=Date:Message-ID:From:Cc:To;
+        bh=D+qmhSLHSu+1CnAqjnLDBxCE3Mdynw4Pw6wcaorfuag=; b=ghUgd7fJ41vVNijubQPYKzMTB8
+        FTGlqYIHRDs9Z8ifFZcnQc0p9ppoxcDgV+vMpbFEHK2IFXZ+/o8oN6jaOG9kxgUTBeRYbaqhG22iH
+        LeTF5yqj6oPFgIK9s8aVZYmakToG6OWbKDp06uYRhyuCkzPOGECgDfdO3mRowFyae5X5SYHAaHeWs
+        QUsMLJqMehAv4i7dzjDRbEGf5fTpDYKxyOMqPHQqHo5KGkOOwBIUTPp/IY2LZPhgyuSZqwXBvQ3an
+        HDgaxjWbvLt2qacFxpDkByNgUT+ZislJPhIoXkKisP7mPHKjU9spPCSU6bNEpsnr9P3Pm0EkssV0L
+        xDpVf/K8kXrO35aXjH1XQwjvclBl2Hb8OYzwwys7aNJasVECbv+dO8UmwP2ZU+btctu4S2cHxnvs8
+        wxdt9LxJ0YK69RSlhijnH4SWoN5nl5xEWx0/wrKtYgmUZABlyI8WjW9n0AM1GvNi3gKi+9R/FIl4i
+        eEvS+sYJ57HxRuM5TtgZlvLK;
+Received: from [127.0.0.2] (localhost [127.0.0.1])
+        by hr2.samba.org with esmtpsa (TLS1.3:ECDHE_RSA_CHACHA20_POLY1305:256)
+        (Exim)
+        id 1lWn41-0005p5-OQ; Wed, 14 Apr 2021 21:28:45 +0000
+To:     Linus Torvalds <torvalds@linux-foundation.org>,
+        Jens Axboe <axboe@kernel.dk>
+Cc:     linux-kernel@vger.kernel.org, io-uring@vger.kernel.org
+References: <20210411152705.2448053-1-metze@samba.org>
+From:   Stefan Metzmacher <metze@samba.org>
+Subject: Re: [PATCH] io_thread/x86: don't reset 'cs', 'ss', 'ds' and 'es'
+ registers for io_threads
+Message-ID: <b5e70a29-e2ad-15a8-2291-37571fa361cc@samba.org>
+Date:   Wed, 14 Apr 2021 23:28:45 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.7.1
 MIME-Version: 1.0
-In-Reply-To: <66cf75ca-05d9-2c92-1038-253377ba0fd5@kernel.dk>
+In-Reply-To: <20210411152705.2448053-1-metze@samba.org>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 14/04/2021 17:20, Jens Axboe wrote:
-> On 4/14/21 6:38 AM, Pavel Begunkov wrote:
->> 1-2 are are small improvements
->>
->> The rest moves all poll update into IORING_OP_POLL_REMOVE,
->> see 5/5 for justification.
->>
->> v2: fix io_poll_remove_one() on the remove request, not the one
->> we cancel.
+Hi Jens, hi Linus,
+
+any comments on that patch?
+
+On a system with 'uname -m -p -i -r'
+
+  5.12.0-rc7 x86_64 x86_64 x86_64
+
+and a ubuntu 20.04 amd64 userspace.
+
+I compiled 3 versions of liburing + the following diff:
+
+diff --git a/examples/io_uring-cp.c b/examples/io_uring-cp.c
+index 2a44c30d0089..91722a79b2bd 100644
+--- a/examples/io_uring-cp.c
++++ b/examples/io_uring-cp.c
+@@ -116,13 +116,16 @@ static void queue_write(struct io_uring *ring, struct io_data *data)
+ 	io_uring_submit(ring);
+ }
+
+-static int copy_file(struct io_uring *ring, off_t insize)
++static int copy_file(struct io_uring *ring, off_t _insize)
+ {
++	off_t insize = _insize;
+ 	unsigned long reads, writes;
+ 	struct io_uring_cqe *cqe;
+ 	off_t write_left, offset;
+ 	int ret;
+
++again:
++	insize = _insize;
+ 	write_left = insize;
+ 	writes = reads = offset = 0;
+
+@@ -176,6 +179,7 @@ static int copy_file(struct io_uring *ring, off_t insize)
+ 					ret = 0;
+ 				}
+ 			}
++			if (ret == -EINTR) { cqe = NULL; ret = 0; }
+ 			if (ret < 0) {
+ 				fprintf(stderr, "io_uring_peek_cqe: %s\n",
+ 							strerror(-ret));
+@@ -239,6 +243,7 @@ static int copy_file(struct io_uring *ring, off_t insize)
+ 		writes--;
+ 		io_uring_cqe_seen(ring, cqe);
+ 	}
++	goto again;
+
+ 	return 0;
+ }
+
+I compiled it in 3 versions:
+
+CFLAGS="-g -m32" CXX=false make
+=> file examples/io_uring-cp
+examples/io_uring-cp: ELF 32-bit LSB shared object, Intel 80386, version 1 (SYSV), dynamically linked, interpreter /lib/ld-linux.so.2,
+BuildID[sha1]=1a5cabd082925497d146a041fd5c5cff6ded75da, for GNU/Linux 3.2.0, with debug_info, not stripped
+
+CFLAGS="-g -mx32" CXX=false make
+=> file examples/io_uring-cp
+examples/io_uring-cp: ELF 32-bit LSB shared object, x86-64, version 1 (SYSV), dynamically linked, interpreter /libx32/ld-linux-x32.so.2,
+BuildID[sha1]=a8bf06124c44364a8d7aedfeb3faa736feff6452, for GNU/Linux 3.4.0, with debug_info, not stripped
+
+CFLAGS="-g -m64" CXX=false make
+=> file examples/io_uring-cp
+examples/io_uring-cp: ELF 64-bit LSB shared object, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib64/ld-linux-x86-64.so.2,
+BuildID[sha1]=638c682173adad3c09c67af4d1888fbb3b260627, for GNU/Linux 3.2.0, with debug_info, not stripped
+
+With a plain 5.12-rc7 gcc prints the following output:
+
+With -m64:
+
+# gdb -q --batch --ex="set height 0" --ex="thread apply all bt" --pid 8743
+[New LWP 8744]
+[New LWP 8745]
+
+warning: Selected architecture i386:x86-64 is not compatible with reported target architecture i386
+
+warning: Architecture rejected target-supplied description
+syscall () at ../sysdeps/unix/sysv/linux/x86_64/syscall.S:38
+38      ../sysdeps/unix/sysv/linux/x86_64/syscall.S: No such file or directory.
+
+Thread 3 (LWP 8745):
+#0  0x0000000000000000 in ?? ()
+Backtrace stopped: Cannot access memory at address 0x0
+
+Thread 2 (LWP 8744):
+#0  0x0000000000000000 in ?? ()
+Backtrace stopped: Cannot access memory at address 0x0
+
+Thread 1 (LWP 8743):
+#0  syscall () at ../sysdeps/unix/sysv/linux/x86_64/syscall.S:38
+#1  0x000055b78731042b in __sys_io_uring_enter2 (fd=5, to_submit=0, min_complete=1, flags=1, sig=0x0, sz=8) at syscall.c:54
+#2  0x000055b78730fc52 in _io_uring_get_cqe (ring=0x7ffd91bce680, cqe_ptr=0x7ffd91bce600, data=0x7ffd91bce560) at queue.c:122
+#3  0x000055b78730fd19 in __io_uring_get_cqe (ring=0x7ffd91bce680, cqe_ptr=0x7ffd91bce600, submit=0, wait_nr=1, sigmask=0x0) at queue.c:150
+#4  0x000055b78730e58c in io_uring_wait_cqe_nr (ring=0x7ffd91bce680, cqe_ptr=0x7ffd91bce600, wait_nr=1) at ../src/include/liburing.h:635
+#5  0x000055b78730e5e0 in io_uring_wait_cqe (ring=0x7ffd91bce680, cqe_ptr=0x7ffd91bce600) at ../src/include/liburing.h:655
+#6  0x000055b78730ecf2 in copy_file (ring=0x7ffd91bce680, _insize=24) at io_uring-cp.c:232
+#7  0x000055b78730eef5 in main (argc=3, argv=0x7ffd91bce858) at io_uring-cp.c:278
+[Inferior 1 (process 8743) detached]
+
+With -mx32:
+
+gdb -q --batch --ex="set height 0" --ex="thread apply all bt" --pid 8821
+[New LWP 8822]
+[New LWP 8823]
+
+warning: Selected architecture i386:x64-32 is not compatible with reported target architecture i386
+
+warning: Architecture rejected target-supplied description
+0xf7e66d1d in syscall () from /libx32/libc.so.6
+
+Thread 3 (LWP 8823):
+#0  0x00000000 in ?? ()
+Backtrace stopped: Cannot access memory at address 0x0
+
+Thread 2 (LWP 8822):
+#0  0x00000000 in ?? ()
+Backtrace stopped: Cannot access memory at address 0x0
+
+Thread 1 (LWP 8821):
+#0  0xf7e66d1d in syscall () from /libx32/libc.so.6
+#1  0x5659663d in __sys_io_uring_enter2 (fd=5, to_submit=0, min_complete=1, flags=1, sig=0x0, sz=8) at syscall.c:54
+#2  0x56595dbe in _io_uring_get_cqe (ring=0xffc4feb0, cqe_ptr=0xffc4fe38, data=0xffc4fdb0) at queue.c:122
+#3  0x56595e9b in __io_uring_get_cqe (ring=0xffc4feb0, cqe_ptr=0xffc4fe38, submit=0, wait_nr=1, sigmask=0x0) at queue.c:150
+#4  0x565945d8 in io_uring_wait_cqe_nr (ring=0xffc4feb0, cqe_ptr=0xffc4fe38, wait_nr=1) at ../src/include/liburing.h:635
+#5  0x56594634 in io_uring_wait_cqe (ring=0xffc4feb0, cqe_ptr=0xffc4fe38) at ../src/include/liburing.h:655
+#6  0x56594dc5 in copy_file (ring=0xffc4feb0, _insize=24) at io_uring-cp.c:232
+#7  0x56594ff1 in main (argc=3, argv=0xffc50024) at io_uring-cp.c:278
+[Inferior 1 (process 8821) detached]
+
+With -m32:
+
+gdb -q --batch --ex="set height 0" --ex="thread apply all bt" --pid 8831
+[New LWP 8832]
+[New LWP 8833]
+0xf7f16549 in __kernel_vsyscall ()
+
+Thread 3 (LWP 8833):
+#0  0x00000000 in ?? ()
+
+Thread 2 (LWP 8832):
+#0  0x00000000 in ?? ()
+
+Thread 1 (LWP 8831):
+#0  0xf7f16549 in __kernel_vsyscall ()
+#1  0xf7e14efb in syscall () at ../sysdeps/unix/sysv/linux/i386/syscall.S:29
+#2  0x5657d297 in __sys_io_uring_enter2 (fd=5, to_submit=0, min_complete=1, flags=1, sig=0x0, sz=8) at syscall.c:54
+#3  0x5657cb32 in _io_uring_get_cqe (ring=0xff9557b0, cqe_ptr=0xff95573c, data=0xff955698) at queue.c:122
+#4  0x5657cbf5 in __io_uring_get_cqe (ring=0xff9557b0, cqe_ptr=0xff95573c, submit=0, wait_nr=1, sigmask=0x0) at queue.c:150
+#5  0x5657b5f2 in io_uring_wait_cqe_nr (ring=0xff9557b0, cqe_ptr=0xff95573c, wait_nr=1) at ../src/include/liburing.h:635
+#6  0x5657b63f in io_uring_wait_cqe (ring=0xff9557b0, cqe_ptr=0xff95573c) at ../src/include/liburing.h:655
+#7  0x5657bcbe in copy_file (ring=0xff9557b0, _insize=24) at io_uring-cp.c:232
+#8  0x5657becd in main (argc=3, argv=0xff9558f4) at io_uring-cp.c:278
+[Inferior 1 (process 8831) detached]
+
+So the gdb autodetects 'i386/-m32' and warns in all other cases (including the default of -m64)
+
+As a debugged this deeply now, I know (at least printing a backtrace works anyway),
+but for any random advanced admin or userspace developer warnings like this:
+
+  warning: Selected architecture i386:x86-64 is not compatible with reported target architecture i386
+
+  warning: Architecture rejected target-supplied description
+
+typically indicate that something in the system is deeply broken.
+
+With the version proposed by Linus:
+
++		childregs->cs = __USER_CS;
++		childregs->ss = __USER_DS;
++#ifdef CONFIG_X86_32
++		childregs->ds = __USER_DS;
++		childregs->es = __USER_DS;
++#endif
+
+-m64 and -mx32 are fine, but i386/-m32 generates this:
+
+# gdb -q --batch --ex="set height 0" --ex="thread apply all bt" --pid 984
+[New LWP 985]
+[New LWP 986]
+[New LWP 987]
+
+warning: Selected architecture i386 is not compatible with reported target architecture i386:x64-32
+
+warning: Architecture rejected target-supplied description
+0xf7f58549 in __kernel_vsyscall ()
+
+Thread 4 (LWP 987):
+#0  0x00000000 in ?? ()
+
+Thread 3 (LWP 986):
+#0  0x00000000 in ?? ()
+
+Thread 2 (LWP 985):
+#0  0x00000000 in ?? ()
+
+Thread 1 (LWP 984):
+#0  0xf7f58549 in __kernel_vsyscall ()
+#1  0xf7e56efb in syscall () at ../sysdeps/unix/sysv/linux/i386/syscall.S:29
+#2  0x5656c297 in __sys_io_uring_enter2 (fd=5, to_submit=0, min_complete=1, flags=1, sig=0x0, sz=8) at syscall.c:54
+#3  0x5656bb32 in _io_uring_get_cqe (ring=0xffc42ce0, cqe_ptr=0xffc42c6c, data=0xffc42bc8) at queue.c:122
+#4  0x5656bbf5 in __io_uring_get_cqe (ring=0xffc42ce0, cqe_ptr=0xffc42c6c, submit=0, wait_nr=1, sigmask=0x0) at queue.c:150
+#5  0x5656a5f2 in io_uring_wait_cqe_nr (ring=0xffc42ce0, cqe_ptr=0xffc42c6c, wait_nr=1) at ../src/include/liburing.h:635
+#6  0x5656a63f in io_uring_wait_cqe (ring=0xffc42ce0, cqe_ptr=0xffc42c6c) at ../src/include/liburing.h:655
+#7  0x5656acbe in copy_file (ring=0xffc42ce0, _insize=24) at io_uring-cp.c:232
+#8  0x5656aecd in main (argc=3, argv=0xffc42e24) at io_uring-cp.c:278
+[Inferior 1 (process 984) detached]
+
+
+With my patch all 3 are fine.
+
+It also feels more natural to me to just keep the values of
+the copy_thread() caller.
+
+Do you plan to do something about this before 5.12 final?
+
+metze
+
+Am 11.04.21 um 17:27 schrieb Stefan Metzmacher:
+> This allows gdb attach to userspace processes using io-uring,
+> which means that they have io_threads (PF_IO_WORKER), which appear
+> just like normal as userspace threads.
 > 
-> I like moving update into remove, imho it makes a lot more sense. Will
-> you be sending a test case patch for it too?
+> See the code comment for more details.
+> 
+> Fixes: 4727dc20e04 ("arch: setup PF_IO_WORKER threads like PF_KTHREAD")
+> Signed-off-by: Stefan Metzmacher <metze@samba.org>
+> cc: Linus Torvalds <torvalds@linux-foundation.org>
+> cc: Jens Axboe <axboe@kernel.dk>
+> cc: linux-kernel@vger.kernel.org
+> cc: io-uring@vger.kernel.org
+> ---
+>  arch/x86/kernel/process.c | 49 +++++++++++++++++++++++++++++++++++++++
+>  1 file changed, 49 insertions(+)
+> 
+> diff --git a/arch/x86/kernel/process.c b/arch/x86/kernel/process.c
+> index 9c214d7085a4..72120c4b7618 100644
+> --- a/arch/x86/kernel/process.c
+> +++ b/arch/x86/kernel/process.c
+> @@ -163,6 +163,55 @@ int copy_thread(unsigned long clone_flags, unsigned long sp, unsigned long arg,
+>  	/* Kernel thread ? */
+>  	if (unlikely(p->flags & (PF_KTHREAD | PF_IO_WORKER))) {
+>  		memset(childregs, 0, sizeof(struct pt_regs));
+> +		/*
+> +		 * gdb sees all userspace threads,
+> +		 * including io threads (PF_IO_WORKER)!
+> +		 *
+> +		 * gdb uses:
+> +		 * PTRACE_PEEKUSR, offsetof (struct user_regs_struct, cs)
+> +		 *  returning with 0x33 (51) to detect 64 bit
+> +		 * and:
+> +		 * PTRACE_PEEKUSR, offsetof (struct user_regs_struct, ds)
+> +		 *  returning 0x2b (43) to detect 32 bit.
+> +		 *
+> +		 * GDB relies on that the kernel returns the
+> +		 * same values for all threads, which means
+> +		 * we don't zero these out.
+> +		 *
+> +		 * Note that CONFIG_X86_64 handles 'es' and 'ds'
+> +		 * differently, see the following above:
+> +		 *   savesegment(es, p->thread.es);
+> +		 *   savesegment(ds, p->thread.ds);
+> +		 * and the CONFIG_X86_64 version of get_segment_reg().
+> +		 *
+> +		 * Linus proposed something like this:
+> +		 * (https://lore.kernel.org/io-uring/CAHk-=whEObPkZBe4766DmR46-=5QTUiatWbSOaD468eTgYc1tg@mail.gmail.com/)
+> +		 *
+> +		 *   childregs->cs = __USER_CS;
+> +		 *   childregs->ss = __USER_DS;
+> +		 *   childregs->ds = __USER_DS;
+> +		 *   childregs->es = __USER_DS;
+> +		 *
+> +		 * might make sense (just do it unconditionally, rather than making it
+> +		 * special to PF_IO_WORKER).
+> +		 *
+> +		 * But that doesn't make gdb happy in all cases.
+> +		 *
+> +		 * While 32bit userspace on a 64bit kernel is legacy,
+> +		 * it's still useful to allow 32bit libraries or nss modules
+> +		 * use the same code as the 64bit version of that library, which
+> +		 * can use io-uring just fine.
+> +		 *
+> +		 * So we better just inherit the values from
+> +		 * the originating process instead of hardcoding
+> +		 * values, which would imply 64bit userspace.
+> +		 */
+> +		childregs->cs = current_pt_regs()->cs;
+> +		childregs->ss = current_pt_regs()->ss;
+> +#ifdef CONFIG_X86_32
+> +		childregs->ds = current_pt_regs()->ds;
+> +		childregs->es = current_pt_regs()->es;
+> +#endif
+>  		kthread_frame_init(frame, sp, arg);
+>  		return 0;
+>  	}
+> 
 
-I was testing with your test case, 3 line change, can send it.
-
-We definitely need a helper though. There was something for liburing
-from Joakim, right?
-
--- 
-Pavel Begunkov

@@ -2,114 +2,142 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 69E2CC433B4
-	for <io-uring@archiver.kernel.org>; Fri, 16 Apr 2021 13:58:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EA9F7C433ED
+	for <io-uring@archiver.kernel.org>; Fri, 16 Apr 2021 14:10:23 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4CABA61184
-	for <io-uring@archiver.kernel.org>; Fri, 16 Apr 2021 13:58:37 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C622061184
+	for <io-uring@archiver.kernel.org>; Fri, 16 Apr 2021 14:10:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235527AbhDPN7A (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Fri, 16 Apr 2021 09:59:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36454 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229804AbhDPN7A (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Fri, 16 Apr 2021 09:59:00 -0400
-Received: from mail-pf1-x42b.google.com (mail-pf1-x42b.google.com [IPv6:2607:f8b0:4864:20::42b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B11AC061574
-        for <io-uring@vger.kernel.org>; Fri, 16 Apr 2021 06:58:34 -0700 (PDT)
-Received: by mail-pf1-x42b.google.com with SMTP id p67so13460470pfp.10
-        for <io-uring@vger.kernel.org>; Fri, 16 Apr 2021 06:58:34 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=czgpvmgZPJ3O+tyPYJ2X0jNeQZ0QvhuXu8guxQyVg6g=;
-        b=VcSha7JFHjWMIhwEN+hdWH1Ds9J5JUm2JX4MdBpzHITW9Po2GRFAOGDofheXPU3lzH
-         vjFkcJ1d+wDYFtQ344kRCqcp9I30pcD1nfKz9RDmijysy9n6ArmRDWfXfcx2rYd2RNa6
-         JEwc28L7pJor9joehsNeGlhnSTlSDDZcGwpwzYQmsIdOMtWYyF7qdNWcfpsPow5jTB29
-         WSTVoQxToNSvlhD1aIXbWWyS8mjtHo7caF8w5W6GQhay+SMFmHDC8LHIPQU08ZDJDSDg
-         JhRWyCuM3LQEbQRIelU0ZP22a7HnJzS8VOUYO6Sjq+frpJQekJITP7NW3XKD1BDwQqDL
-         bFXg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=czgpvmgZPJ3O+tyPYJ2X0jNeQZ0QvhuXu8guxQyVg6g=;
-        b=UyKUmKZbSZKQbgiy7aTPFtIpMVRwPzyUO+3SqYa1AULmuIK9G0EqHT1PePVCVSJz2q
-         Em7Ud2b2keN4pDgJkvq1SoHhzCaUc+EM68fcmfHftPFG0LMJCuCIyABKkDyDQKsj/Bwt
-         3p9Xh/9TT9hFnl/h/ZxDv9uhZSuxG/A8+yWm3YlaNCKkN1MeK35w3zuuPkqAE9oXlzAA
-         NKDD9Z2j7TuHxIt3JHtcLsOv6wa8++2hJ3lGfWGvCmt1i37tvGAehHgDNlUfJEtMvWJ5
-         kdnnyEcmP1nXofNdwxYHe623fhe/Z1eget3GNy05I3SCuNIAlSZZlgV3ypVHmZmW/mLk
-         o/xg==
-X-Gm-Message-State: AOAM532IorVcupJ+nOHvklpmM26HGG9kSqps+iyh6ll+b/eTGdOA/6pk
-        vTYTJ+FX42o0Wq+odIa+DsXrDA==
-X-Google-Smtp-Source: ABdhPJxIFdnLsddE6DCRbNfzdlQyWwtEFkPXzKIQ0qFSj6KmMWra2muHYgLOGn97wyIkZOdz65W4pA==
-X-Received: by 2002:aa7:9571:0:b029:259:1f95:27db with SMTP id x17-20020aa795710000b02902591f9527dbmr5293907pfq.54.1618581513676;
-        Fri, 16 Apr 2021 06:58:33 -0700 (PDT)
-Received: from [192.168.1.134] ([66.219.217.173])
-        by smtp.gmail.com with ESMTPSA id q63sm6185164pjq.17.2021.04.16.06.58.32
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 16 Apr 2021 06:58:33 -0700 (PDT)
-Subject: Re: [PATCH 0/2] fix hangs with shared sqpoll
-To:     Pavel Begunkov <asml.silence@gmail.com>, io-uring@vger.kernel.org
-Cc:     Dennis Zhou <dennis@kernel.org>, Tejun Heo <tj@kernel.org>,
+        id S243285AbhDPOKr (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Fri, 16 Apr 2021 10:10:47 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:47961 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S234914AbhDPOKq (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Fri, 16 Apr 2021 10:10:46 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1618582221;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=w0YYzj8V73L8TZdDRT/cuzZofbVkBWAoCy5mihzJOz8=;
+        b=LUCP3XZKU8UwzdgqG5VKW3xOvsHm/IiX8YoBFfF0dhVe4go+KrH0QMkaO9RcaqGyg2XQ6u
+        0xZ55kH42pM7cC289n+g3Qjswrqy2ZaCylEBr2RUao9Yq84GB51ITa7u419FLts0sF4ngY
+        9Wp1q7u1NSsG6wv424uJJ0PRsw4bSes=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-557-4lNchRc0MJSUmXqjEU735g-1; Fri, 16 Apr 2021 10:10:20 -0400
+X-MC-Unique: 4lNchRc0MJSUmXqjEU735g-1
+Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 86C6883DD2A;
+        Fri, 16 Apr 2021 14:10:18 +0000 (UTC)
+Received: from T590 (ovpn-12-27.pek2.redhat.com [10.72.12.27])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id EB3681042A90;
+        Fri, 16 Apr 2021 14:10:11 +0000 (UTC)
+Date:   Fri, 16 Apr 2021 22:10:07 +0800
+From:   Ming Lei <ming.lei@redhat.com>
+To:     Pavel Begunkov <asml.silence@gmail.com>
+Cc:     Dennis Zhou <dennis@kernel.org>, Jens Axboe <axboe@kernel.dk>,
+        io-uring@vger.kernel.org, Tejun Heo <tj@kernel.org>,
         Christoph Lameter <cl@linux.com>, Joakim Hassila <joj@mac.com>
+Subject: Re: [PATCH 1/2] percpu_ref: add percpu_ref_atomic_count()
+Message-ID: <YHmavyeoB6gQDuX2@T590>
 References: <cover.1618532491.git.asml.silence@gmail.com>
- <8d04fa58-d8d0-8760-a6aa-d2bd6d66d09d@gmail.com>
- <36df5986-0716-b7e7-3dac-261a483d074a@kernel.dk>
- <dd77a2f6-c989-8970-b4c4-44380124a894@gmail.com>
-From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <dabc5451-c184-9357-c665-697fe22c2e9e@kernel.dk>
-Date:   Fri, 16 Apr 2021 07:58:31 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+ <d17d951b120bb2d65870013bfdc7495a92c6fb82.1618532491.git.asml.silence@gmail.com>
+ <YHkWdgLKBrH51GA7@google.com>
+ <10b84fd7-4c40-3fe6-6993-061b524b1487@gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <dd77a2f6-c989-8970-b4c4-44380124a894@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <10b84fd7-4c40-3fe6-6993-061b524b1487@gmail.com>
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 4/16/21 7:12 AM, Pavel Begunkov wrote:
-> On 16/04/2021 14:04, Jens Axboe wrote:
->> On 4/15/21 6:26 PM, Pavel Begunkov wrote:
->>> On 16/04/2021 01:22, Pavel Begunkov wrote:
->>>> Late catched 5.12 bug with nasty hangs. Thanks Jens for a reproducer.
->>>
->>> 1/2 is basically a rip off of one of old Jens' patches, but can't
->>> find it anywhere. If you still have it, especially if it was
->>> reviewed/etc., may make sense to go with it instead
->>
->> I wonder if we can do something like the below instead - we don't
->> care about a particularly stable count in terms of wakeup
->> reliance, and it'd save a nasty sync atomic switch.
+On Fri, Apr 16, 2021 at 02:16:41PM +0100, Pavel Begunkov wrote:
+> On 16/04/2021 05:45, Dennis Zhou wrote:
+> > Hello,
+> > 
+> > On Fri, Apr 16, 2021 at 01:22:51AM +0100, Pavel Begunkov wrote:
+> >> Add percpu_ref_atomic_count(), which returns number of references of a
+> >> percpu_ref switched prior into atomic mode, so the caller is responsible
+> >> to make sure it's in the right mode.
+> >>
+> >> Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+> >> ---
+> >>  include/linux/percpu-refcount.h |  1 +
+> >>  lib/percpu-refcount.c           | 26 ++++++++++++++++++++++++++
+> >>  2 files changed, 27 insertions(+)
+> >>
+> >> diff --git a/include/linux/percpu-refcount.h b/include/linux/percpu-refcount.h
+> >> index 16c35a728b4c..0ff40e79efa2 100644
+> >> --- a/include/linux/percpu-refcount.h
+> >> +++ b/include/linux/percpu-refcount.h
+> >> @@ -131,6 +131,7 @@ void percpu_ref_kill_and_confirm(struct percpu_ref *ref,
+> >>  void percpu_ref_resurrect(struct percpu_ref *ref);
+> >>  void percpu_ref_reinit(struct percpu_ref *ref);
+> >>  bool percpu_ref_is_zero(struct percpu_ref *ref);
+> >> +unsigned long percpu_ref_atomic_count(struct percpu_ref *ref);
+> >>  
+> >>  /**
+> >>   * percpu_ref_kill - drop the initial ref
+> >> diff --git a/lib/percpu-refcount.c b/lib/percpu-refcount.c
+> >> index a1071cdefb5a..56286995e2b8 100644
+> >> --- a/lib/percpu-refcount.c
+> >> +++ b/lib/percpu-refcount.c
+> >> @@ -425,6 +425,32 @@ bool percpu_ref_is_zero(struct percpu_ref *ref)
+> >>  }
+> >>  EXPORT_SYMBOL_GPL(percpu_ref_is_zero);
+> >>  
+> >> +/**
+> >> + * percpu_ref_atomic_count - returns number of left references
+> >> + * @ref: percpu_ref to test
+> >> + *
+> >> + * This function is safe to call as long as @ref is switch into atomic mode,
+> >> + * and is between init and exit.
+> >> + */
+> >> +unsigned long percpu_ref_atomic_count(struct percpu_ref *ref)
+> >> +{
+> >> +	unsigned long __percpu *percpu_count;
+> >> +	unsigned long count, flags;
+> >> +
+> >> +	if (WARN_ON_ONCE(__ref_is_percpu(ref, &percpu_count)))
+> >> +		return -1UL;
+> >> +
+> >> +	/* protect us from being destroyed */
+> >> +	spin_lock_irqsave(&percpu_ref_switch_lock, flags);
+> >> +	if (ref->data)
+> >> +		count = atomic_long_read(&ref->data->count);
+> >> +	else
+> >> +		count = ref->percpu_count_ptr >> __PERCPU_REF_FLAG_BITS;
+> > 
+> > Sorry I missed Jens' patch before and also the update to percpu_ref.
+> > However, I feel like I'm missing something. This isn't entirely related
+> > to your patch, but I'm not following why percpu_count_ptr stores the
+> > excess count of an exited percpu_ref and doesn't warn when it's not
+> > zero. It seems like this should be an error if it's not 0?
+> > 
+> > Granted we have made some contract with the user to do the right thing,
+> > but say someone does mess up, we don't indicate to them hey this ref is
+> > actually dead and if they're waiting for it to go to 0, it never will.
 > 
-> But we care about it being monotonous. There are nuances with it.
+> fwiw, I copied is_zero, but skimming through the code don't immediately
+> see myself why it is so...
+> 
+> Cc Ming, he split out some parts of it to dynamic allocation not too
+> long ago, maybe he knows the trick.
 
-Do we, though? We care about it changing when something has happened,
-but not about it being monotonic.
+I remembered that percpu_ref_is_zero() can be called even after percpu_ref_exit()
+returns, and looks percpu_ref_is_zero() isn't classified into 'active use'.
 
-> I think, non sync'ed summing may put it to eternal sleep.
 
-That's what the two reads are about, that's the same as before. The
-numbers are racy in both cases, but that's why we compare after having
-added ourselves to the wait queue.
-
-> Are you looking to save on switching? It's almost always is already
-> dying with prior ref_kill
-
-Yep, always looking to avoid a sync switch if at all possible. For 99%
-of the cases it's fine, it's the last case in busy prod that wreaks
-havoc.
-
--- 
-Jens Axboe
+Thanks,
+Ming
 

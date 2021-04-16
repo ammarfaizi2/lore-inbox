@@ -2,85 +2,128 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 80FD8C433B4
-	for <io-uring@archiver.kernel.org>; Fri, 16 Apr 2021 01:25:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 56D58C43461
+	for <io-uring@archiver.kernel.org>; Fri, 16 Apr 2021 01:25:34 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4D341610E8
-	for <io-uring@archiver.kernel.org>; Fri, 16 Apr 2021 01:25:33 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3A7D36115B
+	for <io-uring@archiver.kernel.org>; Fri, 16 Apr 2021 01:25:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236038AbhDPBZz (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Thu, 15 Apr 2021 21:25:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40562 "EHLO
+        id S235086AbhDPBZ4 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Thu, 15 Apr 2021 21:25:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40572 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234854AbhDPBZx (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Thu, 15 Apr 2021 21:25:53 -0400
-Received: from mail-pj1-x102f.google.com (mail-pj1-x102f.google.com [IPv6:2607:f8b0:4864:20::102f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5BAA1C061574
-        for <io-uring@vger.kernel.org>; Thu, 15 Apr 2021 18:25:28 -0700 (PDT)
-Received: by mail-pj1-x102f.google.com with SMTP id em21-20020a17090b0155b029014e204a81e6so5600678pjb.1
-        for <io-uring@vger.kernel.org>; Thu, 15 Apr 2021 18:25:28 -0700 (PDT)
+        with ESMTP id S236090AbhDPBZz (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Thu, 15 Apr 2021 21:25:55 -0400
+Received: from mail-pf1-x42f.google.com (mail-pf1-x42f.google.com [IPv6:2607:f8b0:4864:20::42f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30779C06175F
+        for <io-uring@vger.kernel.org>; Thu, 15 Apr 2021 18:25:30 -0700 (PDT)
+Received: by mail-pf1-x42f.google.com with SMTP id p67so12327447pfp.10
+        for <io-uring@vger.kernel.org>; Thu, 15 Apr 2021 18:25:30 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=from:to:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=pCXm8dnTwrfclTw1fD1HvPNhBW9vsTyYQCS49YVXMco=;
-        b=xXAwda8Jkp/yvHnVeYYJas9MWyncr9Hnb0otZ75DAj5Ix8g0SmOuBYvFH6GNle3PnA
-         6yjxd2JxJFDA1gTnwoL5/YQqjVDnmYgxWf/UxkA9EHAPjA1LZeo1WJWqCar3WvXwoSmn
-         2D+r69PCe1ueAw9SU8rPeTrdFwx7VcpW6xMe9txvYNXdKFCXGOrVgIAHXtDDYY+MExvy
-         OCi6Gt7KsnvSS3T+wQo2/qs73nbSNWgrA2mw8i+7Lh+3pmlcuVX2qHiS3XlW3/YiUN+K
-         mTaPWLeElRVZfHYbXVHid7kEUyJKLLW2TLoGDNA9rMlC0zLq+TcnxoMaOFR1mdmmnwEH
-         v/iQ==
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=OtaAlLd049P6eFcJ2nT5D877je7FAgaVRpSGLucJ42E=;
+        b=wM7VXBJWrWiZ/rRB2QBcSBB6h0DnKZciP20MxW9lFCZT03xCaAwESn1txRAetYvuUk
+         /6scz9ZT0gOyq088yYHEPDm2Tg611zYAw2CV+A4ZXjysO4blKrIW4AUv8NZQ4yjyrL81
+         11Fv2DVVuCHX0oCVGyeYPRudnqsfnvC4vfh96+/emRcTwCnblX7UtFUYWqaloMyvk5eY
+         4bhiimE8NcSsTzjW8KXNGekcCf3ZDzDZOfJ71ZnOD8EwTC/ZYVRuHwp5rvo6N7172LvN
+         JZEg7R8R+fZS7E0i1KgWOknklb5Aze/YKITuWjQ21pG1CFYso/kfgeOWlA+dNpJITaA6
+         Xvuw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=pCXm8dnTwrfclTw1fD1HvPNhBW9vsTyYQCS49YVXMco=;
-        b=UsqKPtopc/JHgqsGUV2XRGO3O1ZM+qasoRdxC7rxJcLTe0z7AeABuJzL0kMVHShE30
-         V70lFCw76yCNYiaYR8GZlNbHYaXMYxlV6zzNAyshCUOilytfbEb2IQJKwFX57ae4hdWw
-         PpUj/vOHdwMBNwLLdC6ACvCYvVJhewIFSK8SFVF/OaR7c3dngMeTbjBlzoBRCqLRkn3h
-         f9mdVMIXTm17s66Bnhi5i9JwAEsCdJv1EnKR63WsBiMBVXl0e/kRZQJzWxNJJGml24KA
-         oERyuS4rsVw21qqqiNYCM5BKqTKwR7BFEdcqDOUVr6fA1b68OdPCtjdw88KLR/pVOt8f
-         0nsA==
-X-Gm-Message-State: AOAM531h1SdtIKXamcXmPj7zbdocHybftZoxXPsGgIqgPQjNCez/KvEJ
-        yJXou1L/8CkINE5OKMVXYYWkudq4sIIJTw==
-X-Google-Smtp-Source: ABdhPJyAoLl+WoIpAnQKplLj3PTa6+elC95JICH/JSa96byL5sQH5FbMXxGq7cigETgIDIipBvW+Pw==
-X-Received: by 2002:a17:902:e04f:b029:eb:66b0:6d08 with SMTP id x15-20020a170902e04fb02900eb66b06d08mr6953808plx.50.1618536327678;
-        Thu, 15 Apr 2021 18:25:27 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=OtaAlLd049P6eFcJ2nT5D877je7FAgaVRpSGLucJ42E=;
+        b=OozX/ZgSOFljZsS8Jh0NUyBRpAd1fld5NJN7R4QyftiCoT1rYhlZmu6ry5RH9SN0ih
+         ug1FThstEtWoBaZtlUvmf+9qchlVTk9S3SkdB65ldDO3NO8TgsuXeVQkQ8rKTDZRNRS8
+         U4L/8n9cqrHT7KhGEx5ChdlGgppbrult5Q1kDt81RStIRMDbzE3kQkot6LL/PpwKd9RX
+         4179dIBgVuk0NraM22FcXkxHD88f6sJrD1v3wMaEdbORSkM2b0Xv/TZroRCXa71ZWR6u
+         p9T7SyGeBFkcrtepTQBItdG9JEuqllQTtNsy4mEHosCbLGn8uOktwHCR16W8ilsbFK6p
+         GeAw==
+X-Gm-Message-State: AOAM532CrJfPh5NHpIMseP18b4h6OwmRZV7eOWbCpYrulzwX+U3x8wRw
+        xKUNsNKOZMwbRsk22/LBLgWvVz2R+uTz6A==
+X-Google-Smtp-Source: ABdhPJyq6t7GJ25ZJBSl0eyoEj9WlTUBI9Mo4wVboZ/D2p0YFf+QQDxm6k0BsyTK8qYtBasFeE3fZA==
+X-Received: by 2002:a62:ab11:0:b029:242:4c58:d46b with SMTP id p17-20020a62ab110000b02902424c58d46bmr5525743pff.15.1618536329488;
+        Thu, 15 Apr 2021 18:25:29 -0700 (PDT)
 Received: from p1.localdomain ([66.219.217.173])
-        by smtp.gmail.com with ESMTPSA id g17sm3502039pji.40.2021.04.15.18.25.26
-        for <io-uring@vger.kernel.org>
+        by smtp.gmail.com with ESMTPSA id g17sm3502039pji.40.2021.04.15.18.25.28
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 15 Apr 2021 18:25:27 -0700 (PDT)
+        Thu, 15 Apr 2021 18:25:29 -0700 (PDT)
 From:   Jens Axboe <axboe@kernel.dk>
 To:     io-uring@vger.kernel.org
-Subject: [PATCH 0/3] Misc 5.13 fixes
-Date:   Thu, 15 Apr 2021 19:25:20 -0600
-Message-Id: <20210416012523.724073-1-axboe@kernel.dk>
+Cc:     Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 2/3] io_uring: put flag checking for needing req cleanup in one spot
+Date:   Thu, 15 Apr 2021 19:25:22 -0600
+Message-Id: <20210416012523.724073-3-axboe@kernel.dk>
 X-Mailer: git-send-email 2.31.1
+In-Reply-To: <20210416012523.724073-1-axboe@kernel.dk>
+References: <20210416012523.724073-1-axboe@kernel.dk>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Hi,
+We have this in two spots right now, which is a bit fragile. In
+preparation for moving REQ_F_POLLED cleanup into the same spot, move
+the check into io_clean_op() itself so we only have it once.
 
-#1 disables multishot requests for double waitqueue users for now, it's
-got a few corner cases that need hashing out.
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+---
+ fs/io_uring.c | 19 ++++++++-----------
+ 1 file changed, 8 insertions(+), 11 deletions(-)
 
-#2 is a prep patch for #3, which ties the ->apoll lifetime with that of
-the request instead of keeping it seperate. That's more logical and makes
-it handled more like other dynamically allocated items.
-
- fs/io_uring.c | 39 +++++++++++++++++++--------------------
- 1 file changed, 19 insertions(+), 20 deletions(-)
-
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 87ce3dbcd4ca..a668d6a3319c 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -1601,8 +1601,7 @@ static void io_req_complete_post(struct io_kiocb *req, long res,
+ static void io_req_complete_state(struct io_kiocb *req, long res,
+ 				  unsigned int cflags)
+ {
+-	if (req->flags & (REQ_F_NEED_CLEANUP | REQ_F_BUFFER_SELECTED))
+-		io_clean_op(req);
++	io_clean_op(req);
+ 	req->result = res;
+ 	req->compl.cflags = cflags;
+ 	req->flags |= REQ_F_COMPLETE_INLINE;
+@@ -1713,16 +1712,12 @@ static void io_dismantle_req(struct io_kiocb *req)
+ 
+ 	if (!(flags & REQ_F_FIXED_FILE))
+ 		io_put_file(req->file);
+-	if (flags & (REQ_F_NEED_CLEANUP | REQ_F_BUFFER_SELECTED |
+-		     REQ_F_INFLIGHT)) {
+-		io_clean_op(req);
++	io_clean_op(req);
++	if (req->flags & REQ_F_INFLIGHT) {
++		struct io_uring_task *tctx = req->task->io_uring;
+ 
+-		if (req->flags & REQ_F_INFLIGHT) {
+-			struct io_uring_task *tctx = req->task->io_uring;
+-
+-			atomic_dec(&tctx->inflight_tracked);
+-			req->flags &= ~REQ_F_INFLIGHT;
+-		}
++		atomic_dec(&tctx->inflight_tracked);
++		req->flags &= ~REQ_F_INFLIGHT;
+ 	}
+ 	if (req->fixed_rsrc_refs)
+ 		percpu_ref_put(req->fixed_rsrc_refs);
+@@ -5995,6 +5990,8 @@ static int io_req_defer(struct io_kiocb *req)
+ 
+ static void io_clean_op(struct io_kiocb *req)
+ {
++	if (!(req->flags & (REQ_F_BUFFER_SELECTED | REQ_F_NEED_CLEANUP)))
++		return;
+ 	if (req->flags & REQ_F_BUFFER_SELECTED) {
+ 		switch (req->opcode) {
+ 		case IORING_OP_READV:
 -- 
-Jens Axboe
-
+2.31.1
 

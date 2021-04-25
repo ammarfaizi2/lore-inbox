@@ -2,109 +2,116 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 64B5DC433ED
+	by smtp.lore.kernel.org (Postfix) with ESMTP id ACE45C43460
 	for <io-uring@archiver.kernel.org>; Sun, 25 Apr 2021 13:32:40 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 2F8DA61360
+	by mail.kernel.org (Postfix) with ESMTP id 8962F611F0
 	for <io-uring@archiver.kernel.org>; Sun, 25 Apr 2021 13:32:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229932AbhDYNdT (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        id S229688AbhDYNdT (ORCPT <rfc822;io-uring@archiver.kernel.org>);
         Sun, 25 Apr 2021 09:33:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57838 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57850 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229688AbhDYNdS (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Sun, 25 Apr 2021 09:33:18 -0400
-Received: from mail-wm1-x332.google.com (mail-wm1-x332.google.com [IPv6:2a00:1450:4864:20::332])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5AAF3C061574
-        for <io-uring@vger.kernel.org>; Sun, 25 Apr 2021 06:32:37 -0700 (PDT)
-Received: by mail-wm1-x332.google.com with SMTP id y5-20020a05600c3645b0290132b13aaa3bso3629442wmq.1
-        for <io-uring@vger.kernel.org>; Sun, 25 Apr 2021 06:32:37 -0700 (PDT)
+        with ESMTP id S229763AbhDYNdT (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Sun, 25 Apr 2021 09:33:19 -0400
+Received: from mail-wr1-x42c.google.com (mail-wr1-x42c.google.com [IPv6:2a00:1450:4864:20::42c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3618BC061756
+        for <io-uring@vger.kernel.org>; Sun, 25 Apr 2021 06:32:39 -0700 (PDT)
+Received: by mail-wr1-x42c.google.com with SMTP id e5so24402898wrg.7
+        for <io-uring@vger.kernel.org>; Sun, 25 Apr 2021 06:32:39 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:subject:date:message-id:mime-version
+        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=8nd1cjfWsqGQjxGLe1ZZJayl3SGcnb4UQlfPPvTvQJo=;
-        b=YvpG4Ss02vhMf9NEZ18A2MmAjiApsCElMbvFH3rOrxenbTdEanIyCjurVcsREw3Hin
-         kn+b++uPV6sfXBvSscenM6ZIeZs6fK+n8IIUAfdKTqZoLhTxo4ze4dxtK5nDSQI3lbPV
-         TaTChG6sqxiOpBBDvhK1MflscgMBAe+GPROOdp3TESpQDJmzxUxwBwfB4vJYQMgN3KbL
-         Afbb7eYc6QAjaxwdFO5hX9vyhJpn9ZsdtzIQFjdb80vSWrrbAq9A318TSO20S9Ysk+dR
-         3ei0MlY2k8kWxLTd4xThD+2DpvUSPFBk2kVu3wqvDl1zs3UBmqIXmzKanE+K9ol1v/3H
-         1aCw==
+        bh=khza0+emDH/8SGke3kG+FG/pDGPnQ2DdXv9AOpxij7M=;
+        b=QBpRG7IkEfrJsfmYECPwy/+2W56d5LKfIBBeBtmir48lWEQo9Wxg1OkwYU9vLMw/DA
+         2KDtewG4/eL2rpd0TvXrBG4gM1zuu5JJl6e2hWKhW0BWqdQkNWvr5VjaMb4P8bfqHZYY
+         /CE4g9H9aJzsfMzxkRow6PVI4hiUnLRjO3KYteR/D/k1/ko8E9dWTJN9FVcnx3xxMgxK
+         u1CUcw99pw8mclfXGATKIDsj/Vc1ntfnD2m1NePR3TuFJzFRL2Z/A9i/B4iFE94flgdr
+         ZpVn8PuJl9bSdqu3XHmrZHAVhJDxFflsxbgCCZCeBHDZKDfG85qS4hPum6VNPeMPGIv6
+         Insw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=8nd1cjfWsqGQjxGLe1ZZJayl3SGcnb4UQlfPPvTvQJo=;
-        b=lmCQpPle7uElSEuGEIJbXH4hXKufCywFBxRndf0joZfXBy8cDzKJ/dj72FpRrELJNF
-         Z9SnYfzvKiuRICMcogSxjinGcMGQBB+EN7rAt4ok/UjTA8s7/UN++291gEq80578mDKY
-         LaFVNE/rgWtn1t+FrNIU3nsGwVjYDc8YlkGbh8rtxkT3mg2TuYxCXc14oPJVFi1v0d03
-         v6V3gz/WGeT3Ekdt1VTF+Cl2S9lX2fCwxfgu/s8hle0SgYyOL3juS4/30vG0phpVzwse
-         D7SyGkhNUOerZeZedyNrD/rpGcP2l/MnJ1fhPJlMtpU0jg7DHgzZ/s79CjkoNga8JLqr
-         ENgQ==
-X-Gm-Message-State: AOAM532rG8G7qFjO9vcfRqK7G+wBzJ0thwdHYs4pSM0LnbRC31jN6zdy
-        g5YOWWYcODUSVGYU81uOMMA=
-X-Google-Smtp-Source: ABdhPJy3BY2NRxTRDuNQ1aTnevLh0qQuOc+mMF/fY0V5jQMR0eIH9SuzqItiTb2ZumGMPxSbM9f+nw==
-X-Received: by 2002:a7b:c20c:: with SMTP id x12mr14497372wmi.51.1619357556062;
-        Sun, 25 Apr 2021 06:32:36 -0700 (PDT)
+        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=khza0+emDH/8SGke3kG+FG/pDGPnQ2DdXv9AOpxij7M=;
+        b=TPPeZy9k6YYOVqTt7NeF/HF6YKz3nlG9G6dog//YaNOKzmcimKiTjjKJeBVAdV4Lx+
+         ipu9UNhJvqybpvoE44FMnef1RkFCI3vCJ7W8a79S+99P5iv1Q8QrWhGWXRxndww9NrKg
+         P86fXNLjUon8Hm/J061RCmCGKPgUhgZNIUVCgLfJT9MGjIKyDCqmubFeWKcjimQlT+eG
+         t+0LAR6wmz+i1fFqklHumrQ6p+h8LrUdGh6zDLELEuLYqgvS4EcgEqMFyVyzsUCkdI7x
+         9QkEn2kvIuwHGzBpXtUje25DPA/PfPcc0Z+jb8jBDW30W4xx25plaA3+ssYB0HXupeU2
+         r/qg==
+X-Gm-Message-State: AOAM530jejboCG362Z+ghLhrVQuhpWX5DT25DG5Gn+VzPRbrEoIizPjq
+        NCu+a4+++4jTbVVK1FFcafbfi9afnhw=
+X-Google-Smtp-Source: ABdhPJwyOOZJp4V7fT4xBICUoRM5GmARW6W1ReidUvQMLmj6wa3uVqWFXp5pyJvORzuIHwOEQNQ88A==
+X-Received: by 2002:adf:dd50:: with SMTP id u16mr17379114wrm.380.1619357557977;
+        Sun, 25 Apr 2021 06:32:37 -0700 (PDT)
 Received: from localhost.localdomain ([148.252.133.108])
-        by smtp.gmail.com with ESMTPSA id a2sm16551552wrt.82.2021.04.25.06.32.35
+        by smtp.gmail.com with ESMTPSA id a2sm16551552wrt.82.2021.04.25.06.32.37
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 25 Apr 2021 06:32:35 -0700 (PDT)
+        Sun, 25 Apr 2021 06:32:37 -0700 (PDT)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [RFC v2 00/12] dynamic buffers + rsrc tagging
-Date:   Sun, 25 Apr 2021 14:32:14 +0100
-Message-Id: <cover.1619356238.git.asml.silence@gmail.com>
+Subject: [PATCH v2 02/12] io_uring: return back rsrc data free helper
+Date:   Sun, 25 Apr 2021 14:32:16 +0100
+Message-Id: <562d1d53b5ff184f15b8949a63d76ef19c4ba9ec.1619356238.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.31.1
+In-Reply-To: <cover.1619356238.git.asml.silence@gmail.com>
+References: <cover.1619356238.git.asml.silence@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-1) support dynamic managment for registered buffers, including
-update.
+Add io_rsrc_data_free() helper for destroying rsrc_data, easier for
+search and the function will get more stuff to destroy shortly.
 
-2) add new IORING_REGISTER* for rsrc register and rsrc update,
-which are just dispatch files/buffers to right callbacks. Needed
-because old ones not nicely extendible. The downside --
-restrictions not supporting it with fine granularity.
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+---
+ fs/io_uring.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-3) add rsrc tagging, with tag=0 ingnoring CQE posting.
-Doesn't post CQEs on unregister, but can easily be changed
-
-v2: instead of async_data importing for fixed rw, save
-    used io_mapped_ubuf and use it on re-import.
-    Add patch 9/12 as a preparation for that.
-
-    Fix prep rw getting a rsrc node ref for fixed files without
-    having a rsrc node.
-
-Bijan Mottahedeh (1):
-  io_uring: implement fixed buffers registration similar to fixed files
-
-Pavel Begunkov (11):
-  io_uring: move __io_sqe_files_unregister
-  io_uring: return back rsrc data free helper
-  io_uring: decouple CQE filling from requests
-  io_uring: preparation for rsrc tagging
-  io_uring: add generic path for rsrc update
-  io_uring: enumerate dynamic resources
-  io_uring: add IORING_REGISTER_RSRC
-  io_uring: add generic rsrc update with tags
-  io_uring: keep table of pointers to ubufs
-  io_uring: prepare fixed rw for dynanic buffers
-  io_uring: add full-fledged dynamic buffers support
-
- fs/io_uring.c                 | 523 +++++++++++++++++++++++++---------
- include/uapi/linux/io_uring.h |  23 ++
- 2 files changed, 405 insertions(+), 141 deletions(-)
-
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 70e331349213..a1f89340e844 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -7109,6 +7109,11 @@ static int io_rsrc_ref_quiesce(struct io_rsrc_data *data, struct io_ring_ctx *ct
+ 	return ret;
+ }
+ 
++static void io_rsrc_data_free(struct io_rsrc_data *data)
++{
++	kfree(data);
++}
++
+ static struct io_rsrc_data *io_rsrc_data_alloc(struct io_ring_ctx *ctx,
+ 					       rsrc_put_fn *do_put)
+ {
+@@ -7147,7 +7152,7 @@ static void __io_sqe_files_unregister(struct io_ring_ctx *ctx)
+ 	}
+ #endif
+ 	io_free_file_tables(&ctx->file_table, ctx->nr_user_files);
+-	kfree(ctx->file_data);
++	io_rsrc_data_free(ctx->file_data);
+ 	ctx->file_data = NULL;
+ 	ctx->nr_user_files = 0;
+ }
+@@ -7624,7 +7629,7 @@ static int io_sqe_files_register(struct io_ring_ctx *ctx, void __user *arg,
+ 	io_free_file_tables(&ctx->file_table, nr_args);
+ 	ctx->nr_user_files = 0;
+ out_free:
+-	kfree(ctx->file_data);
++	io_rsrc_data_free(ctx->file_data);
+ 	ctx->file_data = NULL;
+ 	return ret;
+ }
 -- 
 2.31.1
 

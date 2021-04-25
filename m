@@ -8,59 +8,59 @@ X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E6698C433ED
-	for <io-uring@archiver.kernel.org>; Sun, 25 Apr 2021 13:32:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B8E1CC433B4
+	for <io-uring@archiver.kernel.org>; Sun, 25 Apr 2021 13:32:48 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C570B611F0
-	for <io-uring@archiver.kernel.org>; Sun, 25 Apr 2021 13:32:47 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 94A3261363
+	for <io-uring@archiver.kernel.org>; Sun, 25 Apr 2021 13:32:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230233AbhDYNd0 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sun, 25 Apr 2021 09:33:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57872 "EHLO
+        id S230235AbhDYNd1 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sun, 25 Apr 2021 09:33:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57876 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229997AbhDYNd0 (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Sun, 25 Apr 2021 09:33:26 -0400
+        with ESMTP id S229997AbhDYNd1 (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Sun, 25 Apr 2021 09:33:27 -0400
 Received: from mail-wm1-x32d.google.com (mail-wm1-x32d.google.com [IPv6:2a00:1450:4864:20::32d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB700C061756
-        for <io-uring@vger.kernel.org>; Sun, 25 Apr 2021 06:32:42 -0700 (PDT)
-Received: by mail-wm1-x32d.google.com with SMTP id p10-20020a1c544a0000b02901387e17700fso3631012wmi.2
-        for <io-uring@vger.kernel.org>; Sun, 25 Apr 2021 06:32:42 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48C11C061574
+        for <io-uring@vger.kernel.org>; Sun, 25 Apr 2021 06:32:46 -0700 (PDT)
+Received: by mail-wm1-x32d.google.com with SMTP id i21-20020a05600c3555b029012eae2af5d4so3670025wmq.4
+        for <io-uring@vger.kernel.org>; Sun, 25 Apr 2021 06:32:46 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=GwkFN2g8DmcJNTfhLZk+elQbf9tzR3YlitRDOo789uY=;
-        b=tY5PoCd9sQRprBAb/1x6LGM0xWzCU2bZbbPVRfrvlP3XMEjugoe2vPnu3EzmaHrZ4N
-         9msMTJyjHWbuHRraZQwtRDI2hkuz+cmJWcvX6d2AFskm2f+95tMUP/XQTUg2J9hxsun4
-         Ahr5+EbqqE2GubpCC/+k9PUq7+CprVvTfqRQqGOXkDHoCjGNxrUZIicwoqw/lpjEK/nN
-         lTCwXPGZvwHQPV8bo4KWXihIaXaeUl5ZxZ9kPPZfsi+L96FzPryPAJfdcSiUJAXHnTab
-         Hv82FEv9UKBT7PaUUX5L0E6ueuDsB8rBuz8FXPhwYIF1FBe9juO8ieQP9G5yaiDqQCHx
-         3J6w==
+        bh=nnhNhGQkVpAobDJ3mIZeuFkl+LPGEeJpZsBSaAgVrJQ=;
+        b=VzEQbXWgujbqOZfCT6Z9jsjw3wQbmwGQSylDKMse1nQZLn6t6KmpgESaW6b0ZLHaVh
+         +Im5599V41h4RzfazdfL1QgE5o0qbJHVUH8bKadMloUR8JsIAUrVa5qDwhqkOlgIVAKf
+         uFQZOVa+vbM6FSej0wqVALCPvxCiQGv0pByJjkepj5kNeRe63ZbwLk/CdpIwjp9WU1g4
+         huJ4qZyiKP0gs5IZD2D7S1A5u/o8bOem8nqIi3dmObiar6pnIUU7r9U/QEtRmI13QuLL
+         mdU7FwWtnTJ2iIk4TfxMh/BH5YtNHpIdaENkYDULCG49CvZyABAOdY5w0xmV7zknGOm6
+         9nXQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=GwkFN2g8DmcJNTfhLZk+elQbf9tzR3YlitRDOo789uY=;
-        b=E/y2MeGCxlLyBzErMSS/k8h6+3xh5uGAfua4YjvhDaEz8msLLh0cHYZIhxSzK25e/L
-         IGbGT4Igief2iZwqu+aq+uE6t5pViYdzmdaof1vXg1/0K6HjCQ1ORFcJDPCfTzPAGeYu
-         X/H+XeE+DPl/gApZGGBWfQjE4nOHDAGQMTSUihh2cBgu+H0MODtsmMml197L83mYuiR7
-         UWKNa54/hC38VBC/rd8PaqK4i4vy6+FlBIxJyENrDYoPzT0cWtZqfkhK1At3dvJq2APC
-         mbmTvepbSZbuecIQ5oQhal7ePAjLli96JsUmlhqoEXP9nP4dJPYal/mis3Mj4nGW+vWK
-         RrEw==
-X-Gm-Message-State: AOAM530r2+PODeK8KwDSlc8L5pq/oyKYj4Qi1LL4hZWa8u2QjnhZa4Qn
-        PQmv9XLvZ8vnsM46oaedM/U=
-X-Google-Smtp-Source: ABdhPJxO1hyR6fcumWLY4T25bYD5RFvPLeQiGHbH2y3e8W9tVkKutqE1J2ca7auwB14LAp90Mlp3kg==
-X-Received: by 2002:a05:600c:35cc:: with SMTP id r12mr15965282wmq.147.1619357561573;
-        Sun, 25 Apr 2021 06:32:41 -0700 (PDT)
+        bh=nnhNhGQkVpAobDJ3mIZeuFkl+LPGEeJpZsBSaAgVrJQ=;
+        b=DxPLnDOKak4m2F0QmS+wQ2G9AnrbInlQ/DwV6qtxEZeDYNosqWycpFoVf/Dhsf4rWY
+         KoUyJYi6/M8Jp6pt99miFxYGrEy9s9a0+e+WarVTmZzHxavnXVJvLNOx/VW2XaTaV9i5
+         YrNA7sNiF4rlXFnT6CM7Yq4e/Ui9idzbiNNi5SBKmYe6ChwO/oI4CCVX0b0TAmE7tJkN
+         DPHReifVudWVs2G/nXMztdSEdIArcA6b2TC5MU7v9FK+5tFYOLOgSR7XUbw6AaRhdNTD
+         YPWnys1FFjps/ieoNH64p5MSspGKkT/YrwBsfgW0EwKJrd9zmPMyQ2wwaVibcACxt54e
+         ppbw==
+X-Gm-Message-State: AOAM532hA1GxMhcqlvFaXBm5O9I1d+IfIPWC68DLX4oZOZwT5qF7i3L4
+        MtPxEM7+v/F3NgDmm4rQ3MamEtB9lYM=
+X-Google-Smtp-Source: ABdhPJwclwsHXSR8YS/C0RzoErxkdMd+T+yPSex6TIoNsBxfX7La64qTVjUKS9Vz3TDg+4tE3bnFKw==
+X-Received: by 2002:a1c:7c08:: with SMTP id x8mr15812189wmc.130.1619357565071;
+        Sun, 25 Apr 2021 06:32:45 -0700 (PDT)
 Received: from localhost.localdomain ([148.252.133.108])
-        by smtp.gmail.com with ESMTPSA id a2sm16551552wrt.82.2021.04.25.06.32.40
+        by smtp.gmail.com with ESMTPSA id a2sm16551552wrt.82.2021.04.25.06.32.44
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 25 Apr 2021 06:32:41 -0700 (PDT)
+        Sun, 25 Apr 2021 06:32:44 -0700 (PDT)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH v2 06/12] io_uring: enumerate dynamic resources
-Date:   Sun, 25 Apr 2021 14:32:20 +0100
-Message-Id: <f0be63e9310212d5601d36277c2946ff7a040485.1619356238.git.asml.silence@gmail.com>
+Subject: [PATCH v2 10/12] io_uring: prepare fixed rw for dynanic buffers
+Date:   Sun, 25 Apr 2021 14:32:24 +0100
+Message-Id: <21a2302d07766ae956640b6f753292c45200fe8f.1619356238.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <cover.1619356238.git.asml.silence@gmail.com>
 References: <cover.1619356238.git.asml.silence@gmail.com>
@@ -70,97 +70,101 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-As resources are getting more support and common parts, it'll be more
-convenient to index resources and use it for indexing.
+With dynamic buffer updates, registered buffers in the table may change
+at any moment. First of all we want to prevent future races between
+updating and importing (i.e. io_import_fixed()), where the latter one
+may happen without uring_lock held, e.g. from io-wq.
+
+Save the first loaded io_mapped_ubuf buffer and reuse.
 
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
- fs/io_uring.c                 | 16 ++++++++--------
- include/uapi/linux/io_uring.h |  4 ++++
- 2 files changed, 12 insertions(+), 8 deletions(-)
+ fs/io_uring.c | 39 +++++++++++++++++++++++++++++----------
+ 1 file changed, 29 insertions(+), 10 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 0f79bb0362cd..cfd5164952e8 100644
+index ea725c0cbf79..083917bd7aa6 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -1035,7 +1035,7 @@ static void io_dismantle_req(struct io_kiocb *req);
- static void io_put_task(struct task_struct *task, int nr);
- static struct io_kiocb *io_prep_linked_timeout(struct io_kiocb *req);
- static void io_queue_linked_timeout(struct io_kiocb *req);
--static int __io_register_rsrc_update(struct io_ring_ctx *ctx, unsigned opcode,
-+static int __io_register_rsrc_update(struct io_ring_ctx *ctx, unsigned type,
- 				     struct io_uring_rsrc_update *up,
- 				     unsigned nr_args);
- static void io_clean_op(struct io_kiocb *req);
-@@ -5818,7 +5818,7 @@ static int io_files_update(struct io_kiocb *req, unsigned int issue_flags)
- 	up.data = req->rsrc_update.arg;
+@@ -839,6 +839,8 @@ struct io_kiocb {
+ 	struct hlist_node		hash_node;
+ 	struct async_poll		*apoll;
+ 	struct io_wq_work		work;
++	/* store used ubuf, so we can prevent reloading */
++	struct io_mapped_ubuf		*imu;
+ };
  
- 	mutex_lock(&ctx->uring_lock);
--	ret = __io_register_rsrc_update(ctx, IORING_REGISTER_FILES_UPDATE,
-+	ret = __io_register_rsrc_update(ctx, IORING_RSRC_FILE,
- 					&up, req->rsrc_update.nr_args);
- 	mutex_unlock(&ctx->uring_lock);
+ struct io_tctx_node {
+@@ -2683,6 +2685,12 @@ static int io_prep_rw(struct io_kiocb *req, const struct io_uring_sqe *sqe)
+ 		kiocb->ki_complete = io_complete_rw;
+ 	}
  
-@@ -9666,7 +9666,7 @@ static int io_register_enable_rings(struct io_ring_ctx *ctx)
++	if (req->opcode == IORING_OP_READ_FIXED ||
++	    req->opcode == IORING_OP_WRITE_FIXED) {
++		req->imu = NULL;
++		io_req_set_rsrc_node(req);
++	}
++
+ 	req->rw.addr = READ_ONCE(sqe->addr);
+ 	req->rw.len = READ_ONCE(sqe->len);
+ 	req->buf_index = READ_ONCE(sqe->buf_index);
+@@ -2748,21 +2756,13 @@ static void kiocb_done(struct kiocb *kiocb, ssize_t ret,
+ 	}
+ }
+ 
+-static int io_import_fixed(struct io_kiocb *req, int rw, struct iov_iter *iter)
++static int __io_import_fixed(struct io_kiocb *req, int rw, struct iov_iter *iter,
++			     struct io_mapped_ubuf *imu)
+ {
+-	struct io_ring_ctx *ctx = req->ctx;
+ 	size_t len = req->rw.len;
+-	struct io_mapped_ubuf *imu;
+-	u16 index, buf_index = req->buf_index;
+ 	u64 buf_end, buf_addr = req->rw.addr;
+ 	size_t offset;
+ 
+-	if (unlikely(buf_index >= ctx->nr_user_bufs))
+-		return -EFAULT;
+-	index = array_index_nospec(buf_index, ctx->nr_user_bufs);
+-	imu = ctx->user_bufs[index];
+-	buf_addr = req->rw.addr;
+-
+ 	if (unlikely(check_add_overflow(buf_addr, (u64)len, &buf_end)))
+ 		return -EFAULT;
+ 	/* not inside the mapped region */
+@@ -2814,6 +2814,22 @@ static int io_import_fixed(struct io_kiocb *req, int rw, struct iov_iter *iter)
  	return 0;
  }
  
--static int __io_register_rsrc_update(struct io_ring_ctx *ctx, unsigned opcode,
-+static int __io_register_rsrc_update(struct io_ring_ctx *ctx, unsigned type,
- 				     struct io_uring_rsrc_update *up,
- 				     unsigned nr_args)
- {
-@@ -9679,14 +9679,14 @@ static int __io_register_rsrc_update(struct io_ring_ctx *ctx, unsigned opcode,
- 	if (err)
- 		return err;
- 
--	switch (opcode) {
--	case IORING_REGISTER_FILES_UPDATE:
-+	switch (type) {
-+	case IORING_RSRC_FILE:
- 		return __io_sqe_files_update(ctx, up, nr_args);
- 	}
- 	return -EINVAL;
- }
- 
--static int io_register_rsrc_update(struct io_ring_ctx *ctx, unsigned opcode,
-+static int io_register_rsrc_update(struct io_ring_ctx *ctx, unsigned type,
- 				   void __user *arg, unsigned nr_args)
- {
- 	struct io_uring_rsrc_update up;
-@@ -9697,7 +9697,7 @@ static int io_register_rsrc_update(struct io_ring_ctx *ctx, unsigned opcode,
- 		return -EFAULT;
- 	if (up.resv)
- 		return -EINVAL;
--	return __io_register_rsrc_update(ctx, opcode, &up, nr_args);
-+	return __io_register_rsrc_update(ctx, type, &up, nr_args);
- }
- 
- static bool io_register_op_must_quiesce(int op)
-@@ -9790,7 +9790,7 @@ static int __io_uring_register(struct io_ring_ctx *ctx, unsigned opcode,
- 		ret = io_sqe_files_unregister(ctx);
- 		break;
- 	case IORING_REGISTER_FILES_UPDATE:
--		ret = io_register_rsrc_update(ctx, opcode, arg, nr_args);
-+		ret = io_register_rsrc_update(ctx, IORING_RSRC_FILE, arg, nr_args);
- 		break;
- 	case IORING_REGISTER_EVENTFD:
- 	case IORING_REGISTER_EVENTFD_ASYNC:
-diff --git a/include/uapi/linux/io_uring.h b/include/uapi/linux/io_uring.h
-index 5beaa6bbc6db..d363e0c4fd21 100644
---- a/include/uapi/linux/io_uring.h
-+++ b/include/uapi/linux/io_uring.h
-@@ -316,6 +316,10 @@ struct io_uring_rsrc_update {
- 	__aligned_u64 data;
- };
- 
-+enum {
-+	IORING_RSRC_FILE		= 0,
-+};
++static int io_import_fixed(struct io_kiocb *req, int rw, struct iov_iter *iter)
++{
++	struct io_ring_ctx *ctx = req->ctx;
++	struct io_mapped_ubuf *imu = req->imu;
++	u16 index, buf_index = req->buf_index;
 +
- /* Skip updating fd indexes set to this value in the fd table */
- #define IORING_REGISTER_FILES_SKIP	(-2)
++	if (likely(!imu)) {
++		if (unlikely(buf_index >= ctx->nr_user_bufs))
++			return -EFAULT;
++		index = array_index_nospec(buf_index, ctx->nr_user_bufs);
++		imu = READ_ONCE(ctx->user_bufs[index]);
++		req->imu = imu;
++	}
++	return __io_import_fixed(req, rw, iter, imu);
++}
++
+ static void io_ring_submit_unlock(struct io_ring_ctx *ctx, bool needs_lock)
+ {
+ 	if (needs_lock)
+@@ -9463,6 +9479,9 @@ static int io_uring_create(unsigned entries, struct io_uring_params *p,
+ 	ret = io_sq_offload_create(ctx, p);
+ 	if (ret)
+ 		goto err;
++	/* always set a rsrc node */
++	io_rsrc_node_switch_start(ctx);
++	io_rsrc_node_switch(ctx, NULL);
  
+ 	memset(&p->sq_off, 0, sizeof(p->sq_off));
+ 	p->sq_off.head = offsetof(struct io_rings, sq.head);
 -- 
 2.31.1
 

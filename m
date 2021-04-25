@@ -2,120 +2,91 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-14.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+X-Spam-Status: No, score=-15.2 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,
 	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D19E6C433B4
-	for <io-uring@archiver.kernel.org>; Sun, 25 Apr 2021 00:09:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8C295C433B4
+	for <io-uring@archiver.kernel.org>; Sun, 25 Apr 2021 09:52:20 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9D46F6140F
-	for <io-uring@archiver.kernel.org>; Sun, 25 Apr 2021 00:09:05 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 68A866128B
+	for <io-uring@archiver.kernel.org>; Sun, 25 Apr 2021 09:52:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229783AbhDYAJn (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sat, 24 Apr 2021 20:09:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54684 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229778AbhDYAJn (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Sat, 24 Apr 2021 20:09:43 -0400
-Received: from mail-wm1-x32f.google.com (mail-wm1-x32f.google.com [IPv6:2a00:1450:4864:20::32f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C7F0C061574
-        for <io-uring@vger.kernel.org>; Sat, 24 Apr 2021 17:09:04 -0700 (PDT)
-Received: by mail-wm1-x32f.google.com with SMTP id n4-20020a05600c4f84b029013151278decso3133016wmq.4
-        for <io-uring@vger.kernel.org>; Sat, 24 Apr 2021 17:09:04 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=subject:to:references:from:message-id:date:user-agent:mime-version
-         :in-reply-to:content-language:content-transfer-encoding;
-        bh=FrA18kqk03sq41B9lthuLebui26LPOPSXtZGfJaKyM4=;
-        b=tUL5SWh/hvsB8bZImRUy5/VDZ7ZgFVbEmEJoePZ8IJ01Cl9mf3v4u2PBFLPVJNXU/7
-         7ZBi6Ij085FFEkSqhonGDmpGbt61lCEG0+VeIXzOzATNLL9KYa1ke0VBele8ByjJfV5W
-         Cp/VpTjLFHdKQjQIHJjF8TnqhS5rNzJda2QUL+mZuv9Idi/qb3XLl+enghwSORlzuzxk
-         +INQ74xjLyQOARdBsccOhVkjpp4Pc6HRWkFdLdZ1NaoPbPT5JPO5riVscUV03CwnVpX4
-         KGzEUy1HaNT61PO2CEflmQi66u0YdoSN3hZUFFQR8TwN4hgEoYUl/NKcNiKPhtRalIOp
-         DQbA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=FrA18kqk03sq41B9lthuLebui26LPOPSXtZGfJaKyM4=;
-        b=af+jHmiY7oKxdJzrTAmaoRy1YSyPkrRzlUSSJiP81I2fpf+6PaUKJ1gzTpCEqvJ5iJ
-         fsAgMkFXJJMO6zhiX2+i+0s5d2rAz47/UVY/OBeO6oyFIiLQu+w8J2RgvUQR3bMc2YN7
-         XSDulSlN4ZmXQqgxU8Axl1QtCmqJgw+Xp78ITZ2R5o3K40A/tA0h3Hc12cidr2SHX/QC
-         fxB15JiXM6sLV+Bkzf9/whv5vX9tnO1wVyjFxCWtrMOxWFOEVxnaD0be5A45p9/PDFkS
-         /rLIzNV3Uxm5pg+j/7VXS+YEnEWvVJ/kowR//pnYqDsWndXRbHusxgztUxjyjWEu3hOs
-         uVGA==
-X-Gm-Message-State: AOAM530viTZxpMGa9ThEDI/HTvNqypIL36u90NIvA3jIDvN+IE0SuCtR
-        m7jLTk7HtWHewEnmMCTYN9p85hTPND+Pvw==
-X-Google-Smtp-Source: ABdhPJxc+ZRXKNOF9xnvL4q0OYsnlPhEC5wu1eRt0ZjFGqd9RYVitvY8ApH3Eu8j2Z2uX2PXsjhqfQ==
-X-Received: by 2002:a7b:ce8a:: with SMTP id q10mr238216wmj.109.1619309342855;
-        Sat, 24 Apr 2021 17:09:02 -0700 (PDT)
-Received: from [192.168.8.197] ([148.252.133.108])
-        by smtp.gmail.com with ESMTPSA id b128sm1854119wmh.42.2021.04.24.17.09.01
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sat, 24 Apr 2021 17:09:02 -0700 (PDT)
-Subject: Re: [PATCH v3 5/6] io-wq: warn about future set_task_comm()
- overflows.
-To:     Stefan Metzmacher <metze@samba.org>, Jens Axboe <axboe@kernel.dk>,
-        io-uring@vger.kernel.org
-References: <cover.1619306115.git.metze@samba.org>
- <94254f497b59e7fda85503c643ec5a2e25a30c0d.1619306115.git.metze@samba.org>
-From:   Pavel Begunkov <asml.silence@gmail.com>
-Message-ID: <33696f42-b1b8-2485-108a-6b4d44ffdf64@gmail.com>
-Date:   Sun, 25 Apr 2021 01:08:57 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.9.1
+        id S229559AbhDYJw7 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sun, 25 Apr 2021 05:52:59 -0400
+Received: from out30-45.freemail.mail.aliyun.com ([115.124.30.45]:52888 "EHLO
+        out30-45.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229551AbhDYJw7 (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Sun, 25 Apr 2021 05:52:59 -0400
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R531e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04423;MF=haoxu@linux.alibaba.com;NM=1;PH=DS;RN=4;SR=0;TI=SMTPD_---0UWgPIQM_1619344337;
+Received: from B-25KNML85-0107.local(mailfrom:haoxu@linux.alibaba.com fp:SMTPD_---0UWgPIQM_1619344337)
+          by smtp.aliyun-inc.com(127.0.0.1);
+          Sun, 25 Apr 2021 17:52:18 +0800
+Subject: Re: [PATCH] io_uring: update sq_thread_idle after ctx deleted
+To:     Pavel Begunkov <asml.silence@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>
+Cc:     io-uring@vger.kernel.org, Joseph Qi <joseph.qi@linux.alibaba.com>
+References: <1619256380-236460-1-git-send-email-haoxu@linux.alibaba.com>
+ <3d5b166a-b093-9bd5-7553-cadff7b2a41b@gmail.com>
+From:   Hao Xu <haoxu@linux.alibaba.com>
+Message-ID: <003de007-b289-96f8-ba0c-ff71e8c550a7@linux.alibaba.com>
+Date:   Sun, 25 Apr 2021 17:52:17 +0800
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0)
+ Gecko/20100101 Thunderbird/78.9.1
 MIME-Version: 1.0
-In-Reply-To: <94254f497b59e7fda85503c643ec5a2e25a30c0d.1619306115.git.metze@samba.org>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <3d5b166a-b093-9bd5-7553-cadff7b2a41b@gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 4/25/21 12:26 AM, Stefan Metzmacher wrote:
-> Signed-off-by: Stefan Metzmacher <metze@samba.org>
-> ---
->  fs/io-wq.c | 14 +++++++++++++-
->  1 file changed, 13 insertions(+), 1 deletion(-)
+在 2021/4/25 上午8:03, Pavel Begunkov 写道:
+> On 4/24/21 10:26 AM, Hao Xu wrote:
+>> we shall update sq_thread_idle anytime we do ctx deletion from ctx_list
 > 
-> diff --git a/fs/io-wq.c b/fs/io-wq.c
-> index cd1af924c3d1..b80c5d905127 100644
-> --- a/fs/io-wq.c
-> +++ b/fs/io-wq.c
-> @@ -640,7 +640,19 @@ static void create_io_worker(struct io_wq *wq, struct io_wqe *wqe, int index)
->  		return;
->  	}
->  
-> -	snprintf(tsk_comm, sizeof(tsk_comm), "iou-wrk-%d", wq->task->pid);
-> +	/*
-> +	 * The limit value of pid_max_max/PID_MAX_LIMIT
-> +	 * is 4 * 1024 * 1024 = 4194304.
-> +	 *
-> +	 * TASK_COMM_LEN is 16, so we have 15 chars to fill.
-> +	 *
-> +	 * With "iou-wrk-4194304" we just fit into 15 chars.
-> +	 * If that ever changes we may better add some special
-> +	 * handling for PF_IO_WORKER in proc_task_name(), as that
-> +	 * allows up to 63 chars.
-> +	 */
-> +	WARN_ON(snprintf(tsk_comm, sizeof(tsk_comm),
-> +			 "iou-wrk-%d", wq->task->pid) >= sizeof(tsk_comm));
-
-
-We don't really care, so saner would be to just to leave them and don't
-warn. Not see much need but can be something like "iou-wrk-00000*" if
-overflowed. Same for 6/6.
-
-
->  	set_task_comm(tsk, tsk_comm);
->  
->  	tsk->pf_io_worker = worker;
+> looks good, a nit below
+> 
+>>
+>> Fixes:734551df6f9b ("io_uring: fix shared sqpoll cancellation hangs")
+>> Signed-off-by: Hao Xu <haoxu@linux.alibaba.com>
+>> ---
+>>   fs/io_uring.c | 3 ++-
+>>   1 file changed, 2 insertions(+), 1 deletion(-)
+>>
+>> diff --git a/fs/io_uring.c b/fs/io_uring.c
+>> index 40f38256499c..15f204274761 100644
+>> --- a/fs/io_uring.c
+>> +++ b/fs/io_uring.c
+>> @@ -8867,6 +8867,7 @@ static void io_sqpoll_cancel_cb(struct callback_head *cb)
+>>   	if (sqd->thread)
+>>   		io_uring_cancel_sqpoll(sqd);
+>>   	list_del_init(&work->ctx->sqd_list);
+>> +	io_sqd_update_thread_idle(sqd);
+>>   	complete(&work->completion);
+>>   }
+>>   
+>> @@ -8877,7 +8878,6 @@ static void io_sqpoll_cancel_sync(struct io_ring_ctx *ctx)
+>>   	struct task_struct *task;
+>>   
+>>   	io_sq_thread_park(sqd);
+>> -	io_sqd_update_thread_idle(sqd);
+>>   	task = sqd->thread;
+>>   	if (task) {
+>>   		init_completion(&work.completion);
+>> @@ -8886,6 +8886,7 @@ static void io_sqpoll_cancel_sync(struct io_ring_ctx *ctx)
+>>   		wake_up_process(task);
+>>   	} else {
+>>   		list_del_init(&ctx->sqd_list);
+>> +		io_sqd_update_thread_idle(sqd);
+> 
+> Not actually needed, it's already dying.
+> 
+Yep, we could keep it since it's not in hot path.
+>>   	}
+>>   	io_sq_thread_unpark(sqd);
+>>   
+>>
 > 
 
--- 
-Pavel Begunkov

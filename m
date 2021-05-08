@@ -2,119 +2,69 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.7 required=3.0 tests=BAYES_00,FROM_LOCAL_HEX,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 13135C433B4
-	for <io-uring@archiver.kernel.org>; Fri,  7 May 2021 20:06:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C0FF4C433ED
+	for <io-uring@archiver.kernel.org>; Sat,  8 May 2021 02:35:23 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id CF715613ED
-	for <io-uring@archiver.kernel.org>; Fri,  7 May 2021 20:06:56 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 867D2610F7
+	for <io-uring@archiver.kernel.org>; Sat,  8 May 2021 02:35:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229927AbhEGUHz (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Fri, 7 May 2021 16:07:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46344 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229905AbhEGUHz (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Fri, 7 May 2021 16:07:55 -0400
-Received: from mail-wr1-x429.google.com (mail-wr1-x429.google.com [IPv6:2a00:1450:4864:20::429])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3172AC061574
-        for <io-uring@vger.kernel.org>; Fri,  7 May 2021 13:06:54 -0700 (PDT)
-Received: by mail-wr1-x429.google.com with SMTP id h4so10402814wrt.12
-        for <io-uring@vger.kernel.org>; Fri, 07 May 2021 13:06:54 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=Z1geqpU2/fPa7V/1vbFToVK25NfEWCKOUkga7LS3PbA=;
-        b=Na17MT5pyhBSDBGaPe6qyuJbIHcXpWzo6qKuF0jYtOyYAYLJVaD+W6wSAR4pV7D68C
-         YqfeHOeh5eS4IKCXBab6bW9LHkNC0BAeYjaWpb5mG0Q0QtvBCxMvzRkW3/uSfWKu/72g
-         mAgbIX82YvoKJ6I+ek20FE9V1eeAkjtO101HKyvaC/jbGVCt19AfMruyUrTvMvL7bLCv
-         clwERp0mUYdhCMTdYuDHvg3QWPujNQHxh73rfVdjhM7e9EoqsaiHyJC8ma/bjxE1G2Nx
-         23thSUPvBs3l6Is06e/g8pplaskJ2VjBQArgOAB1TLRWA0+sDFt562RPHiKhH1lcZQg6
-         cTNw==
+        id S230335AbhEHCgT (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Fri, 7 May 2021 22:36:19 -0400
+Received: from mail-il1-f197.google.com ([209.85.166.197]:54019 "EHLO
+        mail-il1-f197.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230267AbhEHCgR (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Fri, 7 May 2021 22:36:17 -0400
+Received: by mail-il1-f197.google.com with SMTP id h8-20020a92c2680000b02901646ecac1e5so8671555ild.20
+        for <io-uring@vger.kernel.org>; Fri, 07 May 2021 19:35:16 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=Z1geqpU2/fPa7V/1vbFToVK25NfEWCKOUkga7LS3PbA=;
-        b=JwJwDcB7mFm2BOq7px/NkEOdZjbtVrrHUK2wGd1qe/HbyGfhMIL6nMq2Ej2o+ziIr+
-         KiTNk2QWxlMIAUac4E4sY0pidDoDu832ZcyFqb4/GZTNUoAz7IiuuNNAusQ+pX6J37Rh
-         0BFmicBrFFL2DBZSkPMWElZMyEWi93mED5Xx228e8aPaFHVzdTANjIuWJPZiFRKuT4be
-         +1F2u4LDXKTIACrYp3LL3nxAIO3HbxfFZ0s0TN1V3sEDHU5MAq5D21yu2vG//mXIU7Oc
-         92OZ9kbUDhOQXDJiprVlIKf8nNdfAP1KvZQDmGoa71Iyub3aE3cj7FjzxkLHEfjCar48
-         eVvA==
-X-Gm-Message-State: AOAM530cRdPEMOyd8bqvmOnrUsevUTE07IxaYmNlS6/5mKnk3/f82oq8
-        1LRYxmZr6hcY1lFl8DOhp1E=
-X-Google-Smtp-Source: ABdhPJwlQjkjSrX24ytbZVciK7mxYjFkjNX9VzJUxzu0Dqx/3+4QWdn+48QRjIOPNfZsi+kkjxKsLA==
-X-Received: by 2002:a05:6000:504:: with SMTP id a4mr14821378wrf.51.1620418012902;
-        Fri, 07 May 2021 13:06:52 -0700 (PDT)
-Received: from localhost.localdomain ([148.252.132.80])
-        by smtp.gmail.com with ESMTPSA id o17sm9125645wrs.48.2021.05.07.13.06.52
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 07 May 2021 13:06:52 -0700 (PDT)
-From:   Pavel Begunkov <asml.silence@gmail.com>
-To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Cc:     asml.silence@gmail.com
-Subject: [PATCH 1/1] io_uring: fix link timeout refs
-Date:   Fri,  7 May 2021 21:06:38 +0100
-Message-Id: <ff51018ff29de5ffa76f09273ef48cb24c720368.1620417627.git.asml.silence@gmail.com>
-X-Mailer: git-send-email 2.31.1
+        h=x-gm-message-state:mime-version:date:in-reply-to:message-id:subject
+         :from:to;
+        bh=yRpfOOpyTTcZNtaZ5IFA1pZLlVZkx0zucBbPg4TfvcI=;
+        b=XsrmU54SgvnV0oPH1ZZGRSU9OAg8Cgi71rd+NUa69fRRNFSBjyqC2yVg47bWxU3Ud/
+         KIsWmMXywdiVP0ecVvzJBG9r7oPIwRcMTAerSU9Wp1MUuie5uNDKL/QPB4A3CbUkF3pV
+         3D95ZmwkytkU0HM94uOZ6wyYcgzrpehGJuKkwdFWzgqFXc51+eCaW/datBSWkJq4auAE
+         5LQl+E7IrJusnSaaR/CmIlCuwIZtpB0u5jn9mPSKoQXZLZ85UKLtNjz62hxDWJZnaOpf
+         9izHTFx/i0gJoQq47hfomYkGsQgbHiWmCGD6X9BW/k9QPFcmYcTMZ2yIDQBRGJ95xaiG
+         ws9g==
+X-Gm-Message-State: AOAM532PQZFX+skiz1rguo4JrBi9edgjRG+U99ZEh/b1zEe/f+5likDF
+        y7hkfrFaxAwnQXQkzE0maPi3SKlz6I9xkF7rC1rnNe13r8Xd
+X-Google-Smtp-Source: ABdhPJzHX9c5ZG3/8fGP0JaqYE7j0K8Z0eec2LcJ8r2KtTJmomlFxyYd/fHhv36H4CjE56fnpZb8C22cwsFriCp5qltYrQjG8+au
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+X-Received: by 2002:a05:6e02:685:: with SMTP id o5mr11998791ils.93.1620441315987;
+ Fri, 07 May 2021 19:35:15 -0700 (PDT)
+Date:   Fri, 07 May 2021 19:35:15 -0700
+In-Reply-To: <c2cab9a3-b821-e4fa-3a8a-c66f15a642c3@gmail.com>
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <00000000000004f05705c1c86547@google.com>
+Subject: Re: [syzbot] INFO: task hung in __io_uring_cancel
+From:   syzbot <syzbot+47fc00967b06a3019bd2@syzkaller.appspotmail.com>
+To:     asml.silence@gmail.com, axboe@kernel.dk, io-uring@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        syzkaller-bugs@googlegroups.com, viro@zeniv.linux.org.uk
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-WARNING: CPU: 0 PID: 10242 at lib/refcount.c:28 refcount_warn_saturate+0x15b/0x1a0 lib/refcount.c:28
-RIP: 0010:refcount_warn_saturate+0x15b/0x1a0 lib/refcount.c:28
-Call Trace:
- __refcount_sub_and_test include/linux/refcount.h:283 [inline]
- __refcount_dec_and_test include/linux/refcount.h:315 [inline]
- refcount_dec_and_test include/linux/refcount.h:333 [inline]
- io_put_req fs/io_uring.c:2140 [inline]
- io_queue_linked_timeout fs/io_uring.c:6300 [inline]
- __io_queue_sqe+0xbef/0xec0 fs/io_uring.c:6354
- io_submit_sqe fs/io_uring.c:6534 [inline]
- io_submit_sqes+0x2bbd/0x7c50 fs/io_uring.c:6660
- __do_sys_io_uring_enter fs/io_uring.c:9240 [inline]
- __se_sys_io_uring_enter+0x256/0x1d60 fs/io_uring.c:9182
+Hello,
 
-io_link_timeout_fn() should put only one reference of the linked timeout
-request, however in case of racing with the master request's completion
-first io_req_complete() puts one and then io_put_req_deferred() is
-called.
+syzbot has tested the proposed patch and the reproducer did not trigger any issue:
 
-Cc: stable@vger.kernel.org # 5.12+
-Fixes: 9ae1f8dd372e0 ("io_uring: fix inconsistent lock state")
-Reported-by: syzbot+a2910119328ce8e7996f@syzkaller.appspotmail.com
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
----
+Reported-and-tested-by: syzbot+47fc00967b06a3019bd2@syzkaller.appspotmail.com
 
-P.s. wasn't able to trigger
+Tested on:
 
- fs/io_uring.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+commit:         50b7b6f2 x86/process: setup io_threads more like normal us..
+git tree:       git://git.kernel.dk/linux-block io_uring-5.13
+kernel config:  https://syzkaller.appspot.com/x/.config?x=5e1cf8ad694ca2e1
+dashboard link: https://syzkaller.appspot.com/bug?extid=47fc00967b06a3019bd2
+compiler:       
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index f46acbbeed57..9ac5e278a91e 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -6363,10 +6363,10 @@ static enum hrtimer_restart io_link_timeout_fn(struct hrtimer *timer)
- 	if (prev) {
- 		io_async_find_and_cancel(ctx, req, prev->user_data, -ETIME);
- 		io_put_req_deferred(prev, 1);
-+		io_put_req_deferred(req, 1);
- 	} else {
- 		io_req_complete_post(req, -ETIME, 0);
- 	}
--	io_put_req_deferred(req, 1);
- 	return HRTIMER_NORESTART;
- }
- 
--- 
-2.31.1
-
+Note: testing is done by a robot and is best-effort only.

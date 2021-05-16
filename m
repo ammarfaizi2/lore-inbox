@@ -8,59 +8,59 @@ X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 80AB1C43461
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DBACFC43470
 	for <io-uring@archiver.kernel.org>; Sun, 16 May 2021 21:58:39 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6138761184
+	by mail.kernel.org (Postfix) with ESMTP id C250261139
 	for <io-uring@archiver.kernel.org>; Sun, 16 May 2021 21:58:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229445AbhEPV7x (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        id S230024AbhEPV7x (ORCPT <rfc822;io-uring@archiver.kernel.org>);
         Sun, 16 May 2021 17:59:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45460 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45468 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229942AbhEPV7u (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Sun, 16 May 2021 17:59:50 -0400
-Received: from mail-wr1-x433.google.com (mail-wr1-x433.google.com [IPv6:2a00:1450:4864:20::433])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40859C061756
-        for <io-uring@vger.kernel.org>; Sun, 16 May 2021 14:58:34 -0700 (PDT)
-Received: by mail-wr1-x433.google.com with SMTP id p7so684675wru.10
-        for <io-uring@vger.kernel.org>; Sun, 16 May 2021 14:58:34 -0700 (PDT)
+        with ESMTP id S229845AbhEPV7v (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Sun, 16 May 2021 17:59:51 -0400
+Received: from mail-wr1-x436.google.com (mail-wr1-x436.google.com [IPv6:2a00:1450:4864:20::436])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75B70C06174A
+        for <io-uring@vger.kernel.org>; Sun, 16 May 2021 14:58:36 -0700 (PDT)
+Received: by mail-wr1-x436.google.com with SMTP id c14so2621150wrx.3
+        for <io-uring@vger.kernel.org>; Sun, 16 May 2021 14:58:36 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=dRdh5NxZlibjzLRpisXSeYlA8yZHpVLbuhskiWI+aig=;
-        b=L6jY8kBPrbrFXhE5gqzxk+oIoVNGxa6w5oBujsmdwKSfO0LLmkqSg/j98mL1WUBec3
-         B9X1TGnD66Vz4BDgOqVcrdx7UKLuGNgCm3V28OyN3I8Liuom+gyPTci+arxNhD/ShiKV
-         ImZ2fpR4pCSsvArjIkJpuJcOnWAdZyrf8GdTH8B8Y3TaMPqr378gYPvev9Wr2CWMTsQH
-         XFLT8nW7E/fJE5d3f5pO5OKmgIOn+GlwoF/7XV01FRh68cHyUmmTNt9rqMwV8zJdoMDR
-         SCKyYiZIMxgQuMj+SwPJgZT0vI8t8AaPt+ENeTFHIkWufTZ8w4kSFJYKNQuXtINhEEYz
-         1uIw==
+        bh=p+hJI0HovtYmpNHRZgtfBLBMF8M+vQo12o2fEFpY2uQ=;
+        b=eCsymxmqxQ7Z68n/yJLUsTdKfhKHQfAsw0yYC2RiDWvsvYvDS+TBhrZjRBCgJbSpxw
+         9R9C6ZmzQsdtrPn/RvgE8Mv6/dG4B4ql6ZHAnC9mx+LynGzWVNCsE64a5nZGPq0xmTjV
+         3In2RparEVAowSSVHlubPe5es3zkZsKZA8YPtNIufPksOHblAbXnuIUnRiROXvBAmLZH
+         UFKQt+BRQ4zXoMvv2XDJouHEaCLOJO1CHH3KSk+ZIK8iyZeuApezTDkJ5E3IsUKBC8ji
+         vSHrZkLsCY5+OAxSFeYJSucYIkWiRE3/nXuZ0cfu0gKN7LuOYj2U5TU1IbaIWy2TUpJU
+         DywQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=dRdh5NxZlibjzLRpisXSeYlA8yZHpVLbuhskiWI+aig=;
-        b=fhDpergq3derCZNmmQF3ij21TEfB5cdSB3cgjbuGNivz8tAPMegOtrIU6smEzqstXF
-         L2dMYuBypPCrJODfHkhMOEWQXHoPFjKRCJF3B6Sm8ycrF+kCi9EVav41hRKDT6ATsVCE
-         DzUaRWpCPeQlvxIdjpnyOYw/COv+V6m9dmtxMRWfFzsdVHyHmZo5QYlyZOC3jOD6XqB0
-         hESPULthv+8vGPSwYyPfkA9nkjgKggeIuy/EiED4H0mVqsVrBM3vfwLF+19HVDQyJ3f2
-         4UZabR6NXew+ImIegIdRB2kEX4rYUgRvqiuFcZfR24ny2Ss1dpIDhSopm1uRxm0J/aR6
-         8GeA==
-X-Gm-Message-State: AOAM531cX4ImA9w3/Kri+DZj9/X9DoxfYGqVtHoTL0vF94/nX4pzjR6J
-        qGQsg8K6Pk0u2u2WHC+iO6I=
-X-Google-Smtp-Source: ABdhPJz0AEB8CuP89s2Rm8bsoca7bZiC/R+ILbK+lxB8l8LbU/V0pFg02qem1930FByaY/JpF3//5A==
-X-Received: by 2002:adf:e58c:: with SMTP id l12mr8138028wrm.133.1621202313072;
-        Sun, 16 May 2021 14:58:33 -0700 (PDT)
+        bh=p+hJI0HovtYmpNHRZgtfBLBMF8M+vQo12o2fEFpY2uQ=;
+        b=BBXD5DxP8iwPk99BYc+yu/1PYYbRjSpC4A/hWSB3AarMV8F+mDVoG4qQVkk8bkM5BP
+         qHSsnajhj9RAx4eFzfIU27Nc7QQRqwEzOUGFXrXCKJ+hICS+MBdKWNaKelRFu7VqCckM
+         vqBK0AE7x9Hi3DAw/hJJZeJX0DdzxBQvyIqUbJnmRPqAe8Ak2tabznTCrYTw/hztOkE+
+         qsSWAZg5ZHltg4szU5AL/nh2MpVbsBUFvnmIJA+Ce00Ap2YT3LWOmCmVcyJkE3EIOzpp
+         df5p+6Xe61wdAXSSTMeLVfVUxnq8fBM4HFxlia22nndG/7uXLXg/u3UbuhujPTDvXuWY
+         if0Q==
+X-Gm-Message-State: AOAM531OjMlFlEm4ZCnGCfkMikHxtMlKbVwRny2DquHLC3dZFEPoneq7
+        JUQPZfc+q4QGDZZhMUKUWXxW35Ap7HQ=
+X-Google-Smtp-Source: ABdhPJw/2pao1fVZFfap4l8l+RTjFIF+21INPR8nqEbzVboW7V9k9Xk34CUXS5elhiG2iScRloExnQ==
+X-Received: by 2002:adf:f9ce:: with SMTP id w14mr12591008wrr.387.1621202315324;
+        Sun, 16 May 2021 14:58:35 -0700 (PDT)
 Received: from localhost.localdomain ([148.252.128.7])
-        by smtp.gmail.com with ESMTPSA id p10sm13666365wmq.14.2021.05.16.14.58.32
+        by smtp.gmail.com with ESMTPSA id p10sm13666365wmq.14.2021.05.16.14.58.34
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 16 May 2021 14:58:32 -0700 (PDT)
+        Sun, 16 May 2021 14:58:34 -0700 (PDT)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH 08/13] io_uring: better locality for rsrc fields
-Date:   Sun, 16 May 2021 22:58:07 +0100
-Message-Id: <05b34795bb4440f4ec4510f08abd5a31830f8ca0.1621201931.git.asml.silence@gmail.com>
+Subject: [PATCH 10/13] io_uring: deduce cq_mask from cq_entries
+Date:   Sun, 16 May 2021 22:58:09 +0100
+Message-Id: <d439efad0503c8398451dae075e68a04362fbc8d.1621201931.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <cover.1621201931.git.asml.silence@gmail.com>
 References: <cover.1621201931.git.asml.silence@gmail.com>
@@ -70,77 +70,79 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-ring has two types of resource-related fields: used for request
-submission, and field needed for update/registration. Reshuffle them
-into these two groups for better locality and readability. The second
-group is not in the hot path, so it's natural to place them somewhere in
-the end. Also update an outdated comment.
+No need to cache cq_mask, it's exactly cq_entries - 1, so just deduce
+it to not carry it around.
 
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
- fs/io_uring.c | 33 +++++++++++++++++----------------
- 1 file changed, 17 insertions(+), 16 deletions(-)
+ fs/io_uring.c | 12 ++++--------
+ 1 file changed, 4 insertions(+), 8 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 83104f3a009e..10970ed32f27 100644
+index f06bd4123a98..2bdc30ebf708 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -391,21 +391,17 @@ struct io_ring_ctx {
- 	struct list_head	sqd_list;
+@@ -362,7 +362,6 @@ struct io_ring_ctx {
+ 		u32			*sq_array;
+ 		unsigned		cached_sq_head;
+ 		unsigned		sq_entries;
+-		unsigned		sq_mask;
+ 		unsigned		sq_thread_idle;
+ 		unsigned		cached_sq_dropped;
+ 		unsigned		cached_cq_overflow;
+@@ -408,7 +407,6 @@ struct io_ring_ctx {
+ 	struct {
+ 		unsigned		cached_cq_tail;
+ 		unsigned		cq_entries;
+-		unsigned		cq_mask;
+ 		atomic_t		cq_timeouts;
+ 		unsigned		cq_last_tm_flush;
+ 		unsigned		cq_extra;
+@@ -1362,7 +1360,7 @@ static inline unsigned int __io_cqring_events(struct io_ring_ctx *ctx)
+ static inline struct io_uring_cqe *io_get_cqring(struct io_ring_ctx *ctx)
+ {
+ 	struct io_rings *rings = ctx->rings;
+-	unsigned tail;
++	unsigned tail, mask = ctx->cq_entries - 1;
  
  	/*
--	 * If used, fixed file set. Writers must ensure that ->refs is dead,
--	 * readers must ensure that ->refs is alive as long as the file* is
--	 * used. Only updated through io_uring_register(2).
-+	 * Fixed resources fast path, should be accessed only under uring_lock,
-+	 * and updated through io_uring_register(2)
+ 	 * writes to the cq entry need to come after reading head; the
+@@ -1373,7 +1371,7 @@ static inline struct io_uring_cqe *io_get_cqring(struct io_ring_ctx *ctx)
+ 		return NULL;
+ 
+ 	tail = ctx->cached_cq_tail++;
+-	return &rings->cqes[tail & ctx->cq_mask];
++	return &rings->cqes[tail & mask];
+ }
+ 
+ static inline bool io_should_trigger_evfd(struct io_ring_ctx *ctx)
+@@ -6675,7 +6673,7 @@ static void io_commit_sqring(struct io_ring_ctx *ctx)
+ static const struct io_uring_sqe *io_get_sqe(struct io_ring_ctx *ctx)
+ {
+ 	u32 *sq_array = ctx->sq_array;
+-	unsigned head;
++	unsigned head, mask = ctx->sq_entries - 1;
+ 
+ 	/*
+ 	 * The cached sq head (or cq tail) serves two purposes:
+@@ -6685,7 +6683,7 @@ static const struct io_uring_sqe *io_get_sqe(struct io_ring_ctx *ctx)
+ 	 * 2) allows the kernel side to track the head on its own, even
+ 	 *    though the application is the one updating it.
  	 */
--	struct io_rsrc_data	*file_data;
-+	struct io_rsrc_node	*rsrc_node;
-+
- 	struct io_file_table	file_table;
- 	unsigned		nr_user_files;
--
--	/* if used, fixed mapped user buffers */
--	struct io_rsrc_data	*buf_data;
- 	unsigned		nr_user_bufs;
- 	struct io_mapped_ubuf	**user_bufs;
+-	head = READ_ONCE(sq_array[ctx->cached_sq_head++ & ctx->sq_mask]);
++	head = READ_ONCE(sq_array[ctx->cached_sq_head++ & mask]);
+ 	if (likely(head < ctx->sq_entries))
+ 		return &ctx->sq_sqes[head];
  
- 	struct xarray		io_buffers;
--
- 	struct xarray		personalities;
- 	u32			pers_next;
+@@ -9495,8 +9493,6 @@ static int io_allocate_scq_urings(struct io_ring_ctx *ctx,
+ 	rings->cq_ring_mask = p->cq_entries - 1;
+ 	rings->sq_ring_entries = p->sq_entries;
+ 	rings->cq_ring_entries = p->cq_entries;
+-	ctx->sq_mask = rings->sq_ring_mask;
+-	ctx->cq_mask = rings->cq_ring_mask;
  
-@@ -437,16 +433,21 @@ struct io_ring_ctx {
- 		bool			poll_multi_file;
- 	} ____cacheline_aligned_in_smp;
- 
--	struct delayed_work		rsrc_put_work;
--	struct llist_head		rsrc_put_llist;
--	struct list_head		rsrc_ref_list;
--	spinlock_t			rsrc_ref_lock;
--	struct io_rsrc_node		*rsrc_node;
--	struct io_rsrc_node		*rsrc_backup_node;
--	struct io_mapped_ubuf		*dummy_ubuf;
--
- 	struct io_restriction		restrictions;
- 
-+	/* slow path rsrc auxilary data, used by update/register */
-+	struct {
-+		struct io_rsrc_node		*rsrc_backup_node;
-+		struct io_mapped_ubuf		*dummy_ubuf;
-+		struct io_rsrc_data		*file_data;
-+		struct io_rsrc_data		*buf_data;
-+
-+		struct delayed_work		rsrc_put_work;
-+		struct llist_head		rsrc_put_llist;
-+		struct list_head		rsrc_ref_list;
-+		spinlock_t			rsrc_ref_lock;
-+	};
-+
- 	/* Keep this last, we don't need it for the fast path */
- 	struct {
- 		#if defined(CONFIG_UNIX)
+ 	size = array_size(sizeof(struct io_uring_sqe), p->sq_entries);
+ 	if (size == SIZE_MAX) {
 -- 
 2.31.1
 

@@ -8,59 +8,59 @@ X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6DED2C43460
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 90A69C43462
 	for <io-uring@archiver.kernel.org>; Sun, 16 May 2021 21:58:39 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 481FD61019
+	by mail.kernel.org (Postfix) with ESMTP id 71BA1611AD
 	for <io-uring@archiver.kernel.org>; Sun, 16 May 2021 21:58:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229916AbhEPV7w (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sun, 16 May 2021 17:59:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45440 "EHLO
+        id S230006AbhEPV7x (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sun, 16 May 2021 17:59:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45438 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229445AbhEPV7t (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Sun, 16 May 2021 17:59:49 -0400
-Received: from mail-wr1-x430.google.com (mail-wr1-x430.google.com [IPv6:2a00:1450:4864:20::430])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6441BC061760
-        for <io-uring@vger.kernel.org>; Sun, 16 May 2021 14:58:33 -0700 (PDT)
-Received: by mail-wr1-x430.google.com with SMTP id x8so4405906wrq.9
-        for <io-uring@vger.kernel.org>; Sun, 16 May 2021 14:58:33 -0700 (PDT)
+        with ESMTP id S229681AbhEPV7u (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Sun, 16 May 2021 17:59:50 -0400
+Received: from mail-wr1-x42f.google.com (mail-wr1-x42f.google.com [IPv6:2a00:1450:4864:20::42f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93E7BC061573
+        for <io-uring@vger.kernel.org>; Sun, 16 May 2021 14:58:35 -0700 (PDT)
+Received: by mail-wr1-x42f.google.com with SMTP id j14so2688900wrq.5
+        for <io-uring@vger.kernel.org>; Sun, 16 May 2021 14:58:35 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=7Mr71EcLC9a9fHhG6ppxGYPFQioSU4tRBj7Rvl8eXuE=;
-        b=LyuajfGISEpFissk+PAKrlzOjwKqIFDAs3a4bTojtUMOLdm/CtHRMjAYI10Z1O45uq
-         fo3d+cl4Q9/rYKsGDotzpYGN0pi9P7Fdvvx5xEVVKm2eD57worlzrXUmmVrQ0dcs0oz+
-         R09rNsECvYAeWl3Dznk3REUN3HxXfHNTO8WL2EiDl3sEu7FoYm/IJYadRygvV6YLF+0V
-         Nhxt5clCQY23wYhyUsa3A2A3veZsVEOlH0u3VLmp+gvGbhRy5iWbB5RvuFTeIl9bkvQz
-         MfbbfIyMazviSj0et26ti2/zu0ohZKp4J0f2LUb7hYZA/QHO17LJBTmLJHaChjX9JRRE
-         5F/g==
+        bh=bKLos4oxsgVOB+++6jmjMoKAI67WJoZjIhtpwBgsdKw=;
+        b=Q5r9fGy/AVohae/GI/5DmXUxaFH3Hw4Zli5SAWHgEAX6YDwY+0WaWrq5TO6ECaUppI
+         +pydqyiIaiyDSP8nl2BXpTwm/RzoAdAicXjoyp7lsfqP1FMEThQTaVq+F/onSzc6Kcv9
+         8iagWdpk/YxnQIBiEV4wMOx+fXz1A1/NAqZb+eepa/veJlbgQ9qirjMMSuCZm6so++l0
+         WbrTnUrsxVo2LYRaDE4vZm/FiZFvqmjZie+UyXYIQ416OIsbcbQS5sndCG3UvT6g67Ms
+         4MpkPR6Yvfg9MSG+NSOkvpE4eLKz0RM1a35mML+EnL04/KCvmQv12Hnk/q30UBNoPkJ7
+         3xcw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=7Mr71EcLC9a9fHhG6ppxGYPFQioSU4tRBj7Rvl8eXuE=;
-        b=uoFLsyuKu4PEwG89GGKZcOzFjmP8/yghF2EC4UKsdb20srKOPebvvP3L5FYWMAl/Jd
-         kEY5Il2LH1KifamKdc714eXBstt5TeN9M/HSEtMz128as1UWIjMhQjPi2TTp4hXjrrz6
-         sHA2U5gJXsKa4cA9Mj/fxCUTLA26S5Pmfo+U2/Bx0bB5Rdg9qh32YfuKihGGOgCMdK8V
-         fcB3jyKRqYmDhOaO80uzKyDsOiZnAsmxdfMgX0RoeucNEEKHgnMvewj9gUBh0M3LtL4/
-         ZLzb9OXyKdukVEnZpN46rCMW9Nf2tqv1KlJIIKwSjZD9sSKl86YEyI69MunnDqe7SetN
-         0e1Q==
-X-Gm-Message-State: AOAM531TSrq5QJPLdjLtlr76Yq0TrCUDFK0e3Ea9coGVkiHgorrxdAU5
-        nQt1xiwah+p0yLeJ9qUD72JsO4JHzCs=
-X-Google-Smtp-Source: ABdhPJwYktDG/dwg4hyosIoatZlyPxKFc3S76q/pW0ZiuQZfjYE2iVAJRGUFb/io/V9yBAVNG++BmA==
-X-Received: by 2002:adf:9069:: with SMTP id h96mr70055985wrh.322.1621202312182;
-        Sun, 16 May 2021 14:58:32 -0700 (PDT)
+        bh=bKLos4oxsgVOB+++6jmjMoKAI67WJoZjIhtpwBgsdKw=;
+        b=Uh+eKSbQNye3T5OdG/oJwegbJ6e+BAacwv88k2kKVQ76c77T+MYsmXIZzaPvJ2+YUR
+         8eRhiQ4gs09+gbmYLGR9qfQ+R4dTLcQ6ggsgCX1rXRhN3Q6B0WaUL2oJcXP0R/UNkf2k
+         npGLWeAx1d4/z6ECwfqvATX8nWqQRgOqNTlLtRmpOuf0PRx6JtyRAWsDO1j5t93cOFcH
+         695wggaK50P8gazLhFOG/mNf83v5oPFJa586DBA+3U243yH8SqKIoo75HMaPHWESPwB0
+         9hHEdpOH1Oy3t8sz4L94Jb0TPVwARr21wCvdA6biRfOzXcd3czdq/BoOTQ3KwOrOzB9I
+         b/Cg==
+X-Gm-Message-State: AOAM530SToyN0Bdvzg5VU5/lre71a0VsVStmoSshQ9vwYWru+71++ySc
+        21bCi1G6M9d3e2MuqEYd7TLudYSmTrA=
+X-Google-Smtp-Source: ABdhPJzsh+aMy3VdGoUPjCwuCAWFelsqWxMjgomrg58WZ+L8+Yr0HiCrRMrROHwdEf37Icc7n4kRfA==
+X-Received: by 2002:a5d:5184:: with SMTP id k4mr25162417wrv.84.1621202314358;
+        Sun, 16 May 2021 14:58:34 -0700 (PDT)
 Received: from localhost.localdomain ([148.252.128.7])
-        by smtp.gmail.com with ESMTPSA id p10sm13666365wmq.14.2021.05.16.14.58.31
+        by smtp.gmail.com with ESMTPSA id p10sm13666365wmq.14.2021.05.16.14.58.33
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 16 May 2021 14:58:31 -0700 (PDT)
+        Sun, 16 May 2021 14:58:33 -0700 (PDT)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH 07/13] io_uring: shuffle rarely used ctx fields
-Date:   Sun, 16 May 2021 22:58:06 +0100
-Message-Id: <782ff94b00355923eae757d58b1a47821b5b46d4.1621201931.git.asml.silence@gmail.com>
+Subject: [PATCH 09/13] io_uring: remove dependency on ring->sq/cq_entries
+Date:   Sun, 16 May 2021 22:58:08 +0100
+Message-Id: <745d31bc2da41283ddd0489ef784af5c8d6310e9.1621201931.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <cover.1621201931.git.asml.silence@gmail.com>
 References: <cover.1621201931.git.asml.silence@gmail.com>
@@ -70,84 +70,50 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-There is a bunch of scattered around ctx fields that are almost never
-used, e.g. only on ring exit, plunge them to the end, better locality,
-better aesthetically.
+We have numbers of {sq,cq} entries cached in ctx, don't look up them in
+user-shared rings as 1) it may fetch additional cacheline 2) user may
+change it and so it's always error prone.
 
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
- fs/io_uring.c | 36 +++++++++++++++++-------------------
- 1 file changed, 17 insertions(+), 19 deletions(-)
+ fs/io_uring.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 1ab28224d896..83104f3a009e 100644
+index 10970ed32f27..f06bd4123a98 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -368,9 +368,6 @@ struct io_ring_ctx {
- 		unsigned		cached_cq_overflow;
- 		unsigned long		sq_check_overflow;
+@@ -1351,7 +1351,7 @@ static inline bool io_sqring_full(struct io_ring_ctx *ctx)
+ {
+ 	struct io_rings *r = ctx->rings;
  
--		/* hashed buffered write serialization */
--		struct io_wq_hash	*hash_map;
--
- 		struct list_head	defer_list;
- 		struct list_head	timeout_list;
- 		struct list_head	cq_overflow_list;
-@@ -387,9 +384,6 @@ struct io_ring_ctx {
+-	return READ_ONCE(r->sq.tail) - ctx->cached_sq_head == r->sq_ring_entries;
++	return READ_ONCE(r->sq.tail) - ctx->cached_sq_head == ctx->sq_entries;
+ }
  
- 	struct io_rings	*rings;
+ static inline unsigned int __io_cqring_events(struct io_ring_ctx *ctx)
+@@ -1369,7 +1369,7 @@ static inline struct io_uring_cqe *io_get_cqring(struct io_ring_ctx *ctx)
+ 	 * control dependency is enough as we're using WRITE_ONCE to
+ 	 * fill the cq entry
+ 	 */
+-	if (__io_cqring_events(ctx) == rings->cq_ring_entries)
++	if (__io_cqring_events(ctx) == ctx->cq_entries)
+ 		return NULL;
  
--	/* Only used for accounting purposes */
--	struct mm_struct	*mm_account;
--
- 	const struct cred	*sq_creds;	/* cred used for __io_sq_thread() */
- 	struct io_sq_data	*sq_data;	/* if using sq thread polling */
+ 	tail = ctx->cached_cq_tail++;
+@@ -1422,11 +1422,10 @@ static void io_cqring_ev_posted_iopoll(struct io_ring_ctx *ctx)
+ /* Returns true if there are no backlogged entries after the flush */
+ static bool __io_cqring_overflow_flush(struct io_ring_ctx *ctx, bool force)
+ {
+-	struct io_rings *rings = ctx->rings;
+ 	unsigned long flags;
+ 	bool all_flushed, posted;
  
-@@ -410,14 +404,6 @@ struct io_ring_ctx {
- 	unsigned		nr_user_bufs;
- 	struct io_mapped_ubuf	**user_bufs;
+-	if (!force && __io_cqring_events(ctx) == rings->cq_ring_entries)
++	if (!force && __io_cqring_events(ctx) == ctx->cq_entries)
+ 		return false;
  
--	struct user_struct	*user;
--
--	struct completion	ref_comp;
--
--#if defined(CONFIG_UNIX)
--	struct socket		*ring_sock;
--#endif
--
- 	struct xarray		io_buffers;
- 
- 	struct xarray		personalities;
-@@ -461,12 +447,24 @@ struct io_ring_ctx {
- 
- 	struct io_restriction		restrictions;
- 
--	/* exit task_work */
--	struct callback_head		*exit_task_work;
--
- 	/* Keep this last, we don't need it for the fast path */
--	struct work_struct		exit_work;
--	struct list_head		tctx_list;
-+	struct {
-+		#if defined(CONFIG_UNIX)
-+			struct socket		*ring_sock;
-+		#endif
-+		/* hashed buffered write serialization */
-+		struct io_wq_hash		*hash_map;
-+
-+		/* Only used for accounting purposes */
-+		struct user_struct		*user;
-+		struct mm_struct		*mm_account;
-+
-+		/* ctx exit and cancelation */
-+		struct callback_head		*exit_task_work;
-+		struct work_struct		exit_work;
-+		struct list_head		tctx_list;
-+		struct completion		ref_comp;
-+	};
- };
- 
- struct io_uring_task {
+ 	posted = false;
 -- 
 2.31.1
 

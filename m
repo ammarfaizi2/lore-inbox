@@ -5,57 +5,57 @@ X-Spam-Level:
 X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DAE87C43461
-	for <io-uring@archiver.kernel.org>; Wed, 19 May 2021 14:14:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1D1AEC43460
+	for <io-uring@archiver.kernel.org>; Wed, 19 May 2021 14:14:34 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B24F261355
-	for <io-uring@archiver.kernel.org>; Wed, 19 May 2021 14:14:29 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 00F6861002
+	for <io-uring@archiver.kernel.org>; Wed, 19 May 2021 14:14:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353953AbhESOPr (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Wed, 19 May 2021 10:15:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37630 "EHLO
+        id S1354044AbhESOPu (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 19 May 2021 10:15:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37632 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241049AbhESOPa (ORCPT
+        with ESMTP id S1347171AbhESOPa (ORCPT
         <rfc822;io-uring@vger.kernel.org>); Wed, 19 May 2021 10:15:30 -0400
-Received: from mail-wm1-x329.google.com (mail-wm1-x329.google.com [IPv6:2a00:1450:4864:20::329])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B715C06138D;
-        Wed, 19 May 2021 07:14:00 -0700 (PDT)
-Received: by mail-wm1-x329.google.com with SMTP id s5-20020a7bc0c50000b0290147d0c21c51so3422815wmh.4;
-        Wed, 19 May 2021 07:14:00 -0700 (PDT)
+Received: from mail-wr1-x434.google.com (mail-wr1-x434.google.com [IPv6:2a00:1450:4864:20::434])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23BA4C06138F;
+        Wed, 19 May 2021 07:14:02 -0700 (PDT)
+Received: by mail-wr1-x434.google.com with SMTP id a4so14236691wrr.2;
+        Wed, 19 May 2021 07:14:02 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=ynxDMKj1mZvdjVLVE7e+VlFds8wn53Y4eJJTD49qFXs=;
-        b=d4Nmrz8vuHnINI7FqKfqaxeKr8lLU6huobBBLU5pcxCAYd/FusFVQnM/auRbVdKdjK
-         GUj9rcPT/2uLbjIXGjtUDQcUKTrll1b/HRYh0ZWNypDa2bDjk5166C2Wg2V85BK2JWge
-         F386IBsragShMQdfBRNxz60S8UZqrbE7P0tA8jViapoDvSo67V2/+Wm3r8keBQPT/SRJ
-         V8d/qebuBvd8DF0VB+ldr8CvlY5ff49NgN/YfT9Jrt3esQfW0YbFVQiLIT3igOjZbwA7
-         ce5RhWEwvkYsXzlsTJh2ogsKvGevILWLp/QIxZGBF5Aw+e9zuP5VCQlkaUNJG/qhG1wG
-         gAfA==
+        bh=EJHSY4GTkUlJ+ZXFSK+xFoztKbsreaR/qQT5e4Mm7Vk=;
+        b=VpmUnLwdywtGsaomIJ9w3D94b1zm2owM3muYBDMYOuMmlDy4VY0YQT6VOLQxT7YJpQ
+         QzajMZzPOI5H7yL3TTYVvPgNqykBnWBCXfB7q6ZHR2Q2/ci73Q715uDGHuohZ06L1Tu0
+         a+A0JXvHfD4YTc7GE4lqbHJTA+VD6TWu6TXficdQ7AFABKl3sAbs4uhOydFY6YjpbkVD
+         7c2lgNCjA6UZL+BI1QE0QDYVCuyjuz/I6beCOpk2jW9Fdls1lgYxa5WKlJvWvIgl33Cs
+         vcFAzawtikeRxIswzelxeWKfdf/kvPS/UXrwzi4sCCWNuF9CPextXeVI2UYAIbMzz8BX
+         s6Ug==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=ynxDMKj1mZvdjVLVE7e+VlFds8wn53Y4eJJTD49qFXs=;
-        b=LU5UhPy809KKxpXvI5QCnhB4frmEFI4V9rCqaU3puea4GWUmBMddsk9gzKa2V0XvBH
-         OoegrtQTBAlKkV+zDmLWW8pJyPiix97bnYZmRWnvhKUZRONhePcgb1JDXks9IYY16It/
-         vgoNUiHWXz4hUuJGLpQz5z6rTVFFUWzG/escaGOI/gGap0Rr4ZqEqR4qP9fihagIrteZ
-         oTHbLrXkk1NElrOiPlc/UZuE2j0fraGfF626bhSuEKJ9X+aQKz5CreLX//eYhNJsjHG0
-         D4EtVQK6E6EDvLTssOa9sPyibPs3t4zZ7MI+0+KhC/ds3fKV15K1blrRSUwdsNsLVknZ
-         QdoA==
-X-Gm-Message-State: AOAM530S2j5TT9qOJ7o2rSNliXdo2qi7GLsHiNZOlvUvzhiiNmW7QlHI
-        +reHNG2izPI2r1hHnhvwaaWdj9V58CkemdPR
-X-Google-Smtp-Source: ABdhPJybim8WElMlrRnVIC+aKbppRHV5ltL1p3gtqqJJsWN9vAClwKWFPDMnXTv7DBD3Z1ImDoRaPg==
-X-Received: by 2002:a05:600c:4b92:: with SMTP id e18mr11779556wmp.71.1621433638539;
-        Wed, 19 May 2021 07:13:58 -0700 (PDT)
+        bh=EJHSY4GTkUlJ+ZXFSK+xFoztKbsreaR/qQT5e4Mm7Vk=;
+        b=DP8rx2fUDKa6FcBTLLAhfOaF0a3m4kzw1s73DLkSymRxk9FaDH5CJcaXYZfcXIj+bC
+         VIe/aStE5K44PPQb2t/Ga7EmgH/DC8q8FqtCuudLO5kb0YEnpLLeOGazsj03DBA9BANi
+         Ovw6MyuU5G6B0iNQ5mMd5mVyUR1Ct15fqv6JZ73nHXrZFEEsV6Fz2ZLNAfRTk3Ju6pfe
+         Hadd73nbRyIocfMX+T0qhFfFjXN9F88HD5L4rE7NkusqyTnV+kYfgJy5nFPq5+7svNdc
+         JL2vRZlSkCTgKBECtdi7cAMefcpcpm73tMpLfDREGF0HEbrC+LuBP6UT0pSX+WJ1BvmG
+         bKyg==
+X-Gm-Message-State: AOAM531plHoTpUiIUdxK0U5Be06iZLxpHmjFN4AwJepxON+017EX5HzZ
+        nzMBARhgPZppdwGvDlXfmvd92qnJXsBxfWgp
+X-Google-Smtp-Source: ABdhPJwPUYcxqEtO1WUZ6UbamK3hCLDfJxNDZea9HK3S6q1BE8ZpYYlMAzy3fTkuiAxC65yCiLqibw==
+X-Received: by 2002:a05:6000:1286:: with SMTP id f6mr14488512wrx.226.1621433640869;
+        Wed, 19 May 2021 07:14:00 -0700 (PDT)
 Received: from localhost.localdomain ([85.255.235.154])
-        by smtp.gmail.com with ESMTPSA id z3sm6233569wrq.42.2021.05.19.07.13.57
+        by smtp.gmail.com with ESMTPSA id z3sm6233569wrq.42.2021.05.19.07.13.59
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 19 May 2021 07:13:58 -0700 (PDT)
+        Wed, 19 May 2021 07:14:00 -0700 (PDT)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     io-uring@vger.kernel.org, netdev@vger.kernel.org,
         bpf@vger.kernel.org, linux-kernel@vger.kernel.org
@@ -69,9 +69,9 @@ Cc:     Jens Axboe <axboe@kernel.dk>, Alexei Starovoitov <ast@kernel.org>,
         Horst Schirmeier <horst.schirmeier@tu-dortmund.de>,
         "Franz-B . Tuneke" <franz-bernhard.tuneke@tu-dortmund.de>,
         Christian Dietrich <stettberger@dokucode.de>
-Subject: [PATCH 07/23] io_uring: extract struct for CQ
-Date:   Wed, 19 May 2021 15:13:18 +0100
-Message-Id: <9203fb800f78165633f295e17bfcacf3c3409404.1621424513.git.asml.silence@gmail.com>
+Subject: [PATCH 09/23] io_uring: extract cq size helper
+Date:   Wed, 19 May 2021 15:13:20 +0100
+Message-Id: <743a1d192f84fb2294840d802b45cdd005d4c926.1621424513.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <cover.1621424513.git.asml.silence@gmail.com>
 References: <cover.1621424513.git.asml.silence@gmail.com>
@@ -81,148 +81,71 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Extract a structure describing an internal completion queue state and
-called, struct io_cqring. We need it to support multi-CQ rings.
+Extract a helper calculating CQ size from an userspace specified number
+of entries.
 
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
- fs/io_uring.c | 47 +++++++++++++++++++++++++----------------------
- 1 file changed, 25 insertions(+), 22 deletions(-)
+ fs/io_uring.c | 38 ++++++++++++++++++++++++--------------
+ 1 file changed, 24 insertions(+), 14 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 49a1b6b81d7d..4fecd9da689e 100644
+index 356a5dc90f46..f05592ae5f41 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -335,6 +335,12 @@ struct io_submit_state {
- 	unsigned int		ios_left;
- };
+@@ -1139,6 +1139,24 @@ static inline bool io_is_timeout_noseq(struct io_kiocb *req)
+ 	return !req->timeout.off;
+ }
  
-+struct io_cqring {
-+	unsigned		cached_tail;
-+	unsigned		entries;
-+	struct io_rings		*rings;
-+};
++static long io_get_cqring_size(struct io_uring_params *p, unsigned entries)
++{
++	/*
++	 * If IORING_SETUP_CQSIZE is set, we do the same roundup
++	 * to a power-of-two, if it isn't already. We do NOT impose
++	 * any cq vs sq ring sizing.
++	 */
++	if (!entries)
++		return -EINVAL;
++	if (entries > IORING_MAX_CQ_ENTRIES) {
++		if (!(p->flags & IORING_SETUP_CLAMP))
++			return -EINVAL;
++		entries = IORING_MAX_CQ_ENTRIES;
++	}
++	entries = roundup_pow_of_two(entries);
++	return entries;
++}
 +
- struct io_ring_ctx {
- 	struct {
- 		struct percpu_ref	refs;
-@@ -402,17 +408,14 @@ struct io_ring_ctx {
- 	struct xarray		personalities;
- 	u32			pers_next;
- 
--	struct {
--		unsigned		cached_cq_tail;
--		unsigned		cq_entries;
--		atomic_t		cq_timeouts;
--		unsigned		cq_last_tm_flush;
--		unsigned		cq_extra;
--		unsigned long		cq_check_overflow;
--		struct wait_queue_head	cq_wait;
--		struct fasync_struct	*cq_fasync;
--		struct eventfd_ctx	*cq_ev_fd;
--	} ____cacheline_aligned_in_smp;
-+	struct fasync_struct	*cq_fasync;
-+	struct eventfd_ctx	*cq_ev_fd;
-+	atomic_t		cq_timeouts;
-+	unsigned		cq_last_tm_flush;
-+	unsigned long		cq_check_overflow;
-+	unsigned		cq_extra;
-+	struct wait_queue_head	cq_wait;
-+	struct io_cqring	cqs[1];
- 
- 	struct {
- 		spinlock_t		completion_lock;
-@@ -1207,7 +1210,7 @@ static bool req_need_defer(struct io_kiocb *req, u32 seq)
- 	if (unlikely(req->flags & REQ_F_IO_DRAIN)) {
- 		struct io_ring_ctx *ctx = req->ctx;
- 
--		return seq + READ_ONCE(ctx->cq_extra) != ctx->cached_cq_tail;
-+		return seq + READ_ONCE(ctx->cq_extra) != ctx->cqs[0].cached_tail;
- 	}
- 
- 	return false;
-@@ -1312,7 +1315,7 @@ static void io_flush_timeouts(struct io_ring_ctx *ctx)
- 	if (list_empty(&ctx->timeout_list))
- 		return;
- 
--	seq = ctx->cached_cq_tail - atomic_read(&ctx->cq_timeouts);
-+	seq = ctx->cqs[0].cached_tail - atomic_read(&ctx->cq_timeouts);
- 
- 	do {
- 		u32 events_needed, events_got;
-@@ -1346,7 +1349,7 @@ static void io_commit_cqring(struct io_ring_ctx *ctx)
- 	io_flush_timeouts(ctx);
- 
- 	/* order cqe stores with ring update */
--	smp_store_release(&ctx->rings->cq.tail, ctx->cached_cq_tail);
-+	smp_store_release(&ctx->rings->cq.tail, ctx->cqs[0].cached_tail);
- 
- 	if (unlikely(!list_empty(&ctx->defer_list)))
- 		__io_queue_deferred(ctx);
-@@ -1361,23 +1364,23 @@ static inline bool io_sqring_full(struct io_ring_ctx *ctx)
- 
- static inline unsigned int __io_cqring_events(struct io_ring_ctx *ctx)
+ static struct io_ring_ctx *io_ring_ctx_alloc(struct io_uring_params *p)
  {
--	return ctx->cached_cq_tail - READ_ONCE(ctx->rings->cq.head);
-+	return ctx->cqs[0].cached_tail - READ_ONCE(ctx->rings->cq.head);
- }
- 
- static inline struct io_uring_cqe *io_get_cqe(struct io_ring_ctx *ctx)
- {
- 	struct io_rings *rings = ctx->rings;
--	unsigned tail, mask = ctx->cq_entries - 1;
-+	unsigned tail, mask = ctx->cqs[0].entries - 1;
- 
- 	/*
- 	 * writes to the cq entry need to come after reading head; the
- 	 * control dependency is enough as we're using WRITE_ONCE to
- 	 * fill the cq entry
+ 	struct io_ring_ctx *ctx;
+@@ -9625,21 +9643,13 @@ static int io_uring_create(unsigned entries, struct io_uring_params *p,
  	 */
--	if (__io_cqring_events(ctx) == ctx->cq_entries)
-+	if (__io_cqring_events(ctx) == ctx->cqs[0].entries)
- 		return NULL;
- 
--	tail = ctx->cached_cq_tail++;
-+	tail = ctx->cqs[0].cached_tail++;
- 	return &rings->cqes[tail & mask];
- }
- 
-@@ -1430,7 +1433,7 @@ static bool __io_cqring_overflow_flush(struct io_ring_ctx *ctx, bool force)
- 	unsigned long flags;
- 	bool all_flushed, posted;
- 
--	if (!force && __io_cqring_events(ctx) == ctx->cq_entries)
-+	if (!force && __io_cqring_events(ctx) == ctx->cqs[0].entries)
- 		return false;
- 
- 	posted = false;
-@@ -5670,7 +5673,7 @@ static int io_timeout(struct io_kiocb *req, unsigned int issue_flags)
- 		goto add;
+ 	p->sq_entries = roundup_pow_of_two(entries);
+ 	if (p->flags & IORING_SETUP_CQSIZE) {
+-		/*
+-		 * If IORING_SETUP_CQSIZE is set, we do the same roundup
+-		 * to a power-of-two, if it isn't already. We do NOT impose
+-		 * any cq vs sq ring sizing.
+-		 */
+-		if (!p->cq_entries)
+-			return -EINVAL;
+-		if (p->cq_entries > IORING_MAX_CQ_ENTRIES) {
+-			if (!(p->flags & IORING_SETUP_CLAMP))
+-				return -EINVAL;
+-			p->cq_entries = IORING_MAX_CQ_ENTRIES;
+-		}
+-		p->cq_entries = roundup_pow_of_two(p->cq_entries);
+-		if (p->cq_entries < p->sq_entries)
++		long cq_entries = io_get_cqring_size(p, p->cq_entries);
++
++		if (cq_entries < 0)
++			return cq_entries;
++		if (cq_entries < p->sq_entries)
+ 			return -EINVAL;
++		p->cq_entries = cq_entries;
+ 	} else {
+ 		p->cq_entries = 2 * p->sq_entries;
  	}
- 
--	tail = ctx->cached_cq_tail - atomic_read(&ctx->cq_timeouts);
-+	tail = ctx->cqs[0].cached_tail - atomic_read(&ctx->cq_timeouts);
- 	req->timeout.target_seq = tail + off;
- 
- 	/* Update the last seq here in case io_flush_timeouts() hasn't.
-@@ -9331,7 +9334,7 @@ SYSCALL_DEFINE6(io_uring_enter, unsigned int, fd, u32, to_submit,
- 		if (unlikely(ret))
- 			goto out;
- 
--		min_complete = min(min_complete, ctx->cq_entries);
-+		min_complete = min(min_complete, ctx->cqs[0].entries);
- 
- 		/*
- 		 * When SETUP_IOPOLL and SETUP_SQPOLL are both enabled, user
-@@ -9481,7 +9484,7 @@ static int io_allocate_scq_urings(struct io_ring_ctx *ctx,
- 
- 	/* make sure these are sane, as we already accounted them */
- 	ctx->sq_entries = p->sq_entries;
--	ctx->cq_entries = p->cq_entries;
-+	ctx->cqs[0].entries = p->cq_entries;
- 
- 	size = rings_size(p->sq_entries, p->cq_entries, &sq_array_offset);
- 	if (size == SIZE_MAX)
 -- 
 2.31.1
 

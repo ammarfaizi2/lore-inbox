@@ -8,59 +8,59 @@ X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 38F31C47084
-	for <io-uring@archiver.kernel.org>; Mon, 24 May 2021 23:51:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C2DD3C47086
+	for <io-uring@archiver.kernel.org>; Mon, 24 May 2021 23:51:42 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1D8F9613FC
-	for <io-uring@archiver.kernel.org>; Mon, 24 May 2021 23:51:43 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id AB31661420
+	for <io-uring@archiver.kernel.org>; Mon, 24 May 2021 23:51:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229896AbhEXXxL (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Mon, 24 May 2021 19:53:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47006 "EHLO
+        id S229819AbhEXXxK (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Mon, 24 May 2021 19:53:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47004 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229894AbhEXXxK (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Mon, 24 May 2021 19:53:10 -0400
-Received: from mail-wr1-x429.google.com (mail-wr1-x429.google.com [IPv6:2a00:1450:4864:20::429])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16C83C061756
-        for <io-uring@vger.kernel.org>; Mon, 24 May 2021 16:51:41 -0700 (PDT)
-Received: by mail-wr1-x429.google.com with SMTP id j14so28430259wrq.5
-        for <io-uring@vger.kernel.org>; Mon, 24 May 2021 16:51:41 -0700 (PDT)
+        with ESMTP id S229826AbhEXXxJ (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Mon, 24 May 2021 19:53:09 -0400
+Received: from mail-wm1-x32b.google.com (mail-wm1-x32b.google.com [IPv6:2a00:1450:4864:20::32b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62136C061574
+        for <io-uring@vger.kernel.org>; Mon, 24 May 2021 16:51:39 -0700 (PDT)
+Received: by mail-wm1-x32b.google.com with SMTP id o127so15712109wmo.4
+        for <io-uring@vger.kernel.org>; Mon, 24 May 2021 16:51:39 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=+XahhMGWoSLUIX+I8/2d3ZNVHVtS/HdcC/LzyH03Vak=;
-        b=h797+t3hJHk76NRl50FBBOgf9m+LW1q1z2WFxwuzYiyvagMtTNA6vbOjAkvdjw3lQ9
-         MYe1F3dMYCkK8BUchxqY3L1QGSj4kqZypms/vlswunJlgfiPl54SJTHGY1VuWqS6x0RA
-         ZXXRRULbPsScseCLqAHfuHF0O49ewYpHu8Ds6BWcRoBUY+Vh13WqRsNaAhNchGLDUzkc
-         gg6KNLH4EebTcOES2Zg71tHZSzeYW3b0x0xowAU0mogfJLx1TOM/FJaTjBcF7ppzDDI9
-         poRmbD5bVU8QeWoaBvHuXvxjUdaxcUN/Hk4Iz3vNbMDH/yEInnnprEtUOLQ2O77cnaug
-         tx7Q==
+        bh=xRzaKX1RUL6tEmowyiLD+2a29fLgUE0iA5aeO/c17VM=;
+        b=XLTJmghCHLJONyWMujCc21lSf4rlt6isLoOf/uoBRwjBn4MQC2JKVY1iRWqbpfBCS9
+         xF3Xl1aJ/MswaPYEMapLF0al/4d1ZVDJbbfjR5NsmgylOmcBlMbpmT8eH4jaTfgW7iqc
+         MpbY8P7mxWe0VBgEOMnXGNaNjUWBdmrmPgusfj9gxPCwCY2EskDTQiYqvinZ817EQMlk
+         yaxC/2IFS38b+e5vvtH2XAcZui/EzpVGcbIq0Twt8zaKkK2QPHLnjRsmO1szrT5A9qfM
+         sgi2u+mbVs9nz7no9EAj+eqUT/8uYC/IREsInlKY87rHlnqBOO2F1FHTDx4LBIWdZZyH
+         ZkcQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=+XahhMGWoSLUIX+I8/2d3ZNVHVtS/HdcC/LzyH03Vak=;
-        b=m0UP12iYTcp9SvZLoAKGq5RAH5cAfXE4MShjzjf4RGHswbTwuOoMdEoM9SJQfa/HLk
-         LOQcqEj8nr2pAgRZMrBLCUaqX85nMHvlizS5ZSrA2DYNVJp0Rja9o4gJai+4VICYcleK
-         qnAn6+zJXuQlomfAXvXfheJndvEqn7I+vXKD4x0CnWl4YrR1D8lQiFaq2SBxQiZWc2/A
-         F9+oD8LL+uwn//oYnR28Z6sJDnqISqblLZRqByrgI7uNLzebwekdeIph1pXSiE3C5yaC
-         P9+mY0i1RTKquFnNqg0j3927KS0xLegGRa2/bM6rIrVsAvgmS4KprURW499E78TgLmOZ
-         z3JQ==
-X-Gm-Message-State: AOAM5335x2EO93kj9W7+FMm1G++YGD9L5IYOUw/b4+Kiq2YfEOybQXSK
-        GMEIQTplcI4GQwDvejWD5is=
-X-Google-Smtp-Source: ABdhPJx6e/1wYFCs4ssCWEObaWsnA0oNPXQUmgF5Nkl/0x8iGP1ntNj568UFtK4gyevxx/autzs1+w==
-X-Received: by 2002:a5d:4b08:: with SMTP id v8mr24620293wrq.122.1621900299765;
-        Mon, 24 May 2021 16:51:39 -0700 (PDT)
+        bh=xRzaKX1RUL6tEmowyiLD+2a29fLgUE0iA5aeO/c17VM=;
+        b=mcN1tYyasop1L60V31rO/PLrzf7rRSdA7Uj2mRR5X6doO54u9IBieL5srPhHGWwfbw
+         vlcaT49WY3rYWEZhJtVp0MSpkYlQMeOsppRcINDSO1Bz37qnlvT66LVyZ4sw50wKzHVP
+         NOw9F30WPr05XTPNLt3skNy4U79chXnIOZcjOfmooTmCGkhrU2O3lFfLUfA4J2QSmBMW
+         GbG09PQV4dqG5ifYsIWGvcMEJqVe2+n2bdalCyTWH3eyHN01UTbWs9ctWRfgBG9FlcIG
+         VSXfhV4ZuA23qeiZE+DrWmXW01ouyyaxhu3hHX1a5LqduDN+DCzY6zxnokbDpS3OvF8S
+         cQcA==
+X-Gm-Message-State: AOAM5302yOeUBkVmKbHf2SGv6zwZ0votjUDQ+n0cq1L6jXLOiU9//ph7
+        V8Km9rMfPmZAPrpkmlXXqO4=
+X-Google-Smtp-Source: ABdhPJzowdAgnzkiUDD8n+Y6/Dju5lDlOaJgAaFaOsLUnBFVvcuj+fuGRJ9E5xcTb6yx5TYgON30RQ==
+X-Received: by 2002:a1c:6143:: with SMTP id v64mr21507146wmb.22.1621900298013;
+        Mon, 24 May 2021 16:51:38 -0700 (PDT)
 Received: from localhost.localdomain ([85.255.235.116])
-        by smtp.gmail.com with ESMTPSA id f7sm8961069wmq.30.2021.05.24.16.51.38
+        by smtp.gmail.com with ESMTPSA id f7sm8961069wmq.30.2021.05.24.16.51.37
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 24 May 2021 16:51:39 -0700 (PDT)
+        Mon, 24 May 2021 16:51:37 -0700 (PDT)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH 13/13] io_uring: unify SQPOLL and user task cancellations
-Date:   Tue, 25 May 2021 00:51:12 +0100
-Message-Id: <00d85dbdd0f7bf5b80bed15c82ec551689f9851c.1621899872.git.asml.silence@gmail.com>
+Subject: [PATCH 11/13] io_uring: don't vmalloc rsrc tags
+Date:   Tue, 25 May 2021 00:51:10 +0100
+Message-Id: <ab5b8b328a51f899e11dc01d414b9243e593724a.1621899872.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <cover.1621899872.git.asml.silence@gmail.com>
 References: <cover.1621899872.git.asml.silence@gmail.com>
@@ -70,163 +70,154 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Merge io_uring_cancel_sqpoll() and __io_uring_cancel() as it's easier to
-have a conditional ctx traverse inside than keeping them in sync.
+We don't really need vmalloc for keeping tags, it's not a hot path and
+is there out of convenience, so replace it with two level tables to not
+litter kernel virtual memory mappings.
 
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
- fs/io_uring.c | 89 +++++++++++++++++----------------------------------
- 1 file changed, 30 insertions(+), 59 deletions(-)
+ fs/io_uring.c | 52 +++++++++++++++++++++++++++++++++++----------------
+ 1 file changed, 36 insertions(+), 16 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index a95d55a0f9be..7db6aaf31080 100644
+index 1cc2d16637ff..2b2d70a58a87 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -1036,7 +1036,7 @@ static void io_uring_del_tctx_node(unsigned long index);
- static void io_uring_try_cancel_requests(struct io_ring_ctx *ctx,
- 					 struct task_struct *task,
- 					 bool cancel_all);
--static void io_uring_cancel_sqpoll(struct io_sq_data *sqd);
-+static void io_uring_cancel_generic(bool cancel_all, struct io_sq_data *sqd);
- static struct io_rsrc_node *io_rsrc_node_alloc(struct io_ring_ctx *ctx);
+@@ -100,6 +100,10 @@
+ #define IORING_MAX_RESTRICTIONS	(IORING_RESTRICTION_LAST + \
+ 				 IORING_REGISTER_LAST + IORING_OP_LAST)
  
- static bool io_cqring_fill_event(struct io_ring_ctx *ctx, u64 user_data,
-@@ -6921,7 +6921,7 @@ static int io_sq_thread(void *data)
- 		timeout = jiffies + sqd->sq_thread_idle;
- 	}
- 
--	io_uring_cancel_sqpoll(sqd);
-+	io_uring_cancel_generic(true, sqd);
- 	sqd->thread = NULL;
- 	list_for_each_entry(ctx, &sqd->ctx_list, sqd_list)
- 		io_ring_set_wakeup_flag(ctx);
-@@ -9089,21 +9089,6 @@ static s64 tctx_inflight(struct io_uring_task *tctx, bool tracked)
- 	return percpu_counter_sum(&tctx->inflight);
- }
- 
--static void io_uring_try_cancel(bool cancel_all)
--{
--	struct io_uring_task *tctx = current->io_uring;
--	struct io_tctx_node *node;
--	unsigned long index;
--
--	xa_for_each(&tctx->xa, index, node) {
--		struct io_ring_ctx *ctx = node->ctx;
--
--		/* sqpoll task will cancel all its requests */
--		if (!ctx->sq_data)
--			io_uring_try_cancel_requests(ctx, current, cancel_all);
--	}
--}
--
- static void io_uring_drop_tctx_refs(struct task_struct *task)
- {
- 	struct io_uring_task *tctx = task->io_uring;
-@@ -9114,69 +9099,50 @@ static void io_uring_drop_tctx_refs(struct task_struct *task)
- 	put_task_struct_many(task, refs);
- }
- 
--/* should only be called by SQPOLL task */
--static void io_uring_cancel_sqpoll(struct io_sq_data *sqd)
-+/*
-+ * Find any io_uring ctx that this task has registered or done IO on, and cancel
-+ * requests. @sqd should be not-null IIF it's an SQPOLL thread cancellation.
-+ */
-+static void io_uring_cancel_generic(bool cancel_all, struct io_sq_data *sqd)
- {
- 	struct io_uring_task *tctx = current->io_uring;
- 	struct io_ring_ctx *ctx;
- 	s64 inflight;
- 	DEFINE_WAIT(wait);
- 
-+	WARN_ON_ONCE(sqd && sqd->thread != current);
++#define IO_RSRC_TAG_TABLE_SHIFT	9
++#define IO_RSRC_TAG_TABLE_MAX	(1U << IO_RSRC_TAG_TABLE_SHIFT)
++#define IO_RSRC_TAG_TABLE_MASK	(IO_RSRC_TAG_TABLE_MAX - 1)
 +
- 	if (!current->io_uring)
- 		return;
- 	if (tctx->io_wq)
- 		io_wq_exit_start(tctx->io_wq);
+ #define IORING_MAX_REG_BUFFERS	(1U << 14)
  
--	WARN_ON_ONCE(!sqd || sqd->thread != current);
--
- 	io_uring_drop_tctx_refs(current);
- 	atomic_inc(&tctx->in_idle);
- 	do {
- 		/* read completions before cancelations */
--		inflight = tctx_inflight(tctx, false);
-+		inflight = tctx_inflight(tctx, !cancel_all);
- 		if (!inflight)
- 			break;
--		list_for_each_entry(ctx, &sqd->ctx_list, sqd_list)
--			io_uring_try_cancel_requests(ctx, current, true);
+ #define SQE_VALID_FLAGS	(IOSQE_FIXED_FILE|IOSQE_IO_DRAIN|IOSQE_IO_LINK|	\
+@@ -243,7 +247,8 @@ typedef void (rsrc_put_fn)(struct io_ring_ctx *ctx, struct io_rsrc_put *prsrc);
+ struct io_rsrc_data {
+ 	struct io_ring_ctx		*ctx;
  
--		prepare_to_wait(&tctx->wait, &wait, TASK_UNINTERRUPTIBLE);
--		/*
--		 * If we've seen completions, retry without waiting. This
--		 * avoids a race where a completion comes in before we did
--		 * prepare_to_wait().
--		 */
--		if (inflight == tctx_inflight(tctx, false))
--			schedule();
--		finish_wait(&tctx->wait, &wait);
--	} while (1);
--	atomic_dec(&tctx->in_idle);
--}
-+		if (!sqd) {
-+			struct io_tctx_node *node;
-+			unsigned long index;
- 
--/*
-- * Find any io_uring fd that this task has registered or done IO on, and cancel
-- * requests.
-- */
--void __io_uring_cancel(struct files_struct *files)
--{
--	struct io_uring_task *tctx = current->io_uring;
--	DEFINE_WAIT(wait);
--	s64 inflight;
--	bool cancel_all = !files;
--
--	if (tctx->io_wq)
--		io_wq_exit_start(tctx->io_wq);
-+			xa_for_each(&tctx->xa, index, node) {
-+				/* sqpoll task will cancel all its requests */
-+				if (node->ctx->sq_data)
-+					continue;
-+				io_uring_try_cancel_requests(node->ctx, current,
-+							     cancel_all);
-+			}
-+		} else {
-+			list_for_each_entry(ctx, &sqd->ctx_list, sqd_list)
-+				io_uring_try_cancel_requests(ctx, current,
-+							     cancel_all);
-+		}
- 
--	/* make sure overflow events are dropped */
--	io_uring_drop_tctx_refs(current);
--	atomic_inc(&tctx->in_idle);
--	do {
--		/* read completions before cancelations */
--		inflight = tctx_inflight(tctx, !cancel_all);
--		if (!inflight)
--			break;
--		io_uring_try_cancel(cancel_all);
- 		prepare_to_wait(&tctx->wait, &wait, TASK_UNINTERRUPTIBLE);
--
- 		/*
- 		 * If we've seen completions, retry without waiting. This
- 		 * avoids a race where a completion comes in before we did
-@@ -9195,6 +9161,11 @@ void __io_uring_cancel(struct files_struct *files)
- 	}
+-	u64				*tags;
++	u64				**tags;
++	unsigned int			nr;
+ 	rsrc_put_fn			*do_put;
+ 	atomic_t			refs;
+ 	struct completion		done;
+@@ -7172,9 +7177,20 @@ static int io_rsrc_ref_quiesce(struct io_rsrc_data *data, struct io_ring_ctx *ct
+ 	return ret;
  }
  
-+void __io_uring_cancel(struct files_struct *files)
++static u64 *io_get_tag_slot(struct io_rsrc_data *data, unsigned int idx)
 +{
-+	io_uring_cancel_generic(!files, NULL);
++	unsigned int off = idx & IO_RSRC_TAG_TABLE_MASK;
++	unsigned int table_idx = idx >> IO_RSRC_TAG_TABLE_SHIFT;
++
++	return &data->tags[table_idx][off];
 +}
 +
- static void *io_uring_validate_mmap_request(struct file *file,
- 					    loff_t pgoff, size_t sz)
+ static void io_rsrc_data_free(struct io_rsrc_data *data)
  {
+-	kvfree(data->tags);
++	size_t size = data->nr * sizeof(data->tags[0][0]);
++
++	if (data->tags)
++		io_free_page_table((void **)data->tags, size);
+ 	kfree(data);
+ }
+ 
+@@ -7183,33 +7199,37 @@ static int io_rsrc_data_alloc(struct io_ring_ctx *ctx, rsrc_put_fn *do_put,
+ 			      struct io_rsrc_data **pdata)
+ {
+ 	struct io_rsrc_data *data;
++	int ret = -ENOMEM;
+ 	unsigned i;
+ 
+ 	data = kzalloc(sizeof(*data), GFP_KERNEL);
+ 	if (!data)
+ 		return -ENOMEM;
+-
+-	data->tags = kvcalloc(nr, sizeof(*data->tags), GFP_KERNEL);
++	data->tags = (u64 **)io_alloc_page_table(nr * sizeof(data->tags[0][0]));
+ 	if (!data->tags) {
+ 		kfree(data);
+ 		return -ENOMEM;
+ 	}
++
++	data->nr = nr;
++	data->ctx = ctx;
++	data->do_put = do_put;
+ 	if (utags) {
++		ret = -EFAULT;
+ 		for (i = 0; i < nr; i++) {
+-			if (copy_from_user(&data->tags[i], &utags[i],
+-					   sizeof(data->tags[i]))) {
+-				io_rsrc_data_free(data);
+-				return -EFAULT;
+-			}
++			if (copy_from_user(io_get_tag_slot(data, i), &utags[i],
++					   sizeof(data->tags[i])))
++				goto fail;
+ 		}
+ 	}
+ 
+ 	atomic_set(&data->refs, 1);
+-	data->ctx = ctx;
+-	data->do_put = do_put;
+ 	init_completion(&data->done);
+ 	*pdata = data;
+ 	return 0;
++fail:
++	io_rsrc_data_free(data);
++	return ret;
+ }
+ 
+ static bool io_alloc_file_tables(struct io_file_table *table, unsigned nr_files)
+@@ -7678,7 +7698,7 @@ static int io_sqe_files_register(struct io_ring_ctx *ctx, void __user *arg,
+ 		/* allow sparse sets */
+ 		if (fd == -1) {
+ 			ret = -EINVAL;
+-			if (unlikely(ctx->file_data->tags[i]))
++			if (unlikely(*io_get_tag_slot(ctx->file_data, i)))
+ 				goto out_fput;
+ 			continue;
+ 		}
+@@ -7776,7 +7796,7 @@ static int io_queue_rsrc_removal(struct io_rsrc_data *data, unsigned idx,
+ 	if (!prsrc)
+ 		return -ENOMEM;
+ 
+-	prsrc->tag = data->tags[idx];
++	prsrc->tag = *io_get_tag_slot(data, idx);
+ 	prsrc->rsrc = rsrc;
+ 	list_add(&prsrc->list, &node->rsrc_list);
+ 	return 0;
+@@ -7846,7 +7866,7 @@ static int __io_sqe_files_update(struct io_ring_ctx *ctx,
+ 				err = -EBADF;
+ 				break;
+ 			}
+-			data->tags[up->offset + done] = tag;
++			*io_get_tag_slot(data, up->offset + done) = tag;
+ 			io_fixed_file_set(file_slot, file);
+ 			err = io_sqe_file_register(ctx, file, i);
+ 			if (err) {
+@@ -8429,7 +8449,7 @@ static int io_sqe_buffers_register(struct io_ring_ctx *ctx, void __user *arg,
+ 		ret = io_buffer_validate(&iov);
+ 		if (ret)
+ 			break;
+-		if (!iov.iov_base && data->tags[i]) {
++		if (!iov.iov_base && *io_get_tag_slot(data, i)) {
+ 			ret = -EINVAL;
+ 			break;
+ 		}
+@@ -8502,7 +8522,7 @@ static int __io_sqe_buffers_update(struct io_ring_ctx *ctx,
+ 		}
+ 
+ 		ctx->user_bufs[i] = imu;
+-		ctx->buf_data->tags[offset] = tag;
++		*io_get_tag_slot(ctx->buf_data, offset) = tag;
+ 	}
+ 
+ 	if (needs_switch)
 -- 
 2.31.1
 

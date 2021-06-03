@@ -8,58 +8,58 @@ X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 73241C47096
-	for <io-uring@archiver.kernel.org>; Thu,  3 Jun 2021 05:30:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 89F1FC47097
+	for <io-uring@archiver.kernel.org>; Thu,  3 Jun 2021 05:30:43 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 57C2B613E6
-	for <io-uring@archiver.kernel.org>; Thu,  3 Jun 2021 05:30:39 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6F9D2613E6
+	for <io-uring@archiver.kernel.org>; Thu,  3 Jun 2021 05:30:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229719AbhFCFcW (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Thu, 3 Jun 2021 01:32:22 -0400
-Received: from mail-ed1-f52.google.com ([209.85.208.52]:38456 "EHLO
-        mail-ed1-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229663AbhFCFcW (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Thu, 3 Jun 2021 01:32:22 -0400
-Received: by mail-ed1-f52.google.com with SMTP id o5so5654022edc.5
-        for <io-uring@vger.kernel.org>; Wed, 02 Jun 2021 22:30:26 -0700 (PDT)
+        id S229789AbhFCFc0 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Thu, 3 Jun 2021 01:32:26 -0400
+Received: from mail-ed1-f54.google.com ([209.85.208.54]:41491 "EHLO
+        mail-ed1-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229663AbhFCFc0 (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Thu, 3 Jun 2021 01:32:26 -0400
+Received: by mail-ed1-f54.google.com with SMTP id g18so3642781edq.8
+        for <io-uring@vger.kernel.org>; Wed, 02 Jun 2021 22:30:28 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=2Jr8ge50O3OfzWtwGpJaH1oYEn6Xwn5e/6+p4zm+Evw=;
-        b=sQ5Gogc0A6uORzerWQpGxKMgZW57lR4h563Z5+532KpbfAS1of/76bqtjQCW25GsGx
-         VxctwGp1o0slrhLNKS98Z7xzx/pwv7+wLceZnRi6JXV1skqKKhKXv44sQI6XLK2M3O2D
-         xBGR9Rf5KFkVe0CCBob8BSYNeoNmwBKNZqZsOq60YXv00iT40Ud6LGKjG0dR76poY/Lz
-         cQxlsVYlHhaAtF5I3UKxZzQUUNvDCH9KUwt+YOySqqh+vVBTZBHnvUwVqYQvJS4iUdk3
-         ShysTdMloUT4xtJhV/kQ88DJMsVQvAikSydoztD9YlsIqYUmhIthmd13OxB5J/7QoJaW
-         Zvpw==
+        bh=je3ikxifPWcfjm8TZamA1GCv3bpaYO9d4fweVKg884Y=;
+        b=HLjrMErYjXIspzXDErTAUwmIFK3C4jdSA1dg1HLsElfJwl+1ViL/SZiC0v10uyEZ8v
+         iZY6mDiLCVh6DeIjehcON5PuGvwbb1WgXABLVIHW4fR2jKOcrdnXF9SqUvaXlxQM1n2K
+         yB+DHQlitXh9AtDdWDLPHwen4Whiafa+wVG5DHfr1tunXcSP2ZY1V37wKAgiZLLmtD+P
+         hXj4THqihy1uSfrr9w6Tu77Vug9L33BmeZYHcVQ+AieKiO+WLINs+CD5sYNgjEOx8zcO
+         aYrWuYj3PADAg0pLvf2GSQrkPq1rVzGnj6vCUVNVOGrtslOJXknSCuQUp+K3mJ9wXyAb
+         RjTw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=2Jr8ge50O3OfzWtwGpJaH1oYEn6Xwn5e/6+p4zm+Evw=;
-        b=VzwbAIcte+YwvPxBiE6zn1J2L2oBpw4D+jHDWzSGRSnD3fJd7adGZxpNW8xXrpFIrm
-         1Vmh4zX/tkgs6cwXY59e0Hc+hoMJvx1x7i+9pxYUuN5SYp+kxUQHt76OQFXJ2JlyJ9aw
-         FbmZp+7StMrlPEGMyoJ6GUrWuYFkgiBN2xbBi9XgvRqzyU52v9wLa38/cXDZsaNNfdMs
-         R4zvX4bFQEMS+gciLm13Hj1ztmFFMJcusG4coFFXV+ia1sEbq9vYZZWqi2lfgLINcpcu
-         YzIhkbtKNa3SHTV0aD2kpzb6mmi3USxJ6lFc4C5v1PnrpkXI6jVzsj36ELuwmFYhYJSt
-         rJ2w==
-X-Gm-Message-State: AOAM533gljdVfiTQp04VtLAMFixXEpw2o3TWUAFZwDwvAR3YDO/D46UQ
-        fDSz51D6wudFxBKexCfqyHo=
-X-Google-Smtp-Source: ABdhPJyxG85wHCUIAjZqtyJz1GmpSf9xfOkyOVnUa/Wz9mCsk/E4YBroG2pYaRuKzNlaS8isEvOSEg==
-X-Received: by 2002:a05:6402:3488:: with SMTP id v8mr6681969edc.124.1622698165912;
-        Wed, 02 Jun 2021 22:29:25 -0700 (PDT)
+        bh=je3ikxifPWcfjm8TZamA1GCv3bpaYO9d4fweVKg884Y=;
+        b=mSLPmI9pusnGQU1wEs0luOak/eV1SYTXVJ57Olc8kc3gLEFv3CPTqNSKgWZuTtgtO9
+         lPYfxrU/uYBYgZYAZet8JdwD6R4POPktOC+4VIjixTEpOdQjFfaBxZqVqazkPxVrM7mt
+         wI7o3bfwH5eJOiFsefi5QOWQ2Qgz+IQjHkT9Yycjb3BRI95thXjl1woEFYLNG35uWycv
+         0zKs9cLCE51bH8LMbN5A3DCqspVzzAY3qh2B9SIS65gLzAC87/qpSvIPp4IjtSJ0dKU6
+         3nuuMuqL7MMNtm3xuIK3fn3SDgClMoJux5q2vI5TLdFL8jG1gxG9/CA0QLn/P7XrM+5/
+         eobA==
+X-Gm-Message-State: AOAM530iXaU+OOBjMVIZ936x0QAoK4tHDZWEcnrF1wKKC1dYmM5ZpIiw
+        O6q6cNKuzWM9pcpVFQc2c4/fonzGR57egQ==
+X-Google-Smtp-Source: ABdhPJzB6ttsgeiY2jo1BhWK5cLxXYljReMATqKnABzNvcOIb7EwoVfgFjIBTOCEap3hHayZJUOhzQ==
+X-Received: by 2002:a05:6402:35cc:: with SMTP id z12mr41620393edc.154.1622698168412;
+        Wed, 02 Jun 2021 22:29:28 -0700 (PDT)
 Received: from carbon.v ([108.61.166.58])
-        by smtp.googlemail.com with ESMTPSA id hr23sm943291ejc.101.2021.06.02.22.29.24
+        by smtp.googlemail.com with ESMTPSA id hr23sm943291ejc.101.2021.06.02.22.29.27
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 02 Jun 2021 22:29:25 -0700 (PDT)
+        Wed, 02 Jun 2021 22:29:28 -0700 (PDT)
 From:   Dmitry Kadashev <dkadashev@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>
 Cc:     Pavel Begunkov <asml.silence@gmail.com>, io-uring@vger.kernel.org,
         Dmitry Kadashev <dkadashev@gmail.com>
-Subject: [PATCH liburing v2 04/11] liburing.h: add symlinkat prep helper
-Date:   Thu,  3 Jun 2021 12:28:59 +0700
-Message-Id: <20210603052906.2616489-5-dkadashev@gmail.com>
+Subject: [PATCH liburing v2 06/11] io_uring.h: add linkat opcode
+Date:   Thu,  3 Jun 2021 12:29:01 +0700
+Message-Id: <20210603052906.2616489-7-dkadashev@gmail.com>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210603052906.2616489-1-dkadashev@gmail.com>
 References: <20210603052906.2616489-1-dkadashev@gmail.com>
@@ -71,27 +71,29 @@ X-Mailing-List: io-uring@vger.kernel.org
 
 Signed-off-by: Dmitry Kadashev <dkadashev@gmail.com>
 ---
- src/include/liburing.h | 7 +++++++
- 1 file changed, 7 insertions(+)
+ src/include/liburing/io_uring.h | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/src/include/liburing.h b/src/include/liburing.h
-index b7f3bea..e033543 100644
---- a/src/include/liburing.h
-+++ b/src/include/liburing.h
-@@ -554,6 +554,13 @@ static inline void io_uring_prep_mkdirat(struct io_uring_sqe *sqe, int dfd,
- 	io_uring_prep_rw(IORING_OP_MKDIRAT, sqe, dfd, path, mode, 0);
- }
+diff --git a/src/include/liburing/io_uring.h b/src/include/liburing/io_uring.h
+index 439a515..a5e48e7 100644
+--- a/src/include/liburing/io_uring.h
++++ b/src/include/liburing/io_uring.h
+@@ -48,6 +48,7 @@ struct io_uring_sqe {
+ 		__u32		splice_flags;
+ 		__u32		rename_flags;
+ 		__u32		unlink_flags;
++		__u32		hardlink_flags;
+ 	};
+ 	__u64	user_data;	/* data to be passed back at completion time */
+ 	union {
+@@ -143,6 +144,7 @@ enum {
+ 	IORING_OP_UNLINKAT,
+ 	IORING_OP_MKDIRAT,
+ 	IORING_OP_SYMLINKAT,
++	IORING_OP_LINKAT,
  
-+static inline void io_uring_prep_symlinkat(struct io_uring_sqe *sqe,
-+					const char *target, int newdirfd, const char *linkpath)
-+{
-+	io_uring_prep_rw(IORING_OP_SYMLINKAT, sqe, newdirfd, target, 0,
-+				(uint64_t) (uintptr_t) linkpath);
-+}
-+
- /*
-  * Returns number of unconsumed (if SQPOLL) or unsubmitted entries exist in
-  * the SQ ring
+ 	/* this goes last, obviously */
+ 	IORING_OP_LAST,
 -- 
 2.30.2
 

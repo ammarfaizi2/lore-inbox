@@ -8,58 +8,58 @@ X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 89F1FC47097
-	for <io-uring@archiver.kernel.org>; Thu,  3 Jun 2021 05:30:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 534FDC47096
+	for <io-uring@archiver.kernel.org>; Thu,  3 Jun 2021 05:30:45 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6F9D2613E6
-	for <io-uring@archiver.kernel.org>; Thu,  3 Jun 2021 05:30:43 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 426D5613B4
+	for <io-uring@archiver.kernel.org>; Thu,  3 Jun 2021 05:30:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229789AbhFCFc0 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Thu, 3 Jun 2021 01:32:26 -0400
-Received: from mail-ed1-f54.google.com ([209.85.208.54]:41491 "EHLO
-        mail-ed1-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229663AbhFCFc0 (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Thu, 3 Jun 2021 01:32:26 -0400
-Received: by mail-ed1-f54.google.com with SMTP id g18so3642781edq.8
-        for <io-uring@vger.kernel.org>; Wed, 02 Jun 2021 22:30:28 -0700 (PDT)
+        id S229790AbhFCFc2 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Thu, 3 Jun 2021 01:32:28 -0400
+Received: from mail-ej1-f52.google.com ([209.85.218.52]:47003 "EHLO
+        mail-ej1-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229663AbhFCFc2 (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Thu, 3 Jun 2021 01:32:28 -0400
+Received: by mail-ej1-f52.google.com with SMTP id b9so7272049ejc.13
+        for <io-uring@vger.kernel.org>; Wed, 02 Jun 2021 22:30:32 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=je3ikxifPWcfjm8TZamA1GCv3bpaYO9d4fweVKg884Y=;
-        b=HLjrMErYjXIspzXDErTAUwmIFK3C4jdSA1dg1HLsElfJwl+1ViL/SZiC0v10uyEZ8v
-         iZY6mDiLCVh6DeIjehcON5PuGvwbb1WgXABLVIHW4fR2jKOcrdnXF9SqUvaXlxQM1n2K
-         yB+DHQlitXh9AtDdWDLPHwen4Whiafa+wVG5DHfr1tunXcSP2ZY1V37wKAgiZLLmtD+P
-         hXj4THqihy1uSfrr9w6Tu77Vug9L33BmeZYHcVQ+AieKiO+WLINs+CD5sYNgjEOx8zcO
-         aYrWuYj3PADAg0pLvf2GSQrkPq1rVzGnj6vCUVNVOGrtslOJXknSCuQUp+K3mJ9wXyAb
-         RjTw==
+        bh=XwVy3Qz9VPC6MJGsOtNOJ4guTRMS3voj6OLvs1FhaxU=;
+        b=esBNqGgwl6OELmRVh5cjRdy0i+fRMEGgpFOUGCGFQ8iam2Ng500uxcHJghQ6P86uTE
+         guGRaqMsgDJfNaNSHkNXQaPK6vcdD2zwPUzrKW86IYiYr/aRZaJYPd/cswEyXLLzwOZG
+         uDbpJa+DoFVJDM+oozlD2SgJvz4Cmpy+RJrg5aJGcOftxuFzvvm0oFrKnTbk4C7fjBrg
+         DGILhD1/6HKyqdU7FdRLi6v7BJedpsMJDd6aLyGu0si9qPUio2WCKK+bFPzy4O+NLdDT
+         xICgm25UQDc8MYl6qhyUjXnnpSiACkpWZa7agW12RRQPQxMITChMo6/7z/QGoF1NUAwe
+         55kA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=je3ikxifPWcfjm8TZamA1GCv3bpaYO9d4fweVKg884Y=;
-        b=mSLPmI9pusnGQU1wEs0luOak/eV1SYTXVJ57Olc8kc3gLEFv3CPTqNSKgWZuTtgtO9
-         lPYfxrU/uYBYgZYAZet8JdwD6R4POPktOC+4VIjixTEpOdQjFfaBxZqVqazkPxVrM7mt
-         wI7o3bfwH5eJOiFsefi5QOWQ2Qgz+IQjHkT9Yycjb3BRI95thXjl1woEFYLNG35uWycv
-         0zKs9cLCE51bH8LMbN5A3DCqspVzzAY3qh2B9SIS65gLzAC87/qpSvIPp4IjtSJ0dKU6
-         3nuuMuqL7MMNtm3xuIK3fn3SDgClMoJux5q2vI5TLdFL8jG1gxG9/CA0QLn/P7XrM+5/
-         eobA==
-X-Gm-Message-State: AOAM530iXaU+OOBjMVIZ936x0QAoK4tHDZWEcnrF1wKKC1dYmM5ZpIiw
-        O6q6cNKuzWM9pcpVFQc2c4/fonzGR57egQ==
-X-Google-Smtp-Source: ABdhPJzB6ttsgeiY2jo1BhWK5cLxXYljReMATqKnABzNvcOIb7EwoVfgFjIBTOCEap3hHayZJUOhzQ==
-X-Received: by 2002:a05:6402:35cc:: with SMTP id z12mr41620393edc.154.1622698168412;
-        Wed, 02 Jun 2021 22:29:28 -0700 (PDT)
+        bh=XwVy3Qz9VPC6MJGsOtNOJ4guTRMS3voj6OLvs1FhaxU=;
+        b=Em3B0gL+t+5St/Uddpewfntshj4sxC8Ff2ZDvQZe8i1I60GxIS5MVrMgdtNPVwgwes
+         VKswnUP/e0BWQxh2ccZVGz75c6hvBCnQb3lSKDmyot8nxeoZ7IIzMvH2sV4GMURNmcP4
+         U8O8/GHa8E6te8v5HcQhTuoXGY6iwJey7gGIbA2NIK6+dYVwj+E+GsoRwLNo6A00VbNp
+         vdTpXyd6LaG7djiAMSzF04QBhI0eUtIvmQ/5wI4tEFSKKLfXmIU6A6sAaCQ7mSpCNfyc
+         z13mH+/CcftR59FbnM2lMEn1thQ47C+L371y39qmxUQUeduASDKHIgdU1GfC/fShfOog
+         mjYg==
+X-Gm-Message-State: AOAM532NZ27ZuvhJDpzBE34xHF8TztwNpangos4PuDTi/eXw4TZ0wuEr
+        YnmjfWBRzoBc37FqGu312Zo=
+X-Google-Smtp-Source: ABdhPJwYoH6rTXxaiTsvNCKJTR7U3OdCpKviipiP6DDTxw83GcPv0nF4xA96AKPUExrLr4ioLJAIlQ==
+X-Received: by 2002:a17:906:4e06:: with SMTP id z6mr28079969eju.34.1622698172318;
+        Wed, 02 Jun 2021 22:29:32 -0700 (PDT)
 Received: from carbon.v ([108.61.166.58])
-        by smtp.googlemail.com with ESMTPSA id hr23sm943291ejc.101.2021.06.02.22.29.27
+        by smtp.googlemail.com with ESMTPSA id hr23sm943291ejc.101.2021.06.02.22.29.31
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 02 Jun 2021 22:29:28 -0700 (PDT)
+        Wed, 02 Jun 2021 22:29:32 -0700 (PDT)
 From:   Dmitry Kadashev <dkadashev@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>
 Cc:     Pavel Begunkov <asml.silence@gmail.com>, io-uring@vger.kernel.org,
         Dmitry Kadashev <dkadashev@gmail.com>
-Subject: [PATCH liburing v2 06/11] io_uring.h: add linkat opcode
-Date:   Thu,  3 Jun 2021 12:29:01 +0700
-Message-Id: <20210603052906.2616489-7-dkadashev@gmail.com>
+Subject: [PATCH liburing v2 09/11] io_uring.h: add mknodat opcode
+Date:   Thu,  3 Jun 2021 12:29:04 +0700
+Message-Id: <20210603052906.2616489-10-dkadashev@gmail.com>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210603052906.2616489-1-dkadashev@gmail.com>
 References: <20210603052906.2616489-1-dkadashev@gmail.com>
@@ -75,22 +75,22 @@ Signed-off-by: Dmitry Kadashev <dkadashev@gmail.com>
  1 file changed, 2 insertions(+)
 
 diff --git a/src/include/liburing/io_uring.h b/src/include/liburing/io_uring.h
-index 439a515..a5e48e7 100644
+index a5e48e7..46cd2fc 100644
 --- a/src/include/liburing/io_uring.h
 +++ b/src/include/liburing/io_uring.h
-@@ -48,6 +48,7 @@ struct io_uring_sqe {
- 		__u32		splice_flags;
+@@ -49,6 +49,7 @@ struct io_uring_sqe {
  		__u32		rename_flags;
  		__u32		unlink_flags;
-+		__u32		hardlink_flags;
+ 		__u32		hardlink_flags;
++		__u32		mknod_dev;
  	};
  	__u64	user_data;	/* data to be passed back at completion time */
  	union {
-@@ -143,6 +144,7 @@ enum {
- 	IORING_OP_UNLINKAT,
+@@ -145,6 +146,7 @@ enum {
  	IORING_OP_MKDIRAT,
  	IORING_OP_SYMLINKAT,
-+	IORING_OP_LINKAT,
+ 	IORING_OP_LINKAT,
++	IORING_OP_MKNODAT,
  
  	/* this goes last, obviously */
  	IORING_OP_LAST,

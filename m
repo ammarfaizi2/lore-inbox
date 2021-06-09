@@ -1,92 +1,78 @@
 Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-X-Spam-Level: 
-X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Level: **
+X-Spam-Status: No, score=2.6 required=3.0 tests=BAYES_50,DATE_IN_PAST_03_06,
+	DKIMWL_BL,DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C8820C48BCD
-	for <io-uring@archiver.kernel.org>; Wed,  9 Jun 2021 14:28:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A287AC48BCD
+	for <io-uring@archiver.kernel.org>; Wed,  9 Jun 2021 14:41:41 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A70416136D
-	for <io-uring@archiver.kernel.org>; Wed,  9 Jun 2021 14:28:28 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 89DA060C41
+	for <io-uring@archiver.kernel.org>; Wed,  9 Jun 2021 14:41:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233707AbhFIOaU (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Wed, 9 Jun 2021 10:30:20 -0400
-Received: from mail-ej1-f51.google.com ([209.85.218.51]:37584 "EHLO
-        mail-ej1-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233188AbhFIOaT (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Wed, 9 Jun 2021 10:30:19 -0400
-Received: by mail-ej1-f51.google.com with SMTP id ce15so38778403ejb.4
-        for <io-uring@vger.kernel.org>; Wed, 09 Jun 2021 07:28:11 -0700 (PDT)
+        id S235488AbhFIOnf (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 9 Jun 2021 10:43:35 -0400
+Received: from flippiesbecker-wealth.xyz ([62.173.138.160]:58272 "EHLO
+        host.flippiesbecker-wealth.xyz" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S232850AbhFIOnf (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Wed, 9 Jun 2021 10:43:35 -0400
+X-Greylist: delayed 9992 seconds by postgrey-1.27 at vger.kernel.org; Wed, 09 Jun 2021 10:43:34 EDT
+Received: from flippiesbecker-wealth.xyz (ec2-18-118-8-63.us-east-2.compute.amazonaws.com [18.118.8.63])
+        by host.flippiesbecker-wealth.xyz (Postfix) with ESMTPA id B66D530BD74A
+        for <io-uring@vger.kernel.org>; Wed,  9 Jun 2021 14:27:36 +0300 (MSK)
+DKIM-Filter: OpenDKIM Filter v2.11.0 host.flippiesbecker-wealth.xyz B66D530BD74A
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=SmMICuNhQ4Mhd2qjrL79cgMbG0RxftKr3rFtutkQDaI=;
-        b=XT68xaOYuKh9UocNI1kWtxywxJqcghi/FgpFBc8+6e5TrLBUDqnY/whkycgrulSCRF
-         DONmiNX/U7vllBU/Eg5a0vTPoFdmHNTjieP97ovBOgeFCi6mbQEgOT6bDfHYXmxQyZGT
-         M/qw/UJWLyBrs1fj5i2Fp6x2Kx0b8r6QtUndbjKhPUvOuXRokQkuFDGO6Tz/ubYqvJBL
-         JrXoaUP39EumBpDlj6pJIAg8WM+tUKuQeXZmPt7BZGidk0dUP2P7DoozJ61jB7/AKQZd
-         zJa56KKcfkyU24tNa6aXSKzjADGz9sv3D+89Y9mcbmJawjW3Ym/qsxyXzdpT1n1dvwFq
-         bj+A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=SmMICuNhQ4Mhd2qjrL79cgMbG0RxftKr3rFtutkQDaI=;
-        b=ESpEbhu227DKX+tTGsHrTUHw6D3nxxDnVFUcP1V4+zRJLIYhcLFw7LXhpcBApiUsas
-         95p4ETWfuKESYgeXJyCvsz4WTzXr5IqB4XUGTWqGtl2t5bPq9ANqG310ehXCRJae1JQV
-         R55LB5ytRoPJlvZbnID3XQgKsureqOd85XksMpV/nILa2QMW7G/g/CiNNm21r52/7jb4
-         JLNC5qrxvRCZlu99k6eTyIEun3QM6QDUTkiipn65ujjUbUU0u+Z0JHO9Od3wLGUxncEk
-         S5VPxx6JsASln5J1zSDyBT2UWdJcopr5GuqVa4pmSOcs3TpgiP0JMH8pmwHuu/73dO4b
-         Gx0Q==
-X-Gm-Message-State: AOAM530gJa85oOWKq83ulvpYn93hlHZCmk/51g6jErAPN+zzZsUgCBn2
-        +7CjaK0fKHGvbUz0NsxIY3E=
-X-Google-Smtp-Source: ABdhPJwMlZW1qPOX/ue0/AJekvvxh+HywEjXVMVlmllX1r0pWmWLA67WZfgJdHQryc38hJ4EiTN3GQ==
-X-Received: by 2002:a17:906:4e95:: with SMTP id v21mr150339eju.434.1623248830862;
-        Wed, 09 Jun 2021 07:27:10 -0700 (PDT)
-Received: from agony.thefacebook.com ([2620:10d:c093:600::2:c2f])
-        by smtp.gmail.com with ESMTPSA id me11sm1194554ejb.93.2021.06.09.07.27.10
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 09 Jun 2021 07:27:10 -0700 (PDT)
-From:   Pavel Begunkov <asml.silence@gmail.com>
-To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [RFC] io_uring: enable shmem/memfd memory registration
-Date:   Wed,  9 Jun 2021 15:26:54 +0100
-Message-Id: <52247e3ec36eec9d6af17424937c8d20c497926e.1623248265.git.asml.silence@gmail.com>
-X-Mailer: git-send-email 2.31.1
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        d=flippiesbecker-wealth.xyz; s=default; t=1623238057;
+        bh=h0ivQLrZuUWuyEKz/TWb+FP9AASpHhVqOsJtRcwKQV4=;
+        h=Reply-To:From:To:Subject:Date:From;
+        b=N+vjZdB0WQLVq/G5IRBzZRrgrQxqoaarDvhkUSm42FFRpfZkXtRFoIKgPFnQtFNQQ
+         o3csNieObjauvOU07T1PmdQn/i26tfHf+68zcE0uvckY3sTiBp8eqrEN6MWxvXMWI3
+         FkdM+4EygEQhbbLUtNnHznr1SwFXYFIydsxaIaRg=
+DKIM-Filter: OpenDKIM Filter v2.11.0 host.flippiesbecker-wealth.xyz B66D530BD74A
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=flippiesbecker-wealth.xyz; s=default; t=1623238057;
+        bh=h0ivQLrZuUWuyEKz/TWb+FP9AASpHhVqOsJtRcwKQV4=;
+        h=Reply-To:From:To:Subject:Date:From;
+        b=N+vjZdB0WQLVq/G5IRBzZRrgrQxqoaarDvhkUSm42FFRpfZkXtRFoIKgPFnQtFNQQ
+         o3csNieObjauvOU07T1PmdQn/i26tfHf+68zcE0uvckY3sTiBp8eqrEN6MWxvXMWI3
+         FkdM+4EygEQhbbLUtNnHznr1SwFXYFIydsxaIaRg=
+Reply-To: jmasuku40@flippiebeckerwealthservices.com
+From:   Jotham Masuku <jmasuku40@flippiesbecker-wealth.xyz>
+To:     io-uring@vger.kernel.org
+Subject: Project
+Date:   09 Jun 2021 11:27:36 +0000
+Message-ID: <20210609112736.D698EF3DEBD46763@flippiesbecker-wealth.xyz>
+Mime-Version: 1.0
+Content-Type: text/plain;
+        charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Relax buffer registration restictions, which filters out file backed
-memory, and allow shmem/memfd as they have normal anonymous pages
-underneath.
+Hello there,
 
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
----
- fs/io_uring.c | 2 ++
- 1 file changed, 2 insertions(+)
+I hope this message finds you in good spirits especially during=20
+this challenging time of coronavirus pandemic. I hope you and=20
+your family are well and keeping safe. Anyway, I am Jotham=20
+Masuku, a broker working with Flippiebecker Wealth. I got your=20
+contact (along with few other contacts) through an online=20
+business directory and I thought I should contact you to see if=20
+you are interested in this opportunity. I am contacting you=20
+because one of my high profile clients is interested in investing=20
+abroad and has asked me to look for individuals and companies=20
+with interesting business ideas and projects that he can invest=20
+in. He wants to invest a substantial amount of asset abroad.
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 44d1859f0dfb..e980695707ec 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -8300,6 +8300,8 @@ static int io_sqe_buffer_register(struct io_ring_ctx *ctx, struct iovec *iov,
- 		for (i = 0; i < nr_pages; i++) {
- 			struct vm_area_struct *vma = vmas[i];
- 
-+			if (vma_is_shmem(vma))
-+				continue;
- 			if (vma->vm_file &&
- 			    !is_file_hugepages(vma->vm_file)) {
- 				ret = -EOPNOTSUPP;
--- 
-2.31.1
+Please kindly respond back to this email if you are interested in=20
+this opportunity. Once I receive your response, I will give you=20
+more details and we can plan a strategy that will be beneficial=20
+to all parties.
 
+Best regards
+
+J Masuku
+Flippiebecker Wealth

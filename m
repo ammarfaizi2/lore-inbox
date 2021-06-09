@@ -2,90 +2,210 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,
+X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,
-	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 27F9CC48BCD
-	for <io-uring@archiver.kernel.org>; Wed,  9 Jun 2021 12:42:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C54CFC48BCD
+	for <io-uring@archiver.kernel.org>; Wed,  9 Jun 2021 14:27:42 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 102E461183
-	for <io-uring@archiver.kernel.org>; Wed,  9 Jun 2021 12:42:22 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A310561364
+	for <io-uring@archiver.kernel.org>; Wed,  9 Jun 2021 14:27:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229770AbhFIMoP (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Wed, 9 Jun 2021 08:44:15 -0400
-Received: from out30-45.freemail.mail.aliyun.com ([115.124.30.45]:57771 "EHLO
-        out30-45.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S234450AbhFIMoK (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Wed, 9 Jun 2021 08:44:10 -0400
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R651e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04394;MF=haoxu@linux.alibaba.com;NM=1;PH=DS;RN=3;SR=0;TI=SMTPD_---0UbsYWuF_1623242533;
-Received: from B-25KNML85-0107.local(mailfrom:haoxu@linux.alibaba.com fp:SMTPD_---0UbsYWuF_1623242533)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Wed, 09 Jun 2021 20:42:14 +0800
-Subject: Re: [PATCH] io_uring: fix blocking inline submission
-To:     Pavel Begunkov <asml.silence@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-References: <d60270856b8a4560a639ef5f76e55eb563633599.1623236455.git.asml.silence@gmail.com>
-From:   Hao Xu <haoxu@linux.alibaba.com>
-Message-ID: <d8033ef5-f22e-10a7-d836-0e66455327cf@linux.alibaba.com>
-Date:   Wed, 9 Jun 2021 20:42:13 +0800
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0)
- Gecko/20100101 Thunderbird/78.10.1
+        id S234534AbhFIO3g (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 9 Jun 2021 10:29:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38322 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234131AbhFIO3g (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Wed, 9 Jun 2021 10:29:36 -0400
+Received: from mail-ed1-x534.google.com (mail-ed1-x534.google.com [IPv6:2a00:1450:4864:20::534])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72271C061574
+        for <io-uring@vger.kernel.org>; Wed,  9 Jun 2021 07:27:41 -0700 (PDT)
+Received: by mail-ed1-x534.google.com with SMTP id i13so28881277edb.9
+        for <io-uring@vger.kernel.org>; Wed, 09 Jun 2021 07:27:41 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=G0LqTWiGltTaTkNvcf/0U9BFNhpW1YnYf1qCie/rITQ=;
+        b=lzk4h5RKmjxVPstlNZ4OIr1CVobxSzoJTq+gds5nm/EDCff7B9GFqaTMIDCJLtzWJY
+         w9SM7tFwXI66BcQcRWbbFB4sCt7pjLnI2KhdxLswwzTvtN+cwquHsBGjahYCb65RBEAi
+         YOCZYUe17IA/g7QP95QPQ+5OPzq7VrlhNIxfLYjS4GC6/ZVDVnpdRsdvzdNsFTSYBbmW
+         eouoxIdg4hgd07na7Kwa8NtADxnQg8KBm/EECqR8tvq8ofE398mPlN/rRE0OOThwi66W
+         J97AA91JkYlGP4/aYhmBMcaQZjK7N9GQOa09uilmzl6gw/8gCSoBilxvKc7+RxU5/Qsf
+         o6nA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=G0LqTWiGltTaTkNvcf/0U9BFNhpW1YnYf1qCie/rITQ=;
+        b=mNJlgUequ2tpGLZRCXeQXOCjMcyxGERzvsarTC7D/kb5U7McoC/Dzh4qIgHUNuZyfX
+         0GHWz3SOkYcUVD1yQNltBUXWGLOxqcwBI/EEG75Jfpc31ZlIOU84tbrIRSRujJOy1efI
+         w0DgJ4yGqgMACrEi8esHcTBpdBJsAKNA8hh5fi1+rORf1DvY2Iy4CxL8YxS6SPtXJPlb
+         sEraP9u6L74z6m7sv/HtN7axVPoXMp662RKpGWLwg0GQmMUesOa1Zx5fC76VN176RHCc
+         gZ+lhQnrM7YSBPDRIOH8wINreFmAO3jwHMh68PI17B2w8wXyjsPTfeKdxTrGAblmJhMz
+         z/kQ==
+X-Gm-Message-State: AOAM533XqvL1jJTPUDhqt2N1K0jXo/f1cJWIWaP95oGwKLamPWR5buUB
+        6CSAtn/T3sjqsFS20YCzsu8=
+X-Google-Smtp-Source: ABdhPJwJsHUH83KiXqAW7s7hBYdxFjsfZfUCXvN6P3sHzOmjFZ8jf5ZOpAfJ5vsz1XzLCASnmHz75A==
+X-Received: by 2002:a50:fe86:: with SMTP id d6mr28272375edt.141.1623248860081;
+        Wed, 09 Jun 2021 07:27:40 -0700 (PDT)
+Received: from agony.thefacebook.com ([2620:10d:c092:600::2:44bc])
+        by smtp.gmail.com with ESMTPSA id g23sm1201069ejh.116.2021.06.09.07.27.39
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 09 Jun 2021 07:27:39 -0700 (PDT)
+From:   Pavel Begunkov <asml.silence@gmail.com>
+To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
+Subject: [PATCH liburing 1/1] tests: test shmem buffer registration
+Date:   Wed,  9 Jun 2021 15:27:23 +0100
+Message-Id: <c0bebfd100d860fb055af8edf7e56b8838e92719.1623245732.git.asml.silence@gmail.com>
+X-Mailer: git-send-email 2.31.1
 MIME-Version: 1.0
-In-Reply-To: <d60270856b8a4560a639ef5f76e55eb563633599.1623236455.git.asml.silence@gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-在 2021/6/9 下午7:07, Pavel Begunkov 写道:
-> There is a complaint against sys_io_uring_enter() blocking if it submits
-> stdin reads. The problem is in __io_file_supports_async(), which
-> sees that it's a cdev and allows it to be processed inline.
-> 
-> Punt char devices using generic rules of io_file_supports_async(),
-> including checking for presence of *_iter() versions of rw callbacks.
-> Apparently, it will affect most of cdevs with some exceptions like
-> null and zero devices.
-> 
-> Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
-> ---
-> 
-> "...For now, just ensure that anything potentially problematic is done
-> inline". I believe this part is outdated, but what use cases we miss?
-> Anything that we care about?
-> 
-> IMHO the best option is to do like in this patch and add
-> (read,write)_iter(), to places we care about.
-> 
-> /dev/[u]random, consoles, any else?
-> 
-This reminds me another thing, once I did nowait read on a brd(block
-ramdisk), I saw a 10%~30% regression after __io_file_supports_async()
-added. brd is bio based device (block layer doesn't support nowait IO
-for this kind of device), so theoretically it makes sense to punt it to
-iowq threads in advance in __io_file_supports_async(), but actually
-what originally happen is: IOCB_NOWAIT is not delivered to block
-layer(REQ_NOWAIT) and then the IO request is executed inline (It seems
-brd device won't block). This finally makes 'check it in advance'
-slower..
->   fs/io_uring.c | 2 +-
->   1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/fs/io_uring.c b/fs/io_uring.c
-> index 42380ed563c4..44d1859f0dfb 100644
-> --- a/fs/io_uring.c
-> +++ b/fs/io_uring.c
-> @@ -2616,7 +2616,7 @@ static bool __io_file_supports_async(struct file *file, int rw)
->   			return true;
->   		return false;
->   	}
-> -	if (S_ISCHR(mode) || S_ISSOCK(mode))
-> +	if (S_ISSOCK(mode))
->   		return true;
->   	if (S_ISREG(mode)) {
->   		if (IS_ENABLED(CONFIG_BLOCK) &&
-> 
+Add a simple test registering a chunk of memfd (shmem) memory and doing
+some I/O with it.
+
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+---
+ test/io_uring_register.c | 113 +++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 113 insertions(+)
+
+diff --git a/test/io_uring_register.c b/test/io_uring_register.c
+index 1d0981b..53e3987 100644
+--- a/test/io_uring_register.c
++++ b/test/io_uring_register.c
+@@ -485,6 +485,113 @@ test_poll_ringfd(void)
+ 	return status;
+ }
+ 
++static int test_shmem(void)
++{
++	const char pattern = 0xEA;
++	const int len = 4096;
++	struct io_uring_sqe *sqe;
++	struct io_uring_cqe *cqe;
++	struct io_uring ring;
++	struct iovec iov;
++	int memfd, ret, i;
++	char *mem;
++	int pipefd[2] = {-1, -1};
++
++	ret = io_uring_queue_init(8, &ring, 0);
++	if (ret)
++		return 1;
++
++	if (pipe(pipefd)) {
++		perror("pipe");
++		return 1;
++	}
++	memfd = memfd_create("uring-shmem-test", 0);
++	if (memfd < 0) {
++		fprintf(stderr, "memfd_create() failed %i\n", -errno);
++		return 1;
++	}
++	if (ftruncate(memfd, len)) {
++		fprintf(stderr, "can't truncate memfd\n");
++		return 1;
++	}
++	mem = mmap(NULL, len, PROT_READ | PROT_WRITE, MAP_SHARED, memfd, 0);
++	if (!mem) {
++		fprintf(stderr, "mmap failed\n");
++		return 1;
++	}
++	for (i = 0; i < len; i++)
++		mem[i] = pattern;
++
++	iov.iov_base = mem;
++	iov.iov_len = len;
++	ret = io_uring_register_buffers(&ring, &iov, 1);
++	if (ret) {
++		if (ret == -EOPNOTSUPP) {
++			fprintf(stdout, "memfd registration isn't supported, "
++					"skip\n");
++			goto out;
++		}
++
++		fprintf(stderr, "buffer reg failed: %d\n", ret);
++		return 1;
++	}
++
++	/* check that we can read and write from/to shmem reg buffer */
++	sqe = io_uring_get_sqe(&ring);
++	io_uring_prep_write_fixed(sqe, pipefd[1], mem, 512, 0, 0);
++	sqe->user_data = 1;
++
++	ret = io_uring_submit(&ring);
++	if (ret != 1) {
++		fprintf(stderr, "submit write failed\n");
++		return 1;
++	}
++	ret = io_uring_wait_cqe(&ring, &cqe);
++	if (ret < 0 || cqe->user_data != 1 || cqe->res != 512) {
++		fprintf(stderr, "reading from shmem failed\n");
++		return 1;
++	}
++	io_uring_cqe_seen(&ring, cqe);
++
++	/* clean it, should be populated with the pattern back from the pipe */
++	memset(mem, 0, 512);
++	sqe = io_uring_get_sqe(&ring);
++	io_uring_prep_read_fixed(sqe, pipefd[0], mem, 512, 0, 0);
++	sqe->user_data = 2;
++
++	ret = io_uring_submit(&ring);
++	if (ret != 1) {
++		fprintf(stderr, "submit write failed\n");
++		return 1;
++	}
++	ret = io_uring_wait_cqe(&ring, &cqe);
++	if (ret < 0 || cqe->user_data != 2 || cqe->res != 512) {
++		fprintf(stderr, "reading from shmem failed\n");
++		return 1;
++	}
++	io_uring_cqe_seen(&ring, cqe);
++
++	for (i = 0; i < 512; i++) {
++		if (mem[i] != pattern) {
++			fprintf(stderr, "data integrity fail\n");
++			return 1;
++		}
++	}
++
++	ret = io_uring_unregister_buffers(&ring);
++	if (ret) {
++		fprintf(stderr, "buffer unreg failed: %d\n", ret);
++		return 1;
++	}
++out:
++	io_uring_queue_exit(&ring);
++	close(pipefd[0]);
++	close(pipefd[1]);
++	munmap(mem, len);
++	close(memfd);
++	return 0;
++}
++
+ int
+ main(int argc, char **argv)
+ {
+@@ -541,5 +648,11 @@ main(int argc, char **argv)
+ 	else
+ 		printf("FAIL\n");
+ 
++	ret = test_shmem();
++	if (ret) {
++		fprintf(stderr, "test_shmem() failed\n");
++		status |= 1;
++	}
++
+ 	return status;
+ }
+-- 
+2.31.1
 

@@ -8,185 +8,96 @@ X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 402FAC47094
-	for <io-uring@archiver.kernel.org>; Thu, 10 Jun 2021 15:39:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1F0F0C47094
+	for <io-uring@archiver.kernel.org>; Thu, 10 Jun 2021 15:40:27 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 24DA5613E3
-	for <io-uring@archiver.kernel.org>; Thu, 10 Jun 2021 15:39:01 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 059AB613F5
+	for <io-uring@archiver.kernel.org>; Thu, 10 Jun 2021 15:40:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231551AbhFJPk4 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Thu, 10 Jun 2021 11:40:56 -0400
-Received: from mail-wm1-f43.google.com ([209.85.128.43]:47083 "EHLO
-        mail-wm1-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231658AbhFJPk4 (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Thu, 10 Jun 2021 11:40:56 -0400
-Received: by mail-wm1-f43.google.com with SMTP id h22-20020a05600c3516b02901a826f84095so6695693wmq.5
-        for <io-uring@vger.kernel.org>; Thu, 10 Jun 2021 08:38:59 -0700 (PDT)
+        id S230366AbhFJPmW (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Thu, 10 Jun 2021 11:42:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33324 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231709AbhFJPmS (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Thu, 10 Jun 2021 11:42:18 -0400
+Received: from mail-wr1-x434.google.com (mail-wr1-x434.google.com [IPv6:2a00:1450:4864:20::434])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 99F7EC061760
+        for <io-uring@vger.kernel.org>; Thu, 10 Jun 2021 08:40:20 -0700 (PDT)
+Received: by mail-wr1-x434.google.com with SMTP id y7so2839768wrh.7
+        for <io-uring@vger.kernel.org>; Thu, 10 Jun 2021 08:40:20 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
+        h=from:to:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=YhIUR/cEe3W5Pbbpzn0l5xbHL0j5fOo/YUe/3Cj4wKg=;
-        b=DeO0+bthKUf4IIqOMzS8c6AUG1cqe4FekU217kBshXPl+dodO6i2BruigJe3/fHsie
-         PKteTWPg+hGiHNu11yFyJIfX01zmyaBhGdBmlW9jdK/HI6I3TK7gT8rQ4/pkdGJT0IQA
-         RQZPrrWxXsEVnE3IjVs+rD33gCyL2ii2/m3J+SOIHaaPg5rtl2CpwAgQ4XgeSk+pp3tj
-         Nr1ddNWBotswanQITnzGUq+zAenIXMrH/zx93D6SgpxxjcRFbaDadKA7w4rXLR82dEGp
-         aoRJrrHM2pwaOHbrXgy1ogWwQ43Qa1+B9c3Cdpw2MH9iSBOR/iN5KTQQzxG1AqEzLXC8
-         nv1g==
+        bh=1BDuWe5T6z3uIAktRT5S2dQa7E5vZCy8cZsctCrOzBI=;
+        b=K8Kf7vrRSIQ9gN1r3odgEhEVQvFi40xy1JUVfbJmCoCt4GFgf/Q6sE6RVeobfAPH2D
+         +YsG1i0ScqoqSEODI6H7HbDz6OeRusAsTTc7OTVWr/ddb2ydWwV+VgPacZuJF5r925Fw
+         UJ/uxiTcMUlCUW70ST+R+qlceRRAD9IJ8EwC7AdnREsTi3ZiogPjiab08mziI34MzUrI
+         nFeM9612jkfTFuGAa9WGlWJtGmDqSXjosrnKNBhuxywqTjDQ56Gbmcat77s998KlwY7r
+         3E4AeNV5E2LgAL2fBKMZlYiLEn6E+xIXxaNky6nyfXPyvTFHrYIKAo7yKp5s6SF/C65o
+         bIyQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=YhIUR/cEe3W5Pbbpzn0l5xbHL0j5fOo/YUe/3Cj4wKg=;
-        b=STxkq5krDyN9FjJXbWzsLViGXUz1kuZYfSbnOgUWFALhv2foViv1ZMfsC3nWg7b1Q0
-         /uvKonKSZby+fpprcet4vCi9wtboJqEn3BtPMZOADCY/v2uj0N6LIs+4RASvMiZD0md2
-         Ch6638+kduRb2NoXOTYZmmt4va0HIro9YOhInNS2lDr8NviWBYFFpFpOcKEh0KfHk8Z+
-         Kr7ASX/Cls5ovcIXdoQ1/TK9bI7L/Jl0Qxp0XposGUDg/fbOswlC0m9UOF1zBO3BnpYX
-         Gry/g1aG3jjejLSU0rVmMn29S67Hd4ilqC0UsnL5WAnFfqibHHqaB1XDHl6hXmKQQG5p
-         HF1Q==
-X-Gm-Message-State: AOAM533mYvy/jUrAVfMup88G+A6yc+4szgPq2LiwJs5Vp3htI8MD9vqE
-        57fcgLjW/TmRpeozJxXQ48eEnjUNKdz6k0CE
-X-Google-Smtp-Source: ABdhPJxO58xZlS7Df7CwztVWTMWSCBORm6p3XF75dgyrtvyjftNm/gvvKTiq1+elPI6T0KznGuWJ9w==
-X-Received: by 2002:a7b:c38f:: with SMTP id s15mr16181827wmj.16.1623339479458;
-        Thu, 10 Jun 2021 08:37:59 -0700 (PDT)
+        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=1BDuWe5T6z3uIAktRT5S2dQa7E5vZCy8cZsctCrOzBI=;
+        b=mayEt1l8s0pdIz8jTunMRdzfmeEAzQg6D84BoyIm/m8xhOa426KAl76wxCwCISLxF7
+         uuuDM3asLNb6yMW3czKXavjxeKaHuxuKlmilNckUyFXWcE2Tkoe4lcSAhXIzDv3IUbhx
+         vGt+9Cq/3Lam8QiWKepUK+KGnZhaaOd/TAaVv0j7HFrZ88toqRBEs89sbja+zhbqQ3tx
+         5iWJemZJ1a2KOiZzF010u4tmXAg+tnFMTrXhzWIV2WiCRyy8pDRleoxJTtH6S0qsvMzW
+         HqvPPM3rhYSr3eYJxDcKCQkB1igIWDMlmP12P4no19Qw2ThqyJe0Tyau/RqcNXa22ceD
+         19HQ==
+X-Gm-Message-State: AOAM531icGH8mIO9DJvf9ob/zJOBqEfqyQKC1nGZ07IikuMsGXc9Vvpb
+        FldyQXWCzLUyEoA6RfKxkNvV2SXh19VDP2JM
+X-Google-Smtp-Source: ABdhPJzi6V34M2O4tscKpo5nsSE9rfUk+WyMzPWZwbY36YmT1YUQVA7UT91p95+W6HzRgpkLFR6W7Q==
+X-Received: by 2002:a5d:5986:: with SMTP id n6mr6178005wri.60.1623339619214;
+        Thu, 10 Jun 2021 08:40:19 -0700 (PDT)
 Received: from localhost.localdomain ([148.252.133.95])
-        by smtp.gmail.com with ESMTPSA id f184sm2388825wmf.38.2021.06.10.08.37.58
+        by smtp.gmail.com with ESMTPSA id e16sm4023694wrw.49.2021.06.10.08.40.18
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 10 Jun 2021 08:37:59 -0700 (PDT)
+        Thu, 10 Jun 2021 08:40:18 -0700 (PDT)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH 1/2] io_uring: change registration/upd/rsrc tagging ABI
-Date:   Thu, 10 Jun 2021 16:37:37 +0100
-Message-Id: <9b554897a7c17ad6e3becc48dfed2f7af9f423d5.1623339162.git.asml.silence@gmail.com>
+Subject: [PATCH liburing 1/1] update rsrc register/update ABI and tests
+Date:   Thu, 10 Jun 2021 16:40:01 +0100
+Message-Id: <7542c3d9d0a5fb926c9d8d83ae02f553c6874b97.1623339582.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <cover.1623339162.git.asml.silence@gmail.com>
-References: <cover.1623339162.git.asml.silence@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-There are ABI moments about recently added rsrc registration/update and
-tagging that might become a nuisance in the future. First,
-IORING_REGISTER_RSRC[_UPD] hide different types of resources under it,
-so breaks fine control over them by restrictions. It works for now, but
-once those are wanted under restrictions it would require a rework.
-
-It was also inconvenient trying to fit a new resource not supporting
-all the features (e.g. dynamic update) into the interface, so better
-to return to IORING_REGISTER_* top level dispatching.
-
-Second, register/update were considered to accept a type of resource,
-however that's not a good idea because there might be several ways of
-registration of a single resource type, e.g. we may want to add
-non-contig buffers or anything more exquisite as dma mapped memory.
-So, remove IORING_RSRC_[FILE,BUFFER] out of the ABI, and place them
-internally for now to limit changes.
+There is an ABI change for not yet released buffer/files
+registration/update tagging/etc. support. Update the bits.
 
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
- fs/io_uring.c                 | 39 ++++++++++++++++++++++++-----------
- include/uapi/linux/io_uring.h | 18 ++++++++--------
- 2 files changed, 36 insertions(+), 21 deletions(-)
+ src/include/liburing/io_uring.h | 20 +++++++-------
+ test/rsrc_tags.c                | 46 ++++++++++++++++++++-------------
+ 2 files changed, 38 insertions(+), 28 deletions(-)
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 42380ed563c4..663fef3d56df 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -783,6 +783,11 @@ struct io_task_work {
- 	task_work_func_t	func;
- };
+diff --git a/src/include/liburing/io_uring.h b/src/include/liburing/io_uring.h
+index 5a3cb90..4c5685d 100644
+--- a/src/include/liburing/io_uring.h
++++ b/src/include/liburing/io_uring.h
+@@ -141,7 +141,6 @@ enum {
+ 	IORING_OP_SHUTDOWN,
+ 	IORING_OP_RENAMEAT,
+ 	IORING_OP_UNLINKAT,
+-	IORING_OP_MKDIRAT,
  
-+enum {
-+	IORING_RSRC_FILE		= 0,
-+	IORING_RSRC_BUFFER		= 1,
-+};
-+
+ 	/* this goes last, obviously */
+ 	IORING_OP_LAST,
+@@ -285,6 +284,7 @@ struct io_uring_params {
+ #define IORING_FEAT_SQPOLL_NONFIXED	(1U << 7)
+ #define IORING_FEAT_EXT_ARG		(1U << 8)
+ #define IORING_FEAT_NATIVE_WORKERS	(1U << 9)
++#define IORING_FEAT_RSRC_TAGS		(1U << 10)
+ 
  /*
-  * NOTE! Each of the iocb union members has the file pointer
-  * as the first entry in their struct definition. So you can
-@@ -9911,7 +9916,7 @@ static int io_register_files_update(struct io_ring_ctx *ctx, void __user *arg,
- }
- 
- static int io_register_rsrc_update(struct io_ring_ctx *ctx, void __user *arg,
--				   unsigned size)
-+				   unsigned size, unsigned type)
- {
- 	struct io_uring_rsrc_update2 up;
- 
-@@ -9919,13 +9924,13 @@ static int io_register_rsrc_update(struct io_ring_ctx *ctx, void __user *arg,
- 		return -EINVAL;
- 	if (copy_from_user(&up, arg, sizeof(up)))
- 		return -EFAULT;
--	if (!up.nr)
-+	if (!up.nr || up.resv)
- 		return -EINVAL;
--	return __io_register_rsrc_update(ctx, up.type, &up, up.nr);
-+	return __io_register_rsrc_update(ctx, type, &up, up.nr);
- }
- 
- static int io_register_rsrc(struct io_ring_ctx *ctx, void __user *arg,
--			    unsigned int size)
-+			    unsigned int size, unsigned int type)
- {
- 	struct io_uring_rsrc_register rr;
- 
-@@ -9936,10 +9941,10 @@ static int io_register_rsrc(struct io_ring_ctx *ctx, void __user *arg,
- 	memset(&rr, 0, sizeof(rr));
- 	if (copy_from_user(&rr, arg, size))
- 		return -EFAULT;
--	if (!rr.nr)
-+	if (!rr.nr || rr.resv || rr.resv2)
- 		return -EINVAL;
- 
--	switch (rr.type) {
-+	switch (type) {
- 	case IORING_RSRC_FILE:
- 		return io_sqe_files_register(ctx, u64_to_user_ptr(rr.data),
- 					     rr.nr, u64_to_user_ptr(rr.tags));
-@@ -9961,8 +9966,10 @@ static bool io_register_op_must_quiesce(int op)
- 	case IORING_REGISTER_PROBE:
- 	case IORING_REGISTER_PERSONALITY:
- 	case IORING_UNREGISTER_PERSONALITY:
--	case IORING_REGISTER_RSRC:
--	case IORING_REGISTER_RSRC_UPDATE:
-+	case IORING_REGISTER_FILES2:
-+	case IORING_REGISTER_FILES_UPDATE2:
-+	case IORING_REGISTER_BUFFERS2:
-+	case IORING_REGISTER_BUFFERS_UPDATE:
- 		return false;
- 	default:
- 		return true;
-@@ -10088,11 +10095,19 @@ static int __io_uring_register(struct io_ring_ctx *ctx, unsigned opcode,
- 	case IORING_REGISTER_RESTRICTIONS:
- 		ret = io_register_restrictions(ctx, arg, nr_args);
- 		break;
--	case IORING_REGISTER_RSRC:
--		ret = io_register_rsrc(ctx, arg, nr_args);
-+	case IORING_REGISTER_FILES2:
-+		ret = io_register_rsrc(ctx, arg, nr_args, IORING_RSRC_FILE);
-+		break;
-+	case IORING_REGISTER_FILES_UPDATE2:
-+		ret = io_register_rsrc_update(ctx, arg, nr_args,
-+					      IORING_RSRC_FILE);
-+		break;
-+	case IORING_REGISTER_BUFFERS2:
-+		ret = io_register_rsrc(ctx, arg, nr_args, IORING_RSRC_BUFFER);
- 		break;
--	case IORING_REGISTER_RSRC_UPDATE:
--		ret = io_register_rsrc_update(ctx, arg, nr_args);
-+	case IORING_REGISTER_BUFFERS_UPDATE:
-+		ret = io_register_rsrc_update(ctx, arg, nr_args,
-+					      IORING_RSRC_BUFFER);
- 		break;
- 	default:
- 		ret = -EINVAL;
-diff --git a/include/uapi/linux/io_uring.h b/include/uapi/linux/io_uring.h
-index e1ae46683301..48b4ddcd56ff 100644
---- a/include/uapi/linux/io_uring.h
-+++ b/include/uapi/linux/io_uring.h
-@@ -298,8 +298,12 @@ enum {
+  * io_uring_register(2) opcodes and arguments
+@@ -303,8 +303,12 @@ enum {
  	IORING_UNREGISTER_PERSONALITY		= 10,
  	IORING_REGISTER_RESTRICTIONS		= 11,
  	IORING_REGISTER_ENABLE_RINGS		= 12,
@@ -201,7 +112,7 @@ index e1ae46683301..48b4ddcd56ff 100644
  
  	/* this goes last */
  	IORING_REGISTER_LAST
-@@ -312,14 +316,10 @@ struct io_uring_files_update {
+@@ -317,14 +321,10 @@ struct io_uring_files_update {
  	__aligned_u64 /* __s32 * */ fds;
  };
  
@@ -218,7 +129,7 @@ index e1ae46683301..48b4ddcd56ff 100644
  	__aligned_u64 data;
  	__aligned_u64 tags;
  };
-@@ -335,8 +335,8 @@ struct io_uring_rsrc_update2 {
+@@ -340,8 +340,8 @@ struct io_uring_rsrc_update2 {
  	__u32 resv;
  	__aligned_u64 data;
  	__aligned_u64 tags;
@@ -228,6 +139,173 @@ index e1ae46683301..48b4ddcd56ff 100644
  };
  
  /* Skip updating fd indexes set to this value in the fd table */
+diff --git a/test/rsrc_tags.c b/test/rsrc_tags.c
+index 7192873..2b4890b 100644
+--- a/test/rsrc_tags.c
++++ b/test/rsrc_tags.c
+@@ -17,6 +17,11 @@
+ 
+ static int pipes[2];
+ 
++enum {
++	TEST_IORING_RSRC_FILE		= 0,
++	TEST_IORING_RSRC_BUFFER		= 1,
++};
++
+ static bool check_cq_empty(struct io_uring *ring)
+ {
+ 	struct io_uring_cqe *cqe = NULL;
+@@ -31,15 +36,18 @@ static int register_rsrc(struct io_uring *ring, int type, int nr,
+ 			  const void *arg, const __u64 *tags)
+ {
+ 	struct io_uring_rsrc_register reg;
+-	int ret;
++	int ret, reg_type;
+ 
+ 	memset(&reg, 0, sizeof(reg));
+-	reg.type = type;
+ 	reg.nr = nr;
+ 	reg.data = (__u64)arg;
+ 	reg.tags = (__u64)tags;
+ 
+-	ret = __sys_io_uring_register(ring->ring_fd, IORING_REGISTER_RSRC,
++	reg_type = IORING_REGISTER_FILES2;
++	if (type != TEST_IORING_RSRC_FILE)
++		reg_type = IORING_REGISTER_BUFFERS2;
++
++	ret = __sys_io_uring_register(ring->ring_fd, reg_type,
+ 					&reg, sizeof(reg));
+ 	return ret ? -errno : 0;
+ }
+@@ -48,16 +56,18 @@ static int update_rsrc(struct io_uring *ring, int type, int nr, int off,
+ 			const void *arg, const __u64 *tags)
+ {
+ 	struct io_uring_rsrc_update2 up;
+-	int ret;
++	int ret, up_type;
+ 
+ 	memset(&up, 0, sizeof(up));
+ 	up.offset = off;
+ 	up.data = (__u64)arg;
+ 	up.tags = (__u64)tags;
+-	up.type = type;
+ 	up.nr = nr;
+ 
+-	ret = __sys_io_uring_register(ring->ring_fd, IORING_REGISTER_RSRC_UPDATE,
++	up_type = IORING_REGISTER_FILES_UPDATE2;
++	if (type != TEST_IORING_RSRC_FILE)
++		up_type = IORING_REGISTER_BUFFERS_UPDATE;
++	ret = __sys_io_uring_register(ring->ring_fd, up_type,
+ 				      &up, sizeof(up));
+ 	return ret < 0 ? -errno : ret;
+ }
+@@ -73,7 +83,7 @@ static bool has_rsrc_update(void)
+ 	if (ret)
+ 		return false;
+ 
+-	ret = register_rsrc(&ring, IORING_RSRC_BUFFER, 1, &vec, NULL);
++	ret = register_rsrc(&ring, TEST_IORING_RSRC_BUFFER, 1, &vec, NULL);
+ 	io_uring_queue_exit(&ring);
+ 	return ret != -EINVAL;
+ }
+@@ -148,7 +158,7 @@ static int test_buffers_update(void)
+ 		tags[i] = i + 1;
+ 	}
+ 
+-	ret = test_tags_generic(nr, IORING_RSRC_BUFFER, vecs, 0);
++	ret = test_tags_generic(nr, TEST_IORING_RSRC_BUFFER, vecs, 0);
+ 	if (ret)
+ 		return 1;
+ 
+@@ -161,7 +171,7 @@ static int test_buffers_update(void)
+ 		perror("pipe");
+ 		return 1;
+ 	}
+-	ret = register_rsrc(&ring, IORING_RSRC_BUFFER, nr, vecs, tags);
++	ret = register_rsrc(&ring, TEST_IORING_RSRC_BUFFER, nr, vecs, tags);
+ 	if (ret) {
+ 		fprintf(stderr, "rsrc register failed %i\n", ret);
+ 		return 1;
+@@ -180,7 +190,7 @@ static int test_buffers_update(void)
+ 	assert(ret == -EAGAIN);
+ 
+ 	vecs[buf_idx].iov_base = tmp_buf2;
+-	ret = update_rsrc(&ring, IORING_RSRC_BUFFER, 1, buf_idx,
++	ret = update_rsrc(&ring, TEST_IORING_RSRC_BUFFER, 1, buf_idx,
+ 			  &vecs[buf_idx], &tags[buf_idx]);
+ 	if (ret != 1) {
+ 		fprintf(stderr, "rsrc update failed %i %i\n", ret, errno);
+@@ -226,7 +236,7 @@ static int test_buffers_empty_buffers(void)
+ 		return 1;
+ 	}
+ 
+-	ret = register_rsrc(&ring, IORING_RSRC_BUFFER, nr, vecs, NULL);
++	ret = register_rsrc(&ring, TEST_IORING_RSRC_BUFFER, nr, vecs, NULL);
+ 	if (ret) {
+ 		fprintf(stderr, "rsrc register failed %i\n", ret);
+ 		return 1;
+@@ -235,7 +245,7 @@ static int test_buffers_empty_buffers(void)
+ 	/* empty to buffer */
+ 	vecs[1].iov_base = tmp_buf;
+ 	vecs[1].iov_len = 10;
+-	ret = update_rsrc(&ring, IORING_RSRC_BUFFER, 1, 1, &vecs[1], NULL);
++	ret = update_rsrc(&ring, TEST_IORING_RSRC_BUFFER, 1, 1, &vecs[1], NULL);
+ 	if (ret != 1) {
+ 		fprintf(stderr, "rsrc update failed %i %i\n", ret, errno);
+ 		return 1;
+@@ -244,14 +254,14 @@ static int test_buffers_empty_buffers(void)
+ 	/* buffer to empty */
+ 	vecs[0].iov_base = 0;
+ 	vecs[0].iov_len = 0;
+-	ret = update_rsrc(&ring, IORING_RSRC_BUFFER, 1, 0, &vecs[0], NULL);
++	ret = update_rsrc(&ring, TEST_IORING_RSRC_BUFFER, 1, 0, &vecs[0], NULL);
+ 	if (ret != 1) {
+ 		fprintf(stderr, "rsrc update failed %i %i\n", ret, errno);
+ 		return 1;
+ 	}
+ 
+ 	/* zero to zero is ok */
+-	ret = update_rsrc(&ring, IORING_RSRC_BUFFER, 1, 2, &vecs[2], NULL);
++	ret = update_rsrc(&ring, TEST_IORING_RSRC_BUFFER, 1, 2, &vecs[2], NULL);
+ 	if (ret != 1) {
+ 		fprintf(stderr, "rsrc update failed %i %i\n", ret, errno);
+ 		return 1;
+@@ -260,7 +270,7 @@ static int test_buffers_empty_buffers(void)
+ 	/* empty buf with non-zero len fails */
+ 	vecs[3].iov_base = 0;
+ 	vecs[3].iov_len = 1;
+-	ret = update_rsrc(&ring, IORING_RSRC_BUFFER, 1, 3, &vecs[3], NULL);
++	ret = update_rsrc(&ring, TEST_IORING_RSRC_BUFFER, 1, 3, &vecs[3], NULL);
+ 	if (ret >= 0) {
+ 		fprintf(stderr, "rsrc update failed %i %i\n", ret, errno);
+ 		return 1;
+@@ -312,7 +322,7 @@ static int test_files(int ring_flags)
+ 		tags[i] = i + 1;
+ 	}
+ 
+-	ret = test_tags_generic(nr, IORING_RSRC_FILE, files, ring_flags);
++	ret = test_tags_generic(nr, TEST_IORING_RSRC_FILE, files, ring_flags);
+ 	if (ret)
+ 		return 1;
+ 
+@@ -321,7 +331,7 @@ static int test_files(int ring_flags)
+ 		printf("ring setup failed\n");
+ 		return 1;
+ 	}
+-	ret = register_rsrc(&ring, IORING_RSRC_FILE, nr, files, tags);
++	ret = register_rsrc(&ring, TEST_IORING_RSRC_FILE, nr, files, tags);
+ 	if (ret) {
+ 		fprintf(stderr, "rsrc register failed %i\n", ret);
+ 		return 1;
+@@ -343,7 +353,7 @@ static int test_files(int ring_flags)
+ 	/* non-zero tag with remove update is disallowed */
+ 	tag = 1;
+ 	fd = -1;
+-	ret = update_rsrc(&ring, IORING_RSRC_FILE, 1, off + 1, &fd, &tag);
++	ret = update_rsrc(&ring, TEST_IORING_RSRC_FILE, 1, off + 1, &fd, &tag);
+ 	assert(ret);
+ 
+ 	io_uring_queue_exit(&ring);
 -- 
 2.31.1
 

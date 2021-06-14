@@ -8,56 +8,56 @@ X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 642BFC49360
-	for <io-uring@archiver.kernel.org>; Mon, 14 Jun 2021 01:37:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 77598C48BE8
+	for <io-uring@archiver.kernel.org>; Mon, 14 Jun 2021 01:38:03 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 44A76610A0
-	for <io-uring@archiver.kernel.org>; Mon, 14 Jun 2021 01:37:59 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 58B3C6124B
+	for <io-uring@archiver.kernel.org>; Mon, 14 Jun 2021 01:38:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232273AbhFNBkA (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sun, 13 Jun 2021 21:40:00 -0400
-Received: from mail-wm1-f41.google.com ([209.85.128.41]:45006 "EHLO
-        mail-wm1-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232286AbhFNBkA (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Sun, 13 Jun 2021 21:40:00 -0400
-Received: by mail-wm1-f41.google.com with SMTP id m41-20020a05600c3b29b02901b9e5d74f02so8697597wms.3
-        for <io-uring@vger.kernel.org>; Sun, 13 Jun 2021 18:37:47 -0700 (PDT)
+        id S232301AbhFNBkD (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sun, 13 Jun 2021 21:40:03 -0400
+Received: from mail-wm1-f51.google.com ([209.85.128.51]:51775 "EHLO
+        mail-wm1-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232286AbhFNBkD (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Sun, 13 Jun 2021 21:40:03 -0400
+Received: by mail-wm1-f51.google.com with SMTP id l9so11140883wms.1
+        for <io-uring@vger.kernel.org>; Sun, 13 Jun 2021 18:37:51 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=/9Om2s4dnvIqafpA9xWzUVzv7LJgVZBSbBDx0TNmf6w=;
-        b=qV1u6gdhI6iwPoQuAzd8h10BoT8ls64zoQp6eVZwpT0xZFExeIswqTizuuJyV7GStZ
-         YRNDyRfULAfhSeXQYjv9Go6TLRGK7DyL7GcWjbhUbPo2e5+DspRmKD+G4tOAFSL6ZFYb
-         S18TtljkpuAgpcQOO8UzuY1Sm+EE+EQy2RwNi7ODieEGpzN6MAzynCgGBBZsSbr6BTI3
-         RlLECjmIbwmt2TfxvEE4d7VcZ/2v+iCS5C/tHqiyOzmRD/PS5wbjOeMre+a3mmMDdY7e
-         qOiEMatZnkup72oyIKBquB8hog9aDB7dV1YqzYqPGPRvbe5MioahPn3JKf3x8NBwNlOb
-         0KvQ==
+        bh=Gs3KrKnbVra6qi2apJWeKgU8xCIjDeQclcnUQ38ruRs=;
+        b=A8nI/u0cuuGTqw1IXIn7qTAp4v+0HE/GQ28ZNS/H/G3r8fWNAhll3ATvj3a5EPTjSF
+         9p2gzexHkxfitvv/L6RyHYAUfBU88mAgaTdDyi+oSBSasTNlkdIMhPbaetRsP+NTQPMx
+         TdgSpyBg2myF3eWGGudtdFxpVfTbaw9l/g+jlQnDxXhIO3eBDd+jGd0LdlPWlZdebWuE
+         n39cxmjPh6/tpqqlpadv3CbroPXIO6vijdFDSCV9EenjL2clCAGElBMKEo0qTnqCE896
+         N2cpCupQeesRIFDKdXa/vXE+OLp3wPwNU+SOJ4wU3XmsJWj3nzCJ9fkWZL1nXxxvy3Hf
+         Y4+A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=/9Om2s4dnvIqafpA9xWzUVzv7LJgVZBSbBDx0TNmf6w=;
-        b=KJaABGkL2v27GlWwSmnuUPtAk3JCJO/NiPVt4Y8dXfxRmnbHcdhf4JUxXVU3/uLVcZ
-         tkBemgmLE0GQTUB+r6i7s0mWpXRAdosItr5hDRrvnT+bJeA5SsSNFLU2R/K+qGP74vq8
-         B85BIaA6mTYOdFkjgcds0bnNe/pjeCYtNqjLrB0Kg1IxGmRXsbQO0VypRWlzOGzM7Afr
-         vxQkSrQvqPigLRVPS17lawTUhaSV5gn/g01AuDadtmUrFrNA1MytXR1+7Ncy/wbUMQ8Y
-         pF4848r7keg/c8EyfMtkoTvabuhUPIBxlv25YkSIA79kXF6poi6LQ7cp+JfA18SBgPu7
-         xYNg==
-X-Gm-Message-State: AOAM533R/h6vsG6CS0oiO4xIQTQC0lpXVhiW4lAGmx1lfFJup9o1XpBZ
-        oMlpy6D4FdOT+fsHd3IICdA=
-X-Google-Smtp-Source: ABdhPJz35NggHwE2C/tuuOZ5WOPf9u/AMV2VHojA5jsQdbO8rJmxW8lwCHH2DJnC5zMGqruMctKF3g==
-X-Received: by 2002:a05:600c:4282:: with SMTP id v2mr29691520wmc.18.1623634606813;
-        Sun, 13 Jun 2021 18:36:46 -0700 (PDT)
+        bh=Gs3KrKnbVra6qi2apJWeKgU8xCIjDeQclcnUQ38ruRs=;
+        b=DNaHxo0YGsJYhZi90AX+Cq55UgYaWeOGAt70N1GMkqfIFsxEO9Uv3tiq+lncDX0wXd
+         p9GmYgI0SZWeyuHdQGsu3mz7glYzJ5XWz3NzgjMB4yWAG7DQZKEGHUBIU9UK7a1bbxUz
+         me5Bo22oOB+g1kD0R/BUk5IxiwrWGYJJA2uq4AiridrzT8fhvm6t+B9oahEZ6kW6sX04
+         JUfoLvnAB1lOKLsZa17PT8okemmmIgXDyxmC67Jc+r2qAiLTOEohJ++h96VCgJYzQY5f
+         WXo3VMG6zQG+Dz/efsSC7JVF3vqpqoANg97+fjnYcztZdo4Y7cFh6Elz1uz0IbNUxkae
+         u0tw==
+X-Gm-Message-State: AOAM530NHze0+8Su5n3MQynq0kEcpFXCUjaaj7MyNtSyPGiS3n+bFi50
+        RvEIBCkRmQK77nNbhTX2Uj4=
+X-Google-Smtp-Source: ABdhPJyMUPWM4Pheywe+W9N44dq8jEwnpNfnbTfQM8gev3FJoZ0foUZsUh8tMTQoAkuEI29gSY/g3g==
+X-Received: by 2002:a1c:bb45:: with SMTP id l66mr30353163wmf.29.1623634610891;
+        Sun, 13 Jun 2021 18:36:50 -0700 (PDT)
 Received: from localhost.localdomain ([85.255.237.119])
-        by smtp.gmail.com with ESMTPSA id a9sm6795291wrv.37.2021.06.13.18.36.46
+        by smtp.gmail.com with ESMTPSA id a9sm6795291wrv.37.2021.06.13.18.36.50
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 13 Jun 2021 18:36:46 -0700 (PDT)
+        Sun, 13 Jun 2021 18:36:50 -0700 (PDT)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH 03/13] io_uring: refactor io_iopoll_req_issued
-Date:   Mon, 14 Jun 2021 02:36:14 +0100
-Message-Id: <1513bfde4f0c835be25ac69a82737ab0668d7665.1623634181.git.asml.silence@gmail.com>
+Subject: [PATCH 07/13] io_uring: hide rsrc tag copy into generic helpers
+Date:   Mon, 14 Jun 2021 02:36:18 +0100
+Message-Id: <5609680697bd09735de10561b75edb95283459da.1623634181.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <cover.1623634181.git.asml.silence@gmail.com>
 References: <cover.1623634181.git.asml.silence@gmail.com>
@@ -67,88 +67,155 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-A simple refactoring of io_iopoll_req_issued(), move in_async inside so
-we don't pass it around and save on double checking it.
+Make io_rsrc_data_alloc() taking care of rsrc tags loading on
+registration, so we don't need to repeat it for each new rsrc type.
 
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
- fs/io_uring.c | 44 +++++++++++++++++++++-----------------------
- 1 file changed, 21 insertions(+), 23 deletions(-)
+ fs/io_uring.c | 55 +++++++++++++++++++++++++--------------------------
+ 1 file changed, 27 insertions(+), 28 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 485f1f055db3..8fbb48c1ac7a 100644
+index cea3d0f5dad5..18ed6ecb1d76 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -2520,9 +2520,14 @@ static void io_complete_rw_iopoll(struct kiocb *kiocb, long res, long res2)
-  * find it from a io_do_iopoll() thread before the issuer is done
-  * accessing the kiocb cookie.
-  */
--static void io_iopoll_req_issued(struct io_kiocb *req, bool in_async)
-+static void io_iopoll_req_issued(struct io_kiocb *req)
- {
- 	struct io_ring_ctx *ctx = req->ctx;
-+	const bool in_async = io_wq_current_is_worker();
-+
-+	/* workqueue context doesn't hold uring_lock, grab it now */
-+	if (unlikely(in_async))
-+		mutex_lock(&ctx->uring_lock);
- 
- 	/*
- 	 * Track whether we have multiple files in our lists. This will impact
-@@ -2549,14 +2554,19 @@ static void io_iopoll_req_issued(struct io_kiocb *req, bool in_async)
- 	else
- 		list_add_tail(&req->inflight_entry, &ctx->iopoll_list);
- 
--	/*
--	 * If IORING_SETUP_SQPOLL is enabled, sqes are either handled in sq thread
--	 * task context or in io worker task context. If current task context is
--	 * sq thread, we don't need to check whether should wake up sq thread.
--	 */
--	if (in_async && (ctx->flags & IORING_SETUP_SQPOLL) &&
--	    wq_has_sleeper(&ctx->sq_data->wait))
--		wake_up(&ctx->sq_data->wait);
-+	if (unlikely(in_async)) {
-+		/*
-+		 * If IORING_SETUP_SQPOLL is enabled, sqes are either handle
-+		 * in sq thread task context or in io worker task context. If
-+		 * current task context is sq thread, we don't need to check
-+		 * whether should wake up sq thread.
-+		 */
-+		if ((ctx->flags & IORING_SETUP_SQPOLL) &&
-+		    wq_has_sleeper(&ctx->sq_data->wait))
-+			wake_up(&ctx->sq_data->wait);
-+
-+		mutex_unlock(&ctx->uring_lock);
-+	}
+@@ -7156,27 +7156,38 @@ static void io_rsrc_data_free(struct io_rsrc_data *data)
+ 	kfree(data);
  }
  
- static inline void io_state_file_put(struct io_submit_state *state)
-@@ -6210,23 +6220,11 @@ static int io_issue_sqe(struct io_kiocb *req, unsigned int issue_flags)
+-static struct io_rsrc_data *io_rsrc_data_alloc(struct io_ring_ctx *ctx,
+-					       rsrc_put_fn *do_put,
+-					       unsigned nr)
++static int io_rsrc_data_alloc(struct io_ring_ctx *ctx, rsrc_put_fn *do_put,
++			      u64 __user *utags, unsigned nr,
++			      struct io_rsrc_data **pdata)
+ {
+ 	struct io_rsrc_data *data;
++	unsigned i;
  
- 	if (creds)
- 		revert_creds(creds);
--
+ 	data = kzalloc(sizeof(*data), GFP_KERNEL);
+ 	if (!data)
+-		return NULL;
++		return -ENOMEM;
+ 
+ 	data->tags = kvcalloc(nr, sizeof(*data->tags), GFP_KERNEL);
+ 	if (!data->tags) {
+ 		kfree(data);
+-		return NULL;
++		return -ENOMEM;
++	}
++	if (utags) {
++		for (i = 0; i < nr; i++) {
++			if (copy_from_user(&data->tags[i], &utags[i],
++					   sizeof(data->tags[i]))) {
++				io_rsrc_data_free(data);
++				return -EFAULT;
++			}
++		}
+ 	}
+ 
+ 	atomic_set(&data->refs, 1);
+ 	data->ctx = ctx;
+ 	data->do_put = do_put;
+ 	init_completion(&data->done);
+-	return data;
++	*pdata = data;
++	return 0;
+ }
+ 
+ static void __io_sqe_files_unregister(struct io_ring_ctx *ctx)
+@@ -7628,7 +7639,6 @@ static int io_sqe_files_register(struct io_ring_ctx *ctx, void __user *arg,
+ 	struct file *file;
+ 	int fd, ret;
+ 	unsigned i;
+-	struct io_rsrc_data *file_data;
+ 
+ 	if (ctx->file_data)
+ 		return -EBUSY;
+@@ -7639,27 +7649,24 @@ static int io_sqe_files_register(struct io_ring_ctx *ctx, void __user *arg,
+ 	ret = io_rsrc_node_switch_start(ctx);
  	if (ret)
  		return ret;
--
- 	/* If the op doesn't have a file, we're not polling for it */
--	if ((ctx->flags & IORING_SETUP_IOPOLL) && req->file) {
--		const bool in_async = io_wq_current_is_worker();
--
--		/* workqueue context doesn't hold uring_lock, grab it now */
--		if (in_async)
--			mutex_lock(&ctx->uring_lock);
--
--		io_iopoll_req_issued(req, in_async);
--
--		if (in_async)
--			mutex_unlock(&ctx->uring_lock);
--	}
-+	if ((ctx->flags & IORING_SETUP_IOPOLL) && req->file)
-+		io_iopoll_req_issued(req);
++	ret = io_rsrc_data_alloc(ctx, io_rsrc_file_put, tags, nr_args,
++				 &ctx->file_data);
++	if (ret)
++		return ret;
  
- 	return 0;
- }
+-	file_data = io_rsrc_data_alloc(ctx, io_rsrc_file_put, nr_args);
+-	if (!file_data)
+-		return -ENOMEM;
+-	ctx->file_data = file_data;
+ 	ret = -ENOMEM;
+ 	if (!io_alloc_file_tables(&ctx->file_table, nr_args))
+ 		goto out_free;
+ 
+ 	for (i = 0; i < nr_args; i++, ctx->nr_user_files++) {
+-		u64 tag = 0;
+-
+-		if ((tags && copy_from_user(&tag, &tags[i], sizeof(tag))) ||
+-		    copy_from_user(&fd, &fds[i], sizeof(fd))) {
++		if (copy_from_user(&fd, &fds[i], sizeof(fd))) {
+ 			ret = -EFAULT;
+ 			goto out_fput;
+ 		}
+ 		/* allow sparse sets */
+ 		if (fd == -1) {
+ 			ret = -EINVAL;
+-			if (unlikely(tag))
++			if (unlikely(ctx->file_data->tags[i]))
+ 				goto out_fput;
+ 			continue;
+ 		}
+@@ -7680,7 +7687,6 @@ static int io_sqe_files_register(struct io_ring_ctx *ctx, void __user *arg,
+ 			fput(file);
+ 			goto out_fput;
+ 		}
+-		ctx->file_data->tags[i] = tag;
+ 		io_fixed_file_set(io_fixed_file_slot(&ctx->file_table, i), file);
+ 	}
+ 
+@@ -8398,9 +8404,9 @@ static int io_sqe_buffers_register(struct io_ring_ctx *ctx, void __user *arg,
+ 	ret = io_rsrc_node_switch_start(ctx);
+ 	if (ret)
+ 		return ret;
+-	data = io_rsrc_data_alloc(ctx, io_rsrc_buf_put, nr_args);
+-	if (!data)
+-		return -ENOMEM;
++	ret = io_rsrc_data_alloc(ctx, io_rsrc_buf_put, tags, nr_args, &data);
++	if (ret)
++		return ret;
+ 	ret = io_buffers_map_alloc(ctx, nr_args);
+ 	if (ret) {
+ 		io_rsrc_data_free(data);
+@@ -8408,19 +8414,13 @@ static int io_sqe_buffers_register(struct io_ring_ctx *ctx, void __user *arg,
+ 	}
+ 
+ 	for (i = 0; i < nr_args; i++, ctx->nr_user_bufs++) {
+-		u64 tag = 0;
+-
+-		if (tags && copy_from_user(&tag, &tags[i], sizeof(tag))) {
+-			ret = -EFAULT;
+-			break;
+-		}
+ 		ret = io_copy_iov(ctx, &iov, arg, i);
+ 		if (ret)
+ 			break;
+ 		ret = io_buffer_validate(&iov);
+ 		if (ret)
+ 			break;
+-		if (!iov.iov_base && tag) {
++		if (!iov.iov_base && data->tags[i]) {
+ 			ret = -EINVAL;
+ 			break;
+ 		}
+@@ -8429,7 +8429,6 @@ static int io_sqe_buffers_register(struct io_ring_ctx *ctx, void __user *arg,
+ 					     &last_hpage);
+ 		if (ret)
+ 			break;
+-		data->tags[i] = tag;
+ 	}
+ 
+ 	WARN_ON_ONCE(ctx->buf_data);
 -- 
 2.31.1
 

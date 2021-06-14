@@ -2,154 +2,102 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-10.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6D539C2B9F4
-	for <io-uring@archiver.kernel.org>; Mon, 14 Jun 2021 22:39:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B696AC48BE8
+	for <io-uring@archiver.kernel.org>; Mon, 14 Jun 2021 22:39:09 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4E3ED6124B
-	for <io-uring@archiver.kernel.org>; Mon, 14 Jun 2021 22:39:08 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9C46F6124B
+	for <io-uring@archiver.kernel.org>; Mon, 14 Jun 2021 22:39:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231288AbhFNWlL (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        id S231273AbhFNWlL (ORCPT <rfc822;io-uring@archiver.kernel.org>);
         Mon, 14 Jun 2021 18:41:11 -0400
-Received: from mail-wm1-f44.google.com ([209.85.128.44]:52871 "EHLO
-        mail-wm1-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231273AbhFNWlK (ORCPT
+Received: from mail-wm1-f54.google.com ([209.85.128.54]:37496 "EHLO
+        mail-wm1-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231187AbhFNWlK (ORCPT
         <rfc822;io-uring@vger.kernel.org>); Mon, 14 Jun 2021 18:41:10 -0400
-Received: by mail-wm1-f44.google.com with SMTP id f17so12982236wmf.2
-        for <io-uring@vger.kernel.org>; Mon, 14 Jun 2021 15:38:54 -0700 (PDT)
+Received: by mail-wm1-f54.google.com with SMTP id f16-20020a05600c1550b02901b00c1be4abso418648wmg.2
+        for <io-uring@vger.kernel.org>; Mon, 14 Jun 2021 15:38:51 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
+        h=from:to:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=95YptSG/EzMk62Vrc2sCEroQIOJEC/LxZ8ikcLRWfj4=;
-        b=jbesLy1oXi9Uk3XWOgIVkE8BY1cwibflcZ3sdBQBlugWQfbAODE5yK4esBZtATG5jL
-         4+zShpuqNQEbY04pj/70RoilYhC9WE0PKcbvm5Agy3+QOL2c82jM3EO+xn1HEMES6MT1
-         Jir83EuDNTTLkr+OOE1wJVGkgBP6fPy2qIw0vkYK7PqN+0iFmIi+K141SXFBUJSc+V8s
-         n+W5iV/NFXG95CY3Caqn8gX8A6mrB3sjiyPLLj+FT59RMafMZvOBXA2qG95cSH89h+NC
-         bHcbEcCR0PaQt93UET3jSoT3UxMW/Pt5QN26EGcskhawzDGO/e0NP8obMxrY1qJP2JMO
-         QFtw==
+        bh=2cSxfPrdyNMqj2IdtXAgOTjeegPn3JW6UX1ZSYGPOSg=;
+        b=Mu9on9Ktv4J0Ocwn/ICQvsT1vcpWE7gYA+Gqzt741LSEhnj9k4dvTu0l3BbqhbBVHa
+         I7fPUqHwG9iS1Qrq5qGuZ7v5IftOx+ApBBZtbrlcVciIv064I9+ZbakX7wczx+vqFeg7
+         cExuTOCwwLfcqEXdUTbnX0buT/x1DNq6rTcJED5vDS3dGRrRuMt7ZPkGpHUEk1prmoks
+         zJJGmDm57NGvPgWdPLRIvX6VNgKJ8Zy9hXzH0yDRzAAFME68WvzynojBAMg/h0b62M8B
+         ZCLEeRUvmFoUSW0QFYwdbsbFYSF4siZpJTUf7nwvreiQ+VED3iFR28hGpSO2c7J1rgr8
+         qRjA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=95YptSG/EzMk62Vrc2sCEroQIOJEC/LxZ8ikcLRWfj4=;
-        b=Soe9CNkdIBXwrRqz3UzIWRPUnDiWex1RLEoEbrGJX5Sj57h/LUTo5841zUIM/d96Ku
-         LZPslzz809B7sDAjXR1KjhZ+xDQylU9PbBcfYSGYiqfFi/r1p/WiLbk0fwVAYk64oyju
-         Y3TPz5Kqad2HH8RJZx8TTaayTeN4UzqDUsAEZdLzaZ0jxzdMHuWOJMZkgnfE12EsLb6J
-         wmocj19XqNColwT9q7votFm0DTWUx3QIomsEVwtoBl5ng2wU3tF0brzSYNZ3VjxvubLS
-         sS1HawHx/mia8+BBtUjiAFzFpCWGMK6u7E3dBInROmlx0WslxFRhHQuBzQZBQU9iOvyr
-         NF2Q==
-X-Gm-Message-State: AOAM531KGT0UnIo57peSARHD0NHzU0MLh8WttpQCBJFRHBOOcB5LScEX
-        UtvBXGjpurMrIwenUTDEcMA=
-X-Google-Smtp-Source: ABdhPJxnU78dH2pIoWj1wD55Oivw3SpqLB/WPuHGd7WFgxNBC6jwhe6qchhVvh98VjWfEeJCfimFxg==
-X-Received: by 2002:a1c:9a45:: with SMTP id c66mr18537982wme.43.1623710273770;
-        Mon, 14 Jun 2021 15:37:53 -0700 (PDT)
+        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=2cSxfPrdyNMqj2IdtXAgOTjeegPn3JW6UX1ZSYGPOSg=;
+        b=M8z2ZmO4CMVbv3f35oTrl2nLrYNLSu4ozpDRAYvowBo+SvgqAyPGZWJS9jcdYFqrUS
+         5FM5wnU7BrfZfbWvlcY/x4IkxR2INHIbi69m+4fE8urbAdtd8Tz8N70RXAjLcwS65DJ8
+         cwdh5vPzFqfwSJ4wYtKCVuTMZ834oxzMFXejLJFVaC3lw3R7RN9VhRq18Sp6U/+7FsgQ
+         15RRNmKA+6WBHIEHEWrXh0OQrbJ1qBuK0Ev3aBNj9TVtzLK7bn57zJXTXUTC6DT/Mq+v
+         XFLeENBMwpTN7qrUZsXqWF8vLLqCMFYZrILUolGLLCRpGOYJCukU73qOraY7BUXuteJa
+         t+TQ==
+X-Gm-Message-State: AOAM533BuzaxOYDQT86fw+rscerJkcTiegJhPjaz4KjhtQbN1GyvDhjX
+        5orvqjZF1wEYYdsNLbOkXKpQbeiHySI5ZHdx
+X-Google-Smtp-Source: ABdhPJz0+b37zbwQgiLOjNPJGYYp0rQ7niOFmfY8Vz/XM/UEniZHgmmKmomdCxhJtM8Nf2JqxBvi3Q==
+X-Received: by 2002:a05:600c:3b13:: with SMTP id m19mr18914203wms.53.1623710270582;
+        Mon, 14 Jun 2021 15:37:50 -0700 (PDT)
 Received: from localhost.localdomain ([148.252.132.209])
-        by smtp.gmail.com with ESMTPSA id x3sm621074wmj.30.2021.06.14.15.37.53
+        by smtp.gmail.com with ESMTPSA id x3sm621074wmj.30.2021.06.14.15.37.49
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 14 Jun 2021 15:37:53 -0700 (PDT)
+        Mon, 14 Jun 2021 15:37:50 -0700 (PDT)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH 03/12] io_uring: shuffle more fields into SQ ctx section
-Date:   Mon, 14 Jun 2021 23:37:22 +0100
-Message-Id: <8a5899a50afc6ccca63249e716f580b246f3dec6.1623709150.git.asml.silence@gmail.com>
+Subject: [PATCH 5.14 00/12] for-next optimisations
+Date:   Mon, 14 Jun 2021 23:37:19 +0100
+Message-Id: <cover.1623709150.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <cover.1623709150.git.asml.silence@gmail.com>
-References: <cover.1623709150.git.asml.silence@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Since moving locked_free_* out of struct io_submit_state
-ctx->submit_state is accessed on submission side only, so move it into
-the submission section. Same goes for rsrc table pointers/nodes/etc.,
-they must be taken and checked during submission because sync'ed by
-uring_lock, so move them there as well.
+There are two main lines intervened. The first one is pt.2 of ctx field
+shuffling for better caching. There is a couple of things left on that
+front.
 
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
----
- fs/io_uring.c | 35 +++++++++++++++++------------------
- 1 file changed, 17 insertions(+), 18 deletions(-)
+The second is optimising (assumably) rarely used offset-based timeouts
+and draining. There is a downside (see 12/12), which will be fixed
+later. In plans to queue a task_work clearing drain_used (under
+uring_lock) from io_queue_deferred() once all drainee are gone.
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index a4460383bd25..5cc0c4dd2709 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -353,6 +353,7 @@ struct io_ring_ctx {
- 		unsigned int		restricted: 1;
- 	} ____cacheline_aligned_in_smp;
- 
-+	/* submission data */
- 	struct {
- 		/*
- 		 * Ring buffer of indices into array of io_uring_sqe, which is
-@@ -369,13 +370,27 @@ struct io_ring_ctx {
- 		struct io_uring_sqe	*sq_sqes;
- 		unsigned		cached_sq_head;
- 		unsigned		sq_entries;
--		unsigned		sq_thread_idle;
- 		unsigned		cached_sq_dropped;
- 		unsigned long		sq_check_overflow;
--
- 		struct list_head	defer_list;
-+
-+		/*
-+		 * Fixed resources fast path, should be accessed only under
-+		 * uring_lock, and updated through io_uring_register(2)
-+		 */
-+		struct io_rsrc_node	*rsrc_node;
-+		struct io_file_table	file_table;
-+		unsigned		nr_user_files;
-+		unsigned		nr_user_bufs;
-+		struct io_mapped_ubuf	**user_bufs;
-+
-+		struct io_submit_state	submit_state;
- 		struct list_head	timeout_list;
- 		struct list_head	cq_overflow_list;
-+		struct xarray		io_buffers;
-+		struct xarray		personalities;
-+		u32			pers_next;
-+		unsigned		sq_thread_idle;
- 	} ____cacheline_aligned_in_smp;
- 
- 	struct {
-@@ -383,7 +398,6 @@ struct io_ring_ctx {
- 		wait_queue_head_t	wait;
- 	} ____cacheline_aligned_in_smp;
- 
--	struct io_submit_state		submit_state;
- 	/* IRQ completion list, under ->completion_lock */
- 	struct list_head	locked_free_list;
- 	unsigned int		locked_free_nr;
-@@ -394,21 +408,6 @@ struct io_ring_ctx {
- 	struct wait_queue_head	sqo_sq_wait;
- 	struct list_head	sqd_list;
- 
--	/*
--	 * Fixed resources fast path, should be accessed only under uring_lock,
--	 * and updated through io_uring_register(2)
--	 */
--	struct io_rsrc_node	*rsrc_node;
--
--	struct io_file_table	file_table;
--	unsigned		nr_user_files;
--	unsigned		nr_user_bufs;
--	struct io_mapped_ubuf	**user_bufs;
--
--	struct xarray		io_buffers;
--	struct xarray		personalities;
--	u32			pers_next;
--
- 	struct {
- 		unsigned		cached_cq_tail;
- 		unsigned		cq_entries;
+nops(batch=32):
+    15.9 MIOPS vs 17.3 MIOPS
+nullblk (irqmode=2 completion_nsec=0 submit_queues=16), no merges, no stat
+    1002 KIOPS vs 1050 KIOPS
+
+Though the second test is very slow comparing to what I've seen before,
+so might be not represantative.
+
+Pavel Begunkov (12):
+  io_uring: keep SQ pointers in a single cacheline
+  io_uring: move ctx->flags from SQ cacheline
+  io_uring: shuffle more fields into SQ ctx section
+  io_uring: refactor io_get_sqe()
+  io_uring: don't cache number of dropped SQEs
+  io_uring: optimise completion timeout flushing
+  io_uring: small io_submit_sqe() optimisation
+  io_uring: clean up check_overflow flag
+  io_uring: wait heads renaming
+  io_uring: move uring_lock location
+  io_uring: refactor io_req_defer()
+  io_uring: optimise non-drain path
+
+ fs/io_uring.c | 226 +++++++++++++++++++++++++-------------------------
+ 1 file changed, 111 insertions(+), 115 deletions(-)
+
 -- 
 2.31.1
 

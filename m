@@ -8,59 +8,59 @@ X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A5766C48BE6
-	for <io-uring@archiver.kernel.org>; Mon, 14 Jun 2021 22:38:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 24D1BC2B9F4
+	for <io-uring@archiver.kernel.org>; Mon, 14 Jun 2021 22:38:12 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 82DCB613AC
-	for <io-uring@archiver.kernel.org>; Mon, 14 Jun 2021 22:38:10 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0F17261356
+	for <io-uring@archiver.kernel.org>; Mon, 14 Jun 2021 22:38:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230414AbhFNWkM (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Mon, 14 Jun 2021 18:40:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50912 "EHLO
+        id S230247AbhFNWkO (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Mon, 14 Jun 2021 18:40:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50884 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229499AbhFNWkJ (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Mon, 14 Jun 2021 18:40:09 -0400
-Received: from mail-wm1-x336.google.com (mail-wm1-x336.google.com [IPv6:2a00:1450:4864:20::336])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B8F0C0613A3
-        for <io-uring@vger.kernel.org>; Mon, 14 Jun 2021 15:38:00 -0700 (PDT)
-Received: by mail-wm1-x336.google.com with SMTP id n35-20020a05600c3ba3b02901cdecb6bda8so400403wms.5
-        for <io-uring@vger.kernel.org>; Mon, 14 Jun 2021 15:38:00 -0700 (PDT)
+        with ESMTP id S230058AbhFNWkL (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Mon, 14 Jun 2021 18:40:11 -0400
+Received: from mail-wm1-x333.google.com (mail-wm1-x333.google.com [IPv6:2a00:1450:4864:20::333])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 33C9FC061767
+        for <io-uring@vger.kernel.org>; Mon, 14 Jun 2021 15:37:54 -0700 (PDT)
+Received: by mail-wm1-x333.google.com with SMTP id h11-20020a05600c350bb02901b59c28e8b4so423312wmq.1
+        for <io-uring@vger.kernel.org>; Mon, 14 Jun 2021 15:37:54 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=QyamZhAZemZONH+cdbzKclyyGLTJChbL46z1mD2EUds=;
-        b=h8zMB0jw4QXll3YyitSRY27YTZprgHtozuq6AOnbGm6G0MonkxMpSrxc0jR+wNymlB
-         /yxRj8SIWWcmnulW177gPxgSFVQ46wH6rqqO0siAjbaclS8EDMHB3od47MoSwQulHLXX
-         eez6ejFwW5Y/I/RV8tZ9reML8ADb+87t29mK/neeEf1Qhgr72TD4ti/cGYIqrmlnUAL4
-         YHwra8yJDIzkx9mNWSX0k+qXKhAmpkTOcIN3JPrajNuZyHht7M2Vapb1P5j81dU7C/kq
-         HfR2NH/gemxftugGkk7dbzQbk5QxsKZzSIokt8MlNL8LCF/MZDAqFB/Bk2fnvPq9IbqZ
-         aYqg==
+        bh=YzCCXCiHihTT66N4h8Go0PrqLeZDHSfGY0fmIg2SukY=;
+        b=alZvPUiDSey6Q6mJx/OD+8YDo/xAKAXKF7WT/kN27nVrknC2+Wk9OL780kBS3XACW8
+         KZJG4c8VxULKr9nKt5b7Fct30xRunOEbEbB2pAgTMMe2GxBwgRaWp9EYpBbFmG1rYMSJ
+         LZ/mQmQhRn9cCLlISLiXI1YfFTQ1QZ/9ccYRZeLNVhDjTylkhNDPGLytafkUj/2L5DkV
+         e7F/xHcZ37cnNOJHInIMO32KSm0H3qAMZrtZDrU8NnDA/nldhprNWM9F++td5q6UrFUN
+         EfLM61NWrrgDjd6E8U11L6mJzGbj3p54UXG4JgDaj5I9sU9aFDRG+HQaN7DgH2sexKsW
+         jTWQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=QyamZhAZemZONH+cdbzKclyyGLTJChbL46z1mD2EUds=;
-        b=mY1XX+1kbljRCfwiIUz6B0r934gTm0aR7237I0BGfiXTKN7MnKlK+mJcQtI+wQltNu
-         FQTAz2xwXNO25o4l8CwfDo4XUU67CllYAEuY7JzphIAHr+3VdzHfGriSVyGjIoMRxMM3
-         zlqX2C30dAeNGoAyiVjZqnZ7ci5QY2DdVU0TcHtp63hAdPQF4ADc2p5Jn9/P+gTZrBvD
-         zFfr0q4f66VpGjA40aEtmOsrU6Abns6BriMaQKgGsoSUIjPPCzSokT08ZaRis591H52U
-         icDBPMrGCC2x2HX0pQA9l8udr0jxpb5+L6kH+Eh42BG63hNKbbIZGoYJjSpneeyURLNT
-         Ap9g==
-X-Gm-Message-State: AOAM533NKuB8na5ClgsKFS1CQHRSvJmPHE+xrHSzd9OC5XR3nBQMuROM
-        wrRmccY+KGON8wKIS/iopO4iNUG3EppzGyq4
-X-Google-Smtp-Source: ABdhPJyun6L7YAFosrOuA05e1AC7lCrdCWpDYQZMqv7+48x05AAt7+ih4ghng1aWl4L7N7AaST4q1Q==
-X-Received: by 2002:a05:600c:1546:: with SMTP id f6mr1516033wmg.47.1623710279073;
-        Mon, 14 Jun 2021 15:37:59 -0700 (PDT)
+        bh=YzCCXCiHihTT66N4h8Go0PrqLeZDHSfGY0fmIg2SukY=;
+        b=BeonMr6MNhXCfkX4+PteWnFMoo5K1LyhZM28BbcyUtSxfRvhrMJlLPLL2bO2E5V35p
+         b5kg4iQigADLHM5f5EYnsNlEvOqpSUBnFOR7WFH7rUdeHbM8LP/r0v8vRbyu8+0YJUvb
+         tU8QovUVZ7O66jDeApZO4M1LUeg2u3YtPZKdDvev78YY1/xZAFUf+egBf1hxxymwz/Wr
+         GoswBI0sVl7pZS1HkVMxWlsovqpGozzEnLgzxEOFma49xjdjihXRyP0cJvSF0A20wX25
+         7fDw9Xy6W7oy3yNg5sqzWIBDMd8VRRTc2XCLRBhF2oA9g19xlZEfNEHutWzMOWAhOv7/
+         0qJw==
+X-Gm-Message-State: AOAM531UThkV/3kaxX3Rj04gMPHKr4VX/WRTOJYyBiOW+TG2b056gJsl
+        Ye41xhlc+Pp/5b6WU8NYTFPAQ7r8IQkIXJ2X
+X-Google-Smtp-Source: ABdhPJxUp4pRVoYp0aDOxasz4pEKCo3AId7NDiaigf/ssrZmVniRcqdsNLYxvA+PQ09qB7kEh1e7hA==
+X-Received: by 2002:a1c:9ac5:: with SMTP id c188mr1414227wme.17.1623710272825;
+        Mon, 14 Jun 2021 15:37:52 -0700 (PDT)
 Received: from localhost.localdomain ([148.252.132.209])
-        by smtp.gmail.com with ESMTPSA id x3sm621074wmj.30.2021.06.14.15.37.58
+        by smtp.gmail.com with ESMTPSA id x3sm621074wmj.30.2021.06.14.15.37.52
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 14 Jun 2021 15:37:58 -0700 (PDT)
+        Mon, 14 Jun 2021 15:37:52 -0700 (PDT)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH 08/12] io_uring: clean up check_overflow flag
-Date:   Mon, 14 Jun 2021 23:37:27 +0100
-Message-Id: <25927394964df31d113e3c729416af573afff5f5.1623709150.git.asml.silence@gmail.com>
+Subject: [PATCH 02/12] io_uring: move ctx->flags from SQ cacheline
+Date:   Mon, 14 Jun 2021 23:37:21 +0100
+Message-Id: <4c48c173e63d35591383ba2b87e8b8e8dfdbd23d.1623709150.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <cover.1623709150.git.asml.silence@gmail.com>
 References: <cover.1623709150.git.asml.silence@gmail.com>
@@ -70,112 +70,59 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-There are no users of ->sq_check_overflow, only ->cq_check_overflow is
-used. Combine it and move out of completion related part of struct
-io_ring_ctx.
+ctx->flags are heavily used by both, completion and submission sides, so
+move it out from the ctx fields related to submissions. Instead, place
+it together with ctx->refs, because it's already cacheline-aligned and
+so pads lots of space, and both almost never change. Also, in most
+occasions they are accessed together as refs are taken at submission
+time and put back during completion.
 
-A not so obvious benefit of it is fitting all completion side fields
-into a single cacheline. It was taking 2 lines before with 56B padding,
-and io_cqring_ev_posted*() were still touching both of them.
+Do same with ctx->rings, where the pointer itself is never modified
+apart from ring init/free.
+
+Note: in percpu mode, struct percpu_ref doesn't modify the struct itself
+but takes indirection with ref->percpu_count_ptr.
 
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
- fs/io_uring.c | 20 +++++++++-----------
- 1 file changed, 9 insertions(+), 11 deletions(-)
+ fs/io_uring.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 9c73991465c8..65d51e2d5c15 100644
+index f3c827cd8ff8..a4460383bd25 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -371,7 +371,6 @@ struct io_ring_ctx {
- 		struct io_uring_sqe	*sq_sqes;
- 		unsigned		cached_sq_head;
- 		unsigned		sq_entries;
--		unsigned long		sq_check_overflow;
- 		struct list_head	defer_list;
+@@ -341,17 +341,19 @@ struct io_submit_state {
+ };
  
- 		/*
-@@ -408,13 +407,14 @@ struct io_ring_ctx {
- 	struct wait_queue_head	sqo_sq_wait;
- 	struct list_head	sqd_list;
- 
-+	unsigned long		check_cq_overflow;
-+
+ struct io_ring_ctx {
++	/* const or read-mostly hot data */
  	struct {
- 		unsigned		cached_cq_tail;
- 		unsigned		cq_entries;
- 		atomic_t		cq_timeouts;
- 		unsigned		cq_last_tm_flush;
- 		unsigned		cq_extra;
--		unsigned long		cq_check_overflow;
- 		struct wait_queue_head	cq_wait;
- 		struct fasync_struct	*cq_fasync;
- 		struct eventfd_ctx	*cq_ev_fd;
-@@ -1464,8 +1464,7 @@ static bool __io_cqring_overflow_flush(struct io_ring_ctx *ctx, bool force)
+ 		struct percpu_ref	refs;
+-	} ____cacheline_aligned_in_smp;
  
- 	all_flushed = list_empty(&ctx->cq_overflow_list);
- 	if (all_flushed) {
--		clear_bit(0, &ctx->sq_check_overflow);
--		clear_bit(0, &ctx->cq_check_overflow);
-+		clear_bit(0, &ctx->check_cq_overflow);
- 		ctx->rings->sq_flags &= ~IORING_SQ_CQ_OVERFLOW;
- 	}
+-	struct {
++		struct io_rings		*rings;
+ 		unsigned int		flags;
+ 		unsigned int		compat: 1;
+ 		unsigned int		drain_next: 1;
+ 		unsigned int		eventfd_async: 1;
+ 		unsigned int		restricted: 1;
++	} ____cacheline_aligned_in_smp;
  
-@@ -1481,7 +1480,7 @@ static bool io_cqring_overflow_flush(struct io_ring_ctx *ctx, bool force)
- {
- 	bool ret = true;
++	struct {
+ 		/*
+ 		 * Ring buffer of indices into array of io_uring_sqe, which is
+ 		 * mmapped by the application using the IORING_OFF_SQES offset.
+@@ -386,8 +388,6 @@ struct io_ring_ctx {
+ 	struct list_head	locked_free_list;
+ 	unsigned int		locked_free_nr;
  
--	if (test_bit(0, &ctx->cq_check_overflow)) {
-+	if (test_bit(0, &ctx->check_cq_overflow)) {
- 		/* iopoll syncs against uring_lock, not completion_lock */
- 		if (ctx->flags & IORING_SETUP_IOPOLL)
- 			mutex_lock(&ctx->uring_lock);
-@@ -1544,8 +1543,7 @@ static bool io_cqring_event_overflow(struct io_ring_ctx *ctx, u64 user_data,
- 		return false;
- 	}
- 	if (list_empty(&ctx->cq_overflow_list)) {
--		set_bit(0, &ctx->sq_check_overflow);
--		set_bit(0, &ctx->cq_check_overflow);
-+		set_bit(0, &ctx->check_cq_overflow);
- 		ctx->rings->sq_flags |= IORING_SQ_CQ_OVERFLOW;
- 	}
- 	ocqe->cqe.user_data = user_data;
-@@ -2391,7 +2389,7 @@ static int io_iopoll_check(struct io_ring_ctx *ctx, long min)
- 	 * If we do, we can potentially be spinning for commands that
- 	 * already triggered a CQE (eg in error).
- 	 */
--	if (test_bit(0, &ctx->cq_check_overflow))
-+	if (test_bit(0, &ctx->check_cq_overflow))
- 		__io_cqring_overflow_flush(ctx, false);
- 	if (io_cqring_events(ctx))
- 		goto out;
-@@ -6965,7 +6963,7 @@ static int io_wake_function(struct wait_queue_entry *curr, unsigned int mode,
- 	 * Cannot safely flush overflowed CQEs from here, ensure we wake up
- 	 * the task, and the next invocation will do it.
- 	 */
--	if (io_should_wake(iowq) || test_bit(0, &iowq->ctx->cq_check_overflow))
-+	if (io_should_wake(iowq) || test_bit(0, &iowq->ctx->check_cq_overflow))
- 		return autoremove_wake_function(curr, mode, wake_flags, key);
- 	return -1;
- }
-@@ -6993,7 +6991,7 @@ static inline int io_cqring_wait_schedule(struct io_ring_ctx *ctx,
- 	if (ret || io_should_wake(iowq))
- 		return ret;
- 	/* let the caller flush overflows, retry */
--	if (test_bit(0, &ctx->cq_check_overflow))
-+	if (test_bit(0, &ctx->check_cq_overflow))
- 		return 1;
+-	struct io_rings	*rings;
+-
+ 	const struct cred	*sq_creds;	/* cred used for __io_sq_thread() */
+ 	struct io_sq_data	*sq_data;	/* if using sq thread polling */
  
- 	*timeout = schedule_timeout(*timeout);
-@@ -8702,7 +8700,7 @@ static __poll_t io_uring_poll(struct file *file, poll_table *wait)
- 	 * Users may get EPOLLIN meanwhile seeing nothing in cqring, this
- 	 * pushs them to do the flush.
- 	 */
--	if (io_cqring_events(ctx) || test_bit(0, &ctx->cq_check_overflow))
-+	if (io_cqring_events(ctx) || test_bit(0, &ctx->check_cq_overflow))
- 		mask |= EPOLLIN | EPOLLRDNORM;
- 
- 	return mask;
 -- 
 2.31.1
 

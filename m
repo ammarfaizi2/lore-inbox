@@ -8,56 +8,56 @@ X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 156C3C49360
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 571B4C48BDF
 	for <io-uring@archiver.kernel.org>; Mon, 14 Jun 2021 01:38:05 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E579461246
-	for <io-uring@archiver.kernel.org>; Mon, 14 Jun 2021 01:38:04 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 314276138C
+	for <io-uring@archiver.kernel.org>; Mon, 14 Jun 2021 01:38:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232306AbhFNBkG (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        id S232286AbhFNBkG (ORCPT <rfc822;io-uring@archiver.kernel.org>);
         Sun, 13 Jun 2021 21:40:06 -0400
-Received: from mail-wr1-f51.google.com ([209.85.221.51]:41503 "EHLO
-        mail-wr1-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232286AbhFNBkF (ORCPT
+Received: from mail-wm1-f45.google.com ([209.85.128.45]:45014 "EHLO
+        mail-wm1-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232300AbhFNBkF (ORCPT
         <rfc822;io-uring@vger.kernel.org>); Sun, 13 Jun 2021 21:40:05 -0400
-Received: by mail-wr1-f51.google.com with SMTP id o3so12614686wri.8
-        for <io-uring@vger.kernel.org>; Sun, 13 Jun 2021 18:37:54 -0700 (PDT)
+Received: by mail-wm1-f45.google.com with SMTP id m41-20020a05600c3b29b02901b9e5d74f02so8697644wms.3
+        for <io-uring@vger.kernel.org>; Sun, 13 Jun 2021 18:37:52 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=9qsZi/SF4wCMnUSiWE0EI7Q10uFEp1UEPU5q2ok/z30=;
-        b=Ssk/6vo+40ctDlms5ayB9tLPDXVrL7Tf78vhc2B1LIJAwJew/E4W7+G7VX4M13bvRD
-         eFwr7/3HTp/6hfHM0NGhtaqA/0MWL9QV3fJeKoJTT8UZHy205zKuPdzyV8yzYvYRxaw9
-         GL6SXwaqoyD5w1PZnrpm3pTnhIIIVhR88ELjkzzA7iWSNrvlzZuRlkAvq18t6SYARs9e
-         miLL6W2AHEwjCH7OfVD0LxftWqvwJNkG31INCZPkpKb0d2T3NltJ/fjVrj5wMNRs5ld5
-         N5aVbz6Nsz2f/kHJ1ki+ZnXp5O1X1uM6LVXIrq45ej9g8IKKcJNe9QA0y9NU7i2RDZZV
-         1fjw==
+        bh=HvOm0xj3SczGBaaMsvFuIhYB/fQ218ylKbNx9nMOHq4=;
+        b=qVsLmM0atHZHwfCuiB/DXHgafq6YmdeOCLsMvzL2E97cFoGuJiwpULs0DlNIyqSC/Z
+         a8hHJ83qvxWyvq11jnbaJ6dW5cmfm/8dF9YRgYki2T+1fxA4OyLVtpj+orIEez3Lw7TV
+         DyD5Wlaxh3JGe9lhcldy+XfUfU62dhg+jFBhwv+Za2GCUQCsJebNMzk0udjrjNFaDyzu
+         /1LVWPFl6Lh0yPM+vRp3siMZjBePzZ8ZDtLn3Hpu9XaRB4BUce2U1xNI4CkeE20ig0Y8
+         fS2ffcWbZCkD56gRVxS9Bzcy/7L+XBpJsdMeAiznuq76AhdS3qbp1XTTAKaaMmoHtGoP
+         6sHQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=9qsZi/SF4wCMnUSiWE0EI7Q10uFEp1UEPU5q2ok/z30=;
-        b=gFGn574ZitZn6og4N4VfzD2QLZjf8Qo5C2V1aNUP1GthBuQRvnI+d362K1af7wBE8P
-         9MrzYHSsoTIVcx1To2IloJDrnYSCjN7cHXqxVGtEP+Gi2YwLqR5+pfeRRQAM+gQzDLnu
-         papW3thyinK4qBGhMt2XahV5fdsoq1NFebkCiGMCg/Qz2jTi3x4ujNk5lEKusHXjBAud
-         XhI785EmFXZ2DJDAYqy0WIZvuAMSH6l1C3ZUaK4XZWcz+MdpsokQ4X6xEy6dlSofSv7D
-         LYF0ScUL2+jESZyL0IktiQsqJD5aKPDctXNGFi7stN8K9+AksNCf2c1efAZEidITY/v9
-         q6sA==
-X-Gm-Message-State: AOAM531Dp9HPbst0aLEBJCeCdODFjqTlBUjIJpO7H6SSi2GPc49xdaMa
-        ro/yWcZMVh3glXz1X/RI9nK3S5FyquMD2g==
-X-Google-Smtp-Source: ABdhPJx90n30xsKcqm+CdWteLQO5+GjvxaAFB31pa1VzWsFft8NneQco80P78N8IJGZbc8X6eaALfQ==
-X-Received: by 2002:adf:f5c9:: with SMTP id k9mr15481547wrp.180.1623634613933;
-        Sun, 13 Jun 2021 18:36:53 -0700 (PDT)
+        bh=HvOm0xj3SczGBaaMsvFuIhYB/fQ218ylKbNx9nMOHq4=;
+        b=GyjFoYybGK+crM9TRIeabjdgUt4qw/324woOdieT0UPPmqWiJa79W7MkkaUVX/xzwR
+         rNRp5FF9Pxvq2AbUiaepYZYIpCoy1v961s8Y88iu6zm0OFBQ4uXZJQ/9vcBO6VwsiXP3
+         5u2g59bK02SSfdH9cnb5lyeoRwMOv1DbIwanCAruWxwiP7Bxt6/WD4rfRv5ThVXtI3Lb
+         EtmtNvvj/h/KUxuzkoQbVEhJpxxNb0IZ33cAaGOlQQPg3TweVVW8SMQ2MUFSd8NxL8ak
+         kqPwLE49Vd8i5bsGkg9fkrzD9vnB5DQsUZfTDyeI/V3F49/Nq9zocbUSviW9lYygmOso
+         LLJg==
+X-Gm-Message-State: AOAM533ub4JeHQ6V2tMzaopsYurB/3jur1chHkiKzoMGob48wHF+xWIg
+        JO/J07GVRA/o0DiIp52RSQQ=
+X-Google-Smtp-Source: ABdhPJxBs/YAEVJIbsUt6CcQPRLiJsCjIuIzSwB4veryPqDtFGtpVE/i+OGiJIP7hohzfCrd83hbIA==
+X-Received: by 2002:a7b:c44f:: with SMTP id l15mr30461718wmi.151.1623634611897;
+        Sun, 13 Jun 2021 18:36:51 -0700 (PDT)
 Received: from localhost.localdomain ([85.255.237.119])
-        by smtp.gmail.com with ESMTPSA id a9sm6795291wrv.37.2021.06.13.18.36.53
+        by smtp.gmail.com with ESMTPSA id a9sm6795291wrv.37.2021.06.13.18.36.51
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 13 Jun 2021 18:36:53 -0700 (PDT)
+        Sun, 13 Jun 2021 18:36:51 -0700 (PDT)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH 10/13] io_uring: don't vmalloc rsrc tags
-Date:   Mon, 14 Jun 2021 02:36:21 +0100
-Message-Id: <241a3422747113a8909e7e1030eb585d4a349e0d.1623634181.git.asml.silence@gmail.com>
+Subject: [PATCH 08/13] io_uring: remove rsrc put work irq save/restore
+Date:   Mon, 14 Jun 2021 02:36:19 +0100
+Message-Id: <2a7f77220735f4ad404ac885b4d73bdf42d2f836.1623634181.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <cover.1623634181.git.asml.silence@gmail.com>
 References: <cover.1623634181.git.asml.silence@gmail.com>
@@ -67,154 +67,35 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-We don't really need vmalloc for keeping tags, it's not a hot path and
-is there out of convenience, so replace it with two level tables to not
-litter kernel virtual memory mappings.
+io_rsrc_put_work() is executed by workqueue in non-irq context, so no
+need for irqsave/restore variants of spinlocking.
 
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
- fs/io_uring.c | 52 +++++++++++++++++++++++++++++++++++----------------
- 1 file changed, 36 insertions(+), 16 deletions(-)
+ fs/io_uring.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index d6c1322119d6..692c91d03054 100644
+index 18ed6ecb1d76..59cd9dc6164c 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -100,6 +100,10 @@
- #define IORING_MAX_RESTRICTIONS	(IORING_RESTRICTION_LAST + \
- 				 IORING_REGISTER_LAST + IORING_OP_LAST)
+@@ -7550,14 +7550,13 @@ static void __io_rsrc_put_work(struct io_rsrc_node *ref_node)
  
-+#define IO_RSRC_TAG_TABLE_SHIFT	9
-+#define IO_RSRC_TAG_TABLE_MAX	(1U << IO_RSRC_TAG_TABLE_SHIFT)
-+#define IO_RSRC_TAG_TABLE_MASK	(IO_RSRC_TAG_TABLE_MAX - 1)
-+
- #define IORING_MAX_REG_BUFFERS	(1U << 14)
+ 		if (prsrc->tag) {
+ 			bool lock_ring = ctx->flags & IORING_SETUP_IOPOLL;
+-			unsigned long flags;
  
- #define SQE_VALID_FLAGS	(IOSQE_FIXED_FILE|IOSQE_IO_DRAIN|IOSQE_IO_LINK|	\
-@@ -243,7 +247,8 @@ typedef void (rsrc_put_fn)(struct io_ring_ctx *ctx, struct io_rsrc_put *prsrc);
- struct io_rsrc_data {
- 	struct io_ring_ctx		*ctx;
- 
--	u64				*tags;
-+	u64				**tags;
-+	unsigned int			nr;
- 	rsrc_put_fn			*do_put;
- 	atomic_t			refs;
- 	struct completion		done;
-@@ -7172,9 +7177,20 @@ static int io_rsrc_ref_quiesce(struct io_rsrc_data *data, struct io_ring_ctx *ct
- 	return ret;
- }
- 
-+static u64 *io_get_tag_slot(struct io_rsrc_data *data, unsigned int idx)
-+{
-+	unsigned int off = idx & IO_RSRC_TAG_TABLE_MASK;
-+	unsigned int table_idx = idx >> IO_RSRC_TAG_TABLE_SHIFT;
-+
-+	return &data->tags[table_idx][off];
-+}
-+
- static void io_rsrc_data_free(struct io_rsrc_data *data)
- {
--	kvfree(data->tags);
-+	size_t size = data->nr * sizeof(data->tags[0][0]);
-+
-+	if (data->tags)
-+		io_free_page_table((void **)data->tags, size);
- 	kfree(data);
- }
- 
-@@ -7183,33 +7199,37 @@ static int io_rsrc_data_alloc(struct io_ring_ctx *ctx, rsrc_put_fn *do_put,
- 			      struct io_rsrc_data **pdata)
- {
- 	struct io_rsrc_data *data;
-+	int ret = -ENOMEM;
- 	unsigned i;
- 
- 	data = kzalloc(sizeof(*data), GFP_KERNEL);
- 	if (!data)
- 		return -ENOMEM;
--
--	data->tags = kvcalloc(nr, sizeof(*data->tags), GFP_KERNEL);
-+	data->tags = (u64 **)io_alloc_page_table(nr * sizeof(data->tags[0][0]));
- 	if (!data->tags) {
- 		kfree(data);
- 		return -ENOMEM;
- 	}
-+
-+	data->nr = nr;
-+	data->ctx = ctx;
-+	data->do_put = do_put;
- 	if (utags) {
-+		ret = -EFAULT;
- 		for (i = 0; i < nr; i++) {
--			if (copy_from_user(&data->tags[i], &utags[i],
--					   sizeof(data->tags[i]))) {
--				io_rsrc_data_free(data);
--				return -EFAULT;
--			}
-+			if (copy_from_user(io_get_tag_slot(data, i), &utags[i],
-+					   sizeof(data->tags[i])))
-+				goto fail;
+ 			io_ring_submit_lock(ctx, lock_ring);
+-			spin_lock_irqsave(&ctx->completion_lock, flags);
++			spin_lock_irq(&ctx->completion_lock);
+ 			io_cqring_fill_event(ctx, prsrc->tag, 0, 0);
+ 			ctx->cq_extra++;
+ 			io_commit_cqring(ctx);
+-			spin_unlock_irqrestore(&ctx->completion_lock, flags);
++			spin_unlock_irq(&ctx->completion_lock);
+ 			io_cqring_ev_posted(ctx);
+ 			io_ring_submit_unlock(ctx, lock_ring);
  		}
- 	}
- 
- 	atomic_set(&data->refs, 1);
--	data->ctx = ctx;
--	data->do_put = do_put;
- 	init_completion(&data->done);
- 	*pdata = data;
- 	return 0;
-+fail:
-+	io_rsrc_data_free(data);
-+	return ret;
- }
- 
- static bool io_alloc_file_tables(struct io_file_table *table, unsigned nr_files)
-@@ -7678,7 +7698,7 @@ static int io_sqe_files_register(struct io_ring_ctx *ctx, void __user *arg,
- 		/* allow sparse sets */
- 		if (fd == -1) {
- 			ret = -EINVAL;
--			if (unlikely(ctx->file_data->tags[i]))
-+			if (unlikely(*io_get_tag_slot(ctx->file_data, i)))
- 				goto out_fput;
- 			continue;
- 		}
-@@ -7776,7 +7796,7 @@ static int io_queue_rsrc_removal(struct io_rsrc_data *data, unsigned idx,
- 	if (!prsrc)
- 		return -ENOMEM;
- 
--	prsrc->tag = data->tags[idx];
-+	prsrc->tag = *io_get_tag_slot(data, idx);
- 	prsrc->rsrc = rsrc;
- 	list_add(&prsrc->list, &node->rsrc_list);
- 	return 0;
-@@ -7846,7 +7866,7 @@ static int __io_sqe_files_update(struct io_ring_ctx *ctx,
- 				err = -EBADF;
- 				break;
- 			}
--			data->tags[up->offset + done] = tag;
-+			*io_get_tag_slot(data, up->offset + done) = tag;
- 			io_fixed_file_set(file_slot, file);
- 			err = io_sqe_file_register(ctx, file, i);
- 			if (err) {
-@@ -8432,7 +8452,7 @@ static int io_sqe_buffers_register(struct io_ring_ctx *ctx, void __user *arg,
- 		ret = io_buffer_validate(&iov);
- 		if (ret)
- 			break;
--		if (!iov.iov_base && data->tags[i]) {
-+		if (!iov.iov_base && *io_get_tag_slot(data, i)) {
- 			ret = -EINVAL;
- 			break;
- 		}
-@@ -8505,7 +8525,7 @@ static int __io_sqe_buffers_update(struct io_ring_ctx *ctx,
- 		}
- 
- 		ctx->user_bufs[i] = imu;
--		ctx->buf_data->tags[offset] = tag;
-+		*io_get_tag_slot(ctx->buf_data, offset) = tag;
- 	}
- 
- 	if (needs_switch)
 -- 
 2.31.1
 

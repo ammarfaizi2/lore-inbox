@@ -8,56 +8,56 @@ X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 77598C48BE8
-	for <io-uring@archiver.kernel.org>; Mon, 14 Jun 2021 01:38:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 156C3C49360
+	for <io-uring@archiver.kernel.org>; Mon, 14 Jun 2021 01:38:05 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 58B3C6124B
-	for <io-uring@archiver.kernel.org>; Mon, 14 Jun 2021 01:38:03 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E579461246
+	for <io-uring@archiver.kernel.org>; Mon, 14 Jun 2021 01:38:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232301AbhFNBkD (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sun, 13 Jun 2021 21:40:03 -0400
-Received: from mail-wm1-f51.google.com ([209.85.128.51]:51775 "EHLO
-        mail-wm1-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232286AbhFNBkD (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Sun, 13 Jun 2021 21:40:03 -0400
-Received: by mail-wm1-f51.google.com with SMTP id l9so11140883wms.1
-        for <io-uring@vger.kernel.org>; Sun, 13 Jun 2021 18:37:51 -0700 (PDT)
+        id S232306AbhFNBkG (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sun, 13 Jun 2021 21:40:06 -0400
+Received: from mail-wr1-f51.google.com ([209.85.221.51]:41503 "EHLO
+        mail-wr1-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232286AbhFNBkF (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Sun, 13 Jun 2021 21:40:05 -0400
+Received: by mail-wr1-f51.google.com with SMTP id o3so12614686wri.8
+        for <io-uring@vger.kernel.org>; Sun, 13 Jun 2021 18:37:54 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=Gs3KrKnbVra6qi2apJWeKgU8xCIjDeQclcnUQ38ruRs=;
-        b=A8nI/u0cuuGTqw1IXIn7qTAp4v+0HE/GQ28ZNS/H/G3r8fWNAhll3ATvj3a5EPTjSF
-         9p2gzexHkxfitvv/L6RyHYAUfBU88mAgaTdDyi+oSBSasTNlkdIMhPbaetRsP+NTQPMx
-         TdgSpyBg2myF3eWGGudtdFxpVfTbaw9l/g+jlQnDxXhIO3eBDd+jGd0LdlPWlZdebWuE
-         n39cxmjPh6/tpqqlpadv3CbroPXIO6vijdFDSCV9EenjL2clCAGElBMKEo0qTnqCE896
-         N2cpCupQeesRIFDKdXa/vXE+OLp3wPwNU+SOJ4wU3XmsJWj3nzCJ9fkWZL1nXxxvy3Hf
-         Y4+A==
+        bh=9qsZi/SF4wCMnUSiWE0EI7Q10uFEp1UEPU5q2ok/z30=;
+        b=Ssk/6vo+40ctDlms5ayB9tLPDXVrL7Tf78vhc2B1LIJAwJew/E4W7+G7VX4M13bvRD
+         eFwr7/3HTp/6hfHM0NGhtaqA/0MWL9QV3fJeKoJTT8UZHy205zKuPdzyV8yzYvYRxaw9
+         GL6SXwaqoyD5w1PZnrpm3pTnhIIIVhR88ELjkzzA7iWSNrvlzZuRlkAvq18t6SYARs9e
+         miLL6W2AHEwjCH7OfVD0LxftWqvwJNkG31INCZPkpKb0d2T3NltJ/fjVrj5wMNRs5ld5
+         N5aVbz6Nsz2f/kHJ1ki+ZnXp5O1X1uM6LVXIrq45ej9g8IKKcJNe9QA0y9NU7i2RDZZV
+         1fjw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=Gs3KrKnbVra6qi2apJWeKgU8xCIjDeQclcnUQ38ruRs=;
-        b=DNaHxo0YGsJYhZi90AX+Cq55UgYaWeOGAt70N1GMkqfIFsxEO9Uv3tiq+lncDX0wXd
-         p9GmYgI0SZWeyuHdQGsu3mz7glYzJ5XWz3NzgjMB4yWAG7DQZKEGHUBIU9UK7a1bbxUz
-         me5Bo22oOB+g1kD0R/BUk5IxiwrWGYJJA2uq4AiridrzT8fhvm6t+B9oahEZ6kW6sX04
-         JUfoLvnAB1lOKLsZa17PT8okemmmIgXDyxmC67Jc+r2qAiLTOEohJ++h96VCgJYzQY5f
-         WXo3VMG6zQG+Dz/efsSC7JVF3vqpqoANg97+fjnYcztZdo4Y7cFh6Elz1uz0IbNUxkae
-         u0tw==
-X-Gm-Message-State: AOAM530NHze0+8Su5n3MQynq0kEcpFXCUjaaj7MyNtSyPGiS3n+bFi50
-        RvEIBCkRmQK77nNbhTX2Uj4=
-X-Google-Smtp-Source: ABdhPJyMUPWM4Pheywe+W9N44dq8jEwnpNfnbTfQM8gev3FJoZ0foUZsUh8tMTQoAkuEI29gSY/g3g==
-X-Received: by 2002:a1c:bb45:: with SMTP id l66mr30353163wmf.29.1623634610891;
-        Sun, 13 Jun 2021 18:36:50 -0700 (PDT)
+        bh=9qsZi/SF4wCMnUSiWE0EI7Q10uFEp1UEPU5q2ok/z30=;
+        b=gFGn574ZitZn6og4N4VfzD2QLZjf8Qo5C2V1aNUP1GthBuQRvnI+d362K1af7wBE8P
+         9MrzYHSsoTIVcx1To2IloJDrnYSCjN7cHXqxVGtEP+Gi2YwLqR5+pfeRRQAM+gQzDLnu
+         papW3thyinK4qBGhMt2XahV5fdsoq1NFebkCiGMCg/Qz2jTi3x4ujNk5lEKusHXjBAud
+         XhI785EmFXZ2DJDAYqy0WIZvuAMSH6l1C3ZUaK4XZWcz+MdpsokQ4X6xEy6dlSofSv7D
+         LYF0ScUL2+jESZyL0IktiQsqJD5aKPDctXNGFi7stN8K9+AksNCf2c1efAZEidITY/v9
+         q6sA==
+X-Gm-Message-State: AOAM531Dp9HPbst0aLEBJCeCdODFjqTlBUjIJpO7H6SSi2GPc49xdaMa
+        ro/yWcZMVh3glXz1X/RI9nK3S5FyquMD2g==
+X-Google-Smtp-Source: ABdhPJx90n30xsKcqm+CdWteLQO5+GjvxaAFB31pa1VzWsFft8NneQco80P78N8IJGZbc8X6eaALfQ==
+X-Received: by 2002:adf:f5c9:: with SMTP id k9mr15481547wrp.180.1623634613933;
+        Sun, 13 Jun 2021 18:36:53 -0700 (PDT)
 Received: from localhost.localdomain ([85.255.237.119])
-        by smtp.gmail.com with ESMTPSA id a9sm6795291wrv.37.2021.06.13.18.36.50
+        by smtp.gmail.com with ESMTPSA id a9sm6795291wrv.37.2021.06.13.18.36.53
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 13 Jun 2021 18:36:50 -0700 (PDT)
+        Sun, 13 Jun 2021 18:36:53 -0700 (PDT)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH 07/13] io_uring: hide rsrc tag copy into generic helpers
-Date:   Mon, 14 Jun 2021 02:36:18 +0100
-Message-Id: <5609680697bd09735de10561b75edb95283459da.1623634181.git.asml.silence@gmail.com>
+Subject: [PATCH 10/13] io_uring: don't vmalloc rsrc tags
+Date:   Mon, 14 Jun 2021 02:36:21 +0100
+Message-Id: <241a3422747113a8909e7e1030eb585d4a349e0d.1623634181.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <cover.1623634181.git.asml.silence@gmail.com>
 References: <cover.1623634181.git.asml.silence@gmail.com>
@@ -67,155 +67,154 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Make io_rsrc_data_alloc() taking care of rsrc tags loading on
-registration, so we don't need to repeat it for each new rsrc type.
+We don't really need vmalloc for keeping tags, it's not a hot path and
+is there out of convenience, so replace it with two level tables to not
+litter kernel virtual memory mappings.
 
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
- fs/io_uring.c | 55 +++++++++++++++++++++++++--------------------------
- 1 file changed, 27 insertions(+), 28 deletions(-)
+ fs/io_uring.c | 52 +++++++++++++++++++++++++++++++++++----------------
+ 1 file changed, 36 insertions(+), 16 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index cea3d0f5dad5..18ed6ecb1d76 100644
+index d6c1322119d6..692c91d03054 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -7156,27 +7156,38 @@ static void io_rsrc_data_free(struct io_rsrc_data *data)
+@@ -100,6 +100,10 @@
+ #define IORING_MAX_RESTRICTIONS	(IORING_RESTRICTION_LAST + \
+ 				 IORING_REGISTER_LAST + IORING_OP_LAST)
+ 
++#define IO_RSRC_TAG_TABLE_SHIFT	9
++#define IO_RSRC_TAG_TABLE_MAX	(1U << IO_RSRC_TAG_TABLE_SHIFT)
++#define IO_RSRC_TAG_TABLE_MASK	(IO_RSRC_TAG_TABLE_MAX - 1)
++
+ #define IORING_MAX_REG_BUFFERS	(1U << 14)
+ 
+ #define SQE_VALID_FLAGS	(IOSQE_FIXED_FILE|IOSQE_IO_DRAIN|IOSQE_IO_LINK|	\
+@@ -243,7 +247,8 @@ typedef void (rsrc_put_fn)(struct io_ring_ctx *ctx, struct io_rsrc_put *prsrc);
+ struct io_rsrc_data {
+ 	struct io_ring_ctx		*ctx;
+ 
+-	u64				*tags;
++	u64				**tags;
++	unsigned int			nr;
+ 	rsrc_put_fn			*do_put;
+ 	atomic_t			refs;
+ 	struct completion		done;
+@@ -7172,9 +7177,20 @@ static int io_rsrc_ref_quiesce(struct io_rsrc_data *data, struct io_ring_ctx *ct
+ 	return ret;
+ }
+ 
++static u64 *io_get_tag_slot(struct io_rsrc_data *data, unsigned int idx)
++{
++	unsigned int off = idx & IO_RSRC_TAG_TABLE_MASK;
++	unsigned int table_idx = idx >> IO_RSRC_TAG_TABLE_SHIFT;
++
++	return &data->tags[table_idx][off];
++}
++
+ static void io_rsrc_data_free(struct io_rsrc_data *data)
+ {
+-	kvfree(data->tags);
++	size_t size = data->nr * sizeof(data->tags[0][0]);
++
++	if (data->tags)
++		io_free_page_table((void **)data->tags, size);
  	kfree(data);
  }
  
--static struct io_rsrc_data *io_rsrc_data_alloc(struct io_ring_ctx *ctx,
--					       rsrc_put_fn *do_put,
--					       unsigned nr)
-+static int io_rsrc_data_alloc(struct io_ring_ctx *ctx, rsrc_put_fn *do_put,
-+			      u64 __user *utags, unsigned nr,
-+			      struct io_rsrc_data **pdata)
+@@ -7183,33 +7199,37 @@ static int io_rsrc_data_alloc(struct io_ring_ctx *ctx, rsrc_put_fn *do_put,
+ 			      struct io_rsrc_data **pdata)
  {
  	struct io_rsrc_data *data;
-+	unsigned i;
++	int ret = -ENOMEM;
+ 	unsigned i;
  
  	data = kzalloc(sizeof(*data), GFP_KERNEL);
  	if (!data)
--		return NULL;
-+		return -ENOMEM;
- 
- 	data->tags = kvcalloc(nr, sizeof(*data->tags), GFP_KERNEL);
+ 		return -ENOMEM;
+-
+-	data->tags = kvcalloc(nr, sizeof(*data->tags), GFP_KERNEL);
++	data->tags = (u64 **)io_alloc_page_table(nr * sizeof(data->tags[0][0]));
  	if (!data->tags) {
  		kfree(data);
--		return NULL;
-+		return -ENOMEM;
-+	}
-+	if (utags) {
-+		for (i = 0; i < nr; i++) {
-+			if (copy_from_user(&data->tags[i], &utags[i],
-+					   sizeof(data->tags[i]))) {
-+				io_rsrc_data_free(data);
-+				return -EFAULT;
-+			}
-+		}
+ 		return -ENOMEM;
+ 	}
++
++	data->nr = nr;
++	data->ctx = ctx;
++	data->do_put = do_put;
+ 	if (utags) {
++		ret = -EFAULT;
+ 		for (i = 0; i < nr; i++) {
+-			if (copy_from_user(&data->tags[i], &utags[i],
+-					   sizeof(data->tags[i]))) {
+-				io_rsrc_data_free(data);
+-				return -EFAULT;
+-			}
++			if (copy_from_user(io_get_tag_slot(data, i), &utags[i],
++					   sizeof(data->tags[i])))
++				goto fail;
+ 		}
  	}
  
  	atomic_set(&data->refs, 1);
- 	data->ctx = ctx;
- 	data->do_put = do_put;
+-	data->ctx = ctx;
+-	data->do_put = do_put;
  	init_completion(&data->done);
--	return data;
-+	*pdata = data;
-+	return 0;
+ 	*pdata = data;
+ 	return 0;
++fail:
++	io_rsrc_data_free(data);
++	return ret;
  }
  
- static void __io_sqe_files_unregister(struct io_ring_ctx *ctx)
-@@ -7628,7 +7639,6 @@ static int io_sqe_files_register(struct io_ring_ctx *ctx, void __user *arg,
- 	struct file *file;
- 	int fd, ret;
- 	unsigned i;
--	struct io_rsrc_data *file_data;
- 
- 	if (ctx->file_data)
- 		return -EBUSY;
-@@ -7639,27 +7649,24 @@ static int io_sqe_files_register(struct io_ring_ctx *ctx, void __user *arg,
- 	ret = io_rsrc_node_switch_start(ctx);
- 	if (ret)
- 		return ret;
-+	ret = io_rsrc_data_alloc(ctx, io_rsrc_file_put, tags, nr_args,
-+				 &ctx->file_data);
-+	if (ret)
-+		return ret;
- 
--	file_data = io_rsrc_data_alloc(ctx, io_rsrc_file_put, nr_args);
--	if (!file_data)
--		return -ENOMEM;
--	ctx->file_data = file_data;
- 	ret = -ENOMEM;
- 	if (!io_alloc_file_tables(&ctx->file_table, nr_args))
- 		goto out_free;
- 
- 	for (i = 0; i < nr_args; i++, ctx->nr_user_files++) {
--		u64 tag = 0;
--
--		if ((tags && copy_from_user(&tag, &tags[i], sizeof(tag))) ||
--		    copy_from_user(&fd, &fds[i], sizeof(fd))) {
-+		if (copy_from_user(&fd, &fds[i], sizeof(fd))) {
- 			ret = -EFAULT;
- 			goto out_fput;
- 		}
+ static bool io_alloc_file_tables(struct io_file_table *table, unsigned nr_files)
+@@ -7678,7 +7698,7 @@ static int io_sqe_files_register(struct io_ring_ctx *ctx, void __user *arg,
  		/* allow sparse sets */
  		if (fd == -1) {
  			ret = -EINVAL;
--			if (unlikely(tag))
-+			if (unlikely(ctx->file_data->tags[i]))
+-			if (unlikely(ctx->file_data->tags[i]))
++			if (unlikely(*io_get_tag_slot(ctx->file_data, i)))
  				goto out_fput;
  			continue;
  		}
-@@ -7680,7 +7687,6 @@ static int io_sqe_files_register(struct io_ring_ctx *ctx, void __user *arg,
- 			fput(file);
- 			goto out_fput;
- 		}
--		ctx->file_data->tags[i] = tag;
- 		io_fixed_file_set(io_fixed_file_slot(&ctx->file_table, i), file);
- 	}
+@@ -7776,7 +7796,7 @@ static int io_queue_rsrc_removal(struct io_rsrc_data *data, unsigned idx,
+ 	if (!prsrc)
+ 		return -ENOMEM;
  
-@@ -8398,9 +8404,9 @@ static int io_sqe_buffers_register(struct io_ring_ctx *ctx, void __user *arg,
- 	ret = io_rsrc_node_switch_start(ctx);
- 	if (ret)
- 		return ret;
--	data = io_rsrc_data_alloc(ctx, io_rsrc_buf_put, nr_args);
--	if (!data)
--		return -ENOMEM;
-+	ret = io_rsrc_data_alloc(ctx, io_rsrc_buf_put, tags, nr_args, &data);
-+	if (ret)
-+		return ret;
- 	ret = io_buffers_map_alloc(ctx, nr_args);
- 	if (ret) {
- 		io_rsrc_data_free(data);
-@@ -8408,19 +8414,13 @@ static int io_sqe_buffers_register(struct io_ring_ctx *ctx, void __user *arg,
- 	}
- 
- 	for (i = 0; i < nr_args; i++, ctx->nr_user_bufs++) {
--		u64 tag = 0;
--
--		if (tags && copy_from_user(&tag, &tags[i], sizeof(tag))) {
--			ret = -EFAULT;
--			break;
--		}
- 		ret = io_copy_iov(ctx, &iov, arg, i);
- 		if (ret)
- 			break;
+-	prsrc->tag = data->tags[idx];
++	prsrc->tag = *io_get_tag_slot(data, idx);
+ 	prsrc->rsrc = rsrc;
+ 	list_add(&prsrc->list, &node->rsrc_list);
+ 	return 0;
+@@ -7846,7 +7866,7 @@ static int __io_sqe_files_update(struct io_ring_ctx *ctx,
+ 				err = -EBADF;
+ 				break;
+ 			}
+-			data->tags[up->offset + done] = tag;
++			*io_get_tag_slot(data, up->offset + done) = tag;
+ 			io_fixed_file_set(file_slot, file);
+ 			err = io_sqe_file_register(ctx, file, i);
+ 			if (err) {
+@@ -8432,7 +8452,7 @@ static int io_sqe_buffers_register(struct io_ring_ctx *ctx, void __user *arg,
  		ret = io_buffer_validate(&iov);
  		if (ret)
  			break;
--		if (!iov.iov_base && tag) {
-+		if (!iov.iov_base && data->tags[i]) {
+-		if (!iov.iov_base && data->tags[i]) {
++		if (!iov.iov_base && *io_get_tag_slot(data, i)) {
  			ret = -EINVAL;
  			break;
  		}
-@@ -8429,7 +8429,6 @@ static int io_sqe_buffers_register(struct io_ring_ctx *ctx, void __user *arg,
- 					     &last_hpage);
- 		if (ret)
- 			break;
--		data->tags[i] = tag;
+@@ -8505,7 +8525,7 @@ static int __io_sqe_buffers_update(struct io_ring_ctx *ctx,
+ 		}
+ 
+ 		ctx->user_bufs[i] = imu;
+-		ctx->buf_data->tags[offset] = tag;
++		*io_get_tag_slot(ctx->buf_data, offset) = tag;
  	}
  
- 	WARN_ON_ONCE(ctx->buf_data);
+ 	if (needs_switch)
 -- 
 2.31.1
 

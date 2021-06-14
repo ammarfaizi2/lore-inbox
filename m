@@ -8,59 +8,56 @@ X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EF609C48BE6
-	for <io-uring@archiver.kernel.org>; Mon, 14 Jun 2021 22:38:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 12770C2B9F4
+	for <io-uring@archiver.kernel.org>; Mon, 14 Jun 2021 22:39:05 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D52D16124B
-	for <io-uring@archiver.kernel.org>; Mon, 14 Jun 2021 22:38:21 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D95C3611CE
+	for <io-uring@archiver.kernel.org>; Mon, 14 Jun 2021 22:39:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231224AbhFNWkY (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Mon, 14 Jun 2021 18:40:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50928 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231187AbhFNWkY (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Mon, 14 Jun 2021 18:40:24 -0400
-Received: from mail-wm1-x329.google.com (mail-wm1-x329.google.com [IPv6:2a00:1450:4864:20::329])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5FCAAC061283
-        for <io-uring@vger.kernel.org>; Mon, 14 Jun 2021 15:38:04 -0700 (PDT)
-Received: by mail-wm1-x329.google.com with SMTP id m3so7747316wms.4
-        for <io-uring@vger.kernel.org>; Mon, 14 Jun 2021 15:38:04 -0700 (PDT)
+        id S229728AbhFNWlH (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Mon, 14 Jun 2021 18:41:07 -0400
+Received: from mail-wm1-f42.google.com ([209.85.128.42]:35553 "EHLO
+        mail-wm1-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231187AbhFNWlH (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Mon, 14 Jun 2021 18:41:07 -0400
+Received: by mail-wm1-f42.google.com with SMTP id k5-20020a05600c1c85b02901affeec3ef8so447025wms.0
+        for <io-uring@vger.kernel.org>; Mon, 14 Jun 2021 15:38:55 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=Ddeb3OlEKvkyzqagKcJjLKsqhw7qY7PVCZwGX7F6Gh4=;
-        b=d9xrf9Wm10Th9GLi0kwqgqF5csv2XRiffEy2YwXJZ7FQNXWGjI6hsB5s+9Ti7Yjrh4
-         iN7jCFY1xrVrx7rLTY70fnx9FHvbgYMusba9YEUqlFVDfHEMxEy9jMkNfDcYhX4/NoN2
-         LoxNSTqUCEeNjxC65x5x8oeen7ZanL3G/AqDYFBqTlo1ydNZssYR7l9hQMu1N09jKGOE
-         BBj+WpEg+h2Mpa0kyNpHIZEWO38V/azGb/EdsTwp4hJn1lWgz1AzZwev9QshOeDkFX+i
-         CcflfUxi7/ONsRMOtkU1DpPx5vpamohVDg8zWnTYsu0zudG0jLjMv47SCNVvbXdi5QFx
-         AZqQ==
+        bh=dOvbfIO19y9/yQq+PjpvkFBMOVaJ39XXTgXMtuDt2rY=;
+        b=ujUr/EBMl80oA225rgAM1cTjZlIst1leCbpI6vLV6t2osl5iF1LmxNUFhpt1O8BmJH
+         R7uyAS8KaCo6H22/g8n0YaTBGjeREBMmAm+iDuJkbeWKGUis6kw3yrfDxnTDwwa/07lD
+         Aden/uXsTR3liBvnBiwGFBBHllNLuNQZItw6J3sLp7wslB4Kd4coqQR5At5o5fdoLM2V
+         nIwp7WugIeTv7kI7ncv1bdepeg61eaoTqOqHOZDPOTVEtWUMO0jpN2FX//gtZQil8KfO
+         G3nWtBn6IfBjnDR15ihIVASgsYQQscXvl/55yYwO66Iuy7JHc6f1wDTYI6Uejha5VdQn
+         0wCA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=Ddeb3OlEKvkyzqagKcJjLKsqhw7qY7PVCZwGX7F6Gh4=;
-        b=P9KDKEOSl3AqlCNPZqEFRDqv++swWel22hPkY2+e5l2ACGygPFHl2D7EoPHxvpN5Xw
-         efP2iI7/oEnRasLdrgX2pfTg2iK0lgNWq9RWvEs0mtAqiMoqAJ7cjewI7xh6dPvIN03R
-         w7AFvCqeInyI0a2MQlPzloHYqONLSflnopj6Vw55IRa794MNWpNjBcQhFwJpMkSS7Jp2
-         90iHklGefzkyYoG/qgUHTgCdSA4n3cNbn6B6xkdSdeOwvvKTJlBI7PibpWZjHY4Fz6+Z
-         CIVem8E/g2wDQVxQ3br2SSBkOaSrTxYB2l7loEJt//cEjgTA0yg+T6uFsGjnw4JRWPzC
-         DHTA==
-X-Gm-Message-State: AOAM531Eonxuw8zFoLF37h6PR7butEBYRF2107cPIff0qjs6Thl76Clo
-        HP6Njy3/GRC5GukQvphtbrM=
-X-Google-Smtp-Source: ABdhPJwbkX2c9BaqRTWHbFnmM0AUAVomtcsToUIfbcFrwvbzwNVERGrExLqZZhO7WlTsSveDOhSFdw==
-X-Received: by 2002:a1c:3dc2:: with SMTP id k185mr1485760wma.15.1623710282981;
-        Mon, 14 Jun 2021 15:38:02 -0700 (PDT)
+        bh=dOvbfIO19y9/yQq+PjpvkFBMOVaJ39XXTgXMtuDt2rY=;
+        b=Oppo6rQAqatar0D8hGM519AwonSuAafWm6n45u2+NDGXG+NTrKXLfrH56Tny77k91V
+         rAqwiicB8YkynV2qE8TLzpAT0G7/nfSMGe2onFwSRSbMgw8owbATCEc1YzNbUh9bxEJe
+         HWpdJg08cdwbUWi4SN+A1npN0U9OwvHrjaeP7HcYeJI2e9sY0fulf2dHQbo5OjXttKYt
+         WtG1C8S46hLfci6IrZnetFi7ZBI8Vbe0zJzvupwhQk5mpPrafyLD183ojN7YW62oH5nY
+         6ethPlgYTSJxnDSwoi05H/3n97OSDAirXU3ZYuhstJBlmeaOzMwiGKf6/uIAirGZApPF
+         KU+A==
+X-Gm-Message-State: AOAM531maq81L1gwAJGMQSnu7/S4jGXk/unxjd3MIiNc0RCoizTNMiM9
+        PqdNXjFqloGh+QM6n0D3Qck=
+X-Google-Smtp-Source: ABdhPJwsGe+KBN3BGHeA4hb8286s7rapWM12KGxemMChqLYemSPsDapQxyeC9eNB+JpxdNtlrAsExw==
+X-Received: by 2002:a05:600c:3652:: with SMTP id y18mr18853272wmq.177.1623710274880;
+        Mon, 14 Jun 2021 15:37:54 -0700 (PDT)
 Received: from localhost.localdomain ([148.252.132.209])
-        by smtp.gmail.com with ESMTPSA id x3sm621074wmj.30.2021.06.14.15.38.02
+        by smtp.gmail.com with ESMTPSA id x3sm621074wmj.30.2021.06.14.15.37.54
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 14 Jun 2021 15:38:02 -0700 (PDT)
+        Mon, 14 Jun 2021 15:37:54 -0700 (PDT)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH 12/12] io_uring: optimise non-drain path
-Date:   Mon, 14 Jun 2021 23:37:31 +0100
-Message-Id: <98d2fff8c4da5144bb0d08499f591d4768128ea3.1623709150.git.asml.silence@gmail.com>
+Subject: [PATCH 04/12] io_uring: refactor io_get_sqe()
+Date:   Mon, 14 Jun 2021 23:37:23 +0100
+Message-Id: <866ad6e4ef4851c7c61f6b0e08dbd0a8d1abce84.1623709150.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <cover.1623709150.git.asml.silence@gmail.com>
 References: <cover.1623709150.git.asml.silence@gmail.com>
@@ -70,150 +67,38 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Replace drain checks with one-way flag set upon seeing the first
-IOSQE_IO_DRAIN request. There are several places where it cuts cycles
-well:
-
-1) It's much faster than the fast check with two
-conditions in io_drain_req() including pretty complex
-list_empty_careful().
-
-2) We can mark io_queue_sqe() inline now, that's a huge win.
-
-3) It replaces timeout and drain checks in io_commit_cqring() with a
-single flags test. Also great not touching ->defer_list there without a
-reason so limiting cache bouncing.
-
-It adds a small amount of overhead to drain path, but it's negligible.
-The main nuisance is that once it meets any DRAIN request in io_uring
-instance lifetime it will _always_ go through a slower path, so
-drain-less and offset-mode timeout less applications are preferable.
-The overhead in that case would be not big, but it's worth to bear in
-mind.
+The line of io_get_sqe() evaluating @head consists of too many
+operations including READ_ONCE(), it's not convenient for probing.
+Refactor it also improving readability.
 
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
- fs/io_uring.c | 57 +++++++++++++++++++++++++++------------------------
- 1 file changed, 30 insertions(+), 27 deletions(-)
+ fs/io_uring.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 29b705201ca3..5828ffdbea82 100644
+index 5cc0c4dd2709..3baacfe2c9b7 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -352,6 +352,7 @@ struct io_ring_ctx {
- 		unsigned int		eventfd_async: 1;
- 		unsigned int		restricted: 1;
- 		unsigned int		off_timeout_used: 1;
-+		unsigned int		drain_used: 1;
- 	} ____cacheline_aligned_in_smp;
- 
- 	/* submission data */
-@@ -1299,9 +1300,9 @@ static void io_kill_timeout(struct io_kiocb *req, int status)
- 	}
- }
- 
--static void __io_queue_deferred(struct io_ring_ctx *ctx)
-+static void io_queue_deferred(struct io_ring_ctx *ctx)
+@@ -6685,8 +6685,8 @@ static void io_commit_sqring(struct io_ring_ctx *ctx)
+  */
+ static const struct io_uring_sqe *io_get_sqe(struct io_ring_ctx *ctx)
  {
--	do {
-+	while (!list_empty(&ctx->defer_list)) {
- 		struct io_defer_entry *de = list_first_entry(&ctx->defer_list,
- 						struct io_defer_entry, list);
+-	u32 *sq_array = ctx->sq_array;
+ 	unsigned head, mask = ctx->sq_entries - 1;
++	unsigned sq_idx = ctx->cached_sq_head++ & mask;
  
-@@ -1310,17 +1311,12 @@ static void __io_queue_deferred(struct io_ring_ctx *ctx)
- 		list_del_init(&de->list);
- 		io_req_task_queue(de->req);
- 		kfree(de);
--	} while (!list_empty(&ctx->defer_list));
-+	}
- }
+ 	/*
+ 	 * The cached sq head (or cq tail) serves two purposes:
+@@ -6696,7 +6696,7 @@ static const struct io_uring_sqe *io_get_sqe(struct io_ring_ctx *ctx)
+ 	 * 2) allows the kernel side to track the head on its own, even
+ 	 *    though the application is the one updating it.
+ 	 */
+-	head = READ_ONCE(sq_array[ctx->cached_sq_head++ & mask]);
++	head = READ_ONCE(ctx->sq_array[sq_idx]);
+ 	if (likely(head < ctx->sq_entries))
+ 		return &ctx->sq_sqes[head];
  
- static void io_flush_timeouts(struct io_ring_ctx *ctx)
- {
--	u32 seq;
--
--	if (likely(!ctx->off_timeout_used))
--		return;
--
--	seq = ctx->cached_cq_tail - atomic_read(&ctx->cq_timeouts);
-+	u32 seq = ctx->cached_cq_tail - atomic_read(&ctx->cq_timeouts);
- 
- 	while (!list_empty(&ctx->timeout_list)) {
- 		u32 events_needed, events_got;
-@@ -1350,13 +1346,14 @@ static void io_flush_timeouts(struct io_ring_ctx *ctx)
- 
- static void io_commit_cqring(struct io_ring_ctx *ctx)
- {
--	io_flush_timeouts(ctx);
--
-+	if (unlikely(ctx->off_timeout_used || ctx->drain_used)) {
-+		if (ctx->off_timeout_used)
-+			io_flush_timeouts(ctx);
-+		if (ctx->drain_used)
-+			io_queue_deferred(ctx);
-+	}
- 	/* order cqe stores with ring update */
- 	smp_store_release(&ctx->rings->cq.tail, ctx->cached_cq_tail);
--
--	if (unlikely(!list_empty(&ctx->defer_list)))
--		__io_queue_deferred(ctx);
- }
- 
- static inline bool io_sqring_full(struct io_ring_ctx *ctx)
-@@ -6447,9 +6444,9 @@ static void __io_queue_sqe(struct io_kiocb *req)
- 		io_queue_linked_timeout(linked_timeout);
- }
- 
--static void io_queue_sqe(struct io_kiocb *req)
-+static inline void io_queue_sqe(struct io_kiocb *req)
- {
--	if (io_drain_req(req))
-+	if (unlikely(req->ctx->drain_used) && io_drain_req(req))
- 		return;
- 
- 	if (likely(!(req->flags & REQ_F_FORCE_ASYNC))) {
-@@ -6573,6 +6570,23 @@ static int io_submit_sqe(struct io_ring_ctx *ctx, struct io_kiocb *req,
- 		io_req_complete_failed(req, ret);
- 		return ret;
- 	}
-+
-+	if (unlikely(req->flags & REQ_F_IO_DRAIN)) {
-+		ctx->drain_used = true;
-+
-+		/*
-+		 * Taking sequential execution of a link, draining both sides
-+		 * of the link also fullfils IOSQE_IO_DRAIN semantics for all
-+		 * requests in the link. So, it drains the head and the
-+		 * next after the link request. The last one is done via
-+		 * drain_next flag to persist the effect across calls.
-+		 */
-+		if (link->head) {
-+			link->head->flags |= REQ_F_IO_DRAIN;
-+			ctx->drain_next = 1;
-+		}
-+	}
-+
- 	ret = io_req_prep(req, sqe);
- 	if (unlikely(ret))
- 		goto fail_req;
-@@ -6591,17 +6605,6 @@ static int io_submit_sqe(struct io_ring_ctx *ctx, struct io_kiocb *req,
- 	if (link->head) {
- 		struct io_kiocb *head = link->head;
- 
--		/*
--		 * Taking sequential execution of a link, draining both sides
--		 * of the link also fullfils IOSQE_IO_DRAIN semantics for all
--		 * requests in the link. So, it drains the head and the
--		 * next after the link request. The last one is done via
--		 * drain_next flag to persist the effect across calls.
--		 */
--		if (req->flags & REQ_F_IO_DRAIN) {
--			head->flags |= REQ_F_IO_DRAIN;
--			ctx->drain_next = 1;
--		}
- 		ret = io_req_prep_async(req);
- 		if (unlikely(ret))
- 			goto fail_req;
 -- 
 2.31.1
 

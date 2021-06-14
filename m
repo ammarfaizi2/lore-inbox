@@ -2,94 +2,88 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1D9F0C49361
-	for <io-uring@archiver.kernel.org>; Mon, 14 Jun 2021 01:38:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 80352C49360
+	for <io-uring@archiver.kernel.org>; Mon, 14 Jun 2021 07:54:07 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 03D616124B
-	for <io-uring@archiver.kernel.org>; Mon, 14 Jun 2021 01:38:05 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5013F61352
+	for <io-uring@archiver.kernel.org>; Mon, 14 Jun 2021 07:54:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232300AbhFNBkH (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sun, 13 Jun 2021 21:40:07 -0400
-Received: from mail-wr1-f44.google.com ([209.85.221.44]:36588 "EHLO
-        mail-wr1-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232302AbhFNBkG (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Sun, 13 Jun 2021 21:40:06 -0400
-Received: by mail-wr1-f44.google.com with SMTP id n7so6462367wri.3
-        for <io-uring@vger.kernel.org>; Sun, 13 Jun 2021 18:37:49 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
-         :content-transfer-encoding;
-        bh=ztRJARExWokzTuJETAZmQkm5xNoyJYYYWZzOL9dLec0=;
-        b=B1KAQ7F9liGnPxjkk212m5cPPaLQ7/bFBxnkeoM39x2x66qRYoT8Yhqc7jG0/6x8Xu
-         F+EpfL8ivrHioAIKcfm3CzcLXfEO0J5lQizXL9Gc3vZ4pk/RfzNmL4tXx1eXo/df/Z5e
-         JcUlzZ5OW19MlU76g06kK/lL463bDGQBiAbzau6jdg2L24lrcSI/HxQ/I3eAd9W0CmBE
-         MZxD7lw6ZQk/7WUMHDWRhJNxFyRFJfvIvrVGsLsQwviEdr8MLlBEXcpFAMOvUKGMMVsK
-         Y5DItPRY98FJQlQwzlu3X+x5G8+YeAgC2uK1TdS4gZBtNN1rLhB/XqKL9SYFLdl8qnzA
-         1/Mg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=ztRJARExWokzTuJETAZmQkm5xNoyJYYYWZzOL9dLec0=;
-        b=ihJKeQNScoMbzOIsu9XhF0YEhzgt2LV3g32OZZ3QtneK2WmSXQoX9fEuIs13DRZTIS
-         NmoCSeOsHzvf3R3+/TSaWmRTdP6Yf6m8NJ/hAPJUXKzixjIBMobujlLwNGXfsR3W4cMV
-         ZYYyC9u+zXiV4HrvTWM9XAehoMbZq26oc5TegQEzVZR3qo5mTOofObbo7bSdGzEiqzx0
-         wPru3ddxx7TPCS0YYAQtHLpFteSJqfj0JTEfFUGBeXnKtXyHZ9st5UbfAA5Sjyz0XJWB
-         48sWirmVhyabUZ5YgtOH8yWifNVDU4TJWwFPI1tefgAFYncL1BZACrIYYhwjH2qlsSd1
-         Ymfw==
-X-Gm-Message-State: AOAM530E896xhMPOU0wF2XW5o3I/HVIYntdiOtvm1RUXa9rofVwcmxC4
-        9bhmQe3D7jKC7wQghK83gwE=
-X-Google-Smtp-Source: ABdhPJxT6KyV6wpNFF2+524q3lwcxCqyhIcQoTVnOtO9XfAjoi+3W1bA+jhvkCmILkFIrEkYEF8cXA==
-X-Received: by 2002:a5d:4e12:: with SMTP id p18mr14766021wrt.105.1623634608904;
-        Sun, 13 Jun 2021 18:36:48 -0700 (PDT)
-Received: from localhost.localdomain ([85.255.237.119])
-        by smtp.gmail.com with ESMTPSA id a9sm6795291wrv.37.2021.06.13.18.36.48
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 13 Jun 2021 18:36:48 -0700 (PDT)
-From:   Pavel Begunkov <asml.silence@gmail.com>
-To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH 05/13] io-wq: don't repeat IO_WQ_BIT_EXIT check by worker
-Date:   Mon, 14 Jun 2021 02:36:16 +0100
-Message-Id: <d6af4a51c86523a527fb5417c9fbc775c4b26497.1623634181.git.asml.silence@gmail.com>
-X-Mailer: git-send-email 2.31.1
-In-Reply-To: <cover.1623634181.git.asml.silence@gmail.com>
-References: <cover.1623634181.git.asml.silence@gmail.com>
+        id S232552AbhFNH4I (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Mon, 14 Jun 2021 03:56:08 -0400
+Received: from eu-smtp-delivery-151.mimecast.com ([185.58.86.151]:49808 "EHLO
+        eu-smtp-delivery-151.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S232536AbhFNH4G (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Mon, 14 Jun 2021 03:56:06 -0400
+Received: from AcuMS.aculab.com (156.67.243.121 [156.67.243.121]) (Using
+ TLS) by relay.mimecast.com with ESMTP id
+ uk-mtapsc-1-JvShZJ_LMNqZy9EC7CzP_Q-1; Mon, 14 Jun 2021 08:54:01 +0100
+X-MC-Unique: JvShZJ_LMNqZy9EC7CzP_Q-1
+Received: from AcuMS.Aculab.com (10.202.163.4) by AcuMS.aculab.com
+ (10.202.163.4) with Microsoft SMTP Server (TLS) id 15.0.1497.18; Mon, 14 Jun
+ 2021 08:54:00 +0100
+Received: from AcuMS.Aculab.com ([fe80::994c:f5c2:35d6:9b65]) by
+ AcuMS.aculab.com ([fe80::994c:f5c2:35d6:9b65%12]) with mapi id
+ 15.00.1497.018; Mon, 14 Jun 2021 08:54:00 +0100
+From:   David Laight <David.Laight@ACULAB.COM>
+To:     'Victor Stewart' <v@nametag.social>,
+        Pavel Begunkov <asml.silence@gmail.com>
+CC:     io-uring <io-uring@vger.kernel.org>, Jens Axboe <axboe@kernel.dk>,
+        "linux-block@vger.kernel.org" <linux-block@vger.kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>, bpf <bpf@vger.kernel.org>,
+        "lsf-pc@lists.linux-foundation.org" 
+        <lsf-pc@lists.linux-foundation.org>
+Subject: RE: io_uring: BPF controlled I/O
+Thread-Topic: io_uring: BPF controlled I/O
+Thread-Index: AQHXW85OPTAHTIrwlU6lTLNP07tyDqsTLD+g
+Date:   Mon, 14 Jun 2021 07:54:00 +0000
+Message-ID: <2d4e188665c5425296f2da0e96c744af@AcuMS.aculab.com>
+References: <23168ac0-0f05-3cd7-90dc-08855dd275b2@gmail.com>
+ <CAM1kxwjHrf74u5OLB=acP2fBy+cPG4NNxa-51O35caY4VKdkkg@mail.gmail.com>
+In-Reply-To: <CAM1kxwjHrf74u5OLB=acP2fBy+cPG4NNxa-51O35caY4VKdkkg@mail.gmail.com>
+Accept-Language: en-GB, en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ms-exchange-transport-fromentityheader: Hosted
+x-originating-ip: [10.202.205.107]
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Authentication-Results: relay.mimecast.com;
+        auth=pass smtp.auth=C51A453 smtp.mailfrom=david.laight@aculab.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: aculab.com
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: base64
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-io_wqe_worker()'s main loop does check IO_WQ_BIT_EXIT flag, so no need
-for a second test_bit at the end as it will immediately jump to the
-first check afterwards.
-
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
----
- fs/io-wq.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
-
-diff --git a/fs/io-wq.c b/fs/io-wq.c
-index f058ea0bcae8..8c13e23d4a8a 100644
---- a/fs/io-wq.c
-+++ b/fs/io-wq.c
-@@ -559,8 +559,7 @@ static int io_wqe_worker(void *data)
- 		if (ret)
- 			continue;
- 		/* timed out, exit unless we're the fixed worker */
--		if (test_bit(IO_WQ_BIT_EXIT, &wq->state) ||
--		    !(worker->flags & IO_WORKER_F_FIXED))
-+		if (!(worker->flags & IO_WORKER_F_FIXED))
- 			break;
- 	}
- 
--- 
-2.31.1
+RnJvbTogVmljdG9yIFN0ZXdhcnQNCj4gU2VudDogMDcgSnVuZSAyMDIxIDE5OjUxDQouLi4NCj4g
+Y29pbmNpZGVudGFsbHkgaSdtIHRvc3NpbmcgYXJvdW5kIGluIG15IG1pbmQgYXQgdGhlIG1vbWVu
+dCBhbiBpZGVhIGZvcg0KPiBvZmZsb2FkaW5nDQo+IHRoZSBQSU5HL1BPTkcgb2YgYSBRVUlDIHNl
+cnZlci9jbGllbnQgaW50byB0aGUga2VybmVsIHZpYSBlQlBGLg0KPiANCj4gcHJvYmxlbSBiZWlu
+ZywgYmVpbmcgdGhhdCBRVUlDIGlzIHVzZXJzcGFjZSBydW4gdHJhbnNwb3J0IGFuZCB0aGF0IE5B
+VC1lZCBVRFANCj4gbWFwcGluZ3MgY2FuJ3QgYmUgZXhwZWN0ZWQgdG8gc3RheSBvcGVuIGxvbmdl
+ciB0aGFuIDMwIHNlY29uZHMsIFFVSUMNCj4gYXBwbGljYXRpb25zDQo+IGJhcmUgYSBsYXJnZSBj
+b3N0IG9mIGNvbnRleHQgc3dpdGNoaW5nIHdha2UtdXAgdG8gY29uZHVjdCBjb25uZWN0aW9uIGxp
+ZmV0aW1lDQo+IG1haW50ZW5hbmNlLi4uIGVzcGVjaWFsbHkgd2hlbiBtYW5hZ2luZyBhIGxhcmdl
+IG51bWJlciBvZiBtb3N0bHkgaWRsZSBsb25nIGxpdmVkDQo+IGNvbm5lY3Rpb25zLiBzbyBvZmZs
+b2FkaW5nIHRoaXMgbWFpbnRlbmFuY2Ugc2VydmljZSBpbnRvIHRoZSBrZXJuZWwNCj4gd291bGQg
+YmUgYSBncmVhdA0KPiBlZmZpY2llbmN5IGJvb24uDQo+IA0KPiB0aGUgbWFpbiBpbXBlZGltZW50
+IGlzIHRoYXQgYWNjZXNzIHRvIHRoZSBrZXJuZWwgY3J5cHRvIGxpYnJhcmllcw0KPiBpc24ndCBj
+dXJyZW50bHkgcG9zc2libGUNCj4gZnJvbSBlQlBGLiB0aGF0IHNhaWQsIGNvbm5lY3Rpb24gd2lk
+ZSBjcnlwdG8gb2ZmbG9hZCBpbnRvIHRoZSBOSUMgaXMgYQ0KPiBmcmVxdWVudGx5IG1lbnRpb25l
+ZA0KPiBzdWJqZWN0IGluIFFVSUMgY2lyY2xlcywgc28gb25lIGNvdWxkIGFyZ3VlIGJldHRlciB0
+byBhbGxvY2F0ZSB0aGUNCj4gdGltZSB0byBOSUMgY3J5cHRvIG9mZmxvYWQNCj4gYW5kIHRoZW4g
+c2ltcGx5IGNvbmR1Y3QgdGhpcyBQSU5HL1BPTkcgb2ZmbG9hZCBpbiBwbGFpbiB0ZXh0Lg0KDQpI
+bW1tbS4uLiBhIGdvb2QgZXhhbXBsZSBvZiBob3cgbm90IHRvIHR5cGUgZW1haWxzLg0KDQpUaG91
+Z2h0LCBkb2VzIHRoZSBVRFAgdHggbmVlZGVkIHRvIGtlZXAgdGhlIE5BVCB0YWJsZXMgYWN0aXZl
+DQpuZWVkIHRvIGJlIGVuY3J5cHRlZD8NCkEgc2luZ2xlIGJ5dGUgVURQIHBhY2tldCB3b3VsZCBk
+byB0aGUgdHJpY2suDQpZb3UganVzdCBuZWVkIHNvbWV0aGluZyB0aGUgcmVtb3RlIHN5c3RlbSBp
+cyBkZXNpZ25lZCB0byBpZ25vcmUuDQoNCglEYXZpZA0KDQotDQpSZWdpc3RlcmVkIEFkZHJlc3Mg
+TGFrZXNpZGUsIEJyYW1sZXkgUm9hZCwgTW91bnQgRmFybSwgTWlsdG9uIEtleW5lcywgTUsxIDFQ
+VCwgVUsNClJlZ2lzdHJhdGlvbiBObzogMTM5NzM4NiAoV2FsZXMpDQo=
 

@@ -8,56 +8,56 @@ X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 14179C48BDF
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 642BFC49360
 	for <io-uring@archiver.kernel.org>; Mon, 14 Jun 2021 01:37:59 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id DDD60610A0
-	for <io-uring@archiver.kernel.org>; Mon, 14 Jun 2021 01:37:58 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 44A76610A0
+	for <io-uring@archiver.kernel.org>; Mon, 14 Jun 2021 01:37:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232298AbhFNBkA (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        id S232273AbhFNBkA (ORCPT <rfc822;io-uring@archiver.kernel.org>);
         Sun, 13 Jun 2021 21:40:00 -0400
-Received: from mail-wr1-f45.google.com ([209.85.221.45]:33682 "EHLO
-        mail-wr1-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232273AbhFNBj7 (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Sun, 13 Jun 2021 21:39:59 -0400
-Received: by mail-wr1-f45.google.com with SMTP id a20so12651416wrc.0
-        for <io-uring@vger.kernel.org>; Sun, 13 Jun 2021 18:37:57 -0700 (PDT)
+Received: from mail-wm1-f41.google.com ([209.85.128.41]:45006 "EHLO
+        mail-wm1-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232286AbhFNBkA (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Sun, 13 Jun 2021 21:40:00 -0400
+Received: by mail-wm1-f41.google.com with SMTP id m41-20020a05600c3b29b02901b9e5d74f02so8697597wms.3
+        for <io-uring@vger.kernel.org>; Sun, 13 Jun 2021 18:37:47 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=pptAvDXZoGUvE2BDKf3NcQTo8Rs0U3XwGkuJz5fhiok=;
-        b=azd80NxSk4ulYA9bMnu3j1n9Cl3dV1buqyzys91rEgKBTov/lp3KyWEGvsSUSxVzKF
-         r9EWQHWDN3cuRu5r0yH803pVKi33Y2pOKNH9eEiylUEqsZL39ckWCaLvugdbs2t3X07M
-         NFLTPxvuPdIuIxt+L5mnkkpPbHmAr/S8MWjXd2MhOlnrbx+sBN9DgYkZmjGX07x7nAPx
-         a3o8dy9bq5H6tbiklB/N8dA8cpVoZ2GjGl0Ag9O3FkURbqhLxi7H6jkeSjxctTBFImua
-         jGY2Spe3V8Wico+XR2TCWj47FTfuaAUi5IEH75KvAwmnCxlpstdDFknduyY2sc9+gqsM
-         FvEQ==
+        bh=/9Om2s4dnvIqafpA9xWzUVzv7LJgVZBSbBDx0TNmf6w=;
+        b=qV1u6gdhI6iwPoQuAzd8h10BoT8ls64zoQp6eVZwpT0xZFExeIswqTizuuJyV7GStZ
+         YRNDyRfULAfhSeXQYjv9Go6TLRGK7DyL7GcWjbhUbPo2e5+DspRmKD+G4tOAFSL6ZFYb
+         S18TtljkpuAgpcQOO8UzuY1Sm+EE+EQy2RwNi7ODieEGpzN6MAzynCgGBBZsSbr6BTI3
+         RlLECjmIbwmt2TfxvEE4d7VcZ/2v+iCS5C/tHqiyOzmRD/PS5wbjOeMre+a3mmMDdY7e
+         qOiEMatZnkup72oyIKBquB8hog9aDB7dV1YqzYqPGPRvbe5MioahPn3JKf3x8NBwNlOb
+         0KvQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=pptAvDXZoGUvE2BDKf3NcQTo8Rs0U3XwGkuJz5fhiok=;
-        b=T7UtoWSC0wutF689tx23srxAsqm3nwbUpQi4AxfHcxeioUEFF7b/9HNROeiVJP94d5
-         dPvHoq6bMJ/QkbBU7ZJwv9mQ2qORIXI0LtARfnfc3wuyPfJpFQKvZc2JouWDx9LkdC9t
-         facQ4KLCn6OXgLx6Wm9IsZXe43JA5qbMQgnEKLsf8xqBUQHmRqiyjrjRlo2l+9pBjjvC
-         foOoi4EGQrM1rBhvOexTg5CjwH7CMZeV4QnUTx1eIK/btHAOoOxP81PU5XshjOBciBuf
-         M9GzByVm4mmyuixHTIj5rmi/A9fUdjAN+QYZ4++agzTvKdHLlK/cUXtSMoRrSWvCK4tO
-         LGyQ==
-X-Gm-Message-State: AOAM5318vRSP5F//DKhjFNNqNzS0x35zqgGDhKeezTrwV6amv5OM3+xm
-        ZwpWt1/+oh9OD/vbCYWJ9DQ=
-X-Google-Smtp-Source: ABdhPJxtWcV+Eh0Bqp1Taq020apkltbXY8rdyYtIorqUjkUlRKzKE0aWOae98CRdVViXcFfs65/W1g==
-X-Received: by 2002:adf:e68a:: with SMTP id r10mr16047844wrm.326.1623634617161;
-        Sun, 13 Jun 2021 18:36:57 -0700 (PDT)
+        bh=/9Om2s4dnvIqafpA9xWzUVzv7LJgVZBSbBDx0TNmf6w=;
+        b=KJaABGkL2v27GlWwSmnuUPtAk3JCJO/NiPVt4Y8dXfxRmnbHcdhf4JUxXVU3/uLVcZ
+         tkBemgmLE0GQTUB+r6i7s0mWpXRAdosItr5hDRrvnT+bJeA5SsSNFLU2R/K+qGP74vq8
+         B85BIaA6mTYOdFkjgcds0bnNe/pjeCYtNqjLrB0Kg1IxGmRXsbQO0VypRWlzOGzM7Afr
+         vxQkSrQvqPigLRVPS17lawTUhaSV5gn/g01AuDadtmUrFrNA1MytXR1+7Ncy/wbUMQ8Y
+         pF4848r7keg/c8EyfMtkoTvabuhUPIBxlv25YkSIA79kXF6poi6LQ7cp+JfA18SBgPu7
+         xYNg==
+X-Gm-Message-State: AOAM533R/h6vsG6CS0oiO4xIQTQC0lpXVhiW4lAGmx1lfFJup9o1XpBZ
+        oMlpy6D4FdOT+fsHd3IICdA=
+X-Google-Smtp-Source: ABdhPJz35NggHwE2C/tuuOZ5WOPf9u/AMV2VHojA5jsQdbO8rJmxW8lwCHH2DJnC5zMGqruMctKF3g==
+X-Received: by 2002:a05:600c:4282:: with SMTP id v2mr29691520wmc.18.1623634606813;
+        Sun, 13 Jun 2021 18:36:46 -0700 (PDT)
 Received: from localhost.localdomain ([85.255.237.119])
-        by smtp.gmail.com with ESMTPSA id a9sm6795291wrv.37.2021.06.13.18.36.56
+        by smtp.gmail.com with ESMTPSA id a9sm6795291wrv.37.2021.06.13.18.36.46
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 13 Jun 2021 18:36:56 -0700 (PDT)
+        Sun, 13 Jun 2021 18:36:46 -0700 (PDT)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH 13/13] io_uring: inline io_iter_do_read()
-Date:   Mon, 14 Jun 2021 02:36:24 +0100
-Message-Id: <25a26dae7660da73fbc2244b361b397ef43d3caf.1623634182.git.asml.silence@gmail.com>
+Subject: [PATCH 03/13] io_uring: refactor io_iopoll_req_issued
+Date:   Mon, 14 Jun 2021 02:36:14 +0100
+Message-Id: <1513bfde4f0c835be25ac69a82737ab0668d7665.1623634181.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <cover.1623634181.git.asml.silence@gmail.com>
 References: <cover.1623634181.git.asml.silence@gmail.com>
@@ -67,28 +67,88 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-There are only two calls in source code of io_iter_do_read(), the
-function is small and pretty hot though is failed to get inlined.
-Makr it as inline.
+A simple refactoring of io_iopoll_req_issued(), move in_async inside so
+we don't pass it around and save on double checking it.
 
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
- fs/io_uring.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/io_uring.c | 44 +++++++++++++++++++++-----------------------
+ 1 file changed, 21 insertions(+), 23 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 23644179edd4..9c6e1d7dd5b1 100644
+index 485f1f055db3..8fbb48c1ac7a 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -3248,7 +3248,7 @@ static bool io_rw_should_retry(struct io_kiocb *req)
- 	return true;
+@@ -2520,9 +2520,14 @@ static void io_complete_rw_iopoll(struct kiocb *kiocb, long res, long res2)
+  * find it from a io_do_iopoll() thread before the issuer is done
+  * accessing the kiocb cookie.
+  */
+-static void io_iopoll_req_issued(struct io_kiocb *req, bool in_async)
++static void io_iopoll_req_issued(struct io_kiocb *req)
+ {
+ 	struct io_ring_ctx *ctx = req->ctx;
++	const bool in_async = io_wq_current_is_worker();
++
++	/* workqueue context doesn't hold uring_lock, grab it now */
++	if (unlikely(in_async))
++		mutex_lock(&ctx->uring_lock);
+ 
+ 	/*
+ 	 * Track whether we have multiple files in our lists. This will impact
+@@ -2549,14 +2554,19 @@ static void io_iopoll_req_issued(struct io_kiocb *req, bool in_async)
+ 	else
+ 		list_add_tail(&req->inflight_entry, &ctx->iopoll_list);
+ 
+-	/*
+-	 * If IORING_SETUP_SQPOLL is enabled, sqes are either handled in sq thread
+-	 * task context or in io worker task context. If current task context is
+-	 * sq thread, we don't need to check whether should wake up sq thread.
+-	 */
+-	if (in_async && (ctx->flags & IORING_SETUP_SQPOLL) &&
+-	    wq_has_sleeper(&ctx->sq_data->wait))
+-		wake_up(&ctx->sq_data->wait);
++	if (unlikely(in_async)) {
++		/*
++		 * If IORING_SETUP_SQPOLL is enabled, sqes are either handle
++		 * in sq thread task context or in io worker task context. If
++		 * current task context is sq thread, we don't need to check
++		 * whether should wake up sq thread.
++		 */
++		if ((ctx->flags & IORING_SETUP_SQPOLL) &&
++		    wq_has_sleeper(&ctx->sq_data->wait))
++			wake_up(&ctx->sq_data->wait);
++
++		mutex_unlock(&ctx->uring_lock);
++	}
  }
  
--static int io_iter_do_read(struct io_kiocb *req, struct iov_iter *iter)
-+static inline int io_iter_do_read(struct io_kiocb *req, struct iov_iter *iter)
- {
- 	if (req->file->f_op->read_iter)
- 		return call_read_iter(req->file, &req->rw.kiocb, iter);
+ static inline void io_state_file_put(struct io_submit_state *state)
+@@ -6210,23 +6220,11 @@ static int io_issue_sqe(struct io_kiocb *req, unsigned int issue_flags)
+ 
+ 	if (creds)
+ 		revert_creds(creds);
+-
+ 	if (ret)
+ 		return ret;
+-
+ 	/* If the op doesn't have a file, we're not polling for it */
+-	if ((ctx->flags & IORING_SETUP_IOPOLL) && req->file) {
+-		const bool in_async = io_wq_current_is_worker();
+-
+-		/* workqueue context doesn't hold uring_lock, grab it now */
+-		if (in_async)
+-			mutex_lock(&ctx->uring_lock);
+-
+-		io_iopoll_req_issued(req, in_async);
+-
+-		if (in_async)
+-			mutex_unlock(&ctx->uring_lock);
+-	}
++	if ((ctx->flags & IORING_SETUP_IOPOLL) && req->file)
++		io_iopoll_req_issued(req);
+ 
+ 	return 0;
+ }
 -- 
 2.31.1
 

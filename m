@@ -2,95 +2,202 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-14.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1C392C2B9F4
-	for <io-uring@archiver.kernel.org>; Mon, 14 Jun 2021 22:39:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A4BC3C48BDF
+	for <io-uring@archiver.kernel.org>; Tue, 15 Jun 2021 09:49:13 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0078D6124B
-	for <io-uring@archiver.kernel.org>; Mon, 14 Jun 2021 22:39:12 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8D2FD6143E
+	for <io-uring@archiver.kernel.org>; Tue, 15 Jun 2021 09:49:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231365AbhFNWlP (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Mon, 14 Jun 2021 18:41:15 -0400
-Received: from mail-wr1-f44.google.com ([209.85.221.44]:40885 "EHLO
-        mail-wr1-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231187AbhFNWlO (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Mon, 14 Jun 2021 18:41:14 -0400
-Received: by mail-wr1-f44.google.com with SMTP id y7so16109597wrh.7
-        for <io-uring@vger.kernel.org>; Mon, 14 Jun 2021 15:38:58 -0700 (PDT)
+        id S231152AbhFOJvQ (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Tue, 15 Jun 2021 05:51:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58606 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231380AbhFOJvP (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Tue, 15 Jun 2021 05:51:15 -0400
+Received: from mail-wr1-x431.google.com (mail-wr1-x431.google.com [IPv6:2a00:1450:4864:20::431])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ECD16C061574;
+        Tue, 15 Jun 2021 02:49:09 -0700 (PDT)
+Received: by mail-wr1-x431.google.com with SMTP id n7so11420762wri.3;
+        Tue, 15 Jun 2021 02:49:09 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
-         :content-transfer-encoding;
-        bh=Mbs4aKS06IZB+TfbxZSxhmpyU33xxQ8V3Cs1/lVqiZQ=;
-        b=durPPVJj5VCcQPE5ppl8Cex8sthgYZxH83XfV6zo0h5FtrZ/vQ/clnE3hQr3M6o39G
-         PwIKlwvhnhDJcJCp1ZBZD0I1JYkfxGtDq57pHq5aYOZY9CzGgdZHOZ7hBHkUCJJrTNlh
-         FqHqQsrSEKc2M6VNqscsacxGN0luEhDgqUOatiHqCdrgQOS+3VoXVgWY2iyh2V7YTsKg
-         40Qf03T4Bijkvp2/QGHtoWYFF1jSfbRavyMlX1xCmHKqi6OjSGJL+cUJ2duXKABx7URG
-         Lh9xOiu3YV1T66qMzYEGfIKltTNYlMh0Jv5Q1/OTsqVxPITKnXzQvuuTVBZZjD+UCRGH
-         ZRyg==
+        h=subject:to:references:from:message-id:date:user-agent:mime-version
+         :in-reply-to:content-language:content-transfer-encoding;
+        bh=pAL4EuLMD0DuYLQrBykcyo4kWhq8f7TRYsP+eolynnY=;
+        b=Q/1/VKPzKPctpoH2YwzL66txnJPSi8o24Wh+a7ByqDv0B9WKrZCebMN4NJIuJ9RknA
+         yi1DEvsvuomjRIruH4mWmMHPTZais1CljIo2p+nzl3WTzMoKTZQXQC1+w8oO7qi7oCLr
+         Ukkj5p1VDMuOjHrxCvB/yzmx2YLaFet7xaA1PbbI//YlU/xJLLaQP3wWTLeMQ2oJCu/8
+         8FN0LByaOMqKQszGmSctFccmbFtjXCj19OnxldJ+Rjk/mUtUT/Kcbx4JaIw7pBfl6Xqd
+         aQdXgNLEr3vIkmaVfGWcCWbLboYk0+CaWspmrkaGyrwS44lzSiQO3dimP39Wdr4tJLvX
+         pJZA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=Mbs4aKS06IZB+TfbxZSxhmpyU33xxQ8V3Cs1/lVqiZQ=;
-        b=E4JNG35s0mcrvtPYMofTzgkxhWSBiSCFRbAP36mLB2m+5GeSt4F78WDjI0odSWA3tv
-         SqyzW0Cn4ASHvixQ2bvXCCz657jhZ2OlhmbL99dmvMg0FlhwanI/dDwAjWSdjZzGURku
-         nI4stS8RXQpF27RFKvNzfREBCRjTNNJCn8H6zjQ/rljMwA8586IxuD619FrX0ItpE/4m
-         F0lJDtMWOyn3x88QqNV0xq9NUBIsADzEBcITca6cw5iXPpgkFoQnzWqoNXG7c4M/UC5P
-         SQuuQMkCXjvGLjs+e5BDI6uexlfSCoWLEnv043/j1tcCXlDtuRriBAFzXl/1oncP5zdH
-         9jgQ==
-X-Gm-Message-State: AOAM532Ovfs1HUtObndtKQDLbM2gqeWyOa72aearxMzEcl8WirJ6m9o7
-        EVhT5Z78Agh9KFLo9tDQotYWyKIWt/SzxUEt
-X-Google-Smtp-Source: ABdhPJz8IONYMMOpm/9LfPCh7IrGDFXfwQPeXhU/PU/ZulcUHEyxacqa6Wpb9wcruWrFuIrvUoa4pQ==
-X-Received: by 2002:adf:b19a:: with SMTP id q26mr1086284wra.401.1623710278047;
-        Mon, 14 Jun 2021 15:37:58 -0700 (PDT)
-Received: from localhost.localdomain ([148.252.132.209])
-        by smtp.gmail.com with ESMTPSA id x3sm621074wmj.30.2021.06.14.15.37.57
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 14 Jun 2021 15:37:57 -0700 (PDT)
+        h=x-gm-message-state:subject:to:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=pAL4EuLMD0DuYLQrBykcyo4kWhq8f7TRYsP+eolynnY=;
+        b=l09axVKwUwS1m/fuQRLR3yb9RaEhUn7t6/Io8qVcD7Cq9AyTCie2RUMD7s4qP8qhdl
+         BdLg9tBzZan6qIlqNuSY9QB4ErMWZdMGr6l8lhhtw4rkvhA2dTTJcce1EB/CeIKCofwj
+         gJJRCDgMLEbRo1Er/gg/JSabbwQhlMXLPDlN+da/HPm2MlsmsDSllEFxIaM1bZP3+3lT
+         5nqtiv6DgsOGNmNvc95peaL8SeSLV0q84XIknpwAnA1W4WHHoYwLKg7pDzqgRSAyXgrB
+         16kd+r2B9M1ZyUUccUPoOe94q5Rewq0IqiaB/9yrAOZzVfsAQcLR6VyVbIgyGFpVS3Mj
+         pOjQ==
+X-Gm-Message-State: AOAM531CYq9HnExdB4gmOpsPkmiayLP1E8Zgj5e9C8FeXuLrs5S1fa+f
+        MvG5Oy6SNHBFKoog/9SZ9ksyA1H8pJTg9RPa
+X-Google-Smtp-Source: ABdhPJzIh3zVVYQvIURH8QnEI+3xKpl4APbLw4T3zk7h3M8E5TZbL4XVhG9J2TVprtDt8ZWnUymmlA==
+X-Received: by 2002:a5d:438a:: with SMTP id i10mr24150624wrq.82.1623750548352;
+        Tue, 15 Jun 2021 02:49:08 -0700 (PDT)
+Received: from [192.168.8.197] ([148.252.132.209])
+        by smtp.gmail.com with ESMTPSA id o20sm1756419wms.3.2021.06.15.02.49.07
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 15 Jun 2021 02:49:07 -0700 (PDT)
+Subject: Re: [PATCH v2 2/3] io_uring: minor clean up in trace events
+ definition
+To:     Olivier Langlois <olivier@trillion01.com>,
+        Jens Axboe <axboe@kernel.dk>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Ingo Molnar <mingo@redhat.com>, io-uring@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+References: <60be7e31.1c69fb81.a8bfb.2e54SMTPIN_ADDED_MISSING@mx.google.com>
 From:   Pavel Begunkov <asml.silence@gmail.com>
-To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH 07/12] io_uring: small io_submit_sqe() optimisation
-Date:   Mon, 14 Jun 2021 23:37:26 +0100
-Message-Id: <1579939426f3ad6b55af3005b1389bbbed7d780d.1623709150.git.asml.silence@gmail.com>
-X-Mailer: git-send-email 2.31.1
-In-Reply-To: <cover.1623709150.git.asml.silence@gmail.com>
-References: <cover.1623709150.git.asml.silence@gmail.com>
+Message-ID: <2752dcc1-9e56-ba31-54ea-d2363ecb6c93@gmail.com>
+Date:   Tue, 15 Jun 2021 10:48:54 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.10.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <60be7e31.1c69fb81.a8bfb.2e54SMTPIN_ADDED_MISSING@mx.google.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-submit_state.link is used only to assemble a link and not used for
-actual submission, so clear it before io_queue_sqe() in io_submit_sqe(),
-awhile it's hot and in caches and queueing doesn't spoil it. May also
-potentially help compiler with spilling or to do other optimisations.
+On 5/31/21 7:54 AM, Olivier Langlois wrote:
+> Fix tabulation to make nice columns
 
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
----
- fs/io_uring.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Reviewed-by: Pavel Begunkov <asml.silence@gmail.com>
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index fbf3b2149a4c..9c73991465c8 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -6616,8 +6616,8 @@ static int io_submit_sqe(struct io_ring_ctx *ctx, struct io_kiocb *req,
- 
- 		/* last request of a link, enqueue the link */
- 		if (!(req->flags & (REQ_F_LINK | REQ_F_HARDLINK))) {
--			io_queue_sqe(head);
- 			link->head = NULL;
-+			io_queue_sqe(head);
- 		}
- 	} else {
- 		if (unlikely(ctx->drain_next)) {
+> 
+> Signed-off-by: Olivier Langlois <olivier@trillion01.com>
+> ---
+>  include/trace/events/io_uring.h | 35 ++++++++++++++++-----------------
+>  1 file changed, 17 insertions(+), 18 deletions(-)
+> 
+> diff --git a/include/trace/events/io_uring.h b/include/trace/events/io_uring.h
+> index 12addad1f837..e4e44a2b4aa9 100644
+> --- a/include/trace/events/io_uring.h
+> +++ b/include/trace/events/io_uring.h
+> @@ -12,11 +12,11 @@ struct io_wq_work;
+>  /**
+>   * io_uring_create - called after a new io_uring context was prepared
+>   *
+> - * @fd:			corresponding file descriptor
+> - * @ctx:		pointer to a ring context structure
+> + * @fd:		corresponding file descriptor
+> + * @ctx:	pointer to a ring context structure
+>   * @sq_entries:	actual SQ size
+>   * @cq_entries:	actual CQ size
+> - * @flags:		SQ ring flags, provided to io_uring_setup(2)
+> + * @flags:	SQ ring flags, provided to io_uring_setup(2)
+>   *
+>   * Allows to trace io_uring creation and provide pointer to a context, that can
+>   * be used later to find correlated events.
+> @@ -52,12 +52,12 @@ TRACE_EVENT(io_uring_create,
+>   * io_uring_register - called after a buffer/file/eventfd was successfully
+>   * 					   registered for a ring
+>   *
+> - * @ctx:			pointer to a ring context structure
+> - * @opcode:			describes which operation to perform
+> + * @ctx:		pointer to a ring context structure
+> + * @opcode:		describes which operation to perform
+>   * @nr_user_files:	number of registered files
+>   * @nr_user_bufs:	number of registered buffers
+>   * @cq_ev_fd:		whether eventfs registered or not
+> - * @ret:			return code
+> + * @ret:		return code
+>   *
+>   * Allows to trace fixed files/buffers/eventfds, that could be registered to
+>   * avoid an overhead of getting references to them for every operation. This
+> @@ -142,16 +142,16 @@ TRACE_EVENT(io_uring_queue_async_work,
+>  	TP_ARGS(ctx, rw, req, work, flags),
+>  
+>  	TP_STRUCT__entry (
+> -		__field(  void *,				ctx		)
+> -		__field(  int,					rw		)
+> -		__field(  void *,				req		)
+> +		__field(  void *,			ctx	)
+> +		__field(  int,				rw	)
+> +		__field(  void *,			req	)
+>  		__field(  struct io_wq_work *,		work	)
+>  		__field(  unsigned int,			flags	)
+>  	),
+>  
+>  	TP_fast_assign(
+>  		__entry->ctx	= ctx;
+> -		__entry->rw		= rw;
+> +		__entry->rw	= rw;
+>  		__entry->req	= req;
+>  		__entry->work	= work;
+>  		__entry->flags	= flags;
+> @@ -196,10 +196,10 @@ TRACE_EVENT(io_uring_defer,
+>  
+>  /**
+>   * io_uring_link - called before the io_uring request added into link_list of
+> - * 				   another request
+> + * 		   another request
+>   *
+> - * @ctx:			pointer to a ring context structure
+> - * @req:			pointer to a linked request
+> + * @ctx:		pointer to a ring context structure
+> + * @req:		pointer to a linked request
+>   * @target_req:		pointer to a previous request, that would contain @req
+>   *
+>   * Allows to track linked requests, to understand dependencies between requests
+> @@ -212,8 +212,8 @@ TRACE_EVENT(io_uring_link,
+>  	TP_ARGS(ctx, req, target_req),
+>  
+>  	TP_STRUCT__entry (
+> -		__field(  void *,	ctx			)
+> -		__field(  void *,	req			)
+> +		__field(  void *,	ctx		)
+> +		__field(  void *,	req		)
+>  		__field(  void *,	target_req	)
+>  	),
+>  
+> @@ -244,7 +244,7 @@ TRACE_EVENT(io_uring_cqring_wait,
+>  	TP_ARGS(ctx, min_events),
+>  
+>  	TP_STRUCT__entry (
+> -		__field(  void *,	ctx			)
+> +		__field(  void *,	ctx		)
+>  		__field(  int,		min_events	)
+>  	),
+>  
+> @@ -272,7 +272,7 @@ TRACE_EVENT(io_uring_fail_link,
+>  	TP_ARGS(req, link),
+>  
+>  	TP_STRUCT__entry (
+> -		__field(  void *,	req		)
+> +		__field(  void *,	req	)
+>  		__field(  void *,	link	)
+>  	),
+>  
+> @@ -318,7 +318,6 @@ TRACE_EVENT(io_uring_complete,
+>  			  __entry->res, __entry->cflags)
+>  );
+>  
+> -
+>  /**
+>   * io_uring_submit_sqe - called before submitting one SQE
+>   *
+> 
+
 -- 
-2.31.1
-
+Pavel Begunkov

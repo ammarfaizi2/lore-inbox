@@ -2,42 +2,38 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 079A4C48BE5
-	for <io-uring@archiver.kernel.org>; Wed, 16 Jun 2021 13:33:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1A2ACC48BE5
+	for <io-uring@archiver.kernel.org>; Wed, 16 Jun 2021 13:42:50 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D6D796128B
-	for <io-uring@archiver.kernel.org>; Wed, 16 Jun 2021 13:33:24 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id F275E6100A
+	for <io-uring@archiver.kernel.org>; Wed, 16 Jun 2021 13:42:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232774AbhFPNf3 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Wed, 16 Jun 2021 09:35:29 -0400
-Received: from cloud48395.mywhc.ca ([173.209.37.211]:42712 "EHLO
+        id S232796AbhFPNoz (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 16 Jun 2021 09:44:55 -0400
+Received: from cloud48395.mywhc.ca ([173.209.37.211]:56044 "EHLO
         cloud48395.mywhc.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230187AbhFPNf2 (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Wed, 16 Jun 2021 09:35:28 -0400
-Received: from modemcable064.203-130-66.mc.videotron.ca ([66.130.203.64]:32852 helo=[192.168.1.179])
+        with ESMTP id S232658AbhFPNoy (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Wed, 16 Jun 2021 09:44:54 -0400
+Received: from modemcable064.203-130-66.mc.videotron.ca ([66.130.203.64]:32854 helo=[192.168.1.179])
         by cloud48395.mywhc.ca with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
         (Exim 4.94.2)
         (envelope-from <olivier@trillion01.com>)
-        id 1ltVfT-0005SL-R5; Wed, 16 Jun 2021 09:33:19 -0400
-Message-ID: <f3cf3dc047dcee400423f526c1fe31510c5bcf61.camel@trillion01.com>
-Subject: Re: [PATCH v2 2/3] io_uring: minor clean up in trace events
- definition
+        id 1ltVoc-0005pO-5A; Wed, 16 Jun 2021 09:42:46 -0400
+Message-ID: <4f32f06306eac4dd7780ed28c06815e3d15b43ad.camel@trillion01.com>
+Subject: Re: [PATCH] io_uring: store back buffer in case of failure
 From:   Olivier Langlois <olivier@trillion01.com>
 To:     Jens Axboe <axboe@kernel.dk>,
         Pavel Begunkov <asml.silence@gmail.com>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Ingo Molnar <mingo@redhat.com>, io-uring@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Date:   Wed, 16 Jun 2021 09:33:18 -0400
-In-Reply-To: <def5421f-a3ae-12fd-87a2-6e584f753127@kernel.dk>
-References: <60be7e31.1c69fb81.a8bfb.2e54SMTPIN_ADDED_MISSING@mx.google.com>
-         <2752dcc1-9e56-ba31-54ea-d2363ecb6c93@gmail.com>
-         <def5421f-a3ae-12fd-87a2-6e584f753127@kernel.dk>
+        io-uring@vger.kernel.org, linux-kernel@vger.kernel.org
+Date:   Wed, 16 Jun 2021 09:42:45 -0400
+In-Reply-To: <b5b37477-985e-54da-fc34-4de389112365@kernel.dk>
+References: <60c83c12.1c69fb81.e3bea.0806SMTPIN_ADDED_MISSING@mx.google.com>
+         <93256513-08d8-5b15-aa98-c1e83af60b54@gmail.com>
+         <b5b37477-985e-54da-fc34-4de389112365@kernel.dk>
 Organization: Trillion01 Inc
 Content-Type: text/plain; charset="ISO-8859-1"
 User-Agent: Evolution 3.40.2 
@@ -57,72 +53,15 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On Tue, 2021-06-15 at 15:50 -0600, Jens Axboe wrote:
-> On 6/15/21 3:48 AM, Pavel Begunkov wrote:
-> > On 5/31/21 7:54 AM, Olivier Langlois wrote:
-> > > Fix tabulation to make nice columns
-> > 
-> > Reviewed-by: Pavel Begunkov <asml.silence@gmail.com>
+On Tue, 2021-06-15 at 15:51 -0600, Jens Axboe wrote:
+> Ditto for this one, don't see it in my email nor on the list.
 > 
-> I don't have any of the original 1-3 patches, and don't see them on the
-> list either. I'd love to apply for 5.14, but...
-> 
-> Olivier, are you getting any errors sending these out?Usually I'd
-> expect
-> them in my inbox as well outside of the list, but they don't seem to
-> have
-> arrived there either.
-> 
-> In any case, please resend. As Pavel mentioned, a cover letter is
-> always
-> a good idea for a series of more than one patch.
-> 
-I do not get any errors but I have noticed too that my emails weren't
-accepted by the lists.
+I can resend you a private copy of this one but as Pavel pointed out,
+it contains fatal flaws.
 
-They will accept replies in already existing threads but they won't let
-me create new ones. ie: accepting my patches.
-
-I'll learn how create a cover email and I will resend the series of
-patches later today.
-
-one thing that I can tell, it is that Pavel and you are always
-recipients along with the lists for my patches... So you should have a
-private copy somewhere in your mailbox...
-
-The other day, I even got this:
--------- Forwarded Message --------
-From: Mail Delivery System <Mailer-Daemon@cloud48395.mywhc.ca>
-To: olivier@trillion01.com
-Subject: Mail delivery failed: returning message to sender
-Date: Thu, 10 Jun 2021 11:38:51 -0400
-
-This message was created automatically by mail delivery software.
-
-A message that you sent could not be delivered to one or more of its
-recipients. This is a permanent error. The following address(es)
-failed:
-
-  linux-kernel@vger.kernel.org
-    host vger.kernel.org [23.128.96.18]
-    SMTP error from remote mail server after end of data:
-    550 5.7.1 Content-Policy accept-into-freezer-1 msg:
-    Bayes Statistical Bogofilter considers this message SPAM.  BF:<S
-0.9924>  In case you disagree, send the ENTIRE message plus this error
-message to <postmaster@vger.kernel.org> ; S230153AbhFJPkq
-  io-uring@vger.kernel.org
-    host vger.kernel.org [23.128.96.18]
-    SMTP error from remote mail server after end of data:
-    550 5.7.1 Content-Policy accept-into-freezer-1 msg:
-    Bayes Statistical Bogofilter considers this message SPAM.  BF:<S
-0.9924>  In case you disagree, send the ENTIRE message plus this error
-message to <postmaster@vger.kernel.org> ; S230153AbhFJPkq
-
-There is definitely something that the list software doesn't like in my
-emails but I don't know what...
-
-I did send an email to postmaster@vger.kernel.org to tell them about
-the problem but I didn't hear back anything from the postmaster... (My
-email probably went to the SPAM folder as well!)
+So unless someone can tell me that the idea is interesting and has
+potential and can give me some a hint or 2 about how to address the
+challenges to fix the current flaws, it is pretty much a show stopper
+to me and I think that I am going to let it go...
 
 

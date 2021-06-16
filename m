@@ -6,84 +6,113 @@ X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
 	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D7C08C48BE5
-	for <io-uring@archiver.kernel.org>; Wed, 16 Jun 2021 20:00:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 84F23C48BE6
+	for <io-uring@archiver.kernel.org>; Wed, 16 Jun 2021 21:30:15 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C0BDA61375
-	for <io-uring@archiver.kernel.org>; Wed, 16 Jun 2021 20:00:23 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5370060FE8
+	for <io-uring@archiver.kernel.org>; Wed, 16 Jun 2021 21:30:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232915AbhFPUC1 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Wed, 16 Jun 2021 16:02:27 -0400
-Received: from out03.mta.xmission.com ([166.70.13.233]:35090 "EHLO
-        out03.mta.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231373AbhFPUC1 (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Wed, 16 Jun 2021 16:02:27 -0400
-Received: from in01.mta.xmission.com ([166.70.13.51])
-        by out03.mta.xmission.com with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.93)
-        (envelope-from <ebiederm@xmission.com>)
-        id 1ltbhz-00ALKF-B8; Wed, 16 Jun 2021 14:00:19 -0600
-Received: from ip68-227-160-95.om.om.cox.net ([68.227.160.95] helo=email.xmission.com)
-        by in01.mta.xmission.com with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.93)
-        (envelope-from <ebiederm@xmission.com>)
-        id 1ltbhy-00GzYo-EL; Wed, 16 Jun 2021 14:00:18 -0600
-From:   ebiederm@xmission.com (Eric W. Biederman)
-To:     Olivier Langlois <olivier@trillion01.com>
-Cc:     Oleg Nesterov <oleg@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-        io-uring <io-uring@vger.kernel.org>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Jens Axboe <axboe@kernel.dk>,
-        "Pavel Begunkov\>" <asml.silence@gmail.com>
-References: <CAHk-=wjC7GmCHTkoz2_CkgSc_Cgy19qwSQgJGXz+v2f=KT3UOw@mail.gmail.com>
-        <198e912402486f66214146d4eabad8cb3f010a8e.camel@trillion01.com>
-        <87eeda7nqe.fsf@disp2133>
-        <b8434a8987672ab16f9fb755c1fc4d51e0f4004a.camel@trillion01.com>
-        <87pmwt6biw.fsf@disp2133> <87czst5yxh.fsf_-_@disp2133>
-        <CAHk-=wiax83WoS0p5nWvPhU_O+hcjXwv6q3DXV8Ejb62BfynhQ@mail.gmail.com>
-        <87y2bh4jg5.fsf@disp2133>
-        <CAHk-=wjPiEaXjUp6PTcLZFjT8RrYX+ExtD-RY3NjFWDN7mKLbw@mail.gmail.com>
-        <87sg1p4h0g.fsf_-_@disp2133> <20210614141032.GA13677@redhat.com>
-        <87pmwmn5m0.fsf@disp2133>
-        <4163ed48afbcb1c288b366fe2745205cd66bea3d.camel@trillion01.com>
-Date:   Wed, 16 Jun 2021 15:00:12 -0500
-In-Reply-To: <4163ed48afbcb1c288b366fe2745205cd66bea3d.camel@trillion01.com>
-        (Olivier Langlois's message of "Wed, 16 Jun 2021 15:23:14 -0400")
-Message-ID: <87v96dd1gz.fsf@disp2133>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/26.1 (gnu/linux)
+        id S234029AbhFPVcS (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 16 Jun 2021 17:32:18 -0400
+Received: from cloud48395.mywhc.ca ([173.209.37.211]:45820 "EHLO
+        cloud48395.mywhc.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233126AbhFPVcS (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Wed, 16 Jun 2021 17:32:18 -0400
+Received: from modemcable064.203-130-66.mc.videotron.ca ([66.130.203.64]:32894 helo=[192.168.1.179])
+        by cloud48395.mywhc.ca with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.94.2)
+        (envelope-from <olivier@trillion01.com>)
+        id 1ltd6w-0005gK-7H; Wed, 16 Jun 2021 17:30:10 -0400
+Message-ID: <1cf91b2f760686678acfbefcc66309cd061986d5.camel@trillion01.com>
+Subject: Re: [PATCH v2 2/3] io_uring: minor clean up in trace events
+ definition
+From:   Olivier Langlois <olivier@trillion01.com>
+To:     Jens Axboe <axboe@kernel.dk>, Steven Rostedt <rostedt@goodmis.org>
+Cc:     Pavel Begunkov <asml.silence@gmail.com>,
+        Ingo Molnar <mingo@redhat.com>, io-uring@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Date:   Wed, 16 Jun 2021 17:30:09 -0400
+In-Reply-To: <237f71d5-ee6e-247c-c185-e4e6afbd317c@kernel.dk>
+References: <60be7e31.1c69fb81.a8bfb.2e54SMTPIN_ADDED_MISSING@mx.google.com>
+         <2752dcc1-9e56-ba31-54ea-d2363ecb6c93@gmail.com>
+         <def5421f-a3ae-12fd-87a2-6e584f753127@kernel.dk>
+         <20210615193532.6d7916d4@gandalf.local.home>
+         <2ba15b09-2228-9a2a-3ac3-c471dd3fc912@kernel.dk>
+         <3f5447bf02453a034f4eb71f092dd1d1455ec7ad.camel@trillion01.com>
+         <237f71d5-ee6e-247c-c185-e4e6afbd317c@kernel.dk>
+Organization: Trillion01 Inc
+Content-Type: text/plain; charset="ISO-8859-1"
+User-Agent: Evolution 3.40.2 
 MIME-Version: 1.0
-Content-Type: text/plain
-X-XM-SPF: eid=1ltbhy-00GzYo-EL;;;mid=<87v96dd1gz.fsf@disp2133>;;;hst=in01.mta.xmission.com;;;ip=68.227.160.95;;;frm=ebiederm@xmission.com;;;spf=neutral
-X-XM-AID: U2FsdGVkX1/YHsuWebb9sYalsImH4bcCYfwK+jJ/HM8=
-X-SA-Exim-Connect-IP: 68.227.160.95
-X-SA-Exim-Mail-From: ebiederm@xmission.com
-Subject: Re: [PATCH] coredump: Limit what can interrupt coredumps
-X-SA-Exim-Version: 4.2.1 (built Sat, 08 Feb 2020 21:53:50 +0000)
-X-SA-Exim-Scanned: Yes (on in01.mta.xmission.com)
+Content-Transfer-Encoding: 7bit
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - cloud48395.mywhc.ca
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - trillion01.com
+X-Get-Message-Sender-Via: cloud48395.mywhc.ca: authenticated_id: olivier@trillion01.com
+X-Authenticated-Sender: cloud48395.mywhc.ca: olivier@trillion01.com
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Olivier Langlois <olivier@trillion01.com> writes:
+On Wed, 2021-06-16 at 13:02 -0600, Jens Axboe wrote:
+> On 6/16/21 1:00 PM, Olivier Langlois wrote:
+> > On Wed, 2021-06-16 at 06:49 -0600, Jens Axboe wrote:
+> > > 
+> > > Indeed, that is what is causing the situation, and I do have them
+> > > here.
+> > > Olivier, you definitely want to fix your mail setup. It confuses
+> > > both
+> > > MUAs, but it also actively prevents using the regular tooling to
+> > > pull
+> > > these patches off lore for example.
+> > > 
+> > Ok, I will... It seems that only my patch emails are having this
+> > issue.
+> > I am pretty sure that I can find instances of non patch emails
+> > going
+> > making it to the lists...
+> 
+> The problem is that even if they do make it to the list, you can't
+> use eg b4 to pull them off the list.
+> 
+Jens,
 
-> I redid my test but this time instead of dumping directly into a file,
-> I did let the coredump be piped to the systemd coredump module and the
-> coredump generation isn't working as expected when piping.
->
-> So your code review conclusions are correct.
+I am unfamiliar with the regular tooling and eg b4 (which I assume are
+part of the regular tooling) so I am not fully understanding everything
+you say.
 
-Thank you for confirming that.
+My take away from all this is that it is very important that my patches
+do reach the lists and I commit to put the necessary efforts to make
+that happen.
 
-Do you know how your test program is using io_uring?
+My last email was simply myself starting diagnose where my problem
+could be outloud.
 
-I have been trying to put the pieces together on what io_uring is doing
-that stops the coredump.  The fact that it takes a little while before
-it kills the coredump is a little puzzling.  The code looks like all of
-the io_uring operations should have been canceled before the coredump
-starts.
+Steven did mention that he wasn't seeing the Message-Id field in my
+patch emails. I'm very grateful for this clue!
 
-Thanks,
-Eric
+My main email client is Gnome Evolution (when Message-Id is present in
+my mails) and I do the following to send out patches:
+
+1. git format-patch -o ~/patches HEAD^
+2. Edit patch file by adding recipients listed by
+scripts/get_maintainer.pl
+3. cat patch_file | msmtp -t -a default
+
+The weird thing is that when I have noticed that my patches weren't
+making it to the lists, I started to Cc myself to receive a copy of the
+patch. When I inspect the copy header, it contains the Message-Id field
+but it might be the receiving email client that on reception does add
+the missing field so I don't know exactly what is happening.
+
+you have my word. Next patch I send, it will be make it to the lists.
+
+thx a lot for your comprehension and your assistance!
+Olivier
+
+

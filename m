@@ -8,59 +8,59 @@ X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A959AC48BE5
-	for <io-uring@archiver.kernel.org>; Thu, 17 Jun 2021 17:14:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 387EAC49361
+	for <io-uring@archiver.kernel.org>; Thu, 17 Jun 2021 17:14:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8FEAB613CB
-	for <io-uring@archiver.kernel.org>; Thu, 17 Jun 2021 17:14:45 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1B311613BF
+	for <io-uring@archiver.kernel.org>; Thu, 17 Jun 2021 17:14:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232041AbhFQRQw (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Thu, 17 Jun 2021 13:16:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45374 "EHLO
+        id S232083AbhFQRQx (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Thu, 17 Jun 2021 13:16:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45386 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232068AbhFQRQw (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Thu, 17 Jun 2021 13:16:52 -0400
-Received: from mail-wm1-x32b.google.com (mail-wm1-x32b.google.com [IPv6:2a00:1450:4864:20::32b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6CAD1C061574
-        for <io-uring@vger.kernel.org>; Thu, 17 Jun 2021 10:14:43 -0700 (PDT)
-Received: by mail-wm1-x32b.google.com with SMTP id t4-20020a1c77040000b029019d22d84ebdso6866837wmi.3
-        for <io-uring@vger.kernel.org>; Thu, 17 Jun 2021 10:14:43 -0700 (PDT)
+        with ESMTP id S232068AbhFQRQx (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Thu, 17 Jun 2021 13:16:53 -0400
+Received: from mail-wm1-x332.google.com (mail-wm1-x332.google.com [IPv6:2a00:1450:4864:20::332])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E82DC061574
+        for <io-uring@vger.kernel.org>; Thu, 17 Jun 2021 10:14:45 -0700 (PDT)
+Received: by mail-wm1-x332.google.com with SMTP id j18so3744528wms.3
+        for <io-uring@vger.kernel.org>; Thu, 17 Jun 2021 10:14:45 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=fPm1VhHHAkUf+D3WOzN5r9jite12Z64GIFUeEdXWDdw=;
-        b=Yi5OqMBe7siIAVBdIbsoPlTuEh28rfiww0PwVFLFFJlEeYXbT28GdT8cacTBooVvD5
-         Gc7dZeCi+GlhiWhiwGtMFNJv4s47riVnVuP/ixNl0XbByCbBTU1uQqW7aud7/XHv+n7m
-         27jyk1ZPxEO/92irbtEgepSA+ClCisSnD9l3WKIh18o7NAdx5AH9Bo5CVw3LxzGVmjjg
-         c9h/4wPdYcslLvxk+nAZzO6u6GHLEaRzoaD7CQiT+mfuoNyjenQE2/25JXtUZ1cs6WdU
-         hgKmXhSEOBOKXh8wEsDw4XuwDW8rP5mOy0edV0Tx4GDxJMjsL35pnBn78iEyulz1JZ7+
-         6t8Q==
+        bh=3ZJri6LhV0WV3gdp096U7qnTXrMTCBsa58/9gR/Qtyc=;
+        b=olar5Ukh6L0iDKYOFWT6eFNQlWr3OzFO73FhJFtEDBlk1dejtSxNVidKUX0HmCQrql
+         AOtJBJGpel5El+0X21EYON+dwuy9bYf1djZ2GfYkXjYyCuboMRGd7qQ9ixgVw8xTdAwZ
+         IyT3A53SOnAcOPh7ajgAI3TAvLpeNhCobFU5Ns/0Yf5i2oBRvr9nKW42SkKTRc5YIyGt
+         qTUJ2QOzexpXSF7WNLMFlIiRGpBTwc3v5CvCmALnegHTYX0UrHnscQcnE2ZDzbL2eafF
+         UUdJMUeDkX30DV6SMhnzMI3tz70QVN4i8COgbUqrivRrwhYyaaTJTjEowIKwq+XtCq5r
+         r34Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=fPm1VhHHAkUf+D3WOzN5r9jite12Z64GIFUeEdXWDdw=;
-        b=fxMqcrXnVVAk50v3DwYBbmnzSH4vGM3te9davvIjkz+6Op+9zvNocY0wDcwMBsck/o
-         VMbU0G/t97DEOuqqdVkHNJrN0yopnjZ2XIbVGgMYSH/Rggk8hd4LupoAFONNe/BbviCP
-         BLQpwEBn/kim/u3QFrXeLiv2QMusnC+siJdgUlh9J8NbU5xvoJ/GkwavgMhh8zZJ+Jax
-         Ryl+3p1+fnlkIK34aZ9hePpLBOqLpRLfV8FTd4e2gKnkQRd7dl91d0J+pSFRcuLHcYtn
-         PeEsw341CL/CgIG//cdBcPyuXMNOpHwSdpe9HVpvNbTsnsCxP5osa4Do7LBaBQKhMBwv
-         8nxw==
-X-Gm-Message-State: AOAM532a680thfs7PEK6KGcI2XKGwQR8d0o/9LzLfY5lASfAywXk8J1V
-        C740EjkxvNQlEBJssl8IF9f+2VMSVTTwSw==
-X-Google-Smtp-Source: ABdhPJx0ZgK1sElWYuEboFp0JtJV17RpZ+G2DHgQLDXa48VNf6Q4WMdMUtLQu9p0a+ThlHCa2D9biQ==
-X-Received: by 2002:a1c:5fc1:: with SMTP id t184mr6437027wmb.148.1623950082066;
-        Thu, 17 Jun 2021 10:14:42 -0700 (PDT)
+        bh=3ZJri6LhV0WV3gdp096U7qnTXrMTCBsa58/9gR/Qtyc=;
+        b=WPgx+EtsoBOjJsqMGbnSXhQSuGZ43aiKvVs/qpkXxkO7jYsRkmU96y4vKBQLIi4iPm
+         vCTO/vjlDJD5bywuDqWL+4bUT8bNOaA8+M2iOGSrwLArUGWsRpUEfY/D03NZPiksoEdj
+         A2hKOQOjev8McU21Hb2mGJNdcxGV45hEab5M+tuQ2ShQ2teCRx6gvz8dAIxf6S0S8ZDI
+         IYaTHVd6Csl/bhdOmUoxIuclLRiUYsRe+bIDjDh1HdfSBMfK6Hu30Iwa2n+R6Xz3KRfx
+         Oe3X0JZ2GsRVqnW+9ZIDfkQjV75suyv9CH4nsIu8NfBKTXO/D/tXLV/51p5Wfg7NIuRa
+         uvdw==
+X-Gm-Message-State: AOAM530V4aA6ZDH6iZcaF5ILgY65tPFA63K/U8gQCWSleBa1j6+eenH2
+        0gdhcVJfm4dSlLeonKdlpoY=
+X-Google-Smtp-Source: ABdhPJxb0LKRHaYcts5CcX/QzIJhCpVY6isfp8wvkY6CD8wUK+gi5fewS51IUUGSxDHIc6bn+xmtFA==
+X-Received: by 2002:a05:600c:1c84:: with SMTP id k4mr6349409wms.164.1623950083906;
+        Thu, 17 Jun 2021 10:14:43 -0700 (PDT)
 Received: from localhost.localdomain ([148.252.132.93])
-        by smtp.gmail.com with ESMTPSA id g17sm6208033wrp.61.2021.06.17.10.14.41
+        by smtp.gmail.com with ESMTPSA id g17sm6208033wrp.61.2021.06.17.10.14.43
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 17 Jun 2021 10:14:41 -0700 (PDT)
+        Thu, 17 Jun 2021 10:14:43 -0700 (PDT)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH 09/12] io_uring: optimise task_work submit flushing
-Date:   Thu, 17 Jun 2021 18:14:07 +0100
-Message-Id: <3cac83934e4fbce520ff8025c3524398b3ae0270.1623949695.git.asml.silence@gmail.com>
+Subject: [PATCH 11/12] io_uring: don't resched with empty task_list
+Date:   Thu, 17 Jun 2021 18:14:09 +0100
+Message-Id: <c4173e288e69793d03c7d7ce826f9d28afba718a.1623949695.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <cover.1623949695.git.asml.silence@gmail.com>
 References: <cover.1623949695.git.asml.silence@gmail.com>
@@ -70,53 +70,42 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-tctx_task_work() tries to fetch a next batch of requests, but before it
-would flush completions from the previous batch that may be sub-optimal.
-E.g. io_req_task_queue() executes a head of the link where all the
-linked may be enqueued through the same io_req_task_queue(). And there
-are more cases for that.
+Entering tctx_task_work() with empty task_list is a strange scenario,
+that can happen only on rare occasion during task exit, so let's not
+check for task_list emptiness in advance and do it do-while style. The
+code still correct for the empty case, just would do extra work about
+which we don't care.
 
-Do the flushing at the end, so it can cache completions of several waves
-of a single tctx_task_work(), and do the flush at the very end.
+Do extra step and do the check before cond_resched(), so we don't
+resched if have nothing to execute.
 
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
- fs/io_uring.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ fs/io_uring.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index d8bc4f82efd1..f31f00c6e829 100644
+index 31afe25596d7..2fdca298e173 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -1890,13 +1890,13 @@ static void ctx_flush_and_put(struct io_ring_ctx *ctx)
- 
- static void tctx_task_work(struct callback_head *cb)
- {
-+	struct io_ring_ctx *ctx = NULL;
- 	struct io_uring_task *tctx = container_of(cb, struct io_uring_task,
- 						  task_work);
+@@ -1896,7 +1896,7 @@ static void tctx_task_work(struct callback_head *cb)
  
  	clear_bit(0, &tctx->task_state);
  
- 	while (!wq_list_empty(&tctx->task_list)) {
--		struct io_ring_ctx *ctx = NULL;
- 		struct io_wq_work_list list;
+-	while (!wq_list_empty(&tctx->task_list)) {
++	while (1) {
  		struct io_wq_work_node *node;
  
-@@ -1920,11 +1920,12 @@ static void tctx_task_work(struct callback_head *cb)
+ 		spin_lock_irq(&tctx->task_lock);
+@@ -1917,6 +1917,8 @@ static void tctx_task_work(struct callback_head *cb)
+ 			req->task_work.func(&req->task_work);
  			node = next;
  		}
- 
--		ctx_flush_and_put(ctx);
- 		if (!list.first)
- 			break;
++		if (wq_list_empty(&tctx->task_list))
++			break;
  		cond_resched();
  	}
-+
-+	ctx_flush_and_put(ctx);
- }
  
- static int io_req_task_work_add(struct io_kiocb *req)
 -- 
 2.31.1
 

@@ -6,38 +6,33 @@ X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
 	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D56DDC48BDF
-	for <io-uring@archiver.kernel.org>; Fri, 18 Jun 2021 21:26:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8258CC48BDF
+	for <io-uring@archiver.kernel.org>; Fri, 18 Jun 2021 21:38:14 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B709861284
-	for <io-uring@archiver.kernel.org>; Fri, 18 Jun 2021 21:26:18 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 65E126128C
+	for <io-uring@archiver.kernel.org>; Fri, 18 Jun 2021 21:38:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230429AbhFRV2Z (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Fri, 18 Jun 2021 17:28:25 -0400
-Received: from cloud48395.mywhc.ca ([173.209.37.211]:36514 "EHLO
+        id S231461AbhFRVkX (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Fri, 18 Jun 2021 17:40:23 -0400
+Received: from cloud48395.mywhc.ca ([173.209.37.211]:54136 "EHLO
         cloud48395.mywhc.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230338AbhFRV2Y (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Fri, 18 Jun 2021 17:28:24 -0400
-Received: from modemcable064.203-130-66.mc.videotron.ca ([66.130.203.64]:33080 helo=[192.168.1.179])
+        with ESMTP id S230399AbhFRVkW (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Fri, 18 Jun 2021 17:40:22 -0400
+Received: from modemcable064.203-130-66.mc.videotron.ca ([66.130.203.64]:33082 helo=[192.168.1.179])
         by cloud48395.mywhc.ca with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
         (Exim 4.94.2)
         (envelope-from <olivier@trillion01.com>)
-        id 1luM0E-0002qd-4h; Fri, 18 Jun 2021 17:26:14 -0400
-Message-ID: <f6aafad1fcc1f14ffb8a5753879b727b279896f9.camel@trillion01.com>
-Subject: Re: [PATCH] io_uring: store back buffer in case of failure
+        id 1luMBo-0003I9-9r; Fri, 18 Jun 2021 17:38:12 -0400
+Message-ID: <489a3a2ded1daf962b8bfa3c936e20526b975d1a.camel@trillion01.com>
+Subject: Re: [PATCH] io_uring: reduce latency by reissueing the operation
 From:   Olivier Langlois <olivier@trillion01.com>
-To:     Pavel Begunkov <asml.silence@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Date:   Fri, 18 Jun 2021 17:26:13 -0400
-In-Reply-To: <5007a641-23cf-195d-87ee-de193e19dc20@gmail.com>
-References: <60c83c12.1c69fb81.e3bea.0806SMTPIN_ADDED_MISSING@mx.google.com>
-         <93256513-08d8-5b15-aa98-c1e83af60b54@gmail.com>
-         <b5b37477-985e-54da-fc34-4de389112365@kernel.dk>
-         <4f32f06306eac4dd7780ed28c06815e3d15b43ad.camel@trillion01.com>
-         <af2f7aa0-271f-ba70-8c6b-f6c6118e6f1f@gmail.com>
-         <6bf916b4-ba6f-c401-9e8b-341f9a7b88f7@kernel.dk>
-         <5007a641-23cf-195d-87ee-de193e19dc20@gmail.com>
+To:     Jens Axboe <axboe@kernel.dk>,
+        Pavel Begunkov <asml.silence@gmail.com>,
+        io-uring@vger.kernel.org, linux-kernel@vger.kernel.org
+Date:   Fri, 18 Jun 2021 17:38:11 -0400
+In-Reply-To: <ff0aab90-9aef-4ec6-f00f-89d4ffa21ef6@kernel.dk>
+References: <60c13bec.1c69fb81.f2c1e.6444SMTPIN_ADDED_MISSING@mx.google.com>
+         <ff0aab90-9aef-4ec6-f00f-89d4ffa21ef6@kernel.dk>
 Organization: Trillion01 Inc
 Content-Type: text/plain; charset="ISO-8859-1"
 User-Agent: Evolution 3.40.2 
@@ -57,44 +52,31 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On Wed, 2021-06-16 at 16:37 +0100, Pavel Begunkov wrote:
-> On 6/16/21 3:44 PM, Jens Axboe wrote:
-> > On 6/16/21 8:01 AM, Pavel Begunkov wrote:
-> > > On 6/16/21 2:42 PM, Olivier Langlois wrote:
-> > > > On Tue, 2021-06-15 at 15:51 -0600, Jens Axboe wrote:
-> > > > > Ditto for this one, don't see it in my email nor on the list.
-> > > > > 
-> > > > I can resend you a private copy of this one but as Pavel
-> > > > pointed out,
-> > > > it contains fatal flaws.
-> > > > 
-> > > > So unless someone can tell me that the idea is interesting and
-> > > > has
-> > > > potential and can give me some a hint or 2 about how to address
-> > > > the
-> > > > challenges to fix the current flaws, it is pretty much a show
-> > > > stopper
-> > > > to me and I think that I am going to let it go...
-> > > 
-> > > It'd need to go through some other context, e.g. task context.
-> > > task_work_add() + custom handler would work, either buf-select
-> > > synchronisation can be reworked, but both would rather be
-> > > bulky and not great.
+On Wed, 2021-06-16 at 06:48 -0600, Jens Axboe wrote:
+> On 6/9/21 4:08 PM, Olivier Langlois wrote:
+> > It is quite frequent that when an operation fails and returns
+> > EAGAIN,
+> > the data becomes available between that failure and the call to
+> > vfs_poll() done by io_arm_poll_handler().
 > > 
-> > Indeed - that'd solve both the passing around of locking state
-> > which
-> > I really don't like, and make it much simpler. Just use task work
-> > for
-> > the re-insert, and you can grab the ring lock unconditionally from
-> > there.
+> > Detecting the situation and reissuing the operation is much faster
+> > than going ahead and push the operation to the io-wq.
 > 
-> Hmm, it might be much simpler than I thought if we allocate
-> a separate struct callback_head, i.e. task_work, queued it
-> with exactly task_work_add() but not io_req_task_work_add(),
-> and continue with the request handler. 
+> I think this is obviously the right thing to do, but I'm not too
+> crazy
+> about the 'ret' pointer passed in. We could either add a proper
+> return
+> type instead of the bool and use that, or put the poll-or-queue-async
+> into a helper that then only needs a bool return, and use that return
+> value for whether to re-issue or not.
 > 
-ok thx a lot for the excellent suggestions! I think that you have
-provided me everything that I need to give a shot for a second version
-of this patch.
+> Care to send an updated variant?
+> 
+No problem!
+
+It is going to be pleasure to send an updated version with the
+requested change!
+
+I will take that opportunity to try out my new patch sending setup ;-)
 
 

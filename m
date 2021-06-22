@@ -2,90 +2,74 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
+X-Spam-Status: No, score=-8.7 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7B428C48BE5
-	for <io-uring@archiver.kernel.org>; Mon, 21 Jun 2021 20:05:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 76879C49EA5
+	for <io-uring@archiver.kernel.org>; Tue, 22 Jun 2021 08:12:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5B1056120D
-	for <io-uring@archiver.kernel.org>; Mon, 21 Jun 2021 20:05:30 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5D12561357
+	for <io-uring@archiver.kernel.org>; Tue, 22 Jun 2021 08:12:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230028AbhFUUHm (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Mon, 21 Jun 2021 16:07:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50386 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231668AbhFUUHl (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Mon, 21 Jun 2021 16:07:41 -0400
-Received: from mail-il1-x12c.google.com (mail-il1-x12c.google.com [IPv6:2607:f8b0:4864:20::12c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58889C061574
-        for <io-uring@vger.kernel.org>; Mon, 21 Jun 2021 13:05:26 -0700 (PDT)
-Received: by mail-il1-x12c.google.com with SMTP id b5so4464100ilc.12
-        for <io-uring@vger.kernel.org>; Mon, 21 Jun 2021 13:05:26 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:references:from:message-id:date:user-agent:mime-version
-         :in-reply-to:content-language:content-transfer-encoding;
-        bh=WAHZ8Vz2CwykfGGX5mNg7moax8bM1FVKxI9y5zaUxRo=;
-        b=fSYB3k2zxiTixDG0FzieNm8sxSEpgbEwcSqrWdWmeo4e2ZYkP3R12nr4DUd+rYyGLY
-         mr7xDQX5qqemxxLys3J1GD5+k5nLoz9pxQiBT/9IW6BlQ/FGhlbmEzCmK4lAUFr6Haew
-         DWwNr0CgbiBqKVmhqCWxxQe6COqP7+ChDh45GLVmZZeRo0RunBqR9HusT7JgMLj6prJy
-         C55RXku4p35elny+VDSZUelcmNB/roqzqA3LWKP73TnhT2NzQEIL/Vv/0GYslqF8zB6x
-         9NzMifprzG7RIfsbwDrNUrpusE1GnyfQ8Cm5gWJ+yKPOC2LEU06ufqYChfkupTbM7/CE
-         hyOw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=WAHZ8Vz2CwykfGGX5mNg7moax8bM1FVKxI9y5zaUxRo=;
-        b=P3mo9uF6NPS2/fqKnvLvoIZGsPQbh1JjE0qLv/Jt+BB+qEeAoPlhZc0foYyQwGzVNm
-         DD1xd7DwBOzg05Qet39QGkPkf8Ge7z1FllC2yYnkcXSIbpyco1P9BQZG4W7fOfV9PtmP
-         q3BhA+gaJfNNxo4XtqLfJRcNpdDb5KUFlJSs5lXxLRthfVI2h/x20P9cYiHHFRDaeN55
-         GaKoSCdWGm/Dk393Wob+B5vl3k4XSSgbg9gXgGmsxvMnQcasM6dMo/wrmYQ0oI801/CF
-         q2QQQe88S5lvyRTtzx940IkqDJyIwAeH81/nQsAykw3Yfj82YwUWnCdFEOtHc8U8676o
-         +2Hw==
-X-Gm-Message-State: AOAM530RqMwCtUZc23c69tjyXeOH2wBMx4zMO60IYirZbB1SyONE/iJa
-        EDQU4ycOzbKcz2938yJONdtQcQ==
-X-Google-Smtp-Source: ABdhPJwMq0IDYFERSTpcx/JHQfuyCQUwIVcQDzUz0AwidBKGfmBDEQHkaeEheqvAmPNFAF7SiQ5wAA==
-X-Received: by 2002:a92:cda2:: with SMTP id g2mr1181691ild.3.1624305925736;
-        Mon, 21 Jun 2021 13:05:25 -0700 (PDT)
-Received: from [192.168.1.134] ([198.8.77.61])
-        by smtp.gmail.com with ESMTPSA id m13sm6854247ila.80.2021.06.21.13.05.24
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 21 Jun 2021 13:05:25 -0700 (PDT)
-Subject: Re: [PATCH v3] io_uring: reduce latency by reissueing the operation
-To:     Olivier Langlois <olivier@trillion01.com>,
+        id S230251AbhFVIPB (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Tue, 22 Jun 2021 04:15:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43040 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S230123AbhFVIPA (ORCPT <rfc822;io-uring@vger.kernel.org>);
+        Tue, 22 Jun 2021 04:15:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5769F61289;
+        Tue, 22 Jun 2021 08:12:43 +0000 (UTC)
+Date:   Tue, 22 Jun 2021 10:12:40 +0200
+From:   Christian Brauner <christian.brauner@ubuntu.com>
+To:     Jens Axboe <axboe@kernel.dk>
+Cc:     Dmitry Kadashev <dkadashev@gmail.com>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
         Pavel Begunkov <asml.silence@gmail.com>,
-        io-uring@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <4deda7761d61c189f4e2581828f852c8a1acb723.1624303174.git.olivier@trillion01.com>
-From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <82b94c49-b18d-94b2-cb8d-43cf54e402f3@kernel.dk>
-Date:   Mon, 21 Jun 2021 14:05:24 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        linux-fsdevel@vger.kernel.org, io-uring <io-uring@vger.kernel.org>
+Subject: Re: [PATCH v5 00/10] io_uring: add mkdir, [sym]linkat and mknodat
+ support
+Message-ID: <20210622081240.c7tzq7e7gt3y3u7j@wittgenstein>
+References: <20210603051836.2614535-1-dkadashev@gmail.com>
+ <CAOKbgA69B=nnNOaHH239vegj5_dRd=9Y-AcQBCD3viLxcH=LiQ@mail.gmail.com>
+ <2c4d5933-965e-29b5-0c76-3f2e5f518fe8@kernel.dk>
+ <a459abe3-b051-ea60-d8d9-412562a255d5@kernel.dk>
 MIME-Version: 1.0
-In-Reply-To: <4deda7761d61c189f4e2581828f852c8a1acb723.1624303174.git.olivier@trillion01.com>
 Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <a459abe3-b051-ea60-d8d9-412562a255d5@kernel.dk>
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 6/21/21 1:22 PM, Olivier Langlois wrote:
-> It is quite frequent that when an operation fails and returns EAGAIN,
-> the data becomes available between that failure and the call to
-> vfs_poll() done by io_arm_poll_handler().
+On Mon, Jun 21, 2021 at 09:21:23AM -0600, Jens Axboe wrote:
+> On 6/18/21 10:10 AM, Jens Axboe wrote:
+> > On 6/18/21 12:24 AM, Dmitry Kadashev wrote:
+> >> On Thu, Jun 3, 2021 at 12:18 PM Dmitry Kadashev <dkadashev@gmail.com> wrote:
+> >>>
+> >>> This started out as an attempt to add mkdirat support to io_uring which
+> >>> is heavily based on renameat() / unlinkat() support.
+> >>>
+> >>> During the review process more operations were added (linkat, symlinkat,
+> >>> mknodat) mainly to keep things uniform internally (in namei.c), and
+> >>> with things changed in namei.c adding support for these operations to
+> >>> io_uring is trivial, so that was done too. See
+> >>> https://lore.kernel.org/io-uring/20210514145259.wtl4xcsp52woi6ab@wittgenstein/
+> >>
+> >> Ping. Jens, are we waiting for the audit change to be merged before this
+> >> can go in?
+> > 
+> > Not necessarily, as that should go in for 5.14 anyway.
+> > 
+> > Al, are you OK with the generic changes?
 > 
-> Detecting the situation and reissuing the operation is much faster
-> than going ahead and push the operation to the io-wq.
+> I have tentatively queued this up.
 
-This now looks pretty good to me. I know you had some data associated
-with this, would be great to include it in the commit message.
+Hey Dmitry,
+hey Jens,
 
--- 
-Jens Axboe
+The additional op codes and suggested rework is partially on me. So I
+should share the blame in case this gets a NAK:
 
+Acked-by: Christian Brauner <christian.brauner@ubuntu.com>

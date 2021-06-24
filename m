@@ -2,87 +2,113 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5D8CEC49EA6
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D9330C49EA7
 	for <io-uring@archiver.kernel.org>; Thu, 24 Jun 2021 14:10:27 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3724F613EC
+	by mail.kernel.org (Postfix) with ESMTP id BC000613BE
 	for <io-uring@archiver.kernel.org>; Thu, 24 Jun 2021 14:10:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229881AbhFXOMp (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Thu, 24 Jun 2021 10:12:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39970 "EHLO
+        id S230087AbhFXOMq (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Thu, 24 Jun 2021 10:12:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39980 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229878AbhFXOMo (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Thu, 24 Jun 2021 10:12:44 -0400
-Received: from mail-wm1-x330.google.com (mail-wm1-x330.google.com [IPv6:2a00:1450:4864:20::330])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27EA5C061574
-        for <io-uring@vger.kernel.org>; Thu, 24 Jun 2021 07:10:24 -0700 (PDT)
-Received: by mail-wm1-x330.google.com with SMTP id l21-20020a05600c1d15b02901e7513b02dbso960854wms.2
-        for <io-uring@vger.kernel.org>; Thu, 24 Jun 2021 07:10:24 -0700 (PDT)
+        with ESMTP id S229878AbhFXOMp (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Thu, 24 Jun 2021 10:12:45 -0400
+Received: from mail-wr1-x432.google.com (mail-wr1-x432.google.com [IPv6:2a00:1450:4864:20::432])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 02469C06175F
+        for <io-uring@vger.kernel.org>; Thu, 24 Jun 2021 07:10:26 -0700 (PDT)
+Received: by mail-wr1-x432.google.com with SMTP id h11so6829223wrx.5
+        for <io-uring@vger.kernel.org>; Thu, 24 Jun 2021 07:10:25 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:subject:date:message-id:mime-version
+        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=8ogqmxHOfecDeSQlTkhRc2yVLpQRwHjyRSbv6CJs1q4=;
-        b=Zk/Z2nywcRAKGuG3cLV5HZHFpmjKAO0ef1EkrA7ahU/nFALobEiHYLIeRE6U+rpwEK
-         NkYuPOf6axP18r3+V6WDpku6TT99yzq0TajanxLAnoRDVoteKNO3wfIaGgi96YIHTvOF
-         uNm0mVtXs3ljWFJfVeetaLmn43JdAuKWAqnA8tXulSFQpTIwzdEVbyJ+JmaON9Zt3y/s
-         axsvNNHfP4HBNRgQXIA7+mcJtptRWtAiLIRtWCIALdBYJn/aUMkd6lpKFo/TOymfxJRw
-         6ogzyFp6iDt020sX5R/zqzNnJ8lKJDcAznDFEMix1WUtrWNFvWq+mUxZbRnHWe2mEvaJ
-         M7NQ==
+        bh=MTeyhxs3F2iECS7gcwKO/IsUIQTpIriKeEYu6dqLg4U=;
+        b=M3LuPE0dYS2mTFYyX5uL/ypfQzbi9cgWl11VZjgvqX4Mn7bDdf9+YCOBD9umxbN9AT
+         f2gX1hn7adhq3L2AyvfD136MPOSP+TPuMnxaYN6+xGDHKyOohKax7lfC2kQnztwU7Y+5
+         l1OMLcjFY0K/plPZdlsy+gEymyrzAMeAZE9qNoc8HR6GKCGudrClznmx7ThckQ0NShuC
+         3B4daoRSNvcmVRcArhmrUkMuc7NbwzaVNmpBzN0RPYv5SJelXTw9+8QLGHHO887cyEbp
+         5Vfob4RD4cUgN1xBGTaCtrT8ZsNvERBTS3ggd1F12PhVgw6sm9za2W8bTYKYs0voDEAO
+         FJqA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=8ogqmxHOfecDeSQlTkhRc2yVLpQRwHjyRSbv6CJs1q4=;
-        b=nFhKw9e/UVWqr8njgIXM6Im5+1ggiw5bGG6gFvJHFtxTUtHsNfUP+ybmaS9ldingF/
-         yxCgefwIjqYPZb/uzCfmyamgjN7GFcs0c8ufGYMsSc7rNU3P1M0Kc5Wc0XczaIh7OHjA
-         AF/fo23WXPZAsBRxqggmYEJr0/1RL5U7qfUew75Gccc8oHIfMzN+iKpTAxj4onu2n+aa
-         rg7PVUpg792fHywoIIPxzpg97jT7rXneETRQvrUcBCVtsKBaVkp7yFEvuZZMsOire+3e
-         sWFnM2xXiuZsk1hVUNa64c4iNb7QrthIWQzSPQ6kf9W3Gl3MxL7OBpP545CJLW2HHLJy
-         TjiQ==
-X-Gm-Message-State: AOAM533xUAkC56704tx1zThQiq6zaNzBElprMyA0F0zaZL77ce/twxSo
-        mAnfDpxjdhJCBAR66dI/lLk=
-X-Google-Smtp-Source: ABdhPJzqQSWkgZI5Boe94z54W68/kvSPNH/OI1q5ZD8qY0E+IqfrP+qxaj5JbJPhmxFL0MngCh7b7Q==
-X-Received: by 2002:a05:600c:2293:: with SMTP id 19mr4534793wmf.175.1624543822746;
-        Thu, 24 Jun 2021 07:10:22 -0700 (PDT)
+        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=MTeyhxs3F2iECS7gcwKO/IsUIQTpIriKeEYu6dqLg4U=;
+        b=nHYnPwZfLp+o+2ynwLLUkFkuuz0Bda1lB1R/VNaI0G0JAi6QHzvF+8vE6ARV6ZhXy7
+         s6t9s2LqNTvFxHDHysB+QUU55L0yBVsMvEPkB2x3lPvLIwAWX1Ips634q4ELkLCHVXxy
+         YAU7ywgIZKreq0eReq0AVJ3x7V9UDu14mr+kJ/pjNbyHU2y6k31VtQjQphHx39tXQRJp
+         ZUqfW9dBybi9myK/4Z57tCzNdBpGJ1xa/WN244e6w4ua3lombJ3LGPv4XwCq7/RXRSnq
+         gfvKBKaOHajmhqGGWi8t8Ay+6RwEUZEqkN/K4DR0hwRCCMytwn0ovn+QBvyeTY23NJuf
+         K9oA==
+X-Gm-Message-State: AOAM533FNo+wca+qPsQdHeV1UVmVTVeEZVkO7BpYHRrFgmOllh6rBN43
+        v3+qX2oBKGoUvh9e1uxP5wU=
+X-Google-Smtp-Source: ABdhPJyS+YpPOMse+Y7R/ihacDI0I4ig6/Wh7yra5ItLigwZvxSk4S+zX3Gb2fwE0GYb/ZMDDde0Bg==
+X-Received: by 2002:a5d:4b88:: with SMTP id b8mr4716497wrt.95.1624543824589;
+        Thu, 24 Jun 2021 07:10:24 -0700 (PDT)
 Received: from localhost.localdomain ([148.252.132.93])
-        by smtp.gmail.com with ESMTPSA id w2sm3408428wrp.14.2021.06.24.07.10.21
+        by smtp.gmail.com with ESMTPSA id w2sm3408428wrp.14.2021.06.24.07.10.23
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 24 Jun 2021 07:10:22 -0700 (PDT)
+        Thu, 24 Jun 2021 07:10:24 -0700 (PDT)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH for-next 0/6] straightforward for-next cleanups
-Date:   Thu, 24 Jun 2021 15:09:54 +0100
-Message-Id: <cover.1624543113.git.asml.silence@gmail.com>
+Subject: [PATCH 2/6] io_uring: refactor io_sq_thread()
+Date:   Thu, 24 Jun 2021 15:09:56 +0100
+Message-Id: <e4a07db1353ee38b924dd1b45394cf8e746130b4.1624543113.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.32.0
+In-Reply-To: <cover.1624543113.git.asml.silence@gmail.com>
+References: <cover.1624543113.git.asml.silence@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On top of 5.14 + mkdir v6 and friends.
+Move needs_sched declaration into the block where it's used, so it's
+harder to misuse/wrongfully reuse.
 
-A bunch of small not related b/w each other cleanups.
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+---
+ fs/io_uring.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-Pavel Begunkov (6):
-  io_uring: don't change sqpoll creds if not needed
-  io_uring: refactor io_sq_thread()
-  io_uring: fix code style problems
-  io_uring: update sqe layout build checks
-  io_uring: simplify struct io_uring_sqe layout
-  io_uring: refactor io_openat2()
-
- fs/io_uring.c                 | 67 ++++++++++++++++++-----------------
- include/uapi/linux/io_uring.h | 24 ++++++-------
- 2 files changed, 44 insertions(+), 47 deletions(-)
-
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index cf72cc3fd8f4..5745b3809b0d 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -7072,7 +7072,7 @@ static int io_sq_thread(void *data)
+ 
+ 	mutex_lock(&sqd->lock);
+ 	while (1) {
+-		bool cap_entries, sqt_spin, needs_sched;
++		bool cap_entries, sqt_spin = false;
+ 
+ 		if (io_sqd_events_pending(sqd) || signal_pending(current)) {
+ 			if (io_sqd_handle_event(sqd))
+@@ -7081,7 +7081,6 @@ static int io_sq_thread(void *data)
+ 			continue;
+ 		}
+ 
+-		sqt_spin = false;
+ 		cap_entries = !list_is_singular(&sqd->ctx_list);
+ 		list_for_each_entry(ctx, &sqd->ctx_list, sqd_list) {
+ 			int ret = __io_sq_thread(ctx, cap_entries);
+@@ -7100,7 +7099,8 @@ static int io_sq_thread(void *data)
+ 
+ 		prepare_to_wait(&sqd->wait, &wait, TASK_INTERRUPTIBLE);
+ 		if (!io_sqd_events_pending(sqd) && !io_run_task_work()) {
+-			needs_sched = true;
++			bool needs_sched = true;
++
+ 			list_for_each_entry(ctx, &sqd->ctx_list, sqd_list) {
+ 				io_ring_set_wakeup_flag(ctx);
+ 
 -- 
 2.32.0
 

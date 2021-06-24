@@ -8,54 +8,54 @@ X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B0681C49EA5
-	for <io-uring@archiver.kernel.org>; Thu, 24 Jun 2021 11:15:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2E905C48BDF
+	for <io-uring@archiver.kernel.org>; Thu, 24 Jun 2021 11:15:20 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9732E600CC
-	for <io-uring@archiver.kernel.org>; Thu, 24 Jun 2021 11:15:18 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1D1DB613B3
+	for <io-uring@archiver.kernel.org>; Thu, 24 Jun 2021 11:15:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232421AbhFXLRg (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Thu, 24 Jun 2021 07:17:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56256 "EHLO
+        id S232447AbhFXLRh (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Thu, 24 Jun 2021 07:17:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56268 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232338AbhFXLRd (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Thu, 24 Jun 2021 07:17:33 -0400
-Received: from mail-lj1-x234.google.com (mail-lj1-x234.google.com [IPv6:2a00:1450:4864:20::234])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 15C3BC061756;
-        Thu, 24 Jun 2021 04:15:14 -0700 (PDT)
-Received: by mail-lj1-x234.google.com with SMTP id f13so7208440ljp.10;
-        Thu, 24 Jun 2021 04:15:14 -0700 (PDT)
+        with ESMTP id S232440AbhFXLRf (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Thu, 24 Jun 2021 07:17:35 -0400
+Received: from mail-lj1-x233.google.com (mail-lj1-x233.google.com [IPv6:2a00:1450:4864:20::233])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A4C8C061760;
+        Thu, 24 Jun 2021 04:15:16 -0700 (PDT)
+Received: by mail-lj1-x233.google.com with SMTP id c16so7207885ljh.0;
+        Thu, 24 Jun 2021 04:15:16 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=cjY5NIv8T/UjPF6/khgDh63aie+4OSg4ezXbryOnIVo=;
-        b=iPq9xrKb0sRL7Yr9n1OmNxiPLN2GfT6ZyRhYwm7ARhlN0/DRkMHt2sFM7RGXlgBmCV
-         IMFjahnn5wtgJUJI47fapqOkiwwIjs4A9WEJ6fG6zbw0TWz6faa7a7bonY5Hvlsv5GR/
-         h0QzJ85j9RBHBPEY/bKHGnMq4gL+WdMZa0qY4g5eRaVCH60XEJCCUF0vp5AmMt+HpTm7
-         8mFcQbensaJuqiymZ32luFOi7inXI6IW23lUhUPqFgTabKGovtPwlyaiy7W3fGQrGtXM
-         LmKtKpxjgM+dLRRuKjBDkqrFbnfxDYWxv9GeF5YyesWUq+4B8xHMJoYJNK+wEMpdvr2N
-         2/Iw==
+        bh=+1IHeLQmFnCkiRM6Le09tuowGzlsNL/9ZhUl0moeekU=;
+        b=UlNba2a9ma6y+J9Kv2fW/386Zp2+Gmujt/QJjDt9x7Md8rM+MPfa5JX64hmwGStLSk
+         u/MzuKc08ZtS9cUTm/JrEAPfu8w5+6/C2iQkRDQj8WsJ2tkZZIBvgwHvpf6iXuGdrUh1
+         YObJ/5bYyc9b8U/cFoAPEJ22IEWaZ2Y9z5+iTVib3xq1GpUMAQppY61VLoEkeDAqUxpK
+         6+Gq2FtZH1rK9DWP6xEXQtkbCLKwAmF1BlYQzxwj63Qtw4uheKvgulpUz2jWqGPktOmR
+         AV49/M9S/pE76rmy7UeDXbNR19Tj/AoLq/OQQQuTbExleEBCL/d+zCF1oZ89tHwIO58h
+         w+DQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=cjY5NIv8T/UjPF6/khgDh63aie+4OSg4ezXbryOnIVo=;
-        b=KhMOIi2uA3U6a5QQbi0CWWw8WchlRwQKGijqhbpzzKtjJpYG1puh+wHsZCQmqIY8x+
-         Zz60CUzDvDDK4wDkN5xHFJLdAW9cVt9USSxdBxkfjgHVGXYHGWpuYET8+Rh4iqq3XWAi
-         2YDgoYLHIZowBXCIFdQ2JgHQWpxd3pGElZOmT8mCwdkNv9FHiv6sTL6lwEtkMJOduLHR
-         NOsE+lMa94bnLpGlL3U91vv977Glg5vlTeSvbXXmlUbWR1A2D+nJ/fIqEvlLddMxt8Nm
-         Rm2ZqylYnBOhV+aBzkLTDUghzUEkO53hPDNp3uTULkLmew2QfGZainaNfaox+AJUOmRh
-         30Cw==
-X-Gm-Message-State: AOAM530UrvsmsoCVuBDUvaovMFZQowc1ZBuK6QghZlBP4REOGMwkHSc2
-        6VDrN3BhCWVV7OQ1MwUrCiU=
-X-Google-Smtp-Source: ABdhPJxku+acLC+qRFUlPCKbuqqKavPd77Hh1oluLVaX7b7XEZQu2t7SgzsHbaqTBdNQSbvIdp+1vA==
-X-Received: by 2002:a2e:8941:: with SMTP id b1mr3566449ljk.284.1624533312471;
-        Thu, 24 Jun 2021 04:15:12 -0700 (PDT)
+        bh=+1IHeLQmFnCkiRM6Le09tuowGzlsNL/9ZhUl0moeekU=;
+        b=lYsura1I6g1lcwC1fBPzIFAUfl4UWSzeupZk/+CBvc9PsJ0r+n8m05BC2D8BkrIt51
+         taDUm4rEcVk7ShdIaIwjZOmwscbUmtXs7WmXc2UkZbapIfuZMmvLbmcN+1SNrdenWX5/
+         Zw2/rZ7zN/aDzs/oD4aZNq+qLcbymS5i8bAmBAeua1UZOr6PI0J/SDaxwHjbE6GOIB00
+         GU6yeM4Vuqc5PFGHtr/LAdRaJ/F9Mu9ZkRFYl2FowDxEgDDOALz5D2XTIVhnesiF9iv5
+         xevvsl1dsV7MutZZvCrkU7WPKQgEDZ0ro6I4KAMU1k6R6kl/5CHhScaIOA9m29GBCtXq
+         LtVg==
+X-Gm-Message-State: AOAM533UuyhTBkM6bCwYr9COq0M2ZqI4I2P43aNPk+5p5LaT0AOeA6/i
+        6Lv373RQTaWHK7s84yo8Ju4=
+X-Google-Smtp-Source: ABdhPJyvD95YLFujaf0giD5sCvYw0iC3O8AgnlO47bGiKY0X1tFfaJTW+1dg9jKkzkPtn51SifEAQg==
+X-Received: by 2002:a2e:8750:: with SMTP id q16mr3481727ljj.92.1624533314962;
+        Thu, 24 Jun 2021 04:15:14 -0700 (PDT)
 Received: from carbon.v ([94.143.149.146])
-        by smtp.googlemail.com with ESMTPSA id q21sm195293lfp.233.2021.06.24.04.15.11
+        by smtp.googlemail.com with ESMTPSA id q21sm195293lfp.233.2021.06.24.04.15.13
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 24 Jun 2021 04:15:11 -0700 (PDT)
+        Thu, 24 Jun 2021 04:15:14 -0700 (PDT)
 From:   Dmitry Kadashev <dkadashev@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>,
         Alexander Viro <viro@zeniv.linux.org.uk>,
@@ -63,9 +63,9 @@ To:     Jens Axboe <axboe@kernel.dk>,
 Cc:     Pavel Begunkov <asml.silence@gmail.com>,
         linux-fsdevel@vger.kernel.org, io-uring@vger.kernel.org,
         Dmitry Kadashev <dkadashev@gmail.com>
-Subject: [PATCH v6 5/9] namei: add getname_uflags()
-Date:   Thu, 24 Jun 2021 18:14:48 +0700
-Message-Id: <20210624111452.658342-6-dkadashev@gmail.com>
+Subject: [PATCH v6 7/9] fs: update do_*() helpers to return ints
+Date:   Thu, 24 Jun 2021 18:14:50 +0700
+Message-Id: <20210624111452.658342-8-dkadashev@gmail.com>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210624111452.658342-1-dkadashev@gmail.com>
 References: <20210624111452.658342-1-dkadashev@gmail.com>
@@ -75,82 +75,94 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-There are a couple of places where we already open-code the (flags &
-AT_EMPTY_PATH) check and io_uring will likely add another one in the
-future.  Let's just add a simple helper getname_uflags() that handles
-this directly and use it.
+Update the following to return int rather than long, for uniformity with
+the rest of the do_* helpers in namei.c:
+
+* do_rmdir()
+* do_unlinkat()
+* do_mkdirat()
+* do_mknodat()
+* do_symlinkat()
 
 Cc: Al Viro <viro@zeniv.linux.org.uk>
 Cc: Christian Brauner <christian.brauner@ubuntu.com>
-Link: https://lore.kernel.org/io-uring/20210415100815.edrn4a7cy26wkowe@wittgenstein/
-Signed-off-by: Christian Brauner <christian.brauner@ubuntu.com>
+Link: https://lore.kernel.org/io-uring/20210514143202.dmzfcgz5hnauy7ze@wittgenstein/
 Signed-off-by: Dmitry Kadashev <dkadashev@gmail.com>
 Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
 ---
- fs/exec.c          | 8 ++------
- fs/namei.c         | 8 ++++++++
- include/linux/fs.h | 1 +
- 3 files changed, 11 insertions(+), 6 deletions(-)
+ fs/internal.h |  6 +++---
+ fs/namei.c    | 10 +++++-----
+ 2 files changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/fs/exec.c b/fs/exec.c
-index 18594f11c31f..df33ecaf2111 100644
---- a/fs/exec.c
-+++ b/fs/exec.c
-@@ -2069,10 +2069,8 @@ SYSCALL_DEFINE5(execveat,
- 		const char __user *const __user *, envp,
- 		int, flags)
- {
--	int lookup_flags = (flags & AT_EMPTY_PATH) ? LOOKUP_EMPTY : 0;
--
- 	return do_execveat(fd,
--			   getname_flags(filename, lookup_flags, NULL),
-+			   getname_uflags(filename, flags),
- 			   argv, envp, flags);
- }
+diff --git a/fs/internal.h b/fs/internal.h
+index 848e165ef0f1..207a455e32d3 100644
+--- a/fs/internal.h
++++ b/fs/internal.h
+@@ -72,12 +72,12 @@ extern int filename_lookup(int dfd, struct filename *name, unsigned flags,
+ 			   struct path *path, struct path *root);
+ extern int vfs_path_lookup(struct dentry *, struct vfsmount *,
+ 			   const char *, unsigned int, struct path *);
+-long do_rmdir(int dfd, struct filename *name);
+-long do_unlinkat(int dfd, struct filename *name);
++int do_rmdir(int dfd, struct filename *name);
++int do_unlinkat(int dfd, struct filename *name);
+ int may_linkat(struct user_namespace *mnt_userns, struct path *link);
+ int do_renameat2(int olddfd, struct filename *oldname, int newdfd,
+ 		 struct filename *newname, unsigned int flags);
+-long do_mkdirat(int dfd, struct filename *name, umode_t mode);
++int do_mkdirat(int dfd, struct filename *name, umode_t mode);
  
-@@ -2090,10 +2088,8 @@ COMPAT_SYSCALL_DEFINE5(execveat, int, fd,
- 		       const compat_uptr_t __user *, envp,
- 		       int,  flags)
- {
--	int lookup_flags = (flags & AT_EMPTY_PATH) ? LOOKUP_EMPTY : 0;
--
- 	return compat_do_execveat(fd,
--				  getname_flags(filename, lookup_flags, NULL),
-+				  getname_uflags(filename, flags),
- 				  argv, envp, flags);
- }
- #endif
+ /*
+  * namespace.c
 diff --git a/fs/namei.c b/fs/namei.c
-index 76572d703e82..010455938826 100644
+index 07b1619dd343..f99de6e294ad 100644
 --- a/fs/namei.c
 +++ b/fs/namei.c
-@@ -203,6 +203,14 @@ getname_flags(const char __user *filename, int flags, int *empty)
- 	return result;
+@@ -3743,7 +3743,7 @@ static int may_mknod(umode_t mode)
+ 	}
  }
  
-+struct filename *
-+getname_uflags(const char __user *filename, int uflags)
-+{
-+	int flags = (uflags & AT_EMPTY_PATH) ? LOOKUP_EMPTY : 0;
-+
-+	return getname_flags(filename, flags, NULL);
-+}
-+
- struct filename *
- getname(const char __user * filename)
+-static long do_mknodat(int dfd, struct filename *name, umode_t mode,
++static int do_mknodat(int dfd, struct filename *name, umode_t mode,
+ 		unsigned int dev)
  {
-diff --git a/include/linux/fs.h b/include/linux/fs.h
-index c3c88fdb9b2a..5885a68d2c12 100644
---- a/include/linux/fs.h
-+++ b/include/linux/fs.h
-@@ -2781,6 +2781,7 @@ static inline struct file *file_clone_open(struct file *file)
- extern int filp_close(struct file *, fl_owner_t id);
+ 	struct user_namespace *mnt_userns;
+@@ -3848,7 +3848,7 @@ int vfs_mkdir(struct user_namespace *mnt_userns, struct inode *dir,
+ }
+ EXPORT_SYMBOL(vfs_mkdir);
  
- extern struct filename *getname_flags(const char __user *, int, int *);
-+extern struct filename *getname_uflags(const char __user *, int);
- extern struct filename *getname(const char __user *);
- extern struct filename *getname_kernel(const char *);
- extern void putname(struct filename *name);
+-long do_mkdirat(int dfd, struct filename *name, umode_t mode)
++int do_mkdirat(int dfd, struct filename *name, umode_t mode)
+ {
+ 	struct dentry *dentry;
+ 	struct path path;
+@@ -3943,7 +3943,7 @@ int vfs_rmdir(struct user_namespace *mnt_userns, struct inode *dir,
+ }
+ EXPORT_SYMBOL(vfs_rmdir);
+ 
+-long do_rmdir(int dfd, struct filename *name)
++int do_rmdir(int dfd, struct filename *name)
+ {
+ 	struct user_namespace *mnt_userns;
+ 	int error = 0;
+@@ -4081,7 +4081,7 @@ EXPORT_SYMBOL(vfs_unlink);
+  * writeout happening, and we don't want to prevent access to the directory
+  * while waiting on the I/O.
+  */
+-long do_unlinkat(int dfd, struct filename *name)
++int do_unlinkat(int dfd, struct filename *name)
+ {
+ 	int error;
+ 	struct dentry *dentry;
+@@ -4208,7 +4208,7 @@ int vfs_symlink(struct user_namespace *mnt_userns, struct inode *dir,
+ }
+ EXPORT_SYMBOL(vfs_symlink);
+ 
+-static long do_symlinkat(struct filename *from, int newdfd,
++static int do_symlinkat(struct filename *from, int newdfd,
+ 		  struct filename *to)
+ {
+ 	int error;
 -- 
 2.30.2
 

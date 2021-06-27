@@ -2,105 +2,116 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B359DC49EAB
-	for <io-uring@archiver.kernel.org>; Sat, 26 Jun 2021 20:41:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6E93BC48BC2
+	for <io-uring@archiver.kernel.org>; Sun, 27 Jun 2021 21:37:39 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 999CF61C4D
-	for <io-uring@archiver.kernel.org>; Sat, 26 Jun 2021 20:41:21 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 417F261C2F
+	for <io-uring@archiver.kernel.org>; Sun, 27 Jun 2021 21:37:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230214AbhFZUnm (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sat, 26 Jun 2021 16:43:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56946 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230295AbhFZUnl (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Sat, 26 Jun 2021 16:43:41 -0400
-Received: from mail-wm1-x32c.google.com (mail-wm1-x32c.google.com [IPv6:2a00:1450:4864:20::32c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4102CC061574
-        for <io-uring@vger.kernel.org>; Sat, 26 Jun 2021 13:41:16 -0700 (PDT)
-Received: by mail-wm1-x32c.google.com with SMTP id u20so3325002wmq.4
-        for <io-uring@vger.kernel.org>; Sat, 26 Jun 2021 13:41:16 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
-         :content-transfer-encoding;
-        bh=IrankBGgA+mLMv9lEiDtSHWFXPxzrem4PXNRtSiWvpI=;
-        b=ZVk3EsUBZL1kDNuT61zJb4Y3wSi0NLDdJwLCDCQEs74mmSXa9VuBwTX+iYwSIG37mN
-         3j0RzTw3AwaZt2R0Gzc3rgJ49bK5Xbuz22nPZD2HRJf9QASQzZYRJV/6W53SZ4ZMVoLy
-         AOBzSKwq6GorKcEu716IiZt5hh69gXgPUhAPJW/2p/mGMIjfze/dECrLpGaOGF9xfhx9
-         S+1Eo0X9u7vidr0viPN7KZcxGxpxBrr603n7YgbSU/rFRa3RvyEArE7T2Pgs7S+DhAHp
-         NH5OohCJWLEAzV6u4UlBoQ15gji9PJkO3OfMBIajBgEIrJvYmflBWCIVjRoK+y8vCp2K
-         qg3g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=IrankBGgA+mLMv9lEiDtSHWFXPxzrem4PXNRtSiWvpI=;
-        b=sXzdBF/gPMza+FSVf7InyU7VGlrtCW8LqsQj6Gw0XVVgccG5d05ZbPuvYStj9PDlAN
-         /FiWHbYeahjr77gJycp2F79Y1P1tzTcJkGnIIpmZRaf+5otbLJIzERpQ397EZ74PZVx2
-         0HqRjvFXB2vVUm8xMgJl05z01L6n2Io3fOm7u6X+Gtk4N7rIOAEabOkcZ5KmBBUdM6Bn
-         OtdK5cRcRgjxdtS0uJMj3kacr4Pvc6W3hmLZ5xMtLiTMqolR7DSu6rBzDMNRxgjiHTpy
-         Ed0iE3cjU4w2W7nLVcWzb+8bAyRi6+DMtahJDBLz6PudbWQ6k1yLI4YO5twrKtx/tB+K
-         MjqQ==
-X-Gm-Message-State: AOAM5304r5KFftTs04UTN+b2eYNNGAWfHoodAqfw6xUMVGiZ+kEq4zCd
-        SEqcTFztVWMn2xE9bAVVzmo=
-X-Google-Smtp-Source: ABdhPJy+ToNcPB6xWyCidmSkgl+FsZyJYmy9ZSS7cpRF/+/GZfWcImpiG/Z6u2YG0zn8Y/SzVsE12A==
-X-Received: by 2002:a1c:1dd1:: with SMTP id d200mr1961691wmd.82.1624740074890;
-        Sat, 26 Jun 2021 13:41:14 -0700 (PDT)
-Received: from localhost.localdomain ([148.252.129.84])
-        by smtp.gmail.com with ESMTPSA id b9sm11272613wrh.81.2021.06.26.13.41.14
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 26 Jun 2021 13:41:14 -0700 (PDT)
-From:   Pavel Begunkov <asml.silence@gmail.com>
-To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH 4/6] io_uring: optimise hot path restricted checks
-Date:   Sat, 26 Jun 2021 21:40:47 +0100
-Message-Id: <22bf70d0a543dfc935d7276bdc73081784e30698.1624739600.git.asml.silence@gmail.com>
-X-Mailer: git-send-email 2.32.0
-In-Reply-To: <cover.1624739600.git.asml.silence@gmail.com>
-References: <cover.1624739600.git.asml.silence@gmail.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        id S231683AbhF0VkC (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sun, 27 Jun 2021 17:40:02 -0400
+Received: from out30-130.freemail.mail.aliyun.com ([115.124.30.130]:41535 "EHLO
+        out30-130.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231676AbhF0VkC (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Sun, 27 Jun 2021 17:40:02 -0400
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R201e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04420;MF=haoxu@linux.alibaba.com;NM=1;PH=DS;RN=4;SR=0;TI=SMTPD_---0UdpdEhf_1624829850;
+Received: from e18g09479.et15sqa.tbsite.net(mailfrom:haoxu@linux.alibaba.com fp:SMTPD_---0UdpdEhf_1624829850)
+          by smtp.aliyun-inc.com(127.0.0.1);
+          Mon, 28 Jun 2021 05:37:36 +0800
+From:   Hao Xu <haoxu@linux.alibaba.com>
+To:     Jens Axboe <axboe@kernel.dk>
+Cc:     io-uring@vger.kernel.org, Pavel Begunkov <asml.silence@gmail.com>,
+        Joseph Qi <joseph.qi@linux.alibaba.com>
+Subject: [PATCH] io_uring: spin in iopoll() only when reqs are in a single queue
+Date:   Mon, 28 Jun 2021 05:37:30 +0800
+Message-Id: <1624829850-38536-1-git-send-email-haoxu@linux.alibaba.com>
+X-Mailer: git-send-email 1.8.3.1
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Move likely/unlikely from io_check_restriction() to specifically
-ctx->restricted check, because doesn't do what it supposed to and make
-the common path take an extra jump.
+We currently spin in iopoll() when requests to be iopolled are for
+same file(device), while one device may have multiple hardware queues.
+given an example:
 
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+hw_queue_0     |    hw_queue_1
+req(30us)           req(10us)
+
+If we first spin on iopolling for the hw_queue_0. the avg latency would
+be (30us + 30us) / 2 = 30us. While if we do round robin, the avg
+latency would be (30us + 10us) / 2 = 20us since we reap the request in
+hw_queue_1 in time. So it's better to do spinning only when requests
+are in same hardware queue.
+
+Signed-off-by: Hao Xu <haoxu@linux.alibaba.com>
 ---
- fs/io_uring.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+
+I writed a test case fot it, the test logic is what I memtioned in
+this thread:
+https://lore.kernel.org/io-uring/4c341c96-8d66-eae3-ba4a-e1655ee463a8@linux.alibaba.com/
+One thread for heavy IO, one for fast IO, and another to iopoll.
+All of them bind to different cpu and the two cpus for submittion are
+bound to different hardware queues. The thing is that requests are
+always completed before reaping IO, so fops->iopoll() is not entered.
+I've tested this patch for normal situations, as fast as before.
+
+ fs/io_uring.c | 20 ++++++++++++++------
+ 1 file changed, 14 insertions(+), 6 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 953bdc41d018..4dd2213f5454 100644
+index 23c51786708b..2eb290f68aa3 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -6702,7 +6702,7 @@ static inline bool io_check_restriction(struct io_ring_ctx *ctx,
- 					struct io_kiocb *req,
- 					unsigned int sqe_flags)
- {
--	if (!ctx->restricted)
-+	if (likely(!ctx->restricted))
- 		return true;
+@@ -434,7 +434,7 @@ struct io_ring_ctx {
+ 		struct list_head	iopoll_list;
+ 		struct hlist_head	*cancel_hash;
+ 		unsigned		cancel_hash_bits;
+-		bool			poll_multi_file;
++		bool			poll_multi_queue;
+ 	} ____cacheline_aligned_in_smp;
  
- 	if (!test_bit(req->opcode, ctx->restrictions.sqe_op))
-@@ -6745,7 +6745,7 @@ static int io_init_req(struct io_ring_ctx *ctx, struct io_kiocb *req,
- 		return -EINVAL;
- 	if (unlikely(req->opcode >= IORING_OP_LAST))
- 		return -EINVAL;
--	if (unlikely(!io_check_restriction(ctx, req, sqe_flags)))
-+	if (!io_check_restriction(ctx, req, sqe_flags))
- 		return -EACCES;
+ 	struct io_restriction		restrictions;
+@@ -2333,7 +2333,7 @@ static int io_do_iopoll(struct io_ring_ctx *ctx, unsigned int *nr_events,
+ 	 * Only spin for completions if we don't have multiple devices hanging
+ 	 * off our complete list, and we're under the requested amount.
+ 	 */
+-	spin = !ctx->poll_multi_file && *nr_events < min;
++	spin = !ctx->poll_multi_queue && *nr_events < min;
  
- 	if ((sqe_flags & IOSQE_BUFFER_SELECT) &&
+ 	ret = 0;
+ 	list_for_each_entry_safe(req, tmp, &ctx->iopoll_list, inflight_entry) {
+@@ -2572,14 +2572,22 @@ static void io_iopoll_req_issued(struct io_kiocb *req)
+ 	 * different devices.
+ 	 */
+ 	if (list_empty(&ctx->iopoll_list)) {
+-		ctx->poll_multi_file = false;
+-	} else if (!ctx->poll_multi_file) {
++		ctx->poll_multi_queue = false;
++	} else if (!ctx->poll_multi_queue) {
+ 		struct io_kiocb *list_req;
++		unsigned int queue_num0, queue_num1;
+ 
+ 		list_req = list_first_entry(&ctx->iopoll_list, struct io_kiocb,
+ 						inflight_entry);
+-		if (list_req->file != req->file)
+-			ctx->poll_multi_file = true;
++
++		if (list_req->file != req->file) {
++			ctx->poll_multi_queue = true;
++		} else {
++			queue_num0 = blk_qc_t_to_queue_num(list_req->rw.kiocb.ki_cookie);
++			queue_num1 = blk_qc_t_to_queue_num(req->rw.kiocb.ki_cookie);
++			if (queue_num0 != queue_num1)
++				ctx->poll_multi_queue = true;
++		}
+ 	}
+ 
+ 	/*
 -- 
-2.32.0
+1.8.3.1
 

@@ -8,54 +8,54 @@ X-Spam-Status: No, score=-16.0 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 71122C11F67
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4EFB8C07E99
 	for <io-uring@archiver.kernel.org>; Thu,  8 Jul 2021 06:35:24 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6159F61CEF
+	by mail.kernel.org (Postfix) with ESMTP id 3833861C94
 	for <io-uring@archiver.kernel.org>; Thu,  8 Jul 2021 06:35:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230401AbhGHGiC (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Thu, 8 Jul 2021 02:38:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56178 "EHLO
+        id S229862AbhGHGh7 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Thu, 8 Jul 2021 02:37:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56166 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229846AbhGHGh7 (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Thu, 8 Jul 2021 02:37:59 -0400
-Received: from mail-ed1-x534.google.com (mail-ed1-x534.google.com [IPv6:2a00:1450:4864:20::534])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3803DC061574;
-        Wed,  7 Jul 2021 23:35:17 -0700 (PDT)
-Received: by mail-ed1-x534.google.com with SMTP id cy23so1902101edb.4;
-        Wed, 07 Jul 2021 23:35:17 -0700 (PDT)
+        with ESMTP id S229763AbhGHGhz (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Thu, 8 Jul 2021 02:37:55 -0400
+Received: from mail-ej1-x62f.google.com (mail-ej1-x62f.google.com [IPv6:2a00:1450:4864:20::62f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D74E4C06175F;
+        Wed,  7 Jul 2021 23:35:13 -0700 (PDT)
+Received: by mail-ej1-x62f.google.com with SMTP id bu12so7675078ejb.0;
+        Wed, 07 Jul 2021 23:35:13 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=7wVETDFdeZlwqopZKc4dLFFstHCEoM9cJ3/d5EEJtEs=;
-        b=BCYibFVeg5tC7gxx2iFLd7LbdbcgIjoYIoKioYBHIqV1Bu1cd9KqyRQLhN2mvf/eze
-         eCRot3vbK8PLwWSh36ZBXUE6hdg0+lD8Vl1NNPPhy5FZaSFxpK/ufiTEXs+e6lmXFmA9
-         LNcg7bvhoRR+mC15fQbD4753lSNkgy7Y9LH18HdriStk3FdcHtJEeBr0SyCmJQuFRpTf
-         0n/vj1yMwfNVTHTUseDqqEtj0EKZ2VcxH4E5y0hSpUbMeM2AGU/O/OnBO1IgqCJ06BCg
-         lc1b/SdTrVSHiAzTrL1QdUTRPt3ROl7QNxOsIS+kubjl5uitCbypQCEEeFBHypguXwLZ
-         iwHA==
+        bh=AVmhH06SyxapkboM9opDUcgHzjT4U95zTavxicpRMho=;
+        b=AYncr8Sy8xfEpe8yQAiHsMwSyzZHYdGzamYEMucX441Y7NS7zBkXu1ssAOU8WnB6eY
+         Q+fh7uwc7vEsr48sNB9JIQ+7Xn0S5kcCUOx20mOErokElKcCYHd2WiqWZkdZ7j+0St37
+         AcgVngCnE2hDJJThgaQOYkduCROyRJNlkgF53HHXaidOOWxl8P+U+vomx3dhBhN6R4rU
+         N1iPNo8dzisFIk42ZaGwUIGVjRrRBxWUiAsTOgyi7VtltgBGKK2OH7D95N29o36NquGi
+         23tI/uGDAgrKgqtIevgd/dQZcWawnxYegcoDBPqDH/XvpTDgDZjdsZ3mfaq1Fex0zMY0
+         7wOQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=7wVETDFdeZlwqopZKc4dLFFstHCEoM9cJ3/d5EEJtEs=;
-        b=hP0LlK1x1Me0hEv5+bEsYFFfn8EqEU9P40gpUAjVrA/E71LOmgbKG1IkjmIAW8bJY5
-         NiHL5eZPm+/th7pOEcQz4iHlTOeR082y1k4VC++7fkzJ3vU4U3je8Ae868nt4lz2Iu7N
-         nvm6Ik5ruvIIiO4jQrirQM1/zDpcSn4vsTUw2rpwLOfUQA7Xq4176z2cMuyQkcGMASLg
-         A6jaNBtdW8gcULZ9/IIMBwM16l5IjFhfvCEpS10PY2RO0uhn723SxyJ1ejZU60blexAr
-         hnJdDfCLYI/JzgIWMhpArWL5KJEtf6x5NbYNmmY72vCuQLKId0O6qPK7mgZI4h7yE+Bt
-         XH4w==
-X-Gm-Message-State: AOAM5336iGGqiA9Ba15vG6s+c5yYzW+a66RWlmX8wB3zHhkS9iSWuwur
-        HirF/k4OWk/aAgUSeRl978I=
-X-Google-Smtp-Source: ABdhPJy9gc9t5QBGIeTrIjPBiu2sEiu2mawXbKqcytDFF6v4yEOMc16l3BpMYbjfhCc5MAPOCmPbjA==
-X-Received: by 2002:aa7:d283:: with SMTP id w3mr19816028edq.153.1625726115917;
-        Wed, 07 Jul 2021 23:35:15 -0700 (PDT)
+        bh=AVmhH06SyxapkboM9opDUcgHzjT4U95zTavxicpRMho=;
+        b=cGdxE/CIx5Hi+Dq6FmTK9fec19j1LP71J5mWiVGOY3CVsTOXoC64Ggq6dbM61WK1WD
+         crYlxIBXm9/P0U1Jbtm9Q34GyCeBxfpknwwKlzmbz+0vQttnLUSxfsSBOrttlgdTE4za
+         R0Z54NIi7SucVA1l7dUyWa+skGAjRXgmWuv7lElak9uPFZtW6XzT9NSFTuYWXkX6Ya3I
+         knuC1IwxR21XAC8APW/9HIz7SN6Q3975w6deuDik3aeGAkT6AoUOidm8HiJTkvVlcrpj
+         3HqK8kQOigBEElH13rlpWcP3+xWSVsVOWS8E63mN2vW646yvcJizglo9JOqrprIfdN1T
+         4ySA==
+X-Gm-Message-State: AOAM531vahHDunWwPsVPqfxrPIRQEWH/7yF7O+QtYJpsrHeXV4cEeDi1
+        0zpZ2ATSrrko2VniO6zNS5Y=
+X-Google-Smtp-Source: ABdhPJz9OsdMxDoYL6Xhw5hG2L9Z+k50d9PNIS+N5Bo36GfNNwOIVyEBjwzG0ZehGal6pMbxNoK9nA==
+X-Received: by 2002:a17:907:c20:: with SMTP id ga32mr29226012ejc.7.1625726112512;
+        Wed, 07 Jul 2021 23:35:12 -0700 (PDT)
 Received: from carbon.v ([108.61.166.58])
-        by smtp.googlemail.com with ESMTPSA id u21sm410260eja.59.2021.07.07.23.35.14
+        by smtp.googlemail.com with ESMTPSA id u21sm410260eja.59.2021.07.07.23.35.11
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 07 Jul 2021 23:35:15 -0700 (PDT)
+        Wed, 07 Jul 2021 23:35:12 -0700 (PDT)
 From:   Dmitry Kadashev <dkadashev@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>,
         Alexander Viro <viro@zeniv.linux.org.uk>,
@@ -64,9 +64,9 @@ To:     Jens Axboe <axboe@kernel.dk>,
 Cc:     Pavel Begunkov <asml.silence@gmail.com>,
         linux-fsdevel@vger.kernel.org, io-uring@vger.kernel.org,
         Dmitry Kadashev <dkadashev@gmail.com>
-Subject: [PATCH v9 05/11] namei: make do_symlinkat() take struct filename
-Date:   Thu,  8 Jul 2021 13:34:41 +0700
-Message-Id: <20210708063447.3556403-6-dkadashev@gmail.com>
+Subject: [PATCH v9 03/11] namei: make do_mkdirat() take struct filename
+Date:   Thu,  8 Jul 2021 13:34:39 +0700
+Message-Id: <20210708063447.3556403-4-dkadashev@gmail.com>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210708063447.3556403-1-dkadashev@gmail.com>
 References: <20210708063447.3556403-1-dkadashev@gmail.com>
@@ -76,78 +76,112 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Pass in the struct filename pointers instead of the user string, for
-uniformity with the recently converted do_mkdnodat(), do_unlinkat(),
-do_renameat(), do_mkdirat().
+Pass in the struct filename pointers instead of the user string, and
+update the three callers to do the same. This is heavily based on
+commit dbea8d345177 ("fs: make do_renameat2() take struct filename").
 
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
+This behaves like do_unlinkat() and do_renameat2().
+
 Cc: Al Viro <viro@zeniv.linux.org.uk>
-Cc: Christian Brauner <christian.brauner@ubuntu.com>
-Link: https://lore.kernel.org/io-uring/20210330071700.kpjoyp5zlni7uejm@wittgenstein/
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Dmitry Kadashev <dkadashev@gmail.com>
 Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
 ---
- fs/namei.c | 23 ++++++++++++-----------
- 1 file changed, 12 insertions(+), 11 deletions(-)
+ fs/internal.h |  1 +
+ fs/namei.c    | 26 +++++++++++++++++++-------
+ 2 files changed, 20 insertions(+), 7 deletions(-)
 
+diff --git a/fs/internal.h b/fs/internal.h
+index 6aeae7ef3380..848e165ef0f1 100644
+--- a/fs/internal.h
++++ b/fs/internal.h
+@@ -77,6 +77,7 @@ long do_unlinkat(int dfd, struct filename *name);
+ int may_linkat(struct user_namespace *mnt_userns, struct path *link);
+ int do_renameat2(int olddfd, struct filename *oldname, int newdfd,
+ 		 struct filename *newname, unsigned int flags);
++long do_mkdirat(int dfd, struct filename *name, umode_t mode);
+ 
+ /*
+  * namespace.c
 diff --git a/fs/namei.c b/fs/namei.c
-index 0bc8ff637934..add984e4bfd0 100644
+index 2995b3695724..54d5f19ee1ce 100644
 --- a/fs/namei.c
 +++ b/fs/namei.c
-@@ -4197,23 +4197,23 @@ int vfs_symlink(struct user_namespace *mnt_userns, struct inode *dir,
+@@ -3563,7 +3563,7 @@ struct file *do_file_open_root(struct dentry *dentry, struct vfsmount *mnt,
+ 	return file;
  }
- EXPORT_SYMBOL(vfs_symlink);
  
--static long do_symlinkat(const char __user *oldname, int newdfd,
--		  const char __user *newname)
-+static long do_symlinkat(struct filename *from, int newdfd,
-+		  struct filename *to)
+-static struct dentry *filename_create(int dfd, struct filename *name,
++static struct dentry *__filename_create(int dfd, struct filename *name,
+ 				struct path *path, unsigned int lookup_flags)
  {
- 	int error;
--	struct filename *from;
+ 	struct dentry *dentry = ERR_PTR(-EEXIST);
+@@ -3579,7 +3579,7 @@ static struct dentry *filename_create(int dfd, struct filename *name,
+ 	 */
+ 	lookup_flags &= LOOKUP_REVAL;
+ 
+-	error = filename_parentat(dfd, name, lookup_flags, path, &last, &type);
++	error = __filename_parentat(dfd, name, lookup_flags, path, &last, &type);
+ 	if (error)
+ 		return ERR_PTR(error);
+ 
+@@ -3632,6 +3632,15 @@ static struct dentry *filename_create(int dfd, struct filename *name,
+ 	return dentry;
+ }
+ 
++static inline struct dentry *filename_create(int dfd, struct filename *name,
++				struct path *path, unsigned int lookup_flags)
++{
++	struct dentry *res = __filename_create(dfd, name, path, lookup_flags);
++
++	putname(name);
++	return res;
++}
++
+ struct dentry *kern_path_create(int dfd, const char *pathname,
+ 				struct path *path, unsigned int lookup_flags)
+ {
+@@ -3822,7 +3831,7 @@ int vfs_mkdir(struct user_namespace *mnt_userns, struct inode *dir,
+ }
+ EXPORT_SYMBOL(vfs_mkdir);
+ 
+-static long do_mkdirat(int dfd, const char __user *pathname, umode_t mode)
++long do_mkdirat(int dfd, struct filename *name, umode_t mode)
+ {
  	struct dentry *dentry;
  	struct path path;
- 	unsigned int lookup_flags = 0;
+@@ -3830,9 +3839,10 @@ static long do_mkdirat(int dfd, const char __user *pathname, umode_t mode)
+ 	unsigned int lookup_flags = LOOKUP_DIRECTORY;
  
--	from = getname(oldname);
--	if (IS_ERR(from))
--		return PTR_ERR(from);
-+	if (IS_ERR(from)) {
-+		error = PTR_ERR(from);
-+		goto out_putnames;
-+	}
  retry:
--	dentry = user_path_create(newdfd, newname, &path, lookup_flags);
-+	dentry = __filename_create(newdfd, to, &path, lookup_flags);
- 	error = PTR_ERR(dentry);
+-	dentry = user_path_create(dfd, pathname, &path, lookup_flags);
++	dentry = __filename_create(dfd, name, &path, lookup_flags);
++	error = PTR_ERR(dentry);
  	if (IS_ERR(dentry))
--		goto out_putname;
-+		goto out_putnames;
+-		return PTR_ERR(dentry);
++		goto out_putname;
  
- 	error = security_path_symlink(&path, dentry, from->name);
- 	if (!error) {
-@@ -4228,7 +4228,8 @@ static long do_symlinkat(const char __user *oldname, int newdfd,
+ 	if (!IS_POSIXACL(path.dentry->d_inode))
+ 		mode &= ~current_umask();
+@@ -3848,17 +3858,19 @@ static long do_mkdirat(int dfd, const char __user *pathname, umode_t mode)
  		lookup_flags |= LOOKUP_REVAL;
  		goto retry;
  	}
--out_putname:
-+out_putnames:
-+	putname(to);
- 	putname(from);
++out_putname:
++	putname(name);
  	return error;
  }
-@@ -4236,12 +4237,12 @@ static long do_symlinkat(const char __user *oldname, int newdfd,
- SYSCALL_DEFINE3(symlinkat, const char __user *, oldname,
- 		int, newdfd, const char __user *, newname)
+ 
+ SYSCALL_DEFINE3(mkdirat, int, dfd, const char __user *, pathname, umode_t, mode)
  {
--	return do_symlinkat(oldname, newdfd, newname);
-+	return do_symlinkat(getname(oldname), newdfd, getname(newname));
+-	return do_mkdirat(dfd, pathname, mode);
++	return do_mkdirat(dfd, getname(pathname), mode);
  }
  
- SYSCALL_DEFINE2(symlink, const char __user *, oldname, const char __user *, newname)
+ SYSCALL_DEFINE2(mkdir, const char __user *, pathname, umode_t, mode)
  {
--	return do_symlinkat(oldname, AT_FDCWD, newname);
-+	return do_symlinkat(getname(oldname), AT_FDCWD, getname(newname));
+-	return do_mkdirat(AT_FDCWD, pathname, mode);
++	return do_mkdirat(AT_FDCWD, getname(pathname), mode);
  }
  
  /**

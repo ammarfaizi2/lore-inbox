@@ -8,54 +8,54 @@ X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CD80BC07E96
-	for <io-uring@archiver.kernel.org>; Thu, 15 Jul 2021 10:46:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 84FEEC47E4B
+	for <io-uring@archiver.kernel.org>; Thu, 15 Jul 2021 10:46:05 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B793B61396
-	for <io-uring@archiver.kernel.org>; Thu, 15 Jul 2021 10:46:03 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6A2FC61380
+	for <io-uring@archiver.kernel.org>; Thu, 15 Jul 2021 10:46:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241650AbhGOKs4 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Thu, 15 Jul 2021 06:48:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58224 "EHLO
+        id S241657AbhGOKs5 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Thu, 15 Jul 2021 06:48:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58242 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240397AbhGOKsz (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Thu, 15 Jul 2021 06:48:55 -0400
-Received: from mail-ej1-x62a.google.com (mail-ej1-x62a.google.com [IPv6:2a00:1450:4864:20::62a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46C4CC06175F;
-        Thu, 15 Jul 2021 03:46:01 -0700 (PDT)
-Received: by mail-ej1-x62a.google.com with SMTP id dt7so8491377ejc.12;
-        Thu, 15 Jul 2021 03:46:01 -0700 (PDT)
+        with ESMTP id S241656AbhGOKs5 (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Thu, 15 Jul 2021 06:48:57 -0400
+Received: from mail-ej1-x636.google.com (mail-ej1-x636.google.com [IPv6:2a00:1450:4864:20::636])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41478C06175F;
+        Thu, 15 Jul 2021 03:46:04 -0700 (PDT)
+Received: by mail-ej1-x636.google.com with SMTP id c17so8467532ejk.13;
+        Thu, 15 Jul 2021 03:46:04 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=Eg5z+PqQJCS7nsIZodl87fjo91xdwFW+8QRSOZStkvM=;
-        b=LQWgcm7KRHjf93vBGy203TlbK968/zscfRdA2n1dVI4piLF9FfmeFA126caPP2oE78
-         DVWVOgAU6dFr6wO+YSioRibIdl1/RXXeH3JLLR0We9YaIa2uAeAk6YWUbf5J6pTxO1B+
-         Ds68eROYSfQsPXOxEwzeGevWMZh429GeKyfmzh8YpIoMlevNz8rsZ/SUjU0F3Jhsspw5
-         79YSq+z7RROV/RPzgEpUQbRbcD9aM3u7R1of6hj4ND3k0xygqHj5iWGR6fNnbKEPq237
-         RMsCqw/0OecmxaWEY5GsXCrOeY0pYqI9Awc32k1+XDGXdKcJecrAWGVymVZzKkxGUdF6
-         yD6Q==
+        bh=EHG39bGGVJfcCHnCV+DYwcxM8Y412mNnw+khYb5tB2Y=;
+        b=SZk4DOX0jqnKexk8NF6TvR+H2/qpz/5RT4AHZEA72GMcvb5OwQ8Ta3p+Z0WD+8zOZE
+         +fVPJCEcaFZARI4+KpUO91I8+wru3oPDVk2QE00DtkOuLV082+Bo6O3sWHRyRTRFJxjd
+         EWGkx3/W6ixqJLbGryk6uuQ7OWkr+oc4przZGM56CbjUtxcweOJAqHF2cjp9RhLbM0gC
+         nHBQIgIvbNA0bQ9tdZaEBSvFinDtGwshfmpg7rbYOHhsopQMuAWbocRRbFxBGDab+x2W
+         6/6w+46Ucr8h26XN9Oio/qT8LcO7R8XaKUP5yo3UhXwS7yp0m4PrLMV9mlmVdwDMlkEL
+         Wn/A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=Eg5z+PqQJCS7nsIZodl87fjo91xdwFW+8QRSOZStkvM=;
-        b=MKSLh4IUuUtXjMw3keruruthwKtCMpV0GYbv3NJEj+QvrpNGloZFDfO4AlLS2kl+HW
-         DevsAZ9JqYtE40qZKU+DjKsGvXqnPPJYbfuAh+CBsr92OP1s9qdevtktKHi1UDopRoEa
-         tcSaRogg4P81opN2CqJNGgOKyEvG8VaLBiL1kAms91WyH8Zg33mutMHRUw6dBq9TzRQr
-         hBbMpmL0Y0mnzaXaf9soQvSBDKdvU6It/iuPTL7CBcXWSd2X9KNk0d+sLeZs7WDY+yIh
-         bpE3pOTkYrOtsVCiSOdyAVd59fUo9C9E/y8ZMBRink1LfTyLokC6bXzLZeACCrYzpwxc
-         N5iw==
-X-Gm-Message-State: AOAM5315gOSPFtZ/5ltprIycXojAASh8NUtMCHKC9MHA7ZxDsLYOSQQP
-        WyrZlk/EQjxck/b2rYiZvSU=
-X-Google-Smtp-Source: ABdhPJwF8vbY3o/S8MxXSPmtad1KLXkdp7coSv4pKOiKkG9lQ1G66Ypabmk1yxdG29pT+t9GpHTUDg==
-X-Received: by 2002:a17:906:d541:: with SMTP id cr1mr4800913ejc.81.1626345959863;
-        Thu, 15 Jul 2021 03:45:59 -0700 (PDT)
+        bh=EHG39bGGVJfcCHnCV+DYwcxM8Y412mNnw+khYb5tB2Y=;
+        b=jRScQgu1n8zgfqqWz0CP/oUWNzWu0BbJfsGuP47wPXjenxFTduKohCKWJFVNwjqajo
+         cwo8xrvTcHuwVXEVxwcAlRsqiCaIXSWF1r3HdZG6eNG5LV3FuYamnG82eKRAKTmHd+9S
+         BD/q3kB/FMr0CmYejedvTOwasmXxdYfo85DUK5+xydac8/TMQTMu/kixKiudnF29csI4
+         GcZFpSgZmAuwH8Ui/4UqUAO3Deraafw22KbQGXhwdnj0lXZGNzGiqJ12Hhv+C2rsCPWn
+         6A+9MsdlnTm1/wnH7VK2FmkGCxtSBLcU+ts8O7xweHk4CvjXqc7o/IFjEJD9GrqYboNg
+         zzbA==
+X-Gm-Message-State: AOAM530U8yvtUj4aDxiWuKIlFxIyYkEruV0ErwtyPARyT3fkYMSUlPeA
+        E3aWzlmGFK+B09D9qQ6MFFo=
+X-Google-Smtp-Source: ABdhPJztfnHXYPlJqjrpHD3hnIH74hi/0GnPqzwJP9ssqx/7Biq7ciKwrFbEvuLxwIz2TDCOrGJ8Cg==
+X-Received: by 2002:a17:906:4ad9:: with SMTP id u25mr4827809ejt.174.1626345962859;
+        Thu, 15 Jul 2021 03:46:02 -0700 (PDT)
 Received: from carbon.v ([108.61.166.58])
-        by smtp.googlemail.com with ESMTPSA id d19sm2231498eds.54.2021.07.15.03.45.58
+        by smtp.googlemail.com with ESMTPSA id d19sm2231498eds.54.2021.07.15.03.46.01
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 15 Jul 2021 03:45:59 -0700 (PDT)
+        Thu, 15 Jul 2021 03:46:02 -0700 (PDT)
 From:   Dmitry Kadashev <dkadashev@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>,
         Alexander Viro <viro@zeniv.linux.org.uk>,
@@ -63,9 +63,9 @@ To:     Jens Axboe <axboe@kernel.dk>,
         Linus Torvalds <torvalds@linux-foundation.org>
 Cc:     linux-fsdevel@vger.kernel.org, io-uring@vger.kernel.org,
         Dmitry Kadashev <dkadashev@gmail.com>
-Subject: [PATCH v2 08/14] namei: clean up do_mknodat retry logic
-Date:   Thu, 15 Jul 2021 17:45:30 +0700
-Message-Id: <20210715104536.3598130-9-dkadashev@gmail.com>
+Subject: [PATCH v2 10/14] namei: clean up do_symlinkat retry logic
+Date:   Thu, 15 Jul 2021 17:45:32 +0700
+Message-Id: <20210715104536.3598130-11-dkadashev@gmail.com>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210715104536.3598130-1-dkadashev@gmail.com>
 References: <20210715104536.3598130-1-dkadashev@gmail.com>
@@ -85,56 +85,46 @@ Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
 Link: https://lore.kernel.org/io-uring/CAHk-=wiG+sN+2zSoAOggKCGue2kOJvw3rQySvQXsZstRQFTN+g@mail.gmail.com/
 Signed-off-by: Dmitry Kadashev <dkadashev@gmail.com>
 ---
- fs/namei.c | 32 ++++++++++++++++++--------------
- 1 file changed, 18 insertions(+), 14 deletions(-)
+ fs/namei.c | 30 ++++++++++++++++--------------
+ 1 file changed, 16 insertions(+), 14 deletions(-)
 
 diff --git a/fs/namei.c b/fs/namei.c
-index 4008867e516d..f7cde1543b47 100644
+index c4d75c94adce..61cf6bbe1e5c 100644
 --- a/fs/namei.c
 +++ b/fs/namei.c
-@@ -3745,29 +3745,26 @@ static int may_mknod(umode_t mode)
- 	}
+@@ -4234,22 +4234,18 @@ int vfs_symlink(struct user_namespace *mnt_userns, struct inode *dir,
  }
+ EXPORT_SYMBOL(vfs_symlink);
  
--static int do_mknodat(int dfd, struct filename *name, umode_t mode,
--		unsigned int dev)
-+static int try_mknodat(int dfd, struct filename *name, umode_t mode,
-+		       unsigned int dev, unsigned int lookup_flags)
+-int do_symlinkat(struct filename *from, int newdfd, struct filename *to)
++static int try_symlinkat(struct filename *from, int newdfd, struct filename *to,
++			 unsigned int lookup_flags)
  {
- 	struct user_namespace *mnt_userns;
+ 	int error;
  	struct dentry *dentry;
  	struct path path;
- 	int error;
 -	unsigned int lookup_flags = 0;
  
 -retry:
- 	error = may_mknod(mode);
- 	if (error)
--		goto out1;
-+		return error;
- 	dentry = __filename_create(dfd, name, &path, lookup_flags);
+-	if (IS_ERR(from)) {
+-		error = PTR_ERR(from);
+-		goto out;
+-	}
++	if (IS_ERR(from))
++		return PTR_ERR(from);
+ 	dentry = __filename_create(newdfd, to, &path, lookup_flags);
 -	error = PTR_ERR(dentry);
  	if (IS_ERR(dentry))
--		goto out1;
+-		goto out;
 +		return PTR_ERR(dentry);
  
- 	if (!IS_POSIXACL(path.dentry->d_inode))
- 		mode &= ~current_umask();
- 	error = security_path_mknod(&path, dentry, mode, dev);
- 	if (error)
--		goto out2;
-+		goto out;
- 
- 	mnt_userns = mnt_user_ns(path.mnt);
- 	switch (mode & S_IFMT) {
-@@ -3786,13 +3783,20 @@ static int do_mknodat(int dfd, struct filename *name, umode_t mode,
- 					  dentry, mode, 0);
- 			break;
+ 	error = security_path_symlink(&path, dentry, from->name);
+ 	if (!error) {
+@@ -4260,11 +4256,17 @@ int do_symlinkat(struct filename *from, int newdfd, struct filename *to)
+ 				    from->name);
  	}
--out2:
-+out:
  	done_path_create(&path, dentry);
--out1:
+-out:
 -	if (unlikely(retry_estale(error, lookup_flags))) {
 -		lookup_flags |= LOOKUP_REVAL;
 -		goto retry;
@@ -142,18 +132,17 @@ index 4008867e516d..f7cde1543b47 100644
 +	return error;
 +}
 +
-+static int do_mknodat(int dfd, struct filename *name, umode_t mode,
-+		unsigned int dev)
++int do_symlinkat(struct filename *from, int newdfd, struct filename *to)
 +{
 +	int error;
 +
-+	error = try_mknodat(dfd, name, mode, dev, 0);
++	error = try_symlinkat(from, newdfd, to, 0);
 +	if (unlikely(retry_estale(error, 0)))
-+		error = try_mknodat(dfd, name, mode, dev, LOOKUP_REVAL);
++		error = try_symlinkat(from, newdfd, to, LOOKUP_REVAL);
 +
- 	putname(name);
+ 	putname(to);
+ 	putname(from);
  	return error;
- }
 -- 
 2.30.2
 

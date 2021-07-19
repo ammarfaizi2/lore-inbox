@@ -2,152 +2,70 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.7 required=3.0 tests=BAYES_00,FROM_LOCAL_HEX,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D50F8C12002
-	for <io-uring@archiver.kernel.org>; Mon, 19 Jul 2021 17:11:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7A7F7C07E95
+	for <io-uring@archiver.kernel.org>; Mon, 19 Jul 2021 17:18:33 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C039760FDB
-	for <io-uring@archiver.kernel.org>; Mon, 19 Jul 2021 17:11:35 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5DEA760FEA
+	for <io-uring@archiver.kernel.org>; Mon, 19 Jul 2021 17:18:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346086AbhGSQay (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Mon, 19 Jul 2021 12:30:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34168 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348993AbhGSQ2U (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Mon, 19 Jul 2021 12:28:20 -0400
-Received: from mail-wr1-x435.google.com (mail-wr1-x435.google.com [IPv6:2a00:1450:4864:20::435])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7949FC0613B8;
-        Mon, 19 Jul 2021 09:36:35 -0700 (PDT)
-Received: by mail-wr1-x435.google.com with SMTP id m2so22929883wrq.2;
-        Mon, 19 Jul 2021 09:57:50 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=subject:to:references:from:message-id:date:user-agent:mime-version
-         :in-reply-to:content-language:content-transfer-encoding;
-        bh=5+QOzmPrwqlbL8vra0BGb2Ncq2IXwGOQ5UDn3gWSHlI=;
-        b=rnts9UdrzhohLVh+9ixRtTD7Qb07WM3ssUiEmddB71N4D1TswgPQ6DHWQIf0HzaA+i
-         mnEtgjp5b05QUZ0NQOPia4dKSZ/fcv74pfyMNB7At207tw4WCj33lzzYv3W6OrJL21/S
-         +y/zS0BstF87nbZzwfsuSN2g3vnFjqaLFhngtCaXgp4IAykUsWM1Kny9Zq+nCtB0Ym/7
-         KC54WKfkgOH5W0E66RJ/mlAVTwjiJcApbgIaH0A4idEvAT51evpwNqyzoLT/axRyqJwx
-         xBT7KUdIZsbgPtMa+V78pHhFMMBNZSKobFQnMrkAFW0xt3/eRl2qjFs5CXzSi3G217r7
-         3wrw==
+        id S242591AbhGSQhs (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Mon, 19 Jul 2021 12:37:48 -0400
+Received: from mail-il1-f198.google.com ([209.85.166.198]:56064 "EHLO
+        mail-il1-f198.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1352833AbhGSQe3 (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Mon, 19 Jul 2021 12:34:29 -0400
+Received: by mail-il1-f198.google.com with SMTP id i22-20020a056e021d16b02902166568c213so3236098ila.22
+        for <io-uring@vger.kernel.org>; Mon, 19 Jul 2021 10:15:09 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=5+QOzmPrwqlbL8vra0BGb2Ncq2IXwGOQ5UDn3gWSHlI=;
-        b=P/gQzI01RlS8jglyWFNurgfYog7VyY8JJQFKnTSGQlCkIFE0VlrEnpyb33CN6vXz3t
-         KYAe2ao1TYO4k92WpKyqouUkghb0ZE6De1qFdYzg7PrpLvO37BlwIA+Y7GQQaxc396yy
-         +4gjKmiuErRMYPFBEHgwvyzUNql9xz3SAobRQ2+hmZyFFZ/Utt1YNL7AfuVhGoaHAflZ
-         smOf5OO/T8gFCsgkP9zHZqiMHInyw3ObvzcieELOVL01b9YwTxdW1ZGecfpXnUJOE17y
-         lVskegfTl/VY9HajJglRNqh/kwRSO53/2MaWYhuf4rv4A4dI0Aop0Vf8N8KDRztyu3i0
-         FdRw==
-X-Gm-Message-State: AOAM5311YpcjVQQNzKPridml+CdtruCy5uLToVHoXakM7X52ZaVXiINR
-        EfRMsV+7tldHzf6mqDRRxqY=
-X-Google-Smtp-Source: ABdhPJxbQbtOZ2Yshkhwdtv7MbXI/CWSa+ZztPy+mDMVONsDCVZELhY3bccQHDdCn40QSRaHTc3k5w==
-X-Received: by 2002:adf:e586:: with SMTP id l6mr31611423wrm.26.1626713869284;
-        Mon, 19 Jul 2021 09:57:49 -0700 (PDT)
-Received: from [192.168.8.197] ([148.252.132.204])
-        by smtp.gmail.com with ESMTPSA id n11sm67677wms.0.2021.07.19.09.57.48
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 19 Jul 2021 09:57:48 -0700 (PDT)
+        h=x-gm-message-state:mime-version:date:in-reply-to:message-id:subject
+         :from:to;
+        bh=lKM2UD/yHgWjmA2szMEkHx9fCrO+nHy0wS5xCM2jOV0=;
+        b=OyfksTQmN7d3tCjAWoqZ7SCLrnMa4o+WKNDoK63x2Tnsrx9TZ6FLsauC0HKJJRik+j
+         zZ/DPGVGKOOKhvCbEz9Fmo1gUZcpowYEyGcvv9mJ4PpD02jAdNL/vaabskiiZyCNyYW9
+         yM9/RYIJswxsOFai1yUZmu0WeWdpRFFkGUHRjRzm+NxBLN+7W6NKjLlUgXHnu5Wypi4D
+         OajlQGKeOfgvx7SW7EoVgiOPXptjdgumz4tq+wM62CCVmFQJH1mhDsmgNVRe2t/1/PdK
+         1bliJSh70WlOcKfgigcgA/A/LbKnVXzTll190ct/UdknDyiHyF62dR15uBP3diMfAfKd
+         a09A==
+X-Gm-Message-State: AOAM532KvtCYpXh6o6vGeRgCLsf5PpuRL6mYHHB+FLkjN47ZFi3kC1h6
+        sCjHLcJxSXV15Fb2AHM59gyY8r5pmEPz/O1yJ+a0mDR7Iohj
+X-Google-Smtp-Source: ABdhPJwZFFssLOoNLjRgimHgZ+etxG2tvmGaw4gHR0vTxbgH8LEXycoYsMuGqxgNsK4/cw1XQ5fBDAiLlYO2sfpx4t7XP/Ndktqa
+MIME-Version: 1.0
+X-Received: by 2002:a05:6e02:1142:: with SMTP id o2mr18396207ill.277.1626714909265;
+ Mon, 19 Jul 2021 10:15:09 -0700 (PDT)
+Date:   Mon, 19 Jul 2021 10:15:09 -0700
+In-Reply-To: <c57f80f7-440b-9f12-a7b7-a58ed7ab400a@gmail.com>
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <00000000000051553205c77d143c@google.com>
 Subject: Re: [syzbot] INFO: task hung in io_sq_thread_park (2)
-To:     syzbot <syzbot+ac957324022b7132accf@syzkaller.appspotmail.com>,
-        axboe@kernel.dk, io-uring@vger.kernel.org,
+From:   syzbot <syzbot+ac957324022b7132accf@syzkaller.appspotmail.com>
+To:     asml.silence@gmail.com, axboe@kernel.dk, io-uring@vger.kernel.org,
         linux-kernel@vger.kernel.org, mingo@kernel.org, mingo@redhat.com,
         peterz@infradead.org, rostedt@goodmis.org,
         syzkaller-bugs@googlegroups.com, will@kernel.org
-References: <000000000000e1f38205c73b72cc@google.com>
-From:   Pavel Begunkov <asml.silence@gmail.com>
-Message-ID: <c57f80f7-440b-9f12-a7b7-a58ed7ab400a@gmail.com>
-Date:   Mon, 19 Jul 2021 17:57:25 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.11.0
-MIME-Version: 1.0
-In-Reply-To: <000000000000e1f38205c73b72cc@google.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 7/16/21 11:57 AM, syzbot wrote:
-> Hello,
-> 
-> syzbot has tested the proposed patch but the reproducer is still triggering an issue:
-> WARNING in io_uring_cancel_generic
+Hello,
 
-__arm_poll doesn't remove a second poll entry in case of failed
-__io_queue_proc(), it's most likely the cause here.
+syzbot has tested the proposed patch and the reproducer did not trigger any issue:
 
-#syz test: https://github.com/isilence/linux.git syztest_sqpoll_hang
+Reported-and-tested-by: syzbot+ac957324022b7132accf@syzkaller.appspotmail.com
 
-> 
-> ctx ffff8880467ee000 submitted 1, dismantled 0, crefs 0, inflight 1, fallbacks 0, poll1 0, poll2 0, tw 0, hash 0, cs 0, issued 1 
-> ------------[ cut here ]------------
-> WARNING: CPU: 0 PID: 18216 at fs/io_uring.c:9142 io_dump fs/io_uring.c:9142 [inline]
-> WARNING: CPU: 0 PID: 18216 at fs/io_uring.c:9142 io_uring_cancel_generic+0x608/0xea0 fs/io_uring.c:9198
-> Modules linked in:
-> CPU: 0 PID: 18216 Comm: iou-sqp-18211 Not tainted 5.14.0-rc1-syzkaller #0
-> Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-> RIP: 0010:io_dump fs/io_uring.c:9142 [inline]
-> RIP: 0010:io_uring_cancel_generic+0x608/0xea0 fs/io_uring.c:9198
-> Code: 48 c1 ea 03 80 3c 02 00 0f 85 d5 02 00 00 48 8b 44 24 10 48 8b a8 98 00 00 00 48 39 6c 24 08 0f 85 02 03 00 00 e8 f8 97 92 ff <0f> 0b e9 af fe ff ff e8 ec 97 92 ff 48 8b 74 24 20 b9 08 00 00 00
-> RSP: 0018:ffffc9000afefc40 EFLAGS: 00010293
-> RAX: 0000000000000000 RBX: ffff88802a09d4c0 RCX: 0000000000000000
-> RDX: ffff88802a09d4c0 RSI: ffffffff81e2f0b8 RDI: ffff8880467ee510
-> RBP: ffff8880462fb788 R08: 0000000000000081 R09: 0000000000000000
-> R10: ffffffff815d066e R11: 0000000000000000 R12: ffff8880462fa458
-> R13: ffffc9000afefd40 R14: 0000000000000001 R15: 0000000000000000
-> FS:  00007f9295c2d700(0000) GS:ffff8880b9d00000(0000) knlGS:0000000000000000
-> CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-> CR2: 00007f1c3f1a3000 CR3: 0000000018755000 CR4: 0000000000350ee0
-> Call Trace:
->  io_sq_thread+0xaac/0x1250 fs/io_uring.c:6932
->  ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:295
-> Kernel panic - not syncing: panic_on_warn set ...
-> CPU: 0 PID: 18216 Comm: iou-sqp-18211 Not tainted 5.14.0-rc1-syzkaller #0
-> Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-> Call Trace:
->  __dump_stack lib/dump_stack.c:88 [inline]
->  dump_stack_lvl+0xcd/0x134 lib/dump_stack.c:105
->  panic+0x306/0x73d kernel/panic.c:232
->  __warn.cold+0x35/0x44 kernel/panic.c:606
->  report_bug+0x1bd/0x210 lib/bug.c:199
->  handle_bug+0x3c/0x60 arch/x86/kernel/traps.c:239
->  exc_invalid_op+0x14/0x40 arch/x86/kernel/traps.c:259
->  asm_exc_invalid_op+0x12/0x20 arch/x86/include/asm/idtentry.h:566
-> RIP: 0010:io_dump fs/io_uring.c:9142 [inline]
-> RIP: 0010:io_uring_cancel_generic+0x608/0xea0 fs/io_uring.c:9198
-> Code: 48 c1 ea 03 80 3c 02 00 0f 85 d5 02 00 00 48 8b 44 24 10 48 8b a8 98 00 00 00 48 39 6c 24 08 0f 85 02 03 00 00 e8 f8 97 92 ff <0f> 0b e9 af fe ff ff e8 ec 97 92 ff 48 8b 74 24 20 b9 08 00 00 00
-> RSP: 0018:ffffc9000afefc40 EFLAGS: 00010293
-> RAX: 0000000000000000 RBX: ffff88802a09d4c0 RCX: 0000000000000000
-> RDX: ffff88802a09d4c0 RSI: ffffffff81e2f0b8 RDI: ffff8880467ee510
-> RBP: ffff8880462fb788 R08: 0000000000000081 R09: 0000000000000000
-> R10: ffffffff815d066e R11: 0000000000000000 R12: ffff8880462fa458
-> R13: ffffc9000afefd40 R14: 0000000000000001 R15: 0000000000000000
->  io_sq_thread+0xaac/0x1250 fs/io_uring.c:6932
->  ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:295
-> Kernel Offset: disabled
-> Rebooting in 86400 seconds..
-> 
-> 
-> Tested on:
-> 
-> commit:         81fee56e io_uring: add syz debug info
-> git tree:       https://github.com/isilence/linux.git syztest_sqpoll_hang
-> console output: https://syzkaller.appspot.com/x/log.txt?x=12bb485c300000
-> kernel config:  https://syzkaller.appspot.com/x/.config?x=cfe2c0e42bc9993d
-> dashboard link: https://syzkaller.appspot.com/bug?extid=ac957324022b7132accf
-> compiler:       
-> 
+Tested on:
 
--- 
-Pavel Begunkov
+commit:         61d27d88 io_uring: double remove on poll arm failure
+git tree:       https://github.com/isilence/linux.git syztest_sqpoll_hang
+kernel config:  https://syzkaller.appspot.com/x/.config?x=cfe2c0e42bc9993d
+dashboard link: https://syzkaller.appspot.com/bug?extid=ac957324022b7132accf
+compiler:       
+
+Note: testing is done by a robot and is best-effort only.

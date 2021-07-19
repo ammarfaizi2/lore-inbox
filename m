@@ -2,62 +2,62 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+X-Spam-Status: No, score=-14.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
 	MENTIONS_GIT_HOSTING,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EF580C07E9D
-	for <io-uring@archiver.kernel.org>; Mon, 19 Jul 2021 17:26:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 004CCC07E9B
+	for <io-uring@archiver.kernel.org>; Mon, 19 Jul 2021 17:37:59 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D2E6F610D2
-	for <io-uring@archiver.kernel.org>; Mon, 19 Jul 2021 17:26:46 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CE506610D2
+	for <io-uring@archiver.kernel.org>; Mon, 19 Jul 2021 17:37:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348634AbhGSQpz (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Mon, 19 Jul 2021 12:45:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37476 "EHLO
+        id S1351796AbhGSQ5Q (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Mon, 19 Jul 2021 12:57:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39510 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352016AbhGSQnI (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Mon, 19 Jul 2021 12:43:08 -0400
-Received: from mail-pj1-x102e.google.com (mail-pj1-x102e.google.com [IPv6:2607:f8b0:4864:20::102e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 86F59C04DF11
-        for <io-uring@vger.kernel.org>; Mon, 19 Jul 2021 09:53:59 -0700 (PDT)
-Received: by mail-pj1-x102e.google.com with SMTP id me13-20020a17090b17cdb0290173bac8b9c9so14541937pjb.3
-        for <io-uring@vger.kernel.org>; Mon, 19 Jul 2021 10:13:54 -0700 (PDT)
+        with ESMTP id S1358549AbhGSQxP (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Mon, 19 Jul 2021 12:53:15 -0400
+Received: from mail-wr1-x42d.google.com (mail-wr1-x42d.google.com [IPv6:2a00:1450:4864:20::42d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 077A9C0A8878;
+        Mon, 19 Jul 2021 10:10:23 -0700 (PDT)
+Received: by mail-wr1-x42d.google.com with SMTP id g16so23011472wrw.5;
+        Mon, 19 Jul 2021 10:29:02 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:references:from:message-id:date:user-agent:mime-version
+        d=gmail.com; s=20161025;
+        h=to:references:from:subject:message-id:date:user-agent:mime-version
          :in-reply-to:content-language:content-transfer-encoding;
-        bh=bC4MxiMR6/WdBb2kDanGoPVgU3HczlOrNCuENL6GncA=;
-        b=hmXqMxM2ozNMJ1yd6YypN9dBzCd+cMV0TLASzlrgrOGE4S1FEdB1xHLRbxl80iZ3S+
-         3B3IQb9oULtT+YvHvVJVD6DKYWYiyWhbeMTe9mtTJPSd01e/MaWGfFOXjt1aR923HG7M
-         AS/rTwsj8xdw/09zpeklv9sBOXOgjtGtp5rFttSqWEMMrXGgwTajHwdgSUZhjZ+ua5RD
-         56RF3cF2YZrSuKSfeogJKeljBmIg7FYgVAcKY4ZRXtAiPHBM5gENsJhBKrAe9LVLj+hZ
-         QYVJ3dEly0d75TEjNJkv4knWAfaYVClm/4HObWFpbq3sDC77xh3k5tJJtULb5YIWdU6A
-         mb/w==
+        bh=SspOufy8IxePVa2SqHnpK2fSzNtm7ELeqTvtgBfDdaI=;
+        b=Mznpbm+pHfyK6OsXSEIdTTal9vHlqbcv/Bg/FMSn4v2kzcLb1IdGpGaGf11XIM49Pn
+         YCC57yySK942BiE4xahv6Naw15yAszkPpe3+uPk+bGs/bzXjyd/16PlVepy4BlfMlcJs
+         K+Z7Ldfj0rE3u8YhgtxAwcS49J6hjpvC6nKQHWOlsykOxuGV6Ftg5k/EeGE5LfBTrxZN
+         3pBTb5qbdBn2lhfAhwvPx45dyloziTzw/XXxsodSVLdUSmbAe9BdKSl3A5t9P2b/KG6Q
+         ArK/G3RZkRVo3OzIGr9eLidXjlrYXOHcsCMZiBGDHofpCgGar26lE8TyWNWWC1XpbRZO
+         h4CA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:references:from:message-id:date
+        h=x-gm-message-state:to:references:from:subject:message-id:date
          :user-agent:mime-version:in-reply-to:content-language
          :content-transfer-encoding;
-        bh=bC4MxiMR6/WdBb2kDanGoPVgU3HczlOrNCuENL6GncA=;
-        b=IH/rp6Qw3+WIcf1isJ+7sx3zyH+R2c94tRc/Hy2GCj62QtbgQ8gr0Dy5yAuc2M/H1p
-         B3F24N/xFUD3LuyIvfdVPej1vy00sFU3rET/C9Rsmstq88JdROpSOvidfs9gN1NW7H23
-         F11XTzT7+d/ySwUOnyvehvtYpJmFIzrGOV36UBQ2iD2OGQxWTk2q6Btd9uKfC/JZHoYe
-         1G/KqoNxupLB7bo8DEVJZS2ecvvilM+ioum7oMLdfnlQtBFdAablO2H13J458g6mjzif
-         loezrEC6EWelGnLb8t3m9BX7QrfLTOWs5Vn31IMOkj3O886SjkRYPbVHNvh55ZaVZG//
-         c1bQ==
-X-Gm-Message-State: AOAM530xCafQ6OluECunNE5ZoapEilJijwl1mCUTx+TZE5rAyIEa74Cy
-        SSdAe8IksiZxTGWOFlJe3ohCfQ==
-X-Google-Smtp-Source: ABdhPJxrccFJArRJU0ZXgLL/h/RwE28t4EJt19cXfFm/Ig+3ToipoP+kD+6due42KvX9Vhs+AQuGTg==
-X-Received: by 2002:a17:90a:c506:: with SMTP id k6mr31496920pjt.198.1626714833812;
-        Mon, 19 Jul 2021 10:13:53 -0700 (PDT)
-Received: from [192.168.1.187] ([198.8.77.61])
-        by smtp.gmail.com with ESMTPSA id k5sm21279333pfu.142.2021.07.19.10.13.52
+        bh=SspOufy8IxePVa2SqHnpK2fSzNtm7ELeqTvtgBfDdaI=;
+        b=S16Qrw5gQCfYzrGbfCscKY/fCKWXnWxErs1pWWdkQXyLVAonhmBKLRDU/cyPjfUP+k
+         52HYc1CcdX3hRbkriiff0HAigFDPVI8bL8E3I+9xCIa3XwtPhCutSzxSDXQtKbBKFsBI
+         UIGj+HAL+RiPNn6/NNSsnISVgdWjRQauRoRsnIcD0qqqDMw0JNHxtgygcGaGAafd+a2w
+         L0awVpMKODqXdjrj/yqx4eilMVjHvE2ollp8xtbBOQBz8fLBTzPMGLSQ/+wol3VNjwff
+         ClNEq5S6uN+iHvpO+K1JS0gOKPVRY/AyNh+NGM3ZmTp/iSVLSDfEpHOMpEkKh5unXyNf
+         2lHw==
+X-Gm-Message-State: AOAM5311QUf+6NbZCoXFbmOOy0F8LIZ+bGzWtY8gQQnnGREX3SHqi+n9
+        /hrt7yE5IL07hXrvNjTul2M=
+X-Google-Smtp-Source: ABdhPJwkN43JzRKrh+BMwp0S+4awvcgTmrnnz61Jxi1T51tdU9Bc2r8sSRzqm9E0G4VxPuCoRO3r9g==
+X-Received: by 2002:a5d:5692:: with SMTP id f18mr30195074wrv.135.1626715740867;
+        Mon, 19 Jul 2021 10:29:00 -0700 (PDT)
+Received: from [192.168.8.197] ([148.252.132.204])
+        by smtp.gmail.com with ESMTPSA id l14sm20057228wrs.22.2021.07.19.10.28.59
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 19 Jul 2021 10:13:53 -0700 (PDT)
-Subject: Re: [syzbot] INFO: task hung in io_sq_thread_park (2)
-To:     Pavel Begunkov <asml.silence@gmail.com>,
+        Mon, 19 Jul 2021 10:29:00 -0700 (PDT)
+To:     Jens Axboe <axboe@kernel.dk>,
         syzbot <syzbot+ac957324022b7132accf@syzkaller.appspotmail.com>,
         io-uring@vger.kernel.org, linux-kernel@vger.kernel.org,
         mingo@kernel.org, mingo@redhat.com, peterz@infradead.org,
@@ -65,53 +65,65 @@ To:     Pavel Begunkov <asml.silence@gmail.com>,
         will@kernel.org
 References: <000000000000e1f38205c73b72cc@google.com>
  <c57f80f7-440b-9f12-a7b7-a58ed7ab400a@gmail.com>
-From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <3ff29943-0f93-1381-1c8a-46f80aecd0b4@kernel.dk>
-Date:   Mon, 19 Jul 2021 11:13:52 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+ <3ff29943-0f93-1381-1c8a-46f80aecd0b4@kernel.dk>
+From:   Pavel Begunkov <asml.silence@gmail.com>
+Subject: Re: [syzbot] INFO: task hung in io_sq_thread_park (2)
+Message-ID: <b48f3e01-c07d-56ac-3624-afc74ef08acd@gmail.com>
+Date:   Mon, 19 Jul 2021 18:28:38 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.11.0
 MIME-Version: 1.0
-In-Reply-To: <c57f80f7-440b-9f12-a7b7-a58ed7ab400a@gmail.com>
+In-Reply-To: <3ff29943-0f93-1381-1c8a-46f80aecd0b4@kernel.dk>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 7/19/21 10:57 AM, Pavel Begunkov wrote:
-> On 7/16/21 11:57 AM, syzbot wrote:
->> Hello,
+On 7/19/21 6:13 PM, Jens Axboe wrote:
+> On 7/19/21 10:57 AM, Pavel Begunkov wrote:
+>> On 7/16/21 11:57 AM, syzbot wrote:
+>>> Hello,
+>>>
+>>> syzbot has tested the proposed patch but the reproducer is still triggering an issue:
+>>> WARNING in io_uring_cancel_generic
 >>
->> syzbot has tested the proposed patch but the reproducer is still triggering an issue:
->> WARNING in io_uring_cancel_generic
+>> __arm_poll doesn't remove a second poll entry in case of failed
+>> __io_queue_proc(), it's most likely the cause here.
+>>
+>> #syz test: https://github.com/isilence/linux.git syztest_sqpoll_hang
 > 
-> __arm_poll doesn't remove a second poll entry in case of failed
-> __io_queue_proc(), it's most likely the cause here.
+> Was my thought on seeing the last debug run too. Haven't written a test
+> case, but my initial thought was catching this at the time that double
+> poll is armed, in __io_queue_proc(). Totally untested, just tossing
+> it out there.
+
+Wouldn't help, unfortunately, the way syz triggers it is making a
+request to go through __io_queue_proc() three times.
+
+Either it's 3 waitqueues or we need to extend the check below to
+the double poll entry.
+
+if (poll_one->head == head)
+	return;
+
 > 
-> #syz test: https://github.com/isilence/linux.git syztest_sqpoll_hang
-
-Was my thought on seeing the last debug run too. Haven't written a test
-case, but my initial thought was catching this at the time that double
-poll is armed, in __io_queue_proc(). Totally untested, just tossing
-it out there.
-
-
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 0cac361bf6b8..ed33de5fffd2 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -5002,6 +5002,9 @@ static void __io_queue_proc(struct io_poll_iocb *poll, struct io_poll_table *pt,
- 	if (unlikely(poll->head)) {
- 		struct io_poll_iocb *poll_one = poll;
- 
-+		/* first poll failed, don't arm double poll */
-+		if (pt->error)
-+			return;
- 		/* already have a 2nd entry, fail a third attempt */
- 		if (*poll_ptr) {
- 			pt->error = -EINVAL;
+> diff --git a/fs/io_uring.c b/fs/io_uring.c
+> index 0cac361bf6b8..ed33de5fffd2 100644
+> --- a/fs/io_uring.c
+> +++ b/fs/io_uring.c
+> @@ -5002,6 +5002,9 @@ static void __io_queue_proc(struct io_poll_iocb *poll, struct io_poll_table *pt,
+>  	if (unlikely(poll->head)) {
+>  		struct io_poll_iocb *poll_one = poll;
+>  
+> +		/* first poll failed, don't arm double poll */
+> +		if (pt->error)
+> +			return;
+>  		/* already have a 2nd entry, fail a third attempt */
+>  		if (*poll_ptr) {
+>  			pt->error = -EINVAL;
+> 
 
 -- 
-Jens Axboe
-
+Pavel Begunkov

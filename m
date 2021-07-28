@@ -2,98 +2,83 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.5 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
+	SPF_PASS,UNPARSEABLE_RELAY,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EA51CC4338F
-	for <io-uring@archiver.kernel.org>; Wed, 28 Jul 2021 03:03:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E7ABEC4338F
+	for <io-uring@archiver.kernel.org>; Wed, 28 Jul 2021 06:06:13 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C0B8D60F6B
-	for <io-uring@archiver.kernel.org>; Wed, 28 Jul 2021 03:03:36 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CBDC960F46
+	for <io-uring@archiver.kernel.org>; Wed, 28 Jul 2021 06:06:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233519AbhG1DDc (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Tue, 27 Jul 2021 23:03:32 -0400
-Received: from out30-42.freemail.mail.aliyun.com ([115.124.30.42]:53207 "EHLO
-        out30-42.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S233223AbhG1DDc (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Tue, 27 Jul 2021 23:03:32 -0400
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R371e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04426;MF=haoxu@linux.alibaba.com;NM=1;PH=DS;RN=4;SR=0;TI=SMTPD_---0UhCdWWI_1627441402;
-Received: from e18g09479.et15sqa.tbsite.net(mailfrom:haoxu@linux.alibaba.com fp:SMTPD_---0UhCdWWI_1627441402)
+        id S233082AbhG1GGN (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 28 Jul 2021 02:06:13 -0400
+Received: from out30-44.freemail.mail.aliyun.com ([115.124.30.44]:49608 "EHLO
+        out30-44.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S233574AbhG1GGN (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Wed, 28 Jul 2021 02:06:13 -0400
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R101e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04426;MF=haoxu@linux.alibaba.com;NM=1;PH=DS;RN=4;SR=0;TI=SMTPD_---0UhDmBEo_1627452370;
+Received: from B-25KNML85-0107.local(mailfrom:haoxu@linux.alibaba.com fp:SMTPD_---0UhDmBEo_1627452370)
           by smtp.aliyun-inc.com(127.0.0.1);
-          Wed, 28 Jul 2021 11:03:29 +0800
+          Wed, 28 Jul 2021 14:06:10 +0800
+Subject: Re: [PATCH io_uring-5.14 v2] io_uring: remove double poll wait entry
+ for pure poll
+To:     Jens Axboe <axboe@kernel.dk>,
+        Pavel Begunkov <asml.silence@gmail.com>
+Cc:     io-uring@vger.kernel.org, Joseph Qi <joseph.qi@linux.alibaba.com>
+References: <20210723092227.137526-1-haoxu@linux.alibaba.com>
+ <c628d5bc-ee34-bf43-c7bc-5b52cf983cb1@gmail.com>
+ <824dcbe0-34da-a075-12eb-ce7529f3e3f7@linux.alibaba.com>
+ <28ce8b3d-e9d2-2fed-e73c-fb09913eea78@gmail.com>
+ <a5321436-9ba5-5f07-6081-4567f9469631@linux.alibaba.com>
+ <85703a7e-40cd-1f80-9ca4-9c0a2f665e45@kernel.dk>
 From:   Hao Xu <haoxu@linux.alibaba.com>
-To:     Jens Axboe <axboe@kernel.dk>
-Cc:     io-uring@vger.kernel.org, Pavel Begunkov <asml.silence@gmail.com>,
-        Joseph Qi <joseph.qi@linux.alibaba.com>
-Subject: [PATCH v3] io_uring: fix poll requests leaking second poll entries
-Date:   Wed, 28 Jul 2021 11:03:22 +0800
-Message-Id: <20210728030322.12307-1-haoxu@linux.alibaba.com>
-X-Mailer: git-send-email 2.24.4
+Message-ID: <a2c176ac-99b3-c95d-18f2-60c621419c26@linux.alibaba.com>
+Date:   Wed, 28 Jul 2021 14:06:10 +0800
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0)
+ Gecko/20100101 Thunderbird/78.10.2
 MIME-Version: 1.0
+In-Reply-To: <85703a7e-40cd-1f80-9ca4-9c0a2f665e45@kernel.dk>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-For pure poll requests, it doesn't remove the second poll wait entry
-when it's done, neither after vfs_poll() or in the poll completion
-handler. We should remove the second poll wait entry.
-And we use io_poll_remove_double() rather than io_poll_remove_waitqs()
-since the latter has some redundant logic.
+在 2021/7/28 上午6:46, Jens Axboe 写道:
+> On 7/26/21 8:39 AM, Hao Xu wrote:
+>> 在 2021/7/26 下午8:40, Pavel Begunkov 写道:
+>>> On 7/24/21 5:48 AM, Hao Xu wrote:
+>>>> 在 2021/7/23 下午10:31, Pavel Begunkov 写道:
+>>>>> On 7/23/21 10:22 AM, Hao Xu wrote:
+>>>>>> For pure poll requests, we should remove the double poll wait entry.
+>>>>>> And io_poll_remove_double() is good enough for it compared with
+>>>>>> io_poll_remove_waitqs().
+>>>>>
+>>>>> 5.14 in the subject hints me that it's a fix. Is it?
+>>>>> Can you add what it fixes or expand on why it's better?
+>>>> Hi Pavel, I found that for poll_add() requests, it doesn't remove the
+>>>> double poll wait entry when it's done, neither after vfs_poll() or in
+>>>> the poll completion handler. The patch is mainly to fix it.
+>>>
+>>> Ok, sounds good. Please resend with updated description, and
+>>> let's add some tags.
+>>>
+>>> Fixes: 88e41cf928a6 ("io_uring: add multishot mode for IORING_OP_POLL_ADD")
+>>> Cc: stable@vger.kernel.org # 5.13+
+>>>
+>>> Also, I'd prefer the commit title to make more clear that it's a
+>>> fix. E.g. "io_uring: fix poll requests leaking second poll entries".
+>>>
+>>> Btw, seems it should fix hangs in ./poll-mshot-update
+>> Sure，I'll send v3 soon, sorry for my unprofessionalism..
+> 
+> Are you going to send out v3?
+> 
+v3 sent. Btw I'm working on letting fast poll support multishot,
+I believe that will benefit non-persistent programming, let's see
+if it helps accept().
 
-Fixes: 88e41cf928a6 ("io_uring: add multishot mode for IORING_OP_POLL_ADD")
-Cc: stable@vger.kernel.org # 5.13+
-Signed-off-by: Hao Xu <haoxu@linux.alibaba.com>
----
-
-v1-->v2
-  delete redundant io_poll_remove_double()
-
-v2-->v3
-  update commit message to make it clearer
-
- fs/io_uring.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
-
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 83f67d33bf67..bf548af0426c 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -4939,7 +4939,6 @@ static bool io_poll_complete(struct io_kiocb *req, __poll_t mask)
- 	if (req->poll.events & EPOLLONESHOT)
- 		flags = 0;
- 	if (!io_cqring_fill_event(ctx, req->user_data, error, flags)) {
--		io_poll_remove_waitqs(req);
- 		req->poll.done = true;
- 		flags = 0;
- 	}
-@@ -4962,6 +4961,7 @@ static void io_poll_task_func(struct io_kiocb *req)
- 
- 		done = io_poll_complete(req, req->result);
- 		if (done) {
-+			io_poll_remove_double(req);
- 			hash_del(&req->hash_node);
- 		} else {
- 			req->result = 0;
-@@ -5149,7 +5149,7 @@ static __poll_t __io_arm_poll_handler(struct io_kiocb *req,
- 		ipt->error = -EINVAL;
- 
- 	spin_lock_irq(&ctx->completion_lock);
--	if (ipt->error)
-+	if (ipt->error || (mask && (poll->events & EPOLLONESHOT)))
- 		io_poll_remove_double(req);
- 	if (likely(poll->head)) {
- 		spin_lock(&poll->head->lock);
-@@ -5221,7 +5221,6 @@ static int io_arm_poll_handler(struct io_kiocb *req)
- 	ret = __io_arm_poll_handler(req, &apoll->poll, &ipt, mask,
- 					io_async_wake);
- 	if (ret || ipt.error) {
--		io_poll_remove_double(req);
- 		spin_unlock_irq(&ctx->completion_lock);
- 		if (ret)
- 			return IO_APOLL_READY;
--- 
-2.24.4
 

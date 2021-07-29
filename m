@@ -8,59 +8,59 @@ X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7B653C4338F
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B9E90C432BE
 	for <io-uring@archiver.kernel.org>; Thu, 29 Jul 2021 15:06:34 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6214860EC0
+	by mail.kernel.org (Postfix) with ESMTP id A4FED60EBC
 	for <io-uring@archiver.kernel.org>; Thu, 29 Jul 2021 15:06:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237278AbhG2PGg (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Thu, 29 Jul 2021 11:06:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42442 "EHLO
+        id S237648AbhG2PGh (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Thu, 29 Jul 2021 11:06:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42428 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237738AbhG2PGg (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Thu, 29 Jul 2021 11:06:36 -0400
-Received: from mail-wr1-x434.google.com (mail-wr1-x434.google.com [IPv6:2a00:1450:4864:20::434])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B447C0613CF
-        for <io-uring@vger.kernel.org>; Thu, 29 Jul 2021 08:06:32 -0700 (PDT)
-Received: by mail-wr1-x434.google.com with SMTP id g15so7373255wrd.3
-        for <io-uring@vger.kernel.org>; Thu, 29 Jul 2021 08:06:32 -0700 (PDT)
+        with ESMTP id S237703AbhG2PGf (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Thu, 29 Jul 2021 11:06:35 -0400
+Received: from mail-wr1-x42a.google.com (mail-wr1-x42a.google.com [IPv6:2a00:1450:4864:20::42a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB316C0613C1
+        for <io-uring@vger.kernel.org>; Thu, 29 Jul 2021 08:06:30 -0700 (PDT)
+Received: by mail-wr1-x42a.google.com with SMTP id z4so7345300wrv.11
+        for <io-uring@vger.kernel.org>; Thu, 29 Jul 2021 08:06:30 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=Iq6RUv5kyumk30vhTEVAE+y7hOq4pg8THR7oGPeCJyc=;
-        b=REHjlp0Gnw1KFFW9iu4VFeMmAGcYLO28GzQy7RAMSa2gwgRbs9feHqUH+KVG1Rh16V
-         n9LWsi3jQOwCUAeQAM2pGqPMYnfkZD1dYl9etKe3tcZctxOiw7mdGKPxJGosVn3Tnb/l
-         WGIVbcyaBnJ7BzQDn+CAcQlXjyYBFENm9CGX7HoMPnyLkSn6b9iPgNwud0968IMJXy6B
-         6G1w+yAVtgGwZQCzFy/AzEeQS30EHDVZTyAL3iH4myHPg4KnjbXRYw6xgnKUDknv3P7r
-         aWKUl3scWUcKLMrrdL5HxrzwXv0V6AF5A9lNMGPgWj86/XEz0PEpOU4d4yArkIQS/sSz
-         vXZQ==
+        bh=3IpSg/QABQuxrPAk5AC82qgeIinovIPVIY7LX6AiwQ4=;
+        b=CE2apuav3m3i9kYZMw3fMQYZkzSWs0VbmAcJfPI5dODem/HYI6INFCaOqWigq82oKm
+         +KPgHN/cnzPNjMwcowL+O6iKMCPXbYqjd/GN928hdbzk255sJwHIcWzYoGFFeXxnMKCX
+         oTRqWYq2A9IpXvNTjJ3Oqz9MpopaVKPIxmbdoVY+cCVo3pYYHpPQ5/HzPZRluSVw8kgk
+         KPRfNJZd/eSxyiTtP8vtJJSFoD1BEi4CghuDmLmHYHhRFQd9ES5e/ZYUWj0C0oF9a8ER
+         pUQnaVIFCRcWH6sctIFUWSKAIAsxWe4bE3UYEXxDxb/WC/IZV8+wcPjB4M+8EPb/tv40
+         eFqw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=Iq6RUv5kyumk30vhTEVAE+y7hOq4pg8THR7oGPeCJyc=;
-        b=IPsOApULn62NWxfI2BUymYRzJWWBK8W3Z/IXpigDTQ9IGw7gx8qtQLpkoIXBrI19t/
-         9ETWxltGCeCtFrSkpHFDmLX7bwTC0thNH4n8DtaoLEwQFTCdbzwzkQ5xCgmvb+mGzXy7
-         xl1CPF+VObFuN5MlX+O9ZuI5yeu4MN0aZdCbo+5ECApove19KK4vETXUnM0A9E9+Taet
-         UqDZ/OjkEIhIbTP0X8xd2ZwZS2u+wlP5n5Ne/qivA0dQGQOt7fM48gJ8aLs4bh1O2CGT
-         NNmpUuZt0o0s6XNKY8s4JXfNiZYQ6AVfZ3wH86JoIKmQ0PnEqQuP8dbO43ffDh8VkAX2
-         Pazg==
-X-Gm-Message-State: AOAM5301BTFdxcNEkBR+aj4smYO8umrSztIjH9+XX7Qhm8skVIJKXn3S
-        cSZbBhbhGLRspQQNT/wQvwg=
-X-Google-Smtp-Source: ABdhPJy9P4NsDfmnFEBd9+rB1Qtx7XRstHd4ZOWZK7ttOvpc3KnjABXGOPd+nEet3ip+YaqmSNsf7g==
-X-Received: by 2002:adf:d1c7:: with SMTP id b7mr5486281wrd.108.1627571191031;
-        Thu, 29 Jul 2021 08:06:31 -0700 (PDT)
+        bh=3IpSg/QABQuxrPAk5AC82qgeIinovIPVIY7LX6AiwQ4=;
+        b=KVLCEq4TSD682kMLZhMtfV6U0LEqF2wjUkMhwX7ica10ueKWHm7804N567IKwNKb0f
+         EHyxYOQR4p5Dlys1m10MqhXdrgk0NAXLg7TEF+vhCs3/btsWpZeeE7wZDkpKVZ+udimC
+         oE/mJGOQ/2q8iK8cwGLfm6lOyJR49S6AXxy1pSQqRgvA6Nfkii4ROEugL3j9x76rL1Eg
+         LaMI+vCkUol3oHrIvNgh8/nTqpPb3Tlsl+VYj/INI4y4gYuAgO6io4XfVsP1vQE2f0Ck
+         k9GWTTs7t1YQr/82DMiQVwl7YZXk88u0+5Basvg/eiVzW1yx47HPDfdOkNpaEIDprSjg
+         Z4vQ==
+X-Gm-Message-State: AOAM532l5a7vxIpVD/cHCvaSApS5f9eWg7EaPj0jg/oNoLMfYw1iAb+/
+        3Ejh2/NdTNQJMGJOYWHTgS8=
+X-Google-Smtp-Source: ABdhPJxGzN3i3/t/QMIP+dasdx1nJVk7LLC5yp7MQdzIMqwkEFgQldPkyWnc1VvYDiPIU8AJBSvzOQ==
+X-Received: by 2002:adf:d225:: with SMTP id k5mr5357714wrh.10.1627571189303;
+        Thu, 29 Jul 2021 08:06:29 -0700 (PDT)
 Received: from localhost.localdomain ([148.252.128.141])
-        by smtp.gmail.com with ESMTPSA id e6sm4764577wrg.18.2021.07.29.08.06.30
+        by smtp.gmail.com with ESMTPSA id e6sm4764577wrg.18.2021.07.29.08.06.28
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 29 Jul 2021 08:06:30 -0700 (PDT)
+        Thu, 29 Jul 2021 08:06:28 -0700 (PDT)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH 09/23] io_uring: move io_rsrc_node_alloc() definition
-Date:   Thu, 29 Jul 2021 16:05:36 +0100
-Message-Id: <1c6f4803a9d8d9bd75b098a72e2b5c9698b3f0f6.1627570633.git.asml.silence@gmail.com>
+Subject: [PATCH 07/23] io_uring: extract a helper for ctx quiesce
+Date:   Thu, 29 Jul 2021 16:05:34 +0100
+Message-Id: <f466e8502993fcfafefeea0895660e197c1a8ba0.1627570633.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <cover.1627570633.git.asml.silence@gmail.com>
 References: <cover.1627570633.git.asml.silence@gmail.com>
@@ -70,126 +70,87 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Move the function together with io_rsrc_node_ref_zero() in the source
-file as it is to get rid of forward declarations.
+Refactor __io_uring_register() by extracting a helper responsible for
+ctx queisce. Looks better and will make it easier to add more
+optimisations.
 
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
- fs/io_uring.c | 87 +++++++++++++++++++++++++--------------------------
- 1 file changed, 43 insertions(+), 44 deletions(-)
+ fs/io_uring.c | 53 ++++++++++++++++++++++++++++-----------------------
+ 1 file changed, 29 insertions(+), 24 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index a5f58d8ea70f..d45d18c9fb76 100644
+index 85cd8c3a33e1..db43aedcfc42 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -1050,7 +1050,6 @@ static void io_uring_try_cancel_requests(struct io_ring_ctx *ctx,
- 					 struct task_struct *task,
- 					 bool cancel_all);
- static void io_uring_cancel_generic(bool cancel_all, struct io_sq_data *sqd);
--static struct io_rsrc_node *io_rsrc_node_alloc(struct io_ring_ctx *ctx);
- 
- static bool io_cqring_fill_event(struct io_ring_ctx *ctx, u64 user_data,
- 				 long res, unsigned int cflags);
-@@ -7146,6 +7145,49 @@ static void io_rsrc_node_destroy(struct io_rsrc_node *ref_node)
- 	kfree(ref_node);
- }
- 
-+static void io_rsrc_node_ref_zero(struct percpu_ref *ref)
-+{
-+	struct io_rsrc_node *node = container_of(ref, struct io_rsrc_node, refs);
-+	struct io_ring_ctx *ctx = node->rsrc_data->ctx;
-+	bool first_add = false;
-+
-+	io_rsrc_ref_lock(ctx);
-+	node->done = true;
-+
-+	while (!list_empty(&ctx->rsrc_ref_list)) {
-+		node = list_first_entry(&ctx->rsrc_ref_list,
-+					    struct io_rsrc_node, node);
-+		/* recycle ref nodes in order */
-+		if (!node->done)
-+			break;
-+		list_del(&node->node);
-+		first_add |= llist_add(&node->llist, &ctx->rsrc_put_llist);
-+	}
-+	io_rsrc_ref_unlock(ctx);
-+
-+	if (first_add)
-+		mod_delayed_work(system_wq, &ctx->rsrc_put_work, HZ);
-+}
-+
-+static struct io_rsrc_node *io_rsrc_node_alloc(struct io_ring_ctx *ctx)
-+{
-+	struct io_rsrc_node *ref_node;
-+
-+	ref_node = kzalloc(sizeof(*ref_node), GFP_KERNEL);
-+	if (!ref_node)
-+		return NULL;
-+
-+	if (percpu_ref_init(&ref_node->refs, io_rsrc_node_ref_zero,
-+			    0, GFP_KERNEL)) {
-+		kfree(ref_node);
-+		return NULL;
-+	}
-+	INIT_LIST_HEAD(&ref_node->node);
-+	INIT_LIST_HEAD(&ref_node->rsrc_list);
-+	ref_node->done = false;
-+	return ref_node;
-+}
-+
- static void io_rsrc_node_switch(struct io_ring_ctx *ctx,
- 				struct io_rsrc_data *data_to_kill)
- {
-@@ -7662,49 +7704,6 @@ static void io_rsrc_put_work(struct work_struct *work)
+@@ -10066,6 +10066,33 @@ static bool io_register_op_must_quiesce(int op)
  	}
  }
  
--static void io_rsrc_node_ref_zero(struct percpu_ref *ref)
--{
--	struct io_rsrc_node *node = container_of(ref, struct io_rsrc_node, refs);
--	struct io_ring_ctx *ctx = node->rsrc_data->ctx;
--	bool first_add = false;
++static int io_ctx_quiesce(struct io_ring_ctx *ctx)
++{
++	long ret;
++
++	percpu_ref_kill(&ctx->refs);
++
++	/*
++	 * Drop uring mutex before waiting for references to exit. If another
++	 * thread is currently inside io_uring_enter() it might need to grab the
++	 * uring_lock to make progress. If we hold it here across the drain
++	 * wait, then we can deadlock. It's safe to drop the mutex here, since
++	 * no new references will come in after we've killed the percpu ref.
++	 */
++	mutex_unlock(&ctx->uring_lock);
++	do {
++		ret = wait_for_completion_interruptible(&ctx->ref_comp);
++		if (!ret)
++			break;
++		ret = io_run_task_work_sig();
++	} while (ret >= 0);
++	mutex_lock(&ctx->uring_lock);
++
++	if (ret)
++		io_refs_resurrect(&ctx->refs, &ctx->ref_comp);
++	return ret;
++}
++
+ static int __io_uring_register(struct io_ring_ctx *ctx, unsigned opcode,
+ 			       void __user *arg, unsigned nr_args)
+ 	__releases(ctx->uring_lock)
+@@ -10090,31 +10117,9 @@ static int __io_uring_register(struct io_ring_ctx *ctx, unsigned opcode,
+ 	}
+ 
+ 	if (io_register_op_must_quiesce(opcode)) {
+-		percpu_ref_kill(&ctx->refs);
 -
--	io_rsrc_ref_lock(ctx);
--	node->done = true;
+-		/*
+-		 * Drop uring mutex before waiting for references to exit. If
+-		 * another thread is currently inside io_uring_enter() it might
+-		 * need to grab the uring_lock to make progress. If we hold it
+-		 * here across the drain wait, then we can deadlock. It's safe
+-		 * to drop the mutex here, since no new references will come in
+-		 * after we've killed the percpu ref.
+-		 */
+-		mutex_unlock(&ctx->uring_lock);
+-		do {
+-			ret = wait_for_completion_interruptible(&ctx->ref_comp);
+-			if (!ret)
+-				break;
+-			ret = io_run_task_work_sig();
+-			if (ret < 0)
+-				break;
+-		} while (1);
+-		mutex_lock(&ctx->uring_lock);
 -
--	while (!list_empty(&ctx->rsrc_ref_list)) {
--		node = list_first_entry(&ctx->rsrc_ref_list,
--					    struct io_rsrc_node, node);
--		/* recycle ref nodes in order */
--		if (!node->done)
--			break;
--		list_del(&node->node);
--		first_add |= llist_add(&node->llist, &ctx->rsrc_put_llist);
--	}
--	io_rsrc_ref_unlock(ctx);
--
--	if (first_add)
--		mod_delayed_work(system_wq, &ctx->rsrc_put_work, HZ);
--}
--
--static struct io_rsrc_node *io_rsrc_node_alloc(struct io_ring_ctx *ctx)
--{
--	struct io_rsrc_node *ref_node;
--
--	ref_node = kzalloc(sizeof(*ref_node), GFP_KERNEL);
--	if (!ref_node)
--		return NULL;
--
--	if (percpu_ref_init(&ref_node->refs, io_rsrc_node_ref_zero,
--			    0, GFP_KERNEL)) {
--		kfree(ref_node);
--		return NULL;
--	}
--	INIT_LIST_HEAD(&ref_node->node);
--	INIT_LIST_HEAD(&ref_node->rsrc_list);
--	ref_node->done = false;
--	return ref_node;
--}
--
- static int io_sqe_files_register(struct io_ring_ctx *ctx, void __user *arg,
- 				 unsigned nr_args, u64 __user *tags)
- {
+-		if (ret) {
+-			io_refs_resurrect(&ctx->refs, &ctx->ref_comp);
++		ret = io_ctx_quiesce(ctx);
++		if (ret)
+ 			return ret;
+-		}
+ 	}
+ 
+ 	switch (opcode) {
 -- 
 2.32.0
 

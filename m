@@ -8,59 +8,59 @@ X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 81354C4320A
-	for <io-uring@archiver.kernel.org>; Thu, 29 Jul 2021 15:06:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 830B9C432BE
+	for <io-uring@archiver.kernel.org>; Thu, 29 Jul 2021 15:06:40 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6CB5660EBC
-	for <io-uring@archiver.kernel.org>; Thu, 29 Jul 2021 15:06:39 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6B83260EBC
+	for <io-uring@archiver.kernel.org>; Thu, 29 Jul 2021 15:06:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237703AbhG2PGl (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Thu, 29 Jul 2021 11:06:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42476 "EHLO
+        id S237779AbhG2PGm (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Thu, 29 Jul 2021 11:06:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42466 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237738AbhG2PGl (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Thu, 29 Jul 2021 11:06:41 -0400
-Received: from mail-wm1-x332.google.com (mail-wm1-x332.google.com [IPv6:2a00:1450:4864:20::332])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C5DEC0613C1
-        for <io-uring@vger.kernel.org>; Thu, 29 Jul 2021 08:06:37 -0700 (PDT)
-Received: by mail-wm1-x332.google.com with SMTP id o5-20020a1c4d050000b02901fc3a62af78so7058598wmh.3
-        for <io-uring@vger.kernel.org>; Thu, 29 Jul 2021 08:06:37 -0700 (PDT)
+        with ESMTP id S237738AbhG2PGm (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Thu, 29 Jul 2021 11:06:42 -0400
+Received: from mail-wm1-x32b.google.com (mail-wm1-x32b.google.com [IPv6:2a00:1450:4864:20::32b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C1A5C0613D3
+        for <io-uring@vger.kernel.org>; Thu, 29 Jul 2021 08:06:39 -0700 (PDT)
+Received: by mail-wm1-x32b.google.com with SMTP id u15so3947354wmj.1
+        for <io-uring@vger.kernel.org>; Thu, 29 Jul 2021 08:06:39 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=2AMgfDoqEjVRBuOoXoU5aA1YpKUp8SMRTLQKSaOshss=;
-        b=pQeCRoAPlJbzLkjhaerW8haJ7qEyxxbdqVgcB6j27rthSUZZ+en6MQufa/IGNCxhuk
-         tUaK9ZePJvDBFBLuqgPp5+Y5kFV1KMZ8y13Z6yQy5Xbo8GRIwF2POlfwv8EDGNPiAZxy
-         5a6s1CYSBSfEcWQ8alEQYHfNoCaTfeoa6sn4DhVFm0Z4yStjS5+UgOHSjwMcN+O+/qFt
-         6HBU2G6gD4lz2CxwbNa464RwG5P5H3+PHliGnUjTsj6M6grYe/F0OMBeUvLHwdbjLTqp
-         IT4cCC1Z14BEQR/Ppf0eg+dcMoFMbNRJzIDofl48yzlXmNfpg2q0kSYTpndOSTsmBssa
-         H3kw==
+        bh=NuW00eRPwV+Goiy+XA/sfyOyIHPFmHT8zw8B0ku+Uzg=;
+        b=esWPfedJBVqVzug16nHwaqg8AX0TowqH/C44mM1t0y4muoAHDKKQTQhZk5885D7a5B
+         IWy8tsalfd2ji2K6jbVqr0BGMi2tyKLceCznQU+pU6ht+Lj9Dn2J5QPWiRcsE+YjQBtK
+         24CjhWqsnXk9uJ1/q+va0bRmuUMEAcly03vsfd1bf6X95M8pwxnPzKEtSzWEmRUgH2cW
+         dY+4t4lPwtkP2NfIR9ndkYhoBO4+raHVcVod9P+EdlIorEHiWMgyEgJGVZ/AVsHfuXSG
+         LwH4REe+9nBbTqpfmjvHoJCMPXS1JIjwRodEKuOnqhb7VmP5+VWqUkFOZOAVetHfmSf9
+         DkTw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=2AMgfDoqEjVRBuOoXoU5aA1YpKUp8SMRTLQKSaOshss=;
-        b=Ewc0qMxzx0VHv9jqgmhNGICcRot8AZk0s8/DRsPJoP54tOPMnmRcxs0NJr7KdvPX1p
-         GefunufuD/EP/UPZaPz/g64/kiVEfg19+2C9ltHQNie0GVNpfENUYN1s183odbFlkpng
-         4inFYaKC422JfXsMa4TkVhYqxJxFu6y6FqyhsudgD0U4E6nKQsejhQzKw8TpHjZVCi0t
-         dXSMosK5jKotiTxVlRLxBMS8eJEl+DfOoTKj8X6dU2TZyIgg8z0ujNCltwiDa3H1lLSS
-         5Aabi0WXTgVcH9xcRGVuPCQAWIPCmmF/mk330h0m2YVVQLIDOktXMDZcBWNgzRk0ZUrA
-         UoyQ==
-X-Gm-Message-State: AOAM531MhUWGYBwTZA5SX5jjmWGbmed4BnNRLxA90gHkrR59mWKvwjHm
-        DT3oKeY8M3Q/VGBjvYGplQk=
-X-Google-Smtp-Source: ABdhPJxo+8DGwP/RmHVFoQDQh17NrcxGijBR5yl7m7f7Pmr/ZrYIMiKe9qAfFT46GS2BwpNcAQrR0Q==
-X-Received: by 2002:a05:600c:4649:: with SMTP id n9mr7658339wmo.168.1627571196255;
-        Thu, 29 Jul 2021 08:06:36 -0700 (PDT)
+        bh=NuW00eRPwV+Goiy+XA/sfyOyIHPFmHT8zw8B0ku+Uzg=;
+        b=H8d/3cTl2jz1/jiKAVLGljL1AX9PFl4G36zAkXZfOL13b7B2XBA8kHBcO30CaRT3kj
+         o1WYJss5qqZetzokuc1sFSCn67ndAnKhtbCyqfRNuIaeuJp7lW/7Z7bF33G8ycxTZuML
+         MOYDWjb4UAGlCKUGMtqzQvVBrsWTnZsYZyUCTRemfnGkgh0R1ApgvFqy1HQup+k7mkBy
+         hNI2qlBclAUKTzYrInPNm0ShKXATGJ4v+3WaSlJwC6ekPEz7rdjNK4Ayxn6vIWyk+pkQ
+         1DM3/21s0frbatXinTY99Zrwfo5J2y3O+eKuW/CZXFq4Zvjj42sy62MATbsuq3FtjFYg
+         9BTw==
+X-Gm-Message-State: AOAM531H2yrudk9god9XczoKKn8Rt+fyq9/+lMHIpCVoyaPCcrwh1JaP
+        VsZOEnqZuax6O4Q37mevB8A=
+X-Google-Smtp-Source: ABdhPJyUlqooQo8YfslhAVahpS/OYJh0x/rcpQYipBzgq2kJXKQ3OeNEUzLlHIrRoSKkSb9V7SFbZg==
+X-Received: by 2002:a05:600c:28b:: with SMTP id 11mr14518376wmk.6.1627571197986;
+        Thu, 29 Jul 2021 08:06:37 -0700 (PDT)
 Received: from localhost.localdomain ([148.252.128.141])
-        by smtp.gmail.com with ESMTPSA id e6sm4764577wrg.18.2021.07.29.08.06.35
+        by smtp.gmail.com with ESMTPSA id e6sm4764577wrg.18.2021.07.29.08.06.37
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 29 Jul 2021 08:06:35 -0700 (PDT)
+        Thu, 29 Jul 2021 08:06:37 -0700 (PDT)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH 15/23] io_uring: optimise putting task struct
-Date:   Thu, 29 Jul 2021 16:05:42 +0100
-Message-Id: <ff25efb7e984512bce96b1e901e4e36791becf38.1627570633.git.asml.silence@gmail.com>
+Subject: [PATCH 17/23] io_uring: move io_fallback_req_func()
+Date:   Thu, 29 Jul 2021 16:05:44 +0100
+Message-Id: <19899acfc1f85ff745cf098d889a1232cd58e8e1.1627570633.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <cover.1627570633.git.asml.silence@gmail.com>
 References: <cover.1627570633.git.asml.silence@gmail.com>
@@ -70,76 +70,62 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-We cache all the reference to task + tctx, so if io_put_task() is
-called by the corresponding task itself, we can save on atomics and
-return the refs right back into the cache.
-
-It's beneficial for all inline completions, and also iopolling, when
-polling and submissions are done by the same task, including
-SQPOLL|IOPOLL.
-
-Note: io_uring_cancel_generic() can return refs to the cache as well,
-so those should be flushed in the loop for tctx_inflight() to work
-right.
+Move io_fallback_req_func() to kill yet another forward declaration.
 
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
- fs/io_uring.c | 17 +++++++++++------
- 1 file changed, 11 insertions(+), 6 deletions(-)
+ fs/io_uring.c | 24 +++++++++++-------------
+ 1 file changed, 11 insertions(+), 13 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 1a7ad2bfe5e9..7276f784a7fe 100644
+index df970e0ad43b..44d7df32848d 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -2090,10 +2090,12 @@ static inline void io_init_req_batch(struct req_batch *rb)
- static void io_req_free_batch_finish(struct io_ring_ctx *ctx,
- 				     struct req_batch *rb)
+@@ -1079,8 +1079,6 @@ static void io_submit_flush_completions(struct io_ring_ctx *ctx);
+ static bool io_poll_remove_waitqs(struct io_kiocb *req);
+ static int io_req_prep_async(struct io_kiocb *req);
+ 
+-static void io_fallback_req_func(struct work_struct *unused);
+-
+ static struct kmem_cache *req_cachep;
+ 
+ static const struct file_operations io_uring_fops;
+@@ -1162,6 +1160,17 @@ static inline bool io_is_timeout_noseq(struct io_kiocb *req)
+ 	return !req->timeout.off;
+ }
+ 
++static void io_fallback_req_func(struct work_struct *work)
++{
++	struct io_ring_ctx *ctx = container_of(work, struct io_ring_ctx,
++						fallback_work.work);
++	struct llist_node *node = llist_del_all(&ctx->fallback_llist);
++	struct io_kiocb *req, *tmp;
++
++	llist_for_each_entry_safe(req, tmp, node, io_task_work.fallback_node)
++		req->io_task_work.func(req);
++}
++
+ static struct io_ring_ctx *io_ring_ctx_alloc(struct io_uring_params *p)
  {
--	if (rb->task)
--		io_put_task(rb->task, rb->task_refs);
- 	if (rb->ctx_refs)
- 		percpu_ref_put_many(&ctx->refs, rb->ctx_refs);
-+	if (rb->task == current)
-+		current->io_uring->cached_refs += rb->task_refs;
-+	else if (rb->task)
-+		io_put_task(rb->task, rb->task_refs);
+ 	struct io_ring_ctx *ctx;
+@@ -2465,17 +2474,6 @@ static bool io_rw_should_reissue(struct io_kiocb *req)
  }
+ #endif
  
- static void io_req_free_batch(struct req_batch *rb, struct io_kiocb *req,
-@@ -9132,9 +9134,11 @@ static void io_uring_drop_tctx_refs(struct task_struct *task)
- 	struct io_uring_task *tctx = task->io_uring;
- 	unsigned int refs = tctx->cached_refs;
- 
--	tctx->cached_refs = 0;
--	percpu_counter_sub(&tctx->inflight, refs);
--	put_task_struct_many(task, refs);
-+	if (refs) {
-+		tctx->cached_refs = 0;
-+		percpu_counter_sub(&tctx->inflight, refs);
-+		put_task_struct_many(task, refs);
-+	}
- }
- 
- /*
-@@ -9155,9 +9159,9 @@ static void io_uring_cancel_generic(bool cancel_all, struct io_sq_data *sqd)
- 	if (tctx->io_wq)
- 		io_wq_exit_start(tctx->io_wq);
- 
--	io_uring_drop_tctx_refs(current);
- 	atomic_inc(&tctx->in_idle);
- 	do {
-+		io_uring_drop_tctx_refs(current);
- 		/* read completions before cancelations */
- 		inflight = tctx_inflight(tctx, !cancel_all);
- 		if (!inflight)
-@@ -9181,6 +9185,7 @@ static void io_uring_cancel_generic(bool cancel_all, struct io_sq_data *sqd)
- 		}
- 
- 		prepare_to_wait(&tctx->wait, &wait, TASK_UNINTERRUPTIBLE);
-+		io_uring_drop_tctx_refs(current);
- 		/*
- 		 * If we've seen completions, retry without waiting. This
- 		 * avoids a race where a completion comes in before we did
+-static void io_fallback_req_func(struct work_struct *work)
+-{
+-	struct io_ring_ctx *ctx = container_of(work, struct io_ring_ctx,
+-						fallback_work.work);
+-	struct llist_node *node = llist_del_all(&ctx->fallback_llist);
+-	struct io_kiocb *req, *tmp;
+-
+-	llist_for_each_entry_safe(req, tmp, node, io_task_work.fallback_node)
+-		req->io_task_work.func(req);
+-}
+-
+ static void __io_complete_rw(struct io_kiocb *req, long res, long res2,
+ 			     unsigned int issue_flags)
+ {
 -- 
 2.32.0
 

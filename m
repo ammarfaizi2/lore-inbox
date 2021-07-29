@@ -8,59 +8,59 @@ X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B9E90C432BE
-	for <io-uring@archiver.kernel.org>; Thu, 29 Jul 2021 15:06:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8D442C43216
+	for <io-uring@archiver.kernel.org>; Thu, 29 Jul 2021 15:06:35 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A4FED60EBC
-	for <io-uring@archiver.kernel.org>; Thu, 29 Jul 2021 15:06:34 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 75C4960EE6
+	for <io-uring@archiver.kernel.org>; Thu, 29 Jul 2021 15:06:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237648AbhG2PGh (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Thu, 29 Jul 2021 11:06:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42428 "EHLO
+        id S237640AbhG2PGi (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Thu, 29 Jul 2021 11:06:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42452 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237703AbhG2PGf (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Thu, 29 Jul 2021 11:06:35 -0400
-Received: from mail-wr1-x42a.google.com (mail-wr1-x42a.google.com [IPv6:2a00:1450:4864:20::42a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB316C0613C1
-        for <io-uring@vger.kernel.org>; Thu, 29 Jul 2021 08:06:30 -0700 (PDT)
-Received: by mail-wr1-x42a.google.com with SMTP id z4so7345300wrv.11
-        for <io-uring@vger.kernel.org>; Thu, 29 Jul 2021 08:06:30 -0700 (PDT)
+        with ESMTP id S237703AbhG2PGh (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Thu, 29 Jul 2021 11:06:37 -0400
+Received: from mail-wr1-x432.google.com (mail-wr1-x432.google.com [IPv6:2a00:1450:4864:20::432])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C2B6C061765
+        for <io-uring@vger.kernel.org>; Thu, 29 Jul 2021 08:06:34 -0700 (PDT)
+Received: by mail-wr1-x432.google.com with SMTP id b7so7357079wri.8
+        for <io-uring@vger.kernel.org>; Thu, 29 Jul 2021 08:06:34 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=3IpSg/QABQuxrPAk5AC82qgeIinovIPVIY7LX6AiwQ4=;
-        b=CE2apuav3m3i9kYZMw3fMQYZkzSWs0VbmAcJfPI5dODem/HYI6INFCaOqWigq82oKm
-         +KPgHN/cnzPNjMwcowL+O6iKMCPXbYqjd/GN928hdbzk255sJwHIcWzYoGFFeXxnMKCX
-         oTRqWYq2A9IpXvNTjJ3Oqz9MpopaVKPIxmbdoVY+cCVo3pYYHpPQ5/HzPZRluSVw8kgk
-         KPRfNJZd/eSxyiTtP8vtJJSFoD1BEi4CghuDmLmHYHhRFQd9ES5e/ZYUWj0C0oF9a8ER
-         pUQnaVIFCRcWH6sctIFUWSKAIAsxWe4bE3UYEXxDxb/WC/IZV8+wcPjB4M+8EPb/tv40
-         eFqw==
+        bh=WZUSbbOF/FC2ouOE0MYWtzocErTrVoLjBs5Nsshkk3Y=;
+        b=ZuytFk5/e52EBdDu4H7O95qXZnIwnNs8oos+cWZcvM5ma/gADe+l1w7zb6oCnBxiVh
+         gHs/7p4Ta3vPtswrgYti83qBF1bXgFTEcZ+unMtQZxywgWuFv9wwHbdX3zXDa90Qy5uS
+         m/tMzMF939PXkF8YglFHFsDVj/SWvc/nzUnVd2O+qKqJMfsYyXQi2e6Hm//GzxcYrZa6
+         ydzPyQqxy+2V4v6twU4MDrUraoFtIgZdNSOisD7Dt8jXpNtwe7t1ReY2olxzAcJG3ZdN
+         0sEdBNi4jPTs9QlhVC/PtCdfI1Zdz/Vsx4UAeEgkOgwS46mJSz/YlAS2nxwWX/5T1JjE
+         lnzA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=3IpSg/QABQuxrPAk5AC82qgeIinovIPVIY7LX6AiwQ4=;
-        b=KVLCEq4TSD682kMLZhMtfV6U0LEqF2wjUkMhwX7ica10ueKWHm7804N567IKwNKb0f
-         EHyxYOQR4p5Dlys1m10MqhXdrgk0NAXLg7TEF+vhCs3/btsWpZeeE7wZDkpKVZ+udimC
-         oE/mJGOQ/2q8iK8cwGLfm6lOyJR49S6AXxy1pSQqRgvA6Nfkii4ROEugL3j9x76rL1Eg
-         LaMI+vCkUol3oHrIvNgh8/nTqpPb3Tlsl+VYj/INI4y4gYuAgO6io4XfVsP1vQE2f0Ck
-         k9GWTTs7t1YQr/82DMiQVwl7YZXk88u0+5Basvg/eiVzW1yx47HPDfdOkNpaEIDprSjg
-         Z4vQ==
-X-Gm-Message-State: AOAM532l5a7vxIpVD/cHCvaSApS5f9eWg7EaPj0jg/oNoLMfYw1iAb+/
-        3Ejh2/NdTNQJMGJOYWHTgS8=
-X-Google-Smtp-Source: ABdhPJxGzN3i3/t/QMIP+dasdx1nJVk7LLC5yp7MQdzIMqwkEFgQldPkyWnc1VvYDiPIU8AJBSvzOQ==
-X-Received: by 2002:adf:d225:: with SMTP id k5mr5357714wrh.10.1627571189303;
-        Thu, 29 Jul 2021 08:06:29 -0700 (PDT)
+        bh=WZUSbbOF/FC2ouOE0MYWtzocErTrVoLjBs5Nsshkk3Y=;
+        b=mBU1Sgi0W27uKhaktNqS0UbCRpBZGrkZiA6eAGVovvslae51uoQ6yjA6r25L8ewCc8
+         8WmpcAE7Ttl73+dKLyFHMuPzR16o7Tdc5eZJMFRwhescMf3cK1RfQ9c+p3XMV3+UAnfQ
+         eW7auHvbasounSoS4iC515Fv7I3VSUiwMq/cF2IRPE0Hcbq9MRP8qFt27e3t1biEhMzL
+         6JS5YoJqbeOmOGRG0S9Dk9AxzhtQGmMJ/CKyf25J1t7Ao28VhDuGY36Zj8Bb53EKXxoB
+         IPO7OBnR+hCOxRDYWLdHGJPudzmKnPUe3hkneX9VjQlM/axNYQLhen+0NM6F4/W2rhEt
+         0HUw==
+X-Gm-Message-State: AOAM532CVnHAnggdwS74FkboT85saH2jiKBae6xABmPn98uE5hnoJNPv
+        mrMpnKRYLS8rA09qJuZ/vaY=
+X-Google-Smtp-Source: ABdhPJwzwuooZrKzT9YZZpEHbX4MWP2Qe1NzIybPsqNzhtkDYtD+slziTNfgEOkBRCaefeRs8MTAog==
+X-Received: by 2002:a05:6000:10c6:: with SMTP id b6mr5512718wrx.110.1627571192936;
+        Thu, 29 Jul 2021 08:06:32 -0700 (PDT)
 Received: from localhost.localdomain ([148.252.128.141])
-        by smtp.gmail.com with ESMTPSA id e6sm4764577wrg.18.2021.07.29.08.06.28
+        by smtp.gmail.com with ESMTPSA id e6sm4764577wrg.18.2021.07.29.08.06.32
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 29 Jul 2021 08:06:28 -0700 (PDT)
+        Thu, 29 Jul 2021 08:06:32 -0700 (PDT)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH 07/23] io_uring: extract a helper for ctx quiesce
-Date:   Thu, 29 Jul 2021 16:05:34 +0100
-Message-Id: <f466e8502993fcfafefeea0895660e197c1a8ba0.1627570633.git.asml.silence@gmail.com>
+Subject: [PATCH 11/23] io_uring: deduplicate open iopoll check
+Date:   Thu, 29 Jul 2021 16:05:38 +0100
+Message-Id: <aaedfca7e469805ac3a6de646577be1e4b611494.1627570633.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <cover.1627570633.git.asml.silence@gmail.com>
 References: <cover.1627570633.git.asml.silence@gmail.com>
@@ -70,87 +70,51 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Refactor __io_uring_register() by extracting a helper responsible for
-ctx queisce. Looks better and will make it easier to add more
-optimisations.
+Move IORING_SETUP_IOPOLL check into __io_openat_prep(), so both openat
+and openat2 reuse it.
 
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
- fs/io_uring.c | 53 ++++++++++++++++++++++++++++-----------------------
- 1 file changed, 29 insertions(+), 24 deletions(-)
+ fs/io_uring.c | 11 ++++-------
+ 1 file changed, 4 insertions(+), 7 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 85cd8c3a33e1..db43aedcfc42 100644
+index 04b78b449e9d..2ee5ba115cfc 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -10066,6 +10066,33 @@ static bool io_register_op_must_quiesce(int op)
- 	}
+@@ -3774,6 +3774,8 @@ static int __io_openat_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe
+ 	const char __user *fname;
+ 	int ret;
+ 
++	if (unlikely(req->ctx->flags & IORING_SETUP_IOPOLL))
++		return -EINVAL;
+ 	if (unlikely(sqe->ioprio || sqe->buf_index))
+ 		return -EINVAL;
+ 	if (unlikely(req->flags & REQ_F_FIXED_FILE))
+@@ -3798,12 +3800,9 @@ static int __io_openat_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe
+ 
+ static int io_openat_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
+ {
+-	u64 flags, mode;
++	u64 mode = READ_ONCE(sqe->len);
++	u64 flags = READ_ONCE(sqe->open_flags);
+ 
+-	if (unlikely(req->ctx->flags & IORING_SETUP_IOPOLL))
+-		return -EINVAL;
+-	mode = READ_ONCE(sqe->len);
+-	flags = READ_ONCE(sqe->open_flags);
+ 	req->open.how = build_open_how(flags, mode);
+ 	return __io_openat_prep(req, sqe);
  }
+@@ -3814,8 +3813,6 @@ static int io_openat2_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
+ 	size_t len;
+ 	int ret;
  
-+static int io_ctx_quiesce(struct io_ring_ctx *ctx)
-+{
-+	long ret;
-+
-+	percpu_ref_kill(&ctx->refs);
-+
-+	/*
-+	 * Drop uring mutex before waiting for references to exit. If another
-+	 * thread is currently inside io_uring_enter() it might need to grab the
-+	 * uring_lock to make progress. If we hold it here across the drain
-+	 * wait, then we can deadlock. It's safe to drop the mutex here, since
-+	 * no new references will come in after we've killed the percpu ref.
-+	 */
-+	mutex_unlock(&ctx->uring_lock);
-+	do {
-+		ret = wait_for_completion_interruptible(&ctx->ref_comp);
-+		if (!ret)
-+			break;
-+		ret = io_run_task_work_sig();
-+	} while (ret >= 0);
-+	mutex_lock(&ctx->uring_lock);
-+
-+	if (ret)
-+		io_refs_resurrect(&ctx->refs, &ctx->ref_comp);
-+	return ret;
-+}
-+
- static int __io_uring_register(struct io_ring_ctx *ctx, unsigned opcode,
- 			       void __user *arg, unsigned nr_args)
- 	__releases(ctx->uring_lock)
-@@ -10090,31 +10117,9 @@ static int __io_uring_register(struct io_ring_ctx *ctx, unsigned opcode,
- 	}
- 
- 	if (io_register_op_must_quiesce(opcode)) {
--		percpu_ref_kill(&ctx->refs);
--
--		/*
--		 * Drop uring mutex before waiting for references to exit. If
--		 * another thread is currently inside io_uring_enter() it might
--		 * need to grab the uring_lock to make progress. If we hold it
--		 * here across the drain wait, then we can deadlock. It's safe
--		 * to drop the mutex here, since no new references will come in
--		 * after we've killed the percpu ref.
--		 */
--		mutex_unlock(&ctx->uring_lock);
--		do {
--			ret = wait_for_completion_interruptible(&ctx->ref_comp);
--			if (!ret)
--				break;
--			ret = io_run_task_work_sig();
--			if (ret < 0)
--				break;
--		} while (1);
--		mutex_lock(&ctx->uring_lock);
--
--		if (ret) {
--			io_refs_resurrect(&ctx->refs, &ctx->ref_comp);
-+		ret = io_ctx_quiesce(ctx);
-+		if (ret)
- 			return ret;
--		}
- 	}
- 
- 	switch (opcode) {
+-	if (unlikely(req->ctx->flags & IORING_SETUP_IOPOLL))
+-		return -EINVAL;
+ 	how = u64_to_user_ptr(READ_ONCE(sqe->addr2));
+ 	len = READ_ONCE(sqe->len);
+ 	if (len < OPEN_HOW_SIZE_VER0)
 -- 
 2.32.0
 

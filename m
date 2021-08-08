@@ -2,64 +2,96 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.7 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-10.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A6827C4338F
-	for <io-uring@archiver.kernel.org>; Sat,  7 Aug 2021 18:21:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BD0DFC4338F
+	for <io-uring@archiver.kernel.org>; Sun,  8 Aug 2021 00:14:35 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8CEC461057
-	for <io-uring@archiver.kernel.org>; Sat,  7 Aug 2021 18:21:56 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8E87661052
+	for <io-uring@archiver.kernel.org>; Sun,  8 Aug 2021 00:14:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229517AbhHGSWM (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sat, 7 Aug 2021 14:22:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59944 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229919AbhHGSWL (ORCPT <rfc822;io-uring@vger.kernel.org>);
-        Sat, 7 Aug 2021 14:22:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPS id 8B8F961057;
-        Sat,  7 Aug 2021 18:21:53 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1628360513;
-        bh=0DsxnxPGvAJrJ4fdoSaK/VWJy99qy3WColH3lkxSaxA=;
-        h=Subject:From:In-Reply-To:References:Date:To:Cc:From;
-        b=X64HZnsDneLNh023yh3StoN3+egsNH11v5J3zpY/r6EaSHI8cJNRqDn1sCNgrGRI/
-         yFvH9/hTgVhHszdZxlJwfO+xDReRljYbvXqECtoddNpEN1tq1GytF/m5enwIPqzjkZ
-         2DHigtaKDrzjpKQ3cwKCLnjS8XvawgrE7m8334IEuhlsNlfGKaZT+WMfCzNuymDYRc
-         y5bMpSopuvZ2tQd9D2Woz04qDquNFnWYnBPgzgfRZnUdqhslCh+7Mtc/zfH/PphQFS
-         h8aBQQ75cS1Bn0Ql/jWqev8Vg05FPDtOlRTi2J7kgF8ecsgNruLNBljDMyXxIzQW+q
-         e/KciFYRoZ/eQ==
-Subject: Re: [GIT PULL] io_uring fixes for 5.14-rc5
-From:   pr-tracker-bot@kernel.org
-In-Reply-To: <5559f44d-e2b7-cb98-8007-aec9d3075645@kernel.dk>
-References: <5559f44d-e2b7-cb98-8007-aec9d3075645@kernel.dk>
-X-PR-Tracked-List-Id: <io-uring.vger.kernel.org>
-X-PR-Tracked-Message-Id: <5559f44d-e2b7-cb98-8007-aec9d3075645@kernel.dk>
-X-PR-Tracked-Remote: git://git.kernel.dk/linux-block.git tags/io_uring-5.14-2021-08-07
-X-PR-Tracked-Commit-Id: 21698274da5b6fc724b005bc7ec3e6b9fbcfaa06
-X-PR-Merge-Tree: torvalds/linux.git
-X-PR-Merge-Refname: refs/heads/master
-X-PR-Merge-Commit-Id: 85a90500f9a1717c4e142ce92e6c1cb1a339ec78
-Message-Id: <162836051354.5679.660838337774735788.pr-tracker-bot@kernel.org>
-Date:   Sat, 07 Aug 2021 18:21:53 +0000
+        id S229865AbhHHAOw (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sat, 7 Aug 2021 20:14:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49404 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229797AbhHHAOw (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Sat, 7 Aug 2021 20:14:52 -0400
+Received: from mail-pj1-x1036.google.com (mail-pj1-x1036.google.com [IPv6:2607:f8b0:4864:20::1036])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7544CC061760;
+        Sat,  7 Aug 2021 17:14:34 -0700 (PDT)
+Received: by mail-pj1-x1036.google.com with SMTP id w13-20020a17090aea0db029017897a5f7bcso133139pjy.5;
+        Sat, 07 Aug 2021 17:14:34 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=EnFgqgDmT/V4c/zLfpNtBbyVZkh3iobp61ysMleZsHY=;
+        b=FtBcwRMxPJXP/EfG4YMfGYnjKc5DQYG/fhfHr8MHZ5+S5J+8OIDjgp9dRE4A79qR6c
+         FUGAo1g6Glm0VsLAyzeryeUYoEVWeE2wnO40vRS2rTEIGw0BewQgJjiGvUOmciRxjxMk
+         fhEhVuOpg943ikBK8dXQSGmJw0v4/si83dYpFxf7k88z5nCSy+8u9Q7KljQaioSTrdUf
+         Pda14wsf0huvaWqRyzGXj0szNOCJQmhhgxOP/c74FJkvoakcTkZBzlfcyjhCcZ0mPdRu
+         irXi6gPbXMjDh+yg4GeK2bNyI459qhA/ZvlIlhh4Eft7EPHdRUnlHYMDbBDcNkSgz5o0
+         lymA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=EnFgqgDmT/V4c/zLfpNtBbyVZkh3iobp61ysMleZsHY=;
+        b=ePSTl/Fd7TCcyuOSIHKI+4uXSTaIu4mfcytqJtaKAVVv1dS6iOBQjv9c/ydD1DnCyW
+         L8B4ZJWdkFSIEHrFQ3iJpmhCU+b/+tFsqgy1TnXqmiXpSLmykRQ3dT7b8GW9eVWtLSon
+         R4e8L1rN1Y9TqQJIxB7c4Vh/skKWc1SM+goLyuYG3hgbRqbdx1eQjsA4U5ajDjSrZMIT
+         7lY8GOuzFOay8lK81LoQ2zaWh/UIdWyYLZUoPiQE2vhfvvubpHFIktud5PsSufvwxDdk
+         sMSOdmPpz1r7c78c5B7k13r9sxBLAw77YuRT2Muh8hexqBIMXKkn/G8kqs99zwk01IkZ
+         Vfzg==
+X-Gm-Message-State: AOAM531L7oEQECY7TTRxcZsls9MJnAPIh/WrEf0y/CwH+y+Kfdfmr9hu
+        uhovatfmCqhszFLN50oaoaQ=
+X-Google-Smtp-Source: ABdhPJwnD7t4fRx+P/KVAYylu7IxTPO2g+Bub7YhSAx0DL38ML0RoqO3m6+3NSD9kFpPIPJxXk8YbQ==
+X-Received: by 2002:a17:90a:43a7:: with SMTP id r36mr3634210pjg.187.1628381673653;
+        Sat, 07 Aug 2021 17:14:33 -0700 (PDT)
+Received: from sc2-haas01-esx0118.eng.vmware.com ([66.170.99.1])
+        by smtp.gmail.com with ESMTPSA id u3sm16624278pjr.2.2021.08.07.17.14.32
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 07 Aug 2021 17:14:33 -0700 (PDT)
+From:   Nadav Amit <nadav.amit@gmail.com>
+X-Google-Original-From: Nadav Amit
 To:     Jens Axboe <axboe@kernel.dk>
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        io-uring <io-uring@vger.kernel.org>
+Cc:     io-uring@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Nadav Amit <namit@vmware.com>,
+        Pavel Begunkov <asml.silence@gmail.com>
+Subject: [PATCH 0/2] io_uring: bug fixes
+Date:   Sat,  7 Aug 2021 17:13:40 -0700
+Message-Id: <20210808001342.964634-1-namit@vmware.com>
+X-Mailer: git-send-email 2.25.1
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-The pull request you sent on Sat, 7 Aug 2021 10:51:30 -0600:
+From: Nadav Amit <namit@vmware.com>
 
-> git://git.kernel.dk/linux-block.git tags/io_uring-5.14-2021-08-07
+Two small bug fixes. The first fix is for a real issue that encountered
+on 5.13, which caused my workload not to work with a submission queue.
+Apparently, on 5.14 it is only a performance issue (i.e., not a
+functionality issue).
 
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/85a90500f9a1717c4e142ce92e6c1cb1a339ec78
+The second fix is for a theoretical issue.
 
-Thank you!
+I did not cc stable, as I leave this decision to the maintainer.
+
+Cc: Jens Axboe <axboe@kernel.dk>
+Cc: Pavel Begunkov <asml.silence@gmail.com>
+
+Nadav Amit (2):
+  io_uring: clear TIF_NOTIFY_SIGNAL when running task work
+  io_uring: Use WRITE_ONCE() when writing to sq_flags
+
+ fs/io_uring.c | 20 +++++++++++++-------
+ 1 file changed, 13 insertions(+), 7 deletions(-)
 
 -- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/prtracker.html
+2.25.1
+

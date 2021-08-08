@@ -7,19 +7,19 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B3CB2C4320A
-	for <io-uring@archiver.kernel.org>; Sun,  8 Aug 2021 10:12:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2F821C432BE
+	for <io-uring@archiver.kernel.org>; Sun,  8 Aug 2021 10:12:57 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9467D6101C
+	by mail.kernel.org (Postfix) with ESMTP id 090946101C
 	for <io-uring@archiver.kernel.org>; Sun,  8 Aug 2021 10:12:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229679AbhHHKNO (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        id S229838AbhHHKNO (ORCPT <rfc822;io-uring@archiver.kernel.org>);
         Sun, 8 Aug 2021 06:13:14 -0400
-Received: from out30-44.freemail.mail.aliyun.com ([115.124.30.44]:34541 "EHLO
-        out30-44.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229838AbhHHKNO (ORCPT
+Received: from out30-132.freemail.mail.aliyun.com ([115.124.30.132]:47640 "EHLO
+        out30-132.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229882AbhHHKNO (ORCPT
         <rfc822;io-uring@vger.kernel.org>); Sun, 8 Aug 2021 06:13:14 -0400
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R101e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04400;MF=haoxu@linux.alibaba.com;NM=1;PH=DS;RN=4;SR=0;TI=SMTPD_---0UiISL52_1628417568;
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R121e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04423;MF=haoxu@linux.alibaba.com;NM=1;PH=DS;RN=4;SR=0;TI=SMTPD_---0UiISL52_1628417568;
 Received: from e18g09479.et15sqa.tbsite.net(mailfrom:haoxu@linux.alibaba.com fp:SMTPD_---0UiISL52_1628417568)
           by smtp.aliyun-inc.com(127.0.0.1);
           Sun, 08 Aug 2021 18:12:53 +0800
@@ -27,9 +27,9 @@ From:   Hao Xu <haoxu@linux.alibaba.com>
 To:     Jens Axboe <axboe@kernel.dk>
 Cc:     io-uring@vger.kernel.org, Pavel Begunkov <asml.silence@gmail.com>,
         Joseph Qi <joseph.qi@linux.alibaba.com>
-Subject: [PATCH 1/3] io-wq: fix no lock protection of acct->nr_worker
-Date:   Sun,  8 Aug 2021 18:12:45 +0800
-Message-Id: <20210808101247.189083-2-haoxu@linux.alibaba.com>
+Subject: [PATCH 2/3] io-wq: fix lack of acct->nr_workers < acct->max_workers judgement
+Date:   Sun,  8 Aug 2021 18:12:46 +0800
+Message-Id: <20210808101247.189083-3-haoxu@linux.alibaba.com>
 X-Mailer: git-send-email 2.24.4
 In-Reply-To: <20210808101247.189083-1-haoxu@linux.alibaba.com>
 References: <20210808101247.189083-1-haoxu@linux.alibaba.com>
@@ -39,83 +39,47 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-There is an acct->nr_worker visit without lock protection. Think about
-the case: two callers call io_wqe_wake_worker(), one is the original
-context and the other one is an io-worker(by calling
-io_wqe_enqueue(wqe, linked)), on two cpus paralelly, this may cause
-nr_worker to be larger than max_worker.
-Let's fix it by adding lock for it, and let's do nr_workers++ before
-create_io_worker. There may be a edge cause that the first caller fails
-to create an io-worker, but the second caller doesn't know it and then
-quit creating io-worker as well:
-
-say nr_worker = max_worker - 1
-        cpu 0                        cpu 1
-   io_wqe_wake_worker()          io_wqe_wake_worker()
-      nr_worker < max_worker
-      nr_worker++
-      create_io_worker()         nr_worker == max_worker
-         failed                  return
-      return
-
-But the chance of this case is very slim.
+There should be this judgement before we create an io-worker
 
 Fixes: 685fe7feedb9 ("io-wq: eliminate the need for a manager thread")
 Signed-off-by: Hao Xu <haoxu@linux.alibaba.com>
 ---
- fs/io-wq.c | 24 ++++++++++++++++++------
- 1 file changed, 18 insertions(+), 6 deletions(-)
+ fs/io-wq.c | 20 ++++++++++++++++++--
+ 1 file changed, 18 insertions(+), 2 deletions(-)
 
 diff --git a/fs/io-wq.c b/fs/io-wq.c
-index 50dc93ffc153..6788666c65de 100644
+index 6788666c65de..d8684b4d0654 100644
 --- a/fs/io-wq.c
 +++ b/fs/io-wq.c
-@@ -247,10 +247,20 @@ static void io_wqe_wake_worker(struct io_wqe *wqe, struct io_wqe_acct *acct)
- 	ret = io_wqe_activate_free_worker(wqe);
- 	rcu_read_unlock();
+@@ -281,10 +281,26 @@ static void create_worker_cb(struct callback_head *cb)
+ {
+ 	struct create_worker_data *cwd;
+ 	struct io_wq *wq;
++	struct io_wqe *wqe;
++	struct io_wqe_acct *acct;
++	bool need_create = false;
  
--	if (!ret && acct->nr_workers < acct->max_workers) {
--		atomic_inc(&acct->nr_running);
--		atomic_inc(&wqe->wq->worker_refs);
--		create_io_worker(wqe->wq, wqe, acct->index);
-+	if (!ret) {
-+		bool need_create = false;
-+
-+		raw_spin_lock_irq(&wqe->lock);
-+		if (acct->nr_workers < acct->max_workers) {
-+			acct->nr_workers++;
-+			need_create = true;
-+		}
-+		raw_spin_unlock_irq(&wqe->lock);
-+		if (need_create) {
-+			atomic_inc(&acct->nr_running);
-+			atomic_inc(&wqe->wq->worker_refs);
-+			create_io_worker(wqe->wq, wqe, acct->index);
-+		}
- 	}
+ 	cwd = container_of(cb, struct create_worker_data, work);
+-	wq = cwd->wqe->wq;
+-	create_io_worker(wq, cwd->wqe, cwd->index);
++	wqe = cwd->wqe;
++	wq = wqe->wq;
++	acct = &wqe->acct[cwd->index];
++	raw_spin_lock_irq(&wqe->lock);
++	if (acct->nr_workers < acct->max_workers) {
++		acct->nr_workers++;
++		need_create = true;
++	}
++	raw_spin_unlock_irq(&wqe->lock);
++	if (need_create) {
++		create_io_worker(wq, wqe, cwd->index);
++	} else {
++		atomic_dec(&acct->nr_running);
++		io_worker_ref_put(wq);
++	}
+ 	kfree(cwd);
  }
  
-@@ -635,6 +645,9 @@ static void create_io_worker(struct io_wq *wq, struct io_wqe *wqe, int index)
- 		kfree(worker);
- fail:
- 		atomic_dec(&acct->nr_running);
-+		raw_spin_lock_irq(&wqe->lock);
-+		acct->nr_workers--;
-+		raw_spin_unlock_irq(&wqe->lock);
- 		io_worker_ref_put(wq);
- 		return;
- 	}
-@@ -650,9 +663,8 @@ static void create_io_worker(struct io_wq *wq, struct io_wqe *wqe, int index)
- 	worker->flags |= IO_WORKER_F_FREE;
- 	if (index == IO_WQ_ACCT_BOUND)
- 		worker->flags |= IO_WORKER_F_BOUND;
--	if (!acct->nr_workers && (worker->flags & IO_WORKER_F_BOUND))
-+	if ((acct->nr_workers == 1) && (worker->flags & IO_WORKER_F_BOUND))
- 		worker->flags |= IO_WORKER_F_FIXED;
--	acct->nr_workers++;
- 	raw_spin_unlock_irq(&wqe->lock);
- 	wake_up_new_task(tsk);
- }
 -- 
 2.24.4
 

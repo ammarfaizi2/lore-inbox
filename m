@@ -2,53 +2,52 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ABF42C4338F
-	for <io-uring@archiver.kernel.org>; Mon,  9 Aug 2021 21:24:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EECF6C4338F
+	for <io-uring@archiver.kernel.org>; Mon,  9 Aug 2021 21:48:41 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8FE8D60EE7
-	for <io-uring@archiver.kernel.org>; Mon,  9 Aug 2021 21:24:19 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C058C60EE7
+	for <io-uring@archiver.kernel.org>; Mon,  9 Aug 2021 21:48:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234772AbhHIVYj (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Mon, 9 Aug 2021 17:24:39 -0400
-Received: from cloud48395.mywhc.ca ([173.209.37.211]:37728 "EHLO
+        id S233541AbhHIVtB (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Mon, 9 Aug 2021 17:49:01 -0400
+Received: from cloud48395.mywhc.ca ([173.209.37.211]:45308 "EHLO
         cloud48395.mywhc.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234584AbhHIVYi (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Mon, 9 Aug 2021 17:24:38 -0400
-X-Greylist: delayed 3916 seconds by postgrey-1.27 at vger.kernel.org; Mon, 09 Aug 2021 17:24:38 EDT
-Received: from modemcable064.203-130-66.mc.videotron.ca ([66.130.203.64]:54428 helo=[192.168.1.179])
+        with ESMTP id S233294AbhHIVtB (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Mon, 9 Aug 2021 17:49:01 -0400
+Received: from modemcable064.203-130-66.mc.videotron.ca ([66.130.203.64]:54436 helo=[192.168.1.179])
         by cloud48395.mywhc.ca with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
         (Exim 4.94.2)
-        (envelope-from <olivier@olivierlanglois.net>)
-        id 1mDBjg-0002K4-PT; Mon, 09 Aug 2021 16:19:00 -0400
-Message-ID: <a7a07d78e8a24612c7afd4ada4a05d462798fb8b.camel@olivierlanglois.net>
-Subject: Re: [PATCH 2/3] io-wq: fix no lock protection of acct->nr_worker
-From:   Olivier Langlois <olivier@olivierlanglois.net>
-To:     Jens Axboe <axboe@kernel.dk>, Hao Xu <haoxu@linux.alibaba.com>
-Cc:     io-uring <io-uring@vger.kernel.org>,
-        Pavel Begunkov <asml.silence@gmail.com>,
-        Joseph Qi <joseph.qi@linux.alibaba.com>
-Date:   Mon, 09 Aug 2021 16:19:00 -0400
-In-Reply-To: <5f4b7861-de78-8b45-644f-3a9efe3af964@kernel.dk>
-References: <20210805100538.127891-1-haoxu@linux.alibaba.com>
-         <20210805100538.127891-3-haoxu@linux.alibaba.com>
-         <cc9e61da-6591-c257-6899-d2afa037b2ad@kernel.dk>
-         <1f795e93-c137-439e-b02c-b460cb38bb14@linux.alibaba.com>
-         <5f4b7861-de78-8b45-644f-3a9efe3af964@kernel.dk>
+        (envelope-from <olivier@trillion01.com>)
+        id 1mDD8R-0005EU-6B; Mon, 09 Aug 2021 17:48:39 -0400
+Message-ID: <fdd54421f4d4e825152192e327c838d035352945.camel@trillion01.com>
+Subject: Re: [PATCH 1/2] io_uring: clear TIF_NOTIFY_SIGNAL when running task
+ work
+From:   Olivier Langlois <olivier@trillion01.com>
+To:     Nadav Amit <nadav.amit@gmail.com>, Jens Axboe <axboe@kernel.dk>
+Cc:     io-uring@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Nadav Amit <namit@vmware.com>,
+        Pavel Begunkov <asml.silence@gmail.com>
+Date:   Mon, 09 Aug 2021 17:48:38 -0400
+In-Reply-To: <20210808001342.964634-2-namit@vmware.com>
+References: <20210808001342.964634-1-namit@vmware.com>
+         <20210808001342.964634-2-namit@vmware.com>
+Organization: Trillion01 Inc
 Content-Type: text/plain; charset="ISO-8859-1"
 User-Agent: Evolution 3.40.3 
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
 X-AntiAbuse: Primary Hostname - cloud48395.mywhc.ca
 X-AntiAbuse: Original Domain - vger.kernel.org
 X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - olivierlanglois.net
-X-Get-Message-Sender-Via: cloud48395.mywhc.ca: authenticated_id: olivier@olivierlanglois.net
-X-Authenticated-Sender: cloud48395.mywhc.ca: olivier@olivierlanglois.net
+X-AntiAbuse: Sender Address Domain - trillion01.com
+X-Get-Message-Sender-Via: cloud48395.mywhc.ca: authenticated_id: olivier@trillion01.com
+X-Authenticated-Sender: cloud48395.mywhc.ca: olivier@trillion01.com
 X-Source: 
 X-Source-Args: 
 X-Source-Dir: 
@@ -56,17 +55,71 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On Sat, 2021-08-07 at 07:51 -0600, Jens Axboe wrote:
+On Sat, 2021-08-07 at 17:13 -0700, Nadav Amit wrote:
+> From: Nadav Amit <namit@vmware.com>
 > 
-> Please do - and please always run the full set of tests before
-> sending
-> out changes like this, you would have seen the slower runs and/or
-> timeouts from the regression suite. I ended up wasting time on this
-> thinking it was a change I made that broke it, before then debugging
-> this one.
+> When using SQPOLL, the submission queue polling thread calls
+> task_work_run() to run queued work. However, when work is added with
+> TWA_SIGNAL - as done by io_uring itself - the TIF_NOTIFY_SIGNAL remains
+> set afterwards and is never cleared.
 > 
-Jens,
+> Consequently, when the submission queue polling thread checks whether
+> signal_pending(), it may always find a pending signal, if
+> task_work_add() was ever called before.
+> 
+> The impact of this bug might be different on different kernel versions.
+> It appears that on 5.14 it would only cause unnecessary calculation and
+> prevent the polling thread from sleeping. On 5.13, where the bug was
+> found, it stops the polling thread from finding newly submitted work.
+> 
+> Instead of task_work_run(), use tracehook_notify_signal() that clears
+> TIF_NOTIFY_SIGNAL. Test for TIF_NOTIFY_SIGNAL in addition to
+> current->task_works to avoid a race in which task_works is cleared but
+> the TIF_NOTIFY_SIGNAL is set.
+> 
+> Fixes: 685fe7feedb96 ("io-wq: eliminate the need for a manager thread")
+> Cc: Jens Axboe <axboe@kernel.dk>
+> Cc: Pavel Begunkov <asml.silence@gmail.com>
+> Signed-off-by: Nadav Amit <namit@vmware.com>
+> ---
+>  fs/io_uring.c | 5 +++--
+>  1 file changed, 3 insertions(+), 2 deletions(-)
+> 
+> diff --git a/fs/io_uring.c b/fs/io_uring.c
+> index 5a0fd6bcd318..f39244d35f90 100644
+> --- a/fs/io_uring.c
+> +++ b/fs/io_uring.c
+> @@ -78,6 +78,7 @@
+>  #include <linux/task_work.h>
+>  #include <linux/pagemap.h>
+>  #include <linux/io_uring.h>
+> +#include <linux/tracehook.h>
+>  
+>  #define CREATE_TRACE_POINTS
+>  #include <trace/events/io_uring.h>
+> @@ -2203,9 +2204,9 @@ static inline unsigned int io_put_rw_kbuf(struct
+> io_kiocb *req)
+>  
+>  static inline bool io_run_task_work(void)
+>  {
+> -       if (current->task_works) {
+> +       if (test_thread_flag(TIF_NOTIFY_SIGNAL) || current->task_works)
+> {
+>                 __set_current_state(TASK_RUNNING);
+> -               task_work_run();
+> +               tracehook_notify_signal();
+>                 return true;
+>         }
+>  
 
-for my personal info, where is the regression suite?
+thx a lot for this patch!
+
+This explains what I am seeing here:
+https://lore.kernel.org/io-uring/4d93d0600e4a9590a48d320c5a7dd4c54d66f095.camel@trillion01.com/
+
+I was under the impression that task_work_run() was clearing
+TIF_NOTIFY_SIGNAL.
+
+your patch made me realize that it does not...
 
 

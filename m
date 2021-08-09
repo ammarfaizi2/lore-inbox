@@ -2,108 +2,102 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-4.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 90B45C4338F
-	for <io-uring@archiver.kernel.org>; Mon,  9 Aug 2021 20:35:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 943EAC4320A
+	for <io-uring@archiver.kernel.org>; Mon,  9 Aug 2021 21:24:09 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 77BBA60F38
-	for <io-uring@archiver.kernel.org>; Mon,  9 Aug 2021 20:35:28 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6B07F60200
+	for <io-uring@archiver.kernel.org>; Mon,  9 Aug 2021 21:24:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236290AbhHIUfs (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Mon, 9 Aug 2021 16:35:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44978 "EHLO
+        id S229739AbhHIVY3 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Mon, 9 Aug 2021 17:24:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55882 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236289AbhHIUfs (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Mon, 9 Aug 2021 16:35:48 -0400
-Received: from mail-wr1-x42a.google.com (mail-wr1-x42a.google.com [IPv6:2a00:1450:4864:20::42a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F3B4C0613D3
-        for <io-uring@vger.kernel.org>; Mon,  9 Aug 2021 13:35:27 -0700 (PDT)
-Received: by mail-wr1-x42a.google.com with SMTP id b13so23094614wrs.3
-        for <io-uring@vger.kernel.org>; Mon, 09 Aug 2021 13:35:27 -0700 (PDT)
+        with ESMTP id S230295AbhHIVY3 (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Mon, 9 Aug 2021 17:24:29 -0400
+Received: from mail-pj1-x1030.google.com (mail-pj1-x1030.google.com [IPv6:2607:f8b0:4864:20::1030])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2969FC061796
+        for <io-uring@vger.kernel.org>; Mon,  9 Aug 2021 14:24:08 -0700 (PDT)
+Received: by mail-pj1-x1030.google.com with SMTP id u21-20020a17090a8915b02901782c36f543so1024035pjn.4
+        for <io-uring@vger.kernel.org>; Mon, 09 Aug 2021 14:24:08 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=to:cc:references:from:subject:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=oK1IlwIEGrTNJrwZnR1U0Xkp6WU/RPcaHU/8yp/s9H0=;
-        b=rK5gbGgM4DYDYnO+yuugoYyfl66c9OtTjPlNRVpAD+Bt9Qr43BSGiRDg00Fdjqfo9I
-         DOcx/IikZPZHtq2sXOEgAWDmjF9TUAtgARqZdDAZ5yVASWuYWAHQ4iTL/2prclpiIrno
-         0fZOXdGoYsqKiW6MAOYHsiOsyo9ADe5pA82F0MsvKRxBSTQrdhMdxZ8J0F5rX9CZvGpj
-         zDc76Ni59ro/JOZfWTgl7C4tQt/+AcImTa0H2Ffc9JDEfYfCyrLD3T4QFa7lk9jHO/LC
-         06S0wQdvYMKqyRptTalm0Lf563XUEuBFL/vCqWBCyn1JmSfkKOHf3KaNO8unGLE2sT/o
-         e9hA==
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=OyG4sh0wZAAWr4TpNXR7PYUy98X4grR2BRtprjaq/ng=;
+        b=wBtUeaUay3Kbl/Q5xZ9y+W4HUmLrTZBC1a8kseW9h6BBcCkdAsOZFB1uopMN+6RzY0
+         3gTn3l8FKkggS3gtH4WTR7QcFXYslnemtKIkR70dv512Sl9avzMlQlrTRRWR8z5N0HBF
+         Gh9bTEPq0EyG0rK9czgQ71iqBSKdUtxKcPF9LrhYiXcjrpu0wgpFMoUhP68q2yb6QnlW
+         HHOwhMVTG5Vs7VzipjOScUfluwQ3fspk7tCTSW9zR6VMcCfmuAMaqobGRj1LsL2n77Tz
+         KlKJRS3eacjJS6V1gWdXNBSeFoIFKz9D9+9H4VAIZe5E53PdHLetxVIf/dylTZOCJnEC
+         LEeA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:to:cc:references:from:subject:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=oK1IlwIEGrTNJrwZnR1U0Xkp6WU/RPcaHU/8yp/s9H0=;
-        b=SZzG88ei3XxI+ymDQRDpuIlZslzkJYL7KzP127ghCNezJsuUq47SAjbe9N3xxuUo9d
-         qQURRQoUPGvOoJUNZ3Z+Z6CtqgzMl4z6BjoJgDOuVabGbTBMlxUrIsWmOeBlbIUSERZ3
-         jOFiNWgx+FpzfZueWg2x2+v/sK2eIC9Qat0dQIBkt4omEG0PV+OzOzhVyqt0ygJDwXu9
-         3B/lfgoEwauSQTp54qXpwcNVzyxd1Ed61zVMmsW53riUFKv1LCWG/p/0xEsDqNfXKrYJ
-         F/7oxHvRK8drLpbPsykL1ocKjIO9ocLqQos/y5HN8mz6D91FQxry1lkdxdZqBC11417i
-         7+fw==
-X-Gm-Message-State: AOAM531J4RFmLLvOHmfPhJSkSgz9+nRwQS4qRP6nboJBauGP24u6yEzG
-        1T7Dy7hHcSPbPI3Xcq6CZIo=
-X-Google-Smtp-Source: ABdhPJw4m6peY2KKn1/HDSv5EvHZjvinmAE5n3EIFesIp0u1kxkpKS691FRzdlgQ+Vd3rio0nM5vvw==
-X-Received: by 2002:adf:d085:: with SMTP id y5mr26639720wrh.272.1628541325850;
-        Mon, 09 Aug 2021 13:35:25 -0700 (PDT)
-Received: from [192.168.8.197] ([85.255.236.119])
-        by smtp.gmail.com with ESMTPSA id h4sm6182957wrt.5.2021.08.09.13.35.25
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 09 Aug 2021 13:35:25 -0700 (PDT)
-To:     Olivier Langlois <olivier@olivierlanglois.net>,
-        Jens Axboe <axboe@kernel.dk>, Hao Xu <haoxu@linux.alibaba.com>
-Cc:     io-uring <io-uring@vger.kernel.org>,
-        Joseph Qi <joseph.qi@linux.alibaba.com>
-References: <20210805100538.127891-1-haoxu@linux.alibaba.com>
- <20210805100538.127891-3-haoxu@linux.alibaba.com>
- <cc9e61da-6591-c257-6899-d2afa037b2ad@kernel.dk>
- <1f795e93-c137-439e-b02c-b460cb38bb14@linux.alibaba.com>
- <5f4b7861-de78-8b45-644f-3a9efe3af964@kernel.dk>
- <a7a07d78e8a24612c7afd4ada4a05d462798fb8b.camel@olivierlanglois.net>
-From:   Pavel Begunkov <asml.silence@gmail.com>
-Subject: Re: [PATCH 2/3] io-wq: fix no lock protection of acct->nr_worker
-Message-ID: <e833926d-532d-d234-909b-a5a9ce0c854b@gmail.com>
-Date:   Mon, 9 Aug 2021 21:34:56 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.12.0
+        bh=OyG4sh0wZAAWr4TpNXR7PYUy98X4grR2BRtprjaq/ng=;
+        b=lcv9CBjqAX9OMvzWHbhA2APaToC/AipO4pBFmtDiJ2jdbwwgMVwTZETm7dN/BcQoMx
+         z6YTXpEi39HO3CRwkmXHfYQYWHFA8OvVVfG0b7YCZufbPbNrzg4aUu+nn2cAx19PqsU1
+         6Sfg1uqqwYo4AesIv1siPBcJ+znslPp/WpxajbxVemRGvEgbJBaVOzbBBWZT5kkSSVea
+         hRmGe9oRfTpPNBR+zQg1PDF2eEL1PF6bq87/oLGWBfe5c5bZdqKMGxt0tXNppFS64cp0
+         Kp3FjrU1SZnzU9m+dIxa1tW10NUUyFUgtpTl2c7dXl6YRD6GQfkeoE4pfBZjBeTVrv/i
+         V7KA==
+X-Gm-Message-State: AOAM530M/EC3AI+32xmSI9JjpmfuvzlMIEePDsB4gzg2Db98kZ2jW/Or
+        YWBl95X+Ld1y0/iea8t9ULaNAT7qekA03E9W
+X-Google-Smtp-Source: ABdhPJz/TCAeS4NFs9JO4ZAXe73KSV/gng93g6PkjAV/jH4S+0vbS7C/hl2rb5pxgxe1fqT/Ya8ciQ==
+X-Received: by 2002:a17:90a:c213:: with SMTP id e19mr6832551pjt.58.1628544247361;
+        Mon, 09 Aug 2021 14:24:07 -0700 (PDT)
+Received: from localhost.localdomain ([198.8.77.61])
+        by smtp.gmail.com with ESMTPSA id m16sm439885pjz.30.2021.08.09.14.24.06
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 09 Aug 2021 14:24:06 -0700 (PDT)
+From:   Jens Axboe <axboe@kernel.dk>
+To:     io-uring@vger.kernel.org
+Cc:     linux-block@vger.kernel.org
+Subject: [PATCHSET 0/4] Enable bio recycling for polled IO
+Date:   Mon,  9 Aug 2021 15:23:57 -0600
+Message-Id: <20210809212401.19807-1-axboe@kernel.dk>
+X-Mailer: git-send-email 2.32.0
 MIME-Version: 1.0
-In-Reply-To: <a7a07d78e8a24612c7afd4ada4a05d462798fb8b.camel@olivierlanglois.net>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 8/9/21 9:19 PM, Olivier Langlois wrote:
-> On Sat, 2021-08-07 at 07:51 -0600, Jens Axboe wrote:
->>
->> Please do - and please always run the full set of tests before
->> sending
->> out changes like this, you would have seen the slower runs and/or
->> timeouts from the regression suite. I ended up wasting time on this
->> thinking it was a change I made that broke it, before then debugging
->> this one.
->>
-> Jens,
-> 
-> for my personal info, where is the regression suite?
+Hi,
 
-liburing/tests.
+This is v2 of this patchset. The main change from v1 is that we're no
+longer passing the cache pointer in struct kiocb, and the primary reason
+for that is to avoid growing it by 8 bytes. That would take it over one
+cacheline, and that is a noticeable slowdown for hot users of kiocb. Hence
+this was re-architected to store it in the per-task io_uring structure
+instead. Only real downside of that imho is that we need calls to get it,
+and that it's obviously then io_uring specific rather than being able to
+have multiple users of this. The latter I don't consider a big problem, as
+nobody else supports async polled IO anyway.
 
-There are scripts for convenience, e.g. you can run all tests once with
+The tldr; here is that we get about a 10% bump in polled performance with
+this patchset, as we can recycle bio structures essentially for free.
+Outside of that, explanations in each patch. I've also got an iomap patch,
+but trying to keep this single user until there's agreement on the
+direction.
 
-`make runtests`
+Against for-5.15/io_uring, and can also be found in my
+io_uring-bio-cache.2 branch.
 
-or even better to leave them for a while executing again and again:
-
-`make runtests-loop`
+ block/bio.c              | 126 +++++++++++++++++++++++++++++++++++----
+ fs/block_dev.c           |  30 ++++++++--
+ fs/io_uring.c            |  52 ++++++++++++++++
+ include/linux/bio.h      |  24 ++++++--
+ include/linux/fs.h       |   2 +
+ include/linux/io_uring.h |   7 +++
+ 6 files changed, 221 insertions(+), 20 deletions(-)
 
 -- 
-Pavel Begunkov
+Jens Axboe
+
+

@@ -2,151 +2,71 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 00F1AC4320A
-	for <io-uring@archiver.kernel.org>; Mon,  9 Aug 2021 21:24:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id ABF42C4338F
+	for <io-uring@archiver.kernel.org>; Mon,  9 Aug 2021 21:24:19 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D241760EB9
-	for <io-uring@archiver.kernel.org>; Mon,  9 Aug 2021 21:24:15 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8FE8D60EE7
+	for <io-uring@archiver.kernel.org>; Mon,  9 Aug 2021 21:24:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236420AbhHIVYf (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Mon, 9 Aug 2021 17:24:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55924 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236421AbhHIVYf (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Mon, 9 Aug 2021 17:24:35 -0400
-Received: from mail-pj1-x1035.google.com (mail-pj1-x1035.google.com [IPv6:2607:f8b0:4864:20::1035])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 742EBC061799
-        for <io-uring@vger.kernel.org>; Mon,  9 Aug 2021 14:24:12 -0700 (PDT)
-Received: by mail-pj1-x1035.google.com with SMTP id j1so30027250pjv.3
-        for <io-uring@vger.kernel.org>; Mon, 09 Aug 2021 14:24:12 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=dyOLwIAyn5igot9fdJEMYSDMYL7Dq8yEvViQYaBuv5Q=;
-        b=IgN38Ju83GTulvCvZYlk1tCmOLuq05ZnrXLyiM9cJpOx72VXo8vLggCiEjPzdjwgyD
-         mMK7Lct7hKsJ/9DeBUZkREk9FHfFpCUr77ggNxRruqvvZ4qbGG6Bt5NbSI/8AvjN+lsD
-         7DlNNRZMiSIZboSKJdB46Lk6VuIvJ8D/yY1x6ajWlTDv1lyKY0e52sAZDh9GjmZn5d9X
-         S2zhHWdkcPKHSIdk8OT/QtCUFD4xvU3VyyZhgnonWJv2jzZEX6KXZYTft+GnfFxn4mCi
-         2hIadd1fFXCXYRljE3GILzNYvjMtdV6g6PhSoJG9kDpUkJFogd08mLnucB5oubB0dmNE
-         nG+g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=dyOLwIAyn5igot9fdJEMYSDMYL7Dq8yEvViQYaBuv5Q=;
-        b=PQFjywCfJUjWAZJbhII4mlV8r9hbYmdHNc8wh89BcaUbxP9j8btTbIgEQOL0CQP9jZ
-         4dhOc4aPzPPm2LWacm5jaR8ZC1os8Qc0O5rnuXu6ZoTBshNa62seP72giXm5dK3N+CBV
-         9BtcjIG7K5wxb0ruz0TyE/PFwLRv2Kc4hwqeJg4sDjaAe10rsKdTn9HasguSHFC0M4eC
-         YkKXI2++4xG7+Z0HQ4XEthJEuMSj6+YQhEYhfcggELVs3D3m5TBmPoBZyG+9+2ZKwxZ3
-         gbUgoAORdNSNj4QfLbu3NT9uLJZXZ5eIzVRkFTzIlmu2ugQdPHdsHCCw7YMkfhENd14V
-         zxoQ==
-X-Gm-Message-State: AOAM530kt2WGUZLsLVbsFX7W1/0gUPrSEh9zmE7yXjGEFv065/r5DHGp
-        xYJEP8+hUgXogpsdCzuBVpsuoL4XEf5GcMBo
-X-Google-Smtp-Source: ABdhPJwsQKrvh7BBLMHgl6EZA+imD4LOvABq2HSlJV/q66inXi4kN9VHm6P7KHtJsfNePIQmLfyH3A==
-X-Received: by 2002:a17:90a:6541:: with SMTP id f1mr1114982pjs.184.1628544251710;
-        Mon, 09 Aug 2021 14:24:11 -0700 (PDT)
-Received: from localhost.localdomain ([198.8.77.61])
-        by smtp.gmail.com with ESMTPSA id m16sm439885pjz.30.2021.08.09.14.24.10
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 09 Aug 2021 14:24:11 -0700 (PDT)
-From:   Jens Axboe <axboe@kernel.dk>
-To:     io-uring@vger.kernel.org
-Cc:     linux-block@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 4/4] block: enable use of bio allocation cache
-Date:   Mon,  9 Aug 2021 15:24:01 -0600
-Message-Id: <20210809212401.19807-5-axboe@kernel.dk>
-X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210809212401.19807-1-axboe@kernel.dk>
-References: <20210809212401.19807-1-axboe@kernel.dk>
+        id S234772AbhHIVYj (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Mon, 9 Aug 2021 17:24:39 -0400
+Received: from cloud48395.mywhc.ca ([173.209.37.211]:37728 "EHLO
+        cloud48395.mywhc.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234584AbhHIVYi (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Mon, 9 Aug 2021 17:24:38 -0400
+X-Greylist: delayed 3916 seconds by postgrey-1.27 at vger.kernel.org; Mon, 09 Aug 2021 17:24:38 EDT
+Received: from modemcable064.203-130-66.mc.videotron.ca ([66.130.203.64]:54428 helo=[192.168.1.179])
+        by cloud48395.mywhc.ca with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.94.2)
+        (envelope-from <olivier@olivierlanglois.net>)
+        id 1mDBjg-0002K4-PT; Mon, 09 Aug 2021 16:19:00 -0400
+Message-ID: <a7a07d78e8a24612c7afd4ada4a05d462798fb8b.camel@olivierlanglois.net>
+Subject: Re: [PATCH 2/3] io-wq: fix no lock protection of acct->nr_worker
+From:   Olivier Langlois <olivier@olivierlanglois.net>
+To:     Jens Axboe <axboe@kernel.dk>, Hao Xu <haoxu@linux.alibaba.com>
+Cc:     io-uring <io-uring@vger.kernel.org>,
+        Pavel Begunkov <asml.silence@gmail.com>,
+        Joseph Qi <joseph.qi@linux.alibaba.com>
+Date:   Mon, 09 Aug 2021 16:19:00 -0400
+In-Reply-To: <5f4b7861-de78-8b45-644f-3a9efe3af964@kernel.dk>
+References: <20210805100538.127891-1-haoxu@linux.alibaba.com>
+         <20210805100538.127891-3-haoxu@linux.alibaba.com>
+         <cc9e61da-6591-c257-6899-d2afa037b2ad@kernel.dk>
+         <1f795e93-c137-439e-b02c-b460cb38bb14@linux.alibaba.com>
+         <5f4b7861-de78-8b45-644f-3a9efe3af964@kernel.dk>
+Content-Type: text/plain; charset="ISO-8859-1"
+User-Agent: Evolution 3.40.3 
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - cloud48395.mywhc.ca
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - olivierlanglois.net
+X-Get-Message-Sender-Via: cloud48395.mywhc.ca: authenticated_id: olivier@olivierlanglois.net
+X-Authenticated-Sender: cloud48395.mywhc.ca: olivier@olivierlanglois.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-If a kiocb is marked as being valid for bio caching, then use that to
-allocate a (and free) new bio if possible.
+On Sat, 2021-08-07 at 07:51 -0600, Jens Axboe wrote:
+> 
+> Please do - and please always run the full set of tests before
+> sending
+> out changes like this, you would have seen the slower runs and/or
+> timeouts from the regression suite. I ended up wasting time on this
+> thinking it was a change I made that broke it, before then debugging
+> this one.
+> 
+Jens,
 
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
----
- fs/block_dev.c | 30 ++++++++++++++++++++++++++----
- 1 file changed, 26 insertions(+), 4 deletions(-)
+for my personal info, where is the regression suite?
 
-diff --git a/fs/block_dev.c b/fs/block_dev.c
-index 9ef4f1fc2cb0..36a3d53326c0 100644
---- a/fs/block_dev.c
-+++ b/fs/block_dev.c
-@@ -327,6 +327,14 @@ static int blkdev_iopoll(struct kiocb *kiocb, bool wait)
- 	return blk_poll(q, READ_ONCE(kiocb->ki_cookie), wait);
- }
- 
-+static void dio_bio_put(struct blkdev_dio *dio)
-+{
-+	if (!dio->is_sync && (dio->iocb->ki_flags & IOCB_ALLOC_CACHE))
-+		bio_cache_put(&dio->bio);
-+	else
-+		bio_put(&dio->bio);
-+}
-+
- static void blkdev_bio_end_io(struct bio *bio)
- {
- 	struct blkdev_dio *dio = bio->bi_private;
-@@ -362,7 +370,7 @@ static void blkdev_bio_end_io(struct bio *bio)
- 		bio_check_pages_dirty(bio);
- 	} else {
- 		bio_release_pages(bio, false);
--		bio_put(bio);
-+		dio_bio_put(dio);
- 	}
- }
- 
-@@ -385,7 +393,14 @@ static ssize_t __blkdev_direct_IO(struct kiocb *iocb, struct iov_iter *iter,
- 	    (bdev_logical_block_size(bdev) - 1))
- 		return -EINVAL;
- 
--	bio = bio_alloc_bioset(GFP_KERNEL, nr_pages, &blkdev_dio_pool);
-+	bio = NULL;
-+	if (iocb->ki_flags & IOCB_ALLOC_CACHE) {
-+		bio = bio_cache_get(GFP_KERNEL, nr_pages, &blkdev_dio_pool);
-+		if (!bio)
-+			iocb->ki_flags &= ~IOCB_ALLOC_CACHE;
-+	}
-+	if (!bio)
-+		bio = bio_alloc_bioset(GFP_KERNEL, nr_pages, &blkdev_dio_pool);
- 
- 	dio = container_of(bio, struct blkdev_dio, bio);
- 	dio->is_sync = is_sync = is_sync_kiocb(iocb);
-@@ -467,7 +482,14 @@ static ssize_t __blkdev_direct_IO(struct kiocb *iocb, struct iov_iter *iter,
- 		}
- 
- 		submit_bio(bio);
--		bio = bio_alloc(GFP_KERNEL, nr_pages);
-+		bio = NULL;
-+		if (iocb->ki_flags & IOCB_ALLOC_CACHE) {
-+			bio = bio_cache_get(GFP_KERNEL, nr_pages, &fs_bio_set);
-+			if (!bio)
-+				iocb->ki_flags &= ~IOCB_ALLOC_CACHE;
-+		}
-+		if (!bio)
-+			bio = bio_alloc(GFP_KERNEL, nr_pages);
- 	}
- 
- 	if (!is_poll)
-@@ -492,7 +514,7 @@ static ssize_t __blkdev_direct_IO(struct kiocb *iocb, struct iov_iter *iter,
- 	if (likely(!ret))
- 		ret = dio->size;
- 
--	bio_put(&dio->bio);
-+	dio_bio_put(dio);
- 	return ret;
- }
- 
--- 
-2.32.0
 

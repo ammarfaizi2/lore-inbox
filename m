@@ -8,59 +8,59 @@ X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DCA6AC4320E
-	for <io-uring@archiver.kernel.org>; Mon,  9 Aug 2021 12:05:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 32F94C4338F
+	for <io-uring@archiver.kernel.org>; Mon,  9 Aug 2021 12:05:17 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id BC1B560F02
-	for <io-uring@archiver.kernel.org>; Mon,  9 Aug 2021 12:05:15 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 104A360F02
+	for <io-uring@archiver.kernel.org>; Mon,  9 Aug 2021 12:05:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235336AbhHIMFf (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Mon, 9 Aug 2021 08:05:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40382 "EHLO
+        id S235338AbhHIMFg (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Mon, 9 Aug 2021 08:05:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40402 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235346AbhHIMFd (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Mon, 9 Aug 2021 08:05:33 -0400
-Received: from mail-wr1-x430.google.com (mail-wr1-x430.google.com [IPv6:2a00:1450:4864:20::430])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 31D9FC061796
-        for <io-uring@vger.kernel.org>; Mon,  9 Aug 2021 05:05:13 -0700 (PDT)
-Received: by mail-wr1-x430.google.com with SMTP id h14so21061980wrx.10
-        for <io-uring@vger.kernel.org>; Mon, 09 Aug 2021 05:05:13 -0700 (PDT)
+        with ESMTP id S235344AbhHIMFg (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Mon, 9 Aug 2021 08:05:36 -0400
+Received: from mail-wr1-x42f.google.com (mail-wr1-x42f.google.com [IPv6:2a00:1450:4864:20::42f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD4E6C061796
+        for <io-uring@vger.kernel.org>; Mon,  9 Aug 2021 05:05:15 -0700 (PDT)
+Received: by mail-wr1-x42f.google.com with SMTP id f5so5304889wrm.13
+        for <io-uring@vger.kernel.org>; Mon, 09 Aug 2021 05:05:15 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=d/ainzYIqr2AEsDsFByo+OJGXjhLoeYNzhpdZyqP+IM=;
-        b=Glw/TzigX/7aJLvmYdHXvIu/ohVTW1h/pCodi+qfiGqqsFkJGTNyILISCXcxKwR1D7
-         EFp3v0kzgLZOVN91jgaSbKQUAg3DF7VaCfWOouwuQeUxYWAIAtBH7h8Tej9/QwgRvPFw
-         VPBP31ABxEsWu5Rre/03/wgdZju6FuaNMNqaowdl03ZdxPLnNW/OKZ9tg216iGc3B0o6
-         MZRrFjzzLicDvXVWFxhwMdmRIAP7ycWOg6dw//gXi79HyMHlMIiS+LUvm89g7e3n5oaH
-         GB1aKcAtw0cTSX/eydk3dUfh9nxqGvWs4AZjWn8LFudrzlX4gUaC4kTbO8VP23gEWh3q
-         lE9A==
+        bh=XKaossVkwUeIhI9Bc1FJaN2Dz3h1CCVq2L+SYub7w6M=;
+        b=mwgBqR8OZOc6PXS+JEqFHQdKANgq+6M9M4GaSAFSnj0O4Jhgu0SQDNDSEui1REqhbc
+         c1oMB8evsr9DNDfK2qSpAtXefH6z/HeyEbrCFoIWc37J5lV1AC1fqwUAE/h7aAa//IGH
+         MLe1FG0ubpnZJXfgv0mmtxuvUKOmJombVaBhtVQPSzmH+SthkLGvWKhgNaD7v3uZgcoe
+         ZZBRNmhZ+Uxnl+wTMz5hJw0Dq5Uk+Pnh0VwH8KRBqG88WtT4M+zRWvmoGTz2ia6zV4zO
+         R5xur8VleQVMLoXhSVD/SXBw2o6CQUJ9hTd6jnU3p0UNJ+dzplE9AH6UAxBhzyUAo3te
+         4VBA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=d/ainzYIqr2AEsDsFByo+OJGXjhLoeYNzhpdZyqP+IM=;
-        b=AzskzC8+NoBev6OFBXwGaklRETG5K1ePUXIboXzZ0Pzwarp/lucrrQuD3RjL3FA4JP
-         Mi5WwyGKmECOuzkwnHumm4eb9wgzcARAlx3nxewjkUAxQ0YARh5cRnph8g1JTuxrl396
-         jrJBn92qVw7alMjiYLWE1hNSauci6waGg74SdxuIolloKLSYMxZfC9inz/FuCwzRPyth
-         vP+OO9xEAiiM3naJlWTbN2FoEoJSYVrgr7BMcZe036idvjQ9iPt05hwbbKSb70EGonGB
-         PbBRzlmOcmou+IqYohxCUXOLPUujNG8MXhMc3zQXIB9LXuHCAOHGgXjhTU+21zycYNYk
-         1urA==
-X-Gm-Message-State: AOAM532ibSLNLsJ7W/5eOkG7i0uLQ5Td85VobLjTRnTrYrX1dKH96p5d
-        CAkqfe8NbaksGHtqt2v1fD8=
-X-Google-Smtp-Source: ABdhPJwLST3ZNl2Nvubn9l1tSSpK55+wbT5kA5L4x2Hfm0h5upYpK4eJJhvpbItX0JV7uOF6alR+Og==
-X-Received: by 2002:adf:cd92:: with SMTP id q18mr25033063wrj.18.1628510711885;
-        Mon, 09 Aug 2021 05:05:11 -0700 (PDT)
+        bh=XKaossVkwUeIhI9Bc1FJaN2Dz3h1CCVq2L+SYub7w6M=;
+        b=pMd14ZSf6x5MWKTdngvbI81Lv4Q7LhuJlVujmzDTHYsBz+9amz+NFHk5oMhbGwxySp
+         FJozl9V10ljEnpYCi1/sh0B6+gPRjFW+pFlOBsmiIOT2qJxUJiCr5OeG7gKvwAvwc20M
+         0OBPURnNp494m88WrY/QdFZxz/u92VUaCFJwZRX8d1NlZfLtLnH22+RB3li/b+70TWVH
+         S6AJE7Nmvs50glqYGjA9uScqj64ZPSk6KHa0GLuzLmfBApKs0VMYMV0zaVLRMTkGNfTx
+         d529iklW3GmQ2mVkXQRojPx1CKLhc9z0prsTsHTnoVeWZbFciS13trz+mu84femA1b2y
+         lecg==
+X-Gm-Message-State: AOAM530za1/RyJz98eMQuEEJlzUXzok+C72nX/IqM3vxBilbREAgYHnd
+        hLRiph56d7lR+l6AOOQo5MA=
+X-Google-Smtp-Source: ABdhPJzyyaZDdZR1ttvNtcYSZaV9IqLS6oTimNwAr8SWfGQdXAMJ1uoOTut/DhYLDAKifX+AVxwCBQ==
+X-Received: by 2002:a5d:444e:: with SMTP id x14mr24427772wrr.385.1628510714408;
+        Mon, 09 Aug 2021 05:05:14 -0700 (PDT)
 Received: from localhost.localdomain ([85.255.236.119])
-        by smtp.gmail.com with ESMTPSA id g35sm4757062wmp.9.2021.08.09.05.05.11
+        by smtp.gmail.com with ESMTPSA id g35sm4757062wmp.9.2021.08.09.05.05.13
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 09 Aug 2021 05:05:11 -0700 (PDT)
+        Mon, 09 Aug 2021 05:05:14 -0700 (PDT)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH 09/28] io_uring: don't halt iopoll too early
-Date:   Mon,  9 Aug 2021 13:04:09 +0100
-Message-Id: <641a88f751623b6758303b3171f0a4141f06726e.1628471125.git.asml.silence@gmail.com>
+Subject: [PATCH 12/28] io_uring: extract a helper for ctx quiesce
+Date:   Mon,  9 Aug 2021 13:04:12 +0100
+Message-Id: <0339e0027504176be09237eefa7945bf9a6f153d.1628471125.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <cover.1628471125.git.asml.silence@gmail.com>
 References: <cover.1628471125.git.asml.silence@gmail.com>
@@ -70,71 +70,87 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-IOPOLL users should care more about getting completions for requests
-they submitted, but not in "device did/completed something". Currently,
-io_do_iopoll() may return a positive number, which will instruct
-io_iopoll_check() to break the loop and end the syscall, even if there
-is not enough CQEs or none at all.
-
-Don't return positive numbers, so io_iopoll_check() exits only when it
-gets an actual error, need reschedule or got enough CQEs.
+Refactor __io_uring_register() by extracting a helper responsible for
+ctx queisce. Looks better and will make it easier to add more
+optimisations.
 
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
- fs/io_uring.c | 15 ++++++---------
- 1 file changed, 6 insertions(+), 9 deletions(-)
+ fs/io_uring.c | 53 ++++++++++++++++++++++++++++-----------------------
+ 1 file changed, 29 insertions(+), 24 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 80d7f79db911..911a223a90e1 100644
+index 0fd04d25c520..292dbf10e316 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -2285,7 +2285,6 @@ static int io_do_iopoll(struct io_ring_ctx *ctx, unsigned int *nr_events,
- 	struct io_kiocb *req, *tmp;
- 	LIST_HEAD(done);
- 	bool spin;
--	int ret;
- 
- 	/*
- 	 * Only spin for completions if we don't have multiple devices hanging
-@@ -2293,9 +2292,9 @@ static int io_do_iopoll(struct io_ring_ctx *ctx, unsigned int *nr_events,
- 	 */
- 	spin = !ctx->poll_multi_queue && *nr_events < min;
- 
--	ret = 0;
- 	list_for_each_entry_safe(req, tmp, &ctx->iopoll_list, inflight_entry) {
- 		struct kiocb *kiocb = &req->rw.kiocb;
-+		int ret;
- 
- 		/*
- 		 * Move completed and retryable entries to our local lists.
-@@ -2310,22 +2309,20 @@ static int io_do_iopoll(struct io_ring_ctx *ctx, unsigned int *nr_events,
- 			break;
- 
- 		ret = kiocb->ki_filp->f_op->iopoll(kiocb, spin);
--		if (ret < 0)
--			break;
-+		if (unlikely(ret < 0))
-+			return ret;
-+		else if (ret)
-+			spin = false;
- 
- 		/* iopoll may have completed current req */
- 		if (READ_ONCE(req->iopoll_completed))
- 			list_move_tail(&req->inflight_entry, &done);
--
--		if (ret && spin)
--			spin = false;
--		ret = 0;
+@@ -10077,6 +10077,33 @@ static bool io_register_op_must_quiesce(int op)
  	}
- 
- 	if (!list_empty(&done))
- 		io_iopoll_complete(ctx, nr_events, &done, resubmit);
- 
--	return ret;
-+	return 0;
  }
  
- /*
++static int io_ctx_quiesce(struct io_ring_ctx *ctx)
++{
++	long ret;
++
++	percpu_ref_kill(&ctx->refs);
++
++	/*
++	 * Drop uring mutex before waiting for references to exit. If another
++	 * thread is currently inside io_uring_enter() it might need to grab the
++	 * uring_lock to make progress. If we hold it here across the drain
++	 * wait, then we can deadlock. It's safe to drop the mutex here, since
++	 * no new references will come in after we've killed the percpu ref.
++	 */
++	mutex_unlock(&ctx->uring_lock);
++	do {
++		ret = wait_for_completion_interruptible(&ctx->ref_comp);
++		if (!ret)
++			break;
++		ret = io_run_task_work_sig();
++	} while (ret >= 0);
++	mutex_lock(&ctx->uring_lock);
++
++	if (ret)
++		io_refs_resurrect(&ctx->refs, &ctx->ref_comp);
++	return ret;
++}
++
+ static int __io_uring_register(struct io_ring_ctx *ctx, unsigned opcode,
+ 			       void __user *arg, unsigned nr_args)
+ 	__releases(ctx->uring_lock)
+@@ -10101,31 +10128,9 @@ static int __io_uring_register(struct io_ring_ctx *ctx, unsigned opcode,
+ 	}
+ 
+ 	if (io_register_op_must_quiesce(opcode)) {
+-		percpu_ref_kill(&ctx->refs);
+-
+-		/*
+-		 * Drop uring mutex before waiting for references to exit. If
+-		 * another thread is currently inside io_uring_enter() it might
+-		 * need to grab the uring_lock to make progress. If we hold it
+-		 * here across the drain wait, then we can deadlock. It's safe
+-		 * to drop the mutex here, since no new references will come in
+-		 * after we've killed the percpu ref.
+-		 */
+-		mutex_unlock(&ctx->uring_lock);
+-		do {
+-			ret = wait_for_completion_interruptible(&ctx->ref_comp);
+-			if (!ret)
+-				break;
+-			ret = io_run_task_work_sig();
+-			if (ret < 0)
+-				break;
+-		} while (1);
+-		mutex_lock(&ctx->uring_lock);
+-
+-		if (ret) {
+-			io_refs_resurrect(&ctx->refs, &ctx->ref_comp);
++		ret = io_ctx_quiesce(ctx);
++		if (ret)
+ 			return ret;
+-		}
+ 	}
+ 
+ 	switch (opcode) {
 -- 
 2.32.0
 

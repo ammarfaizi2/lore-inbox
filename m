@@ -8,59 +8,59 @@ X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 71D65C432BE
-	for <io-uring@archiver.kernel.org>; Mon,  9 Aug 2021 12:05:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4FB59C43214
+	for <io-uring@archiver.kernel.org>; Mon,  9 Aug 2021 12:05:16 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 573D060F02
-	for <io-uring@archiver.kernel.org>; Mon,  9 Aug 2021 12:05:15 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3454160F02
+	for <io-uring@archiver.kernel.org>; Mon,  9 Aug 2021 12:05:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235349AbhHIMFd (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Mon, 9 Aug 2021 08:05:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40378 "EHLO
+        id S235343AbhHIMFf (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Mon, 9 Aug 2021 08:05:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40392 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235342AbhHIMFc (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Mon, 9 Aug 2021 08:05:32 -0400
-Received: from mail-wr1-x429.google.com (mail-wr1-x429.google.com [IPv6:2a00:1450:4864:20::429])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48141C0613D3
-        for <io-uring@vger.kernel.org>; Mon,  9 Aug 2021 05:05:12 -0700 (PDT)
-Received: by mail-wr1-x429.google.com with SMTP id m12so21076725wru.12
-        for <io-uring@vger.kernel.org>; Mon, 09 Aug 2021 05:05:12 -0700 (PDT)
+        with ESMTP id S235357AbhHIMFe (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Mon, 9 Aug 2021 08:05:34 -0400
+Received: from mail-wr1-x436.google.com (mail-wr1-x436.google.com [IPv6:2a00:1450:4864:20::436])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2BDFEC061799
+        for <io-uring@vger.kernel.org>; Mon,  9 Aug 2021 05:05:14 -0700 (PDT)
+Received: by mail-wr1-x436.google.com with SMTP id q11so2882134wrr.9
+        for <io-uring@vger.kernel.org>; Mon, 09 Aug 2021 05:05:14 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=GJeixBekq7Lrn568rXpE1ZEzomJ3HEd99esapdptNaA=;
-        b=qIpd+VIzTeOuJotd6ANezBI4DM8lZTMawzlXBidf4VfkeO5TdYOhiDqRCK8JpimB92
-         CzlPFQp0+kDuZSa++KmCh0VFsmD29yoGhK+7e/dVceUZNZzjET6tU5u/gffVdxOWCDPx
-         KC3JOoaazN0Mpn56kAPmausGSOJT8cSv13K6cSRCRzF68hnS8kcT95McK0vUH1RgAZ76
-         v4coCubOyNx4hdRthJj6FLeJddLsgUS5tgwr8w7I6xZaBLFxqFVVzQbk7mxbDspoNANF
-         S2Or8a+UYjt+QhjMUBFT8I3JumIu654OZ8Hsbr7mEhKHIRr67fluCsxrGyL+iJ4hm2L4
-         8Xlw==
+        bh=+UDE8Me2G4AnNaP6tSvTLjQ5UK1nsABeKMQTiszlmDM=;
+        b=bC27VRatrFXNSFlLkdCQvK2dzoO1TE+L/R/nLUjKf4/P57xJu7u7sf4iHxwu0nx6pF
+         nkvLmL0tmkGc/HtOMIRf9K+Fw1ycRVZHzbblL9cny2NfvsryFlYXtdUNlnuhdyGnvaTO
+         RNRAK+foYgaHIRTOItQgKMkNTk8vbQ24FD9XMmTwyCpJKeIzk6HLxCM82BMtzog2UXmn
+         9yz1XgiLdhRTNAjvmYt1JMecb0OMrBV1J+YfPn7NDHpzCZTNXjX1+uxDD+7bfVk/K72j
+         Y2DTwssE+/rKoMkaJVWjnX1lgLDBZnLIqR2vCcg3/TBDu2bITySSvyqBnef9GNpwd8p9
+         ykZw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=GJeixBekq7Lrn568rXpE1ZEzomJ3HEd99esapdptNaA=;
-        b=cMaJoOdTAorpwOqf+WRyMHAJfEnTnOeQnwcDbuKHz1xm7mJjWQGxCeqrfOXoaG0/+d
-         7AvuW35bjmr1AKYM/JrhSLHZHsY4K1eNKeLnpFwcKGeY1BKEWV1XOYgKck4becMMb8qH
-         ft1uHSZ8AC5AL3wQHhXEEwYltj99yxs8DlaO8hibPTMCqg49NbLUN9BtvL8IGJS6bC18
-         0Y50Mc/v5i1EbH+QD7nffvOLnvtlajuUwgnpiNFCWBE89HvqsNtTTl5JvLfOCHgce4EA
-         t1h8sCqs5ycJ1nnKs2tiLYzqdUbIBSM9xhygdOuwpVOPHJ0T2WCqtB6RbEC8r6B5xPdg
-         N8Kg==
-X-Gm-Message-State: AOAM533Ipo0uoL/5yrtxU3shAfKaGHhJIUiNtZ/jcv1FuErsyZOot62j
-        o+dK/yS68je8CEX/miR70mM=
-X-Google-Smtp-Source: ABdhPJyiQwjYbcBSG5jnaq5jqXvu34Ll4z+RJixgjfetqHOXqA7mdCK1Y/pumk8vfVUwe3PqY78jVw==
-X-Received: by 2002:adf:f90e:: with SMTP id b14mr22965434wrr.28.1628510710889;
-        Mon, 09 Aug 2021 05:05:10 -0700 (PDT)
+        bh=+UDE8Me2G4AnNaP6tSvTLjQ5UK1nsABeKMQTiszlmDM=;
+        b=bKrIyFCSEbd3EO6VuegtmysF+hdH4Z8OcrASUm0eRV+5pxVJ1mNOqLuN8mANJt+ebO
+         F5CE4+IFAGKnSEJ0cJ9iAEBZfwwWh7GIrKgG8r0w+n0J0sWNZt1fDjXPVGmwnGtaiHQS
+         N3wRnmnOCcj1TA7SSC1iztmc/dgW692m+0OEqFup4mDmCXoWv7Rad1yNsH782uHUp8sC
+         ISG3ZM5Uw1w9Y1XQVVixjCMDqk1jpDtwiJd4lIXQYjJO0fGY99GucxQFAZp8+LXjJmic
+         8CV6qarT65N6evNZ4z4XfBYOb+I+okecnswG4E3H9SUXZVto1QDV9MOnMeElqAUQqdT2
+         SZ5w==
+X-Gm-Message-State: AOAM533U5IhATa4tngk/aqkZPHbXWg1+Z+X7dUjgJLJkRmks4VEljcf9
+        TODUUdSS2gXe40OKNtw87hbqUVQyE1Q=
+X-Google-Smtp-Source: ABdhPJzWlhpAojKoVV84dRKei3RfQmocoHDjFXD/ikMCU7lhANOb+JaAzF6fMIX5H/TM8IAF0Jt8TA==
+X-Received: by 2002:adf:ed51:: with SMTP id u17mr24291165wro.416.1628510712843;
+        Mon, 09 Aug 2021 05:05:12 -0700 (PDT)
 Received: from localhost.localdomain ([85.255.236.119])
-        by smtp.gmail.com with ESMTPSA id g35sm4757062wmp.9.2021.08.09.05.05.10
+        by smtp.gmail.com with ESMTPSA id g35sm4757062wmp.9.2021.08.09.05.05.12
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 09 Aug 2021 05:05:10 -0700 (PDT)
+        Mon, 09 Aug 2021 05:05:12 -0700 (PDT)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH 08/28] io_uring: refactor io_alloc_req
-Date:   Mon,  9 Aug 2021 13:04:08 +0100
-Message-Id: <1abcba1f7b55dc53bf1dbe95036e345ffb1d5b01.1628471125.git.asml.silence@gmail.com>
+Subject: [PATCH 10/28] io_uring: add more locking annotations for submit
+Date:   Mon,  9 Aug 2021 13:04:10 +0100
+Message-Id: <128ec4185e26fbd661dd3a424aa66108ee8ff951.1628471125.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <cover.1628471125.git.asml.silence@gmail.com>
 References: <cover.1628471125.git.asml.silence@gmail.com>
@@ -70,112 +70,65 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Replace the main if of io_flush_cached_reqs() with inverted condition +
-goto, so all the cases are handled in the same way. And also extract
-io_preinit_req() to make it cleaner and easier to refer to.
+Add more annotations for submission path functions holding ->uring_lock.
 
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
- fs/io_uring.c | 66 +++++++++++++++++++++++++--------------------------
- 1 file changed, 33 insertions(+), 33 deletions(-)
+ fs/io_uring.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index ba1df6ae6024..80d7f79db911 100644
+index 911a223a90e1..0f49736cd2b4 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -1699,6 +1699,19 @@ static void io_req_complete_failed(struct io_kiocb *req, long res)
- 	io_req_complete_post(req, res, 0);
+@@ -2130,6 +2130,7 @@ static void io_req_free_batch(struct req_batch *rb, struct io_kiocb *req,
  }
  
-+/*
-+ * Don't initialise the fields below on every allocation, but do that in
-+ * advance and keep them valid across allocations.
-+ */
-+static void io_preinit_req(struct io_kiocb *req, struct io_ring_ctx *ctx)
-+{
-+	req->ctx = ctx;
-+	req->link = NULL;
-+	req->async_data = NULL;
-+	/* not necessary, but safer to zero */
-+	req->result = 0;
-+}
-+
- static void io_flush_cached_locked_reqs(struct io_ring_ctx *ctx,
- 					struct io_comp_state *cs)
+ static void io_submit_flush_completions(struct io_ring_ctx *ctx)
++	__must_hold(&req->ctx->uring_lock)
  {
-@@ -1741,45 +1754,31 @@ static bool io_flush_cached_reqs(struct io_ring_ctx *ctx)
- static struct io_kiocb *io_alloc_req(struct io_ring_ctx *ctx)
+ 	struct io_comp_state *cs = &ctx->submit_state.comp;
+ 	int i, nr = cs->nr;
+@@ -6474,6 +6475,7 @@ static struct io_kiocb *io_prep_linked_timeout(struct io_kiocb *req)
+ }
+ 
+ static void __io_queue_sqe(struct io_kiocb *req)
++	__must_hold(&req->ctx->uring_lock)
  {
- 	struct io_submit_state *state = &ctx->submit_state;
-+	gfp_t gfp = GFP_KERNEL | __GFP_NOWARN;
-+	int ret, i;
+ 	struct io_kiocb *linked_timeout = io_prep_linked_timeout(req);
+ 	int ret;
+@@ -6517,6 +6519,7 @@ static void __io_queue_sqe(struct io_kiocb *req)
+ }
  
- 	BUILD_BUG_ON(ARRAY_SIZE(state->reqs) < IO_REQ_ALLOC_BATCH);
+ static inline void io_queue_sqe(struct io_kiocb *req)
++	__must_hold(&req->ctx->uring_lock)
+ {
+ 	if (unlikely(req->ctx->drain_active) && io_drain_req(req))
+ 		return;
+@@ -6561,6 +6564,7 @@ static inline bool io_check_restriction(struct io_ring_ctx *ctx,
  
--	if (!state->free_reqs) {
--		gfp_t gfp = GFP_KERNEL | __GFP_NOWARN;
--		int ret, i;
--
--		if (io_flush_cached_reqs(ctx))
--			goto got_req;
--
--		ret = kmem_cache_alloc_bulk(req_cachep, gfp, IO_REQ_ALLOC_BATCH,
--					    state->reqs);
--
--		/*
--		 * Bulk alloc is all-or-nothing. If we fail to get a batch,
--		 * retry single alloc to be on the safe side.
--		 */
--		if (unlikely(ret <= 0)) {
--			state->reqs[0] = kmem_cache_alloc(req_cachep, gfp);
--			if (!state->reqs[0])
--				return NULL;
--			ret = 1;
--		}
-+	if (likely(state->free_reqs || io_flush_cached_reqs(ctx)))
-+		goto got_req;
- 
--		/*
--		 * Don't initialise the fields below on every allocation, but
--		 * do that in advance and keep valid on free.
--		 */
--		for (i = 0; i < ret; i++) {
--			struct io_kiocb *req = state->reqs[i];
-+	ret = kmem_cache_alloc_bulk(req_cachep, gfp, IO_REQ_ALLOC_BATCH,
-+				    state->reqs);
- 
--			req->ctx = ctx;
--			req->link = NULL;
--			req->async_data = NULL;
--			/* not necessary, but safer to zero */
--			req->result = 0;
--		}
--		state->free_reqs = ret;
-+	/*
-+	 * Bulk alloc is all-or-nothing. If we fail to get a batch,
-+	 * retry single alloc to be on the safe side.
-+	 */
-+	if (unlikely(ret <= 0)) {
-+		state->reqs[0] = kmem_cache_alloc(req_cachep, gfp);
-+		if (!state->reqs[0])
-+			return NULL;
-+		ret = 1;
- 	}
-+
-+	for (i = 0; i < ret; i++)
-+		io_preinit_req(state->reqs[i], ctx);
-+	state->free_reqs = ret;
- got_req:
- 	state->free_reqs--;
- 	return state->reqs[state->free_reqs];
-@@ -6570,6 +6569,7 @@ static int io_init_req(struct io_ring_ctx *ctx, struct io_kiocb *req,
+ static int io_init_req(struct io_ring_ctx *ctx, struct io_kiocb *req,
+ 		       const struct io_uring_sqe *sqe)
++	__must_hold(&ctx->uring_lock)
+ {
+ 	struct io_submit_state *state;
  	unsigned int sqe_flags;
- 	int personality, ret = 0;
+@@ -6624,6 +6628,7 @@ static int io_init_req(struct io_ring_ctx *ctx, struct io_kiocb *req,
  
-+	/* req is partially pre-initialised, see io_preinit_req() */
- 	req->opcode = READ_ONCE(sqe->opcode);
- 	/* same numerical values with corresponding REQ_F_*, safe to copy */
- 	req->flags = sqe_flags = READ_ONCE(sqe->flags);
+ static int io_submit_sqe(struct io_ring_ctx *ctx, struct io_kiocb *req,
+ 			 const struct io_uring_sqe *sqe)
++	__must_hold(&ctx->uring_lock)
+ {
+ 	struct io_submit_link *link = &ctx->submit_state.link;
+ 	int ret;
+@@ -6756,6 +6761,7 @@ static const struct io_uring_sqe *io_get_sqe(struct io_ring_ctx *ctx)
+ }
+ 
+ static int io_submit_sqes(struct io_ring_ctx *ctx, unsigned int nr)
++	__must_hold(&ctx->uring_lock)
+ {
+ 	struct io_uring_task *tctx;
+ 	int submitted = 0;
 -- 
 2.32.0
 

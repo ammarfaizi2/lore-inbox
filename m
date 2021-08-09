@@ -2,131 +2,96 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+X-Spam-Status: No, score=-10.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C10BCC432BE
-	for <io-uring@archiver.kernel.org>; Mon,  9 Aug 2021 19:19:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2C4E5C4338F
+	for <io-uring@archiver.kernel.org>; Mon,  9 Aug 2021 19:47:56 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A5C9E60FDA
-	for <io-uring@archiver.kernel.org>; Mon,  9 Aug 2021 19:19:03 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 00A5D60C51
+	for <io-uring@archiver.kernel.org>; Mon,  9 Aug 2021 19:47:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235918AbhHITTX (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Mon, 9 Aug 2021 15:19:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55588 "EHLO
+        id S235614AbhHITsQ (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Mon, 9 Aug 2021 15:48:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33910 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235942AbhHITTU (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Mon, 9 Aug 2021 15:19:20 -0400
-Received: from mail-wr1-x42a.google.com (mail-wr1-x42a.google.com [IPv6:2a00:1450:4864:20::42a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 566C4C061799
-        for <io-uring@vger.kernel.org>; Mon,  9 Aug 2021 12:18:55 -0700 (PDT)
-Received: by mail-wr1-x42a.google.com with SMTP id q11so4611167wrr.9
-        for <io-uring@vger.kernel.org>; Mon, 09 Aug 2021 12:18:55 -0700 (PDT)
+        with ESMTP id S234454AbhHITsP (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Mon, 9 Aug 2021 15:48:15 -0400
+Received: from mail-pj1-x102e.google.com (mail-pj1-x102e.google.com [IPv6:2607:f8b0:4864:20::102e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 02A62C0613D3
+        for <io-uring@vger.kernel.org>; Mon,  9 Aug 2021 12:47:54 -0700 (PDT)
+Received: by mail-pj1-x102e.google.com with SMTP id j18-20020a17090aeb12b029017737e6c349so861916pjz.0
+        for <io-uring@vger.kernel.org>; Mon, 09 Aug 2021 12:47:54 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
-         :content-transfer-encoding;
-        bh=P6dP66iS7MkDVzspdSSEWyGJ1ZHDFzVr7Nc1na2MZKQ=;
-        b=fnpoPV7vvgo/I08c4PBQwit2GfFhjDh55/EyuJrSXljFXzu0LZLFpnx4VRBOpV11Py
-         EKSa6TVfx2t4yP1k7m68NfSN02wb3EcDZCadhmEx8UviY1RquWxCgv9PQ8qZKK2xmKvI
-         jsEubCqXq8SVe78R97uemN2tVvlslkK1nOs3A6ztlMIaUHW4HvP1syvrocjYPKP5QL1Z
-         3oyFLm/yHLxHjCghQLAWUMZwTdIuAM3iXehtzHGYi6xA52WAMIZdHRmkYnZf0+o54GZp
-         ePVhipiDEP+ZqowEF9TbTfqPmLf98X8jv2AH6YFKCfWMYKTKMSx9sLxUfQZ++I6MW2Zl
-         cphA==
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=subject:to:references:from:message-id:date:user-agent:mime-version
+         :in-reply-to:content-language:content-transfer-encoding;
+        bh=oyJUFSUL8kMcDHVKuGuq0T1EfPENUEdHg2FhixB9ZRA=;
+        b=fXfKMeTl/pwEMXS/dYHQEUhReukrrV7D5a46VWfaPOXOEXuAIelN4/NQ775SdpnyF2
+         opPgYERbiKSEwGHzShO2rganlQMT/vjfE3zGW2RS0V5vpGi4E5gUryRyd8COD6frROCg
+         3aD/6sYlc4ABG9ZrbfPxIo3DH+EwyrDRy/taGYJCr1kXznD069JbLZ8zFwNIC3D5dXzK
+         9Hhn48kCAO/7HHVkJkhlj8HODj27uoKkxM7DA7E9eBA5KQwMYATQs+9/ZriDalK/9eD1
+         DEbmg46c2IGzpzxusUHHSwfFd5IyQrK5m0S5eKrZtxTC2uSVIT8BtjTk+px7ardJbDI8
+         yzlQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=P6dP66iS7MkDVzspdSSEWyGJ1ZHDFzVr7Nc1na2MZKQ=;
-        b=Y+IaBpZuRyPCHXg6MNyTRAaHX3UYeYFB88y3e7+83Ct1zIq5/kZY0jt/fz4j5MLc4d
-         HIbv0uOVCoQibjIy/QQ0lviga5Ac7XCVb1IbCC4BDU+d+/R78RBuxMopBKFT9tRZca1j
-         r14tmRnKCpqDi0kPZSZ0sGpdo7dHWSvyaHupe/PiQLdDAZZY0+mLD/kBygIts+bw94Li
-         J2MDejQq05yYgmudCUjuyaumm98vnuXRecSBLqNpGi1OYhUatacUnesUsOPl9I7SqHNP
-         7jnBWF2yMr2HF6zcCSkvt21/jEQpZAPOSxwdxdSC/Y/6s5Gr0GUJPSheZxuicBk/Ch7v
-         ro4Q==
-X-Gm-Message-State: AOAM5336VAEwp7HwSaMrO8WxbzGRdKXHV5wmmUYfbqBu0r/fd/BA4FxL
-        JesU6er2r3qxGsIMIOvgR/I=
-X-Google-Smtp-Source: ABdhPJzVhuqfhUdzIbmU1+Q3mwYEhtCug4at+4N4W2w9xd61wLnsU/C4Sw5i4LD2XHvDHSyMUbECLQ==
-X-Received: by 2002:adf:dd07:: with SMTP id a7mr26100697wrm.377.1628536733998;
-        Mon, 09 Aug 2021 12:18:53 -0700 (PDT)
-Received: from localhost.localdomain ([85.255.236.119])
-        by smtp.gmail.com with ESMTPSA id h11sm13283074wrq.64.2021.08.09.12.18.53
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 09 Aug 2021 12:18:53 -0700 (PDT)
-From:   Pavel Begunkov <asml.silence@gmail.com>
-To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH 6/7] io_uring: remove extra argument for overflow flush
-Date:   Mon,  9 Aug 2021 20:18:12 +0100
-Message-Id: <7594f869ca41b7cfb5a35a3c7c2d402242834e9e.1628536684.git.asml.silence@gmail.com>
-X-Mailer: git-send-email 2.32.0
-In-Reply-To: <cover.1628536684.git.asml.silence@gmail.com>
+        h=x-gm-message-state:subject:to:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=oyJUFSUL8kMcDHVKuGuq0T1EfPENUEdHg2FhixB9ZRA=;
+        b=aIEToSZIEnRr0PZ88KVmF0bRk12W5wJfhH4RnVI3jk+Ha9Yd0xPVdhY8PNVM7Ofglt
+         ANufqwKDVTSUrt3rsbifUDWIEHR39DKiJ+nWK0DENICiDlNNauhGpwYGXkGNrWeKdscd
+         eYD+0xqJ9TeDLahn2pynbeAFNWP0qztfVm02akWSKTKOtcDrKcv/x37jj/diyTkgAA4J
+         6exeh8hIcdQTs+EIGUVGr/N/XUTqcRYvjBxRQw8cd4vEXG/vWFBxEwHlVt9ZL7sfZBin
+         C/4WeSQ59DQ+XHHt3aEmVhuZyErkNcAwLX+EtmOLVo330yIhcqGX62i4R05T9MVUXDBF
+         lRlw==
+X-Gm-Message-State: AOAM5325+wpl7uSWZDO+YdOAQkjKz+oyRyoEArbyjngWi5blBj+o5kO+
+        xWhhv3JwpCed5MF6E9o1Zi5RS6D6RZwuQHsw
+X-Google-Smtp-Source: ABdhPJz5y86ncbD0qny5AKCxEDmdUToqpr0MLGNv/49QR4BOV+i3DnzF+EwyFOknRJLs1GHy4FSsHg==
+X-Received: by 2002:a17:90b:1d09:: with SMTP id on9mr26094211pjb.184.1628538474184;
+        Mon, 09 Aug 2021 12:47:54 -0700 (PDT)
+Received: from [192.168.1.116] ([198.8.77.61])
+        by smtp.gmail.com with ESMTPSA id b12sm21755618pff.63.2021.08.09.12.47.52
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 09 Aug 2021 12:47:53 -0700 (PDT)
+Subject: Re: [PATCH 0/7] the rest of for-next patches
+To:     Pavel Begunkov <asml.silence@gmail.com>, io-uring@vger.kernel.org
 References: <cover.1628536684.git.asml.silence@gmail.com>
+From:   Jens Axboe <axboe@kernel.dk>
+Message-ID: <3c222ea3-45f4-8754-a000-d09e093ecc89@kernel.dk>
+Date:   Mon, 9 Aug 2021 13:47:52 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <cover.1628536684.git.asml.silence@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Unlike __io_cqring_overflow_flush(), nobody does forced flushing with
-io_cqring_overflow_flush(), so removed the argument from it.
+On 8/9/21 1:18 PM, Pavel Begunkov wrote:
+> Resending the tail w/o "io_uring: hide async dadta behind flags".
+> The dropped patch might also conflict with 5.14, so will be
+> resent later.
+> 
+> Pavel Begunkov (7):
+>   io_uring: move io_fallback_req_func()
+>   io_uring: cache __io_free_req()'d requests
+>   io_uring: remove redundant args from cache_free
+>   io_uring: use inflight_entry instead of compl.list
+>   io_uring: inline struct io_comp_state
+>   io_uring: remove extra argument for overflow flush
+>   io_uring: inline io_poll_remove_waitqs
+> 
+>  fs/io_uring.c | 140 ++++++++++++++++++++++----------------------------
+>  1 file changed, 61 insertions(+), 79 deletions(-)
 
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
----
- fs/io_uring.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+Thanks for re-spinning the rest, applied.
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 4723eee24882..56ac7ded1615 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -1520,7 +1520,7 @@ static bool __io_cqring_overflow_flush(struct io_ring_ctx *ctx, bool force)
- 	return all_flushed;
- }
- 
--static bool io_cqring_overflow_flush(struct io_ring_ctx *ctx, bool force)
-+static bool io_cqring_overflow_flush(struct io_ring_ctx *ctx)
- {
- 	bool ret = true;
- 
-@@ -1528,7 +1528,7 @@ static bool io_cqring_overflow_flush(struct io_ring_ctx *ctx, bool force)
- 		/* iopoll syncs against uring_lock, not completion_lock */
- 		if (ctx->flags & IORING_SETUP_IOPOLL)
- 			mutex_lock(&ctx->uring_lock);
--		ret = __io_cqring_overflow_flush(ctx, force);
-+		ret = __io_cqring_overflow_flush(ctx, false);
- 		if (ctx->flags & IORING_SETUP_IOPOLL)
- 			mutex_unlock(&ctx->uring_lock);
- 	}
-@@ -7051,7 +7051,7 @@ static int io_cqring_wait(struct io_ring_ctx *ctx, int min_events,
- 	int ret;
- 
- 	do {
--		io_cqring_overflow_flush(ctx, false);
-+		io_cqring_overflow_flush(ctx);
- 		if (io_cqring_events(ctx) >= min_events)
- 			return 0;
- 		if (!io_run_task_work())
-@@ -7089,7 +7089,7 @@ static int io_cqring_wait(struct io_ring_ctx *ctx, int min_events,
- 	trace_io_uring_cqring_wait(ctx, min_events);
- 	do {
- 		/* if we can't even flush overflow, don't wait for more */
--		if (!io_cqring_overflow_flush(ctx, false)) {
-+		if (!io_cqring_overflow_flush(ctx)) {
- 			ret = -EBUSY;
- 			break;
- 		}
-@@ -9364,7 +9364,7 @@ SYSCALL_DEFINE6(io_uring_enter, unsigned int, fd, u32, to_submit,
- 	 */
- 	ret = 0;
- 	if (ctx->flags & IORING_SETUP_SQPOLL) {
--		io_cqring_overflow_flush(ctx, false);
-+		io_cqring_overflow_flush(ctx);
- 
- 		ret = -EOWNERDEAD;
- 		if (unlikely(ctx->sq_data->thread == NULL))
 -- 
-2.32.0
+Jens Axboe
 

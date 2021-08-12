@@ -2,120 +2,123 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-11.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 98FDFC4338F
-	for <io-uring@archiver.kernel.org>; Thu, 12 Aug 2021 15:29:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B614EC4338F
+	for <io-uring@archiver.kernel.org>; Thu, 12 Aug 2021 15:41:53 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 78CFA610A3
-	for <io-uring@archiver.kernel.org>; Thu, 12 Aug 2021 15:29:10 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9E53460D07
+	for <io-uring@archiver.kernel.org>; Thu, 12 Aug 2021 15:41:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237682AbhHLP3f (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Thu, 12 Aug 2021 11:29:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34190 "EHLO
+        id S238175AbhHLPmS (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Thu, 12 Aug 2021 11:42:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37102 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236028AbhHLP3e (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Thu, 12 Aug 2021 11:29:34 -0400
-Received: from mail-oo1-xc2e.google.com (mail-oo1-xc2e.google.com [IPv6:2607:f8b0:4864:20::c2e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 51953C061756
-        for <io-uring@vger.kernel.org>; Thu, 12 Aug 2021 08:29:09 -0700 (PDT)
-Received: by mail-oo1-xc2e.google.com with SMTP id y23-20020a4a62570000b029028727ffa408so1895067oog.5
-        for <io-uring@vger.kernel.org>; Thu, 12 Aug 2021 08:29:09 -0700 (PDT)
+        with ESMTP id S238168AbhHLPmR (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Thu, 12 Aug 2021 11:42:17 -0400
+Received: from mail-ot1-x335.google.com (mail-ot1-x335.google.com [IPv6:2607:f8b0:4864:20::335])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7955C0613D9
+        for <io-uring@vger.kernel.org>; Thu, 12 Aug 2021 08:41:52 -0700 (PDT)
+Received: by mail-ot1-x335.google.com with SMTP id e13-20020a9d63cd0000b02904fa42f9d275so8285925otl.1
+        for <io-uring@vger.kernel.org>; Thu, 12 Aug 2021 08:41:52 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=5K81qzSnbslnyNoHQzQWlG0SOo00nOS1V/Q3Cobq2Iw=;
-        b=wjp+pOCEs9a7GU2ohjtageszgk+f4eBfvh8hpYOR8WM1tQd0fcSBSNwi7oyOimufAv
-         spiRSuNVirQI6vNYU0Ultlj42VrtUpfvp55JrpIDICeMwMgPpQa7YFJcchOcnTtrBAkf
-         Rv1o4qYkVy0MlnzdQoPvuhZqOcJsMJK6N6fzSAUdtl4YsphDePc26GEZtTbRmDMbJIJH
-         stamWPlIdZTALKbs/O3ZqJYOnFVjwQuhbwlRcCpvyvaiUExzCO9LChOGXn/50Pfsk++q
-         bkMo84kue/tlkmNpsGu8bX9M23uwlaWPPs4zxUKyYBXdQO/gXIdhaRARUbD2nhy4kboN
-         bfAg==
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=2s82tmKVU8sl/Qe4wFsHJc+u0KltczDQHVAOHyV1KHA=;
+        b=EvyI0QYzqqVtHvfPjJjjAyUArww/yQnXGepKYknu5bFEGDs/mLvyC6lJBbE7xZY7h+
+         Kd8fziecTlJPRNnCBTzTWBPqXMjX82x/wnQof2ULuOipy3Q8b6AxjqxdGnZQXbZtfSWr
+         EHRgubfFXQrG8Bb4tx49Kh8/CxvcWeuhcTDS/nfuc6NXs41xWev2NTZGOcjh8MJA6u5V
+         0XipNRRAhtBmRDZAcTF+jT83rrCtybFhsmEipPdPZdttb7oNwoggiKIW8jCAcDt+SPrH
+         9pr5GSiN4Cak0cmopjkmB37rkvZ8PIMme0tQyPdjC67RhdBEO7HGM1Ui3vi0CRQnlfYB
+         /3cA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=5K81qzSnbslnyNoHQzQWlG0SOo00nOS1V/Q3Cobq2Iw=;
-        b=AE4/hju7Pk0hadxmjrZpHQcHCdt66DQ99fLJLCoElNDgJtdNYcqdTikXqBHexbMy3M
-         PEHZwIX17oIkagXafPBJoFan1RLzj18u07ObIzi1uBLJdbqaRbw11ZLsdl8xue1wSE4u
-         rjbfLermBXG/yyNGXN/CUsZwN4aEEbLYjN0qc3I2ztHOEZGyfGyGIzNJs6f8IQrkj3Kv
-         fek6L4SBfSF9ivXcfAgDFp7sofrTrSWInjKPLPZGe2M6QDp8+5Pq/wQnZbs1URb5buB0
-         njfBubVGuV3yvCf54qH1xPw1Ow6lXbd/eBcBKgV05DWtQuwg8gAUFLxtN4YaC6Qg+C/q
-         sbhA==
-X-Gm-Message-State: AOAM533kfwN0kbqFGAJkn0jDzJolwLxCFfhLhLIVS+o7yZsDB9pOt9CX
-        M/pbbtriBy1GcYZza8UyNPeyxg==
-X-Google-Smtp-Source: ABdhPJz1WZccMGdrXd5ys6QCNcjUVuBa3wkrMoXH4xi9cNJnuR/yMuoDMqmCTInP83j9I6Cdfn7npg==
-X-Received: by 2002:a4a:b04c:: with SMTP id g12mr3497225oon.3.1628782148652;
-        Thu, 12 Aug 2021 08:29:08 -0700 (PDT)
-Received: from [192.168.1.30] ([207.135.234.126])
-        by smtp.gmail.com with ESMTPSA id q13sm577115oov.6.2021.08.12.08.29.08
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 12 Aug 2021 08:29:08 -0700 (PDT)
-Subject: Re: [PATCH 1/6] bio: optimize initialization of a bio
-To:     Christoph Hellwig <hch@infradead.org>
-Cc:     io-uring@vger.kernel.org, linux-block@vger.kernel.org
-References: <20210811193533.766613-1-axboe@kernel.dk>
- <20210811193533.766613-2-axboe@kernel.dk> <YRTFDLv7R4ltlvpa@infradead.org>
+        bh=2s82tmKVU8sl/Qe4wFsHJc+u0KltczDQHVAOHyV1KHA=;
+        b=ngNNSDvGMyNPMdIHQBGj9t0O0lXI4Rm3b2cEykuslNt6sIVai97t4Mhqkzn4XAZGa7
+         lYqqrZsXm5BmH2Ok9KgfnEs8ZpZ9/6jvCCGCJ6Ypr7tVzS9PtAti/nytW4Vq+gENehti
+         EaBzB1N//JCv77w7AEKXIw684ZJBnkDZtQHP2MZjR1yCvJAZlVfhxunyThGX/BXEnrBn
+         ac7OLShq9aYIZbnXXtcu01gLGaTJ0XMysMn4zean+uRk7vkxFyrFn5JAhhHDFAyIFQF+
+         Qy6wCVsM1GRTHPt1YQjHO8DpQpiBwuT7G/lhRqkJRORioV1/EYHd3RoozxGCLGBFoh7B
+         uksg==
+X-Gm-Message-State: AOAM530jeqnbxFPuopph4YkvnNeE+UeL/+vHbDt8gNQtFg206xBn4pcF
+        ahfrOp0D6sstJvZj76RsTzUUTQImiFn6UAZ/
+X-Google-Smtp-Source: ABdhPJw5qfTKvc2KfY7vLODdNAZyhiCxNItt1a+NNJaTy//R4Rx9EadYZ7b5ICf2anLEYGTENpdtYQ==
+X-Received: by 2002:a9d:560a:: with SMTP id e10mr3935453oti.219.1628782911898;
+        Thu, 12 Aug 2021 08:41:51 -0700 (PDT)
+Received: from p1.localdomain ([207.135.234.126])
+        by smtp.gmail.com with ESMTPSA id w16sm690973oih.19.2021.08.12.08.41.51
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 12 Aug 2021 08:41:51 -0700 (PDT)
 From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <46c21d40-2b31-d3e1-f32f-98865c969040@kernel.dk>
-Date:   Thu, 12 Aug 2021 09:29:07 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+To:     io-uring@vger.kernel.org
+Cc:     linux-block@vger.kernel.org, hch@infradead.org
+Subject: [PATCHSET v5 0/6] Enable bio recycling for polled IO
+Date:   Thu, 12 Aug 2021 09:41:43 -0600
+Message-Id: <20210812154149.1061502-1-axboe@kernel.dk>
+X-Mailer: git-send-email 2.32.0
 MIME-Version: 1.0
-In-Reply-To: <YRTFDLv7R4ltlvpa@infradead.org>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 8/12/21 12:51 AM, Christoph Hellwig wrote:
-> On Wed, Aug 11, 2021 at 01:35:28PM -0600, Jens Axboe wrote:
->> The memset() used is measurably slower in targeted benchmarks. Get rid
->> of it and fill in the bio manually, in a separate helper.
-> 
-> If you have some numbers if would be great to throw them in here.
+Hi,
 
-It's about 1% of the overhead of the alloc after the cache, which
-comes later in the series.
+For v4, see posting here:
 
-Percent│    return __underlying_memset(p, c, size);
-       │      lea    0x8(%r8),%rdi
-       │    bio_alloc_kiocb():
-  2.18 │      cmove  %rax,%r9
-       │    memset():
-       │      mov    %r8,%rcx
-       │      and    $0xfffffffffffffff8,%rdi
-       │      movq   $0x0,(%r8)
-       │      sub    %rdi,%rcx
-       │      add    $0x60,%ecx
-       │      shr    $0x3,%ecx
- 55.02 │      rep    stos %rax,%es:(%rdi)
+https://lore.kernel.org/io-uring/20210811193533.766613-1-axboe@kernel.dk/
 
-This is on AMD, might look different on Intel, the manual clear seems
-like a nice win on both. As a minor detail, avoids things like
-re-setting bio->bi_pool for cached entries, as it never changes.
+3.5M+ IOPS per core:
 
+axboe@amd ~/g/fio (master)> sudo taskset -c 0 t/io_uring -b512 -d128 -c32 -s32 -p1 -F1 -B1 /dev/nvme3n1
+i 8, argc 9
+Added file /dev/nvme3n1 (submitter 0)
+sq_ring ptr = 0x0x7fdab1a8d000
+sqes ptr    = 0x0x7fdab1a8b000
+cq_ring ptr = 0x0x7fdab1a89000
+polled=1, fixedbufs=1, register_files=1, buffered=0 QD=128, sq_ring=128, cq_ring=256
+submitter=1757
+IOPS=3520608, IOS/call=32/31, inflight=47 (47)
+IOPS=3514432, IOS/call=32/32, inflight=32 (32)
+IOPS=3513440, IOS/call=32/31, inflight=128 (128)
+IOPS=3507616, IOS/call=32/32, inflight=32 (32)
+IOPS=3505984, IOS/call=32/32, inflight=32 (32)
+IOPS=3511328, IOS/call=32/31, inflight=64 (64)
+[snip]
 
->> +static inline void __bio_init(struct bio *bio)
-> 
-> Why is this split from bio_init and what are the criteria where an
-> initialization goes?
+Changes can also be bound in my io_uring-bio-cache.5 branch, and sit
+on top of for-5.15/io_uring.
 
-Got rid of the helper.
+ block/bio.c                | 164 +++++++++++++++++++++++++++++++++----
+ block/blk-core.c           |   5 +-
+ fs/block_dev.c             |   6 +-
+ fs/io_uring.c              |   2 +-
+ include/linux/bio.h        |  13 +++
+ include/linux/blk_types.h  |   1 +
+ include/linux/cpuhotplug.h |   1 +
+ include/linux/fs.h         |   2 +
+ 8 files changed, 175 insertions(+), 19 deletions(-)
 
->> +	bio->bi_flags = bio->bi_ioprio = bio->bi_write_hint = 0;
-> 
-> Please keep each initialization on a separate line.
+Changes since v4:
 
-Done
+- Kill __bio_init() helper
+- Kill __bio_put() helper
+- Cleanup bio_alloc_kiocb()
+- Expand commit messages
+- Various little tweaks
+- Add kerneldoc for bio_alloc_kiocb()
+- Fix attribution on last patch
+- Remove bio.h list manipulation leftovers
+- Move cpuhp_dead notifier to end of bio_set
+- Rebase on for-5.15/io_uring
 
 -- 
 Jens Axboe
+
 

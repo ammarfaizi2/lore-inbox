@@ -2,188 +2,116 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-19.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 69314C4338F
-	for <io-uring@archiver.kernel.org>; Wed, 18 Aug 2021 14:53:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 53495C4338F
+	for <io-uring@archiver.kernel.org>; Wed, 18 Aug 2021 16:02:22 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 43427610E7
-	for <io-uring@archiver.kernel.org>; Wed, 18 Aug 2021 14:53:26 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 328FA610C7
+	for <io-uring@archiver.kernel.org>; Wed, 18 Aug 2021 16:02:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239619AbhHROx7 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Wed, 18 Aug 2021 10:53:59 -0400
-Received: from mail.cybernetics.com ([173.71.130.66]:42376 "EHLO
-        mail.cybernetics.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239422AbhHROx7 (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Wed, 18 Aug 2021 10:53:59 -0400
-X-Greylist: delayed 923 seconds by postgrey-1.27 at vger.kernel.org; Wed, 18 Aug 2021 10:53:59 EDT
-X-ASG-Debug-ID: 1629297477-0fb3b00bc417930001-k4Lu3k
-Received: from cybernetics.com ([10.10.4.126]) by mail.cybernetics.com with ESMTP id gjZEXC8G7LNH6CcL; Wed, 18 Aug 2021 10:37:57 -0400 (EDT)
-X-Barracuda-Envelope-From: tonyb@cybernetics.com
-X-Barracuda-RBL-Trusted-Forwarder: 10.10.4.126
-X-ASG-Whitelist: Client
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=cybernetics.com; s=mail;
-        bh=ynC0n0o/MwJWWEMvZa3oMfrOfT4CVlX4ADdSMbZ7FK0=;
-        h=Content-Language:Content-Transfer-Encoding:Content-Type:In-Reply-To:
-        MIME-Version:Date:Message-ID:From:References:Cc:To:Subject; b=W379zB+e4BIwXjP
-        VVB7AqIjHy2zCqvJIE2I/xkZUTHbg1EbGNNk2YHqhLDqXXtJcJ5/dlTYqiwteMAU9nLzZ5P+yFS1L
-        WqIYz2o5Sq2IcdZF/UKlelXt4UyU0ZrNuaZVaekBF8ZQt+6TkoyJGRMS+FrY9jERc9yIzAFaw8IeC
-        Mg=
-Received: from [10.157.2.224] (HELO [192.168.200.1])
-  by cybernetics.com (CommuniGate Pro SMTP 6.2.14)
-  with ESMTPS id 11076811; Wed, 18 Aug 2021 10:37:57 -0400
-Subject: Re: [PATCH] coredump: Limit what can interrupt coredumps
-X-Barracuda-RBL-Trusted-Forwarder: 10.157.2.224
-To:     Jens Axboe <axboe@kernel.dk>,
-        Olivier Langlois <olivier@trillion01.com>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Oleg Nesterov <oleg@redhat.com>
-X-ASG-Orig-Subj: Re: [PATCH] coredump: Limit what can interrupt coredumps
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-        io-uring <io-uring@vger.kernel.org>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        "Pavel Begunkov>" <asml.silence@gmail.com>
-References: <CAHk-=wjC7GmCHTkoz2_CkgSc_Cgy19qwSQgJGXz+v2f=KT3UOw@mail.gmail.com>
- <87pmwt6biw.fsf@disp2133> <87czst5yxh.fsf_-_@disp2133>
- <CAHk-=wiax83WoS0p5nWvPhU_O+hcjXwv6q3DXV8Ejb62BfynhQ@mail.gmail.com>
- <87y2bh4jg5.fsf@disp2133>
- <CAHk-=wjPiEaXjUp6PTcLZFjT8RrYX+ExtD-RY3NjFWDN7mKLbw@mail.gmail.com>
- <87sg1p4h0g.fsf_-_@disp2133> <20210614141032.GA13677@redhat.com>
- <87pmwmn5m0.fsf@disp2133>
- <4d93d0600e4a9590a48d320c5a7dd4c54d66f095.camel@trillion01.com>
- <8af373ec-9609-35a4-f185-f9bdc63d39b7@cybernetics.com>
- <9d194813-ecb1-2fe4-70aa-75faf4e144ad@kernel.dk>
- <b36eb4a26b6aff564c6ef850a3508c5b40141d46.camel@trillion01.com>
- <0bc38b13-5a7e-8620-6dce-18731f15467e@kernel.dk>
- <24c795c6-4ec4-518e-bf9b-860207eee8c7@kernel.dk>
- <05c0cadc-029e-78af-795d-e09cf3e80087@cybernetics.com>
- <b5ab8ca0-cef5-c9b7-e47f-21c0d395f82e@kernel.dk>
- <84640f18-79ee-d8e4-5204-41a2c2330ed8@kernel.dk>
- <3168284a-0b52-7845-07b1-a72bdfed915c@cybernetics.com>
- <a56b633c-b88b-dfe8-11da-fcb3853a2edf@kernel.dk>
-From:   Tony Battersby <tonyb@cybernetics.com>
-Message-ID: <16ded7e5-1f44-1c51-5759-35f835115665@cybernetics.com>
-Date:   Wed, 18 Aug 2021 10:37:57 -0400
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.11.0
+        id S232787AbhHRQCz (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 18 Aug 2021 12:02:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44152 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229738AbhHRQCz (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Wed, 18 Aug 2021 12:02:55 -0400
+Received: from mail-wr1-x42b.google.com (mail-wr1-x42b.google.com [IPv6:2a00:1450:4864:20::42b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A78F1C061764
+        for <io-uring@vger.kernel.org>; Wed, 18 Aug 2021 09:02:20 -0700 (PDT)
+Received: by mail-wr1-x42b.google.com with SMTP id q11so4298762wrr.9
+        for <io-uring@vger.kernel.org>; Wed, 18 Aug 2021 09:02:20 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=TmvL98ZiFysPug2bjPMt1v/L9XJyTsU+C96IphyQFzo=;
+        b=FJKY81lbeKi3iKEhWBwklFL1/beKG6kYNG7cSSXjqoUHg0d47IL/Q321Hf3UzVbRK3
+         amQbGaQ4/h0t0AxIWfifsTFPa3iygm0ylAYspzgUrPvPx/nTQBuxPmCsX8j4QoG0K7FK
+         hD98Q9KbnbZHh0RpuzZ9d2GeQMbBFM9wcHg3ZbPH2e0TtKawGqs/F5+04ofTZmMvmlCl
+         s/mTfcMlEBT1m2LEWzyHYrLGiQ8GUofc5q/e5VN+q0QE0ozyUvNNU1+pMKZ5hooRvpSn
+         dFqNit5XbK73HU2lpNLVunLjgCn3jZlcA03e2OgFuH8/PYytdLoHsp7a+68ytsABglBd
+         EpVw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=TmvL98ZiFysPug2bjPMt1v/L9XJyTsU+C96IphyQFzo=;
+        b=uLZyVAypA4tC3FzfSlSVKLFgGz9xNOUk4Yvktipfcg004ccBozJtOBvVPRWAj9uUuY
+         L+LVggf04bmqdDQWWkwwSVAtF01QRjORLJJI95AhYeco0+60oS9svLnu2Q15iSTe2uhv
+         Xkc7E8tWrlN1gsIceUpeS0oIvD8O7e6PJvgX5vyYnQ13zJK/p7RMd2pCD88bU0offoj5
+         c1SLAgd8nHIpg8bddKZhAh3TKcrhBIQqCy7r/3EcXizMu9QZoN+LwuRlLjgZAnjUXc5b
+         zewLIrJj9SeA2/jbNVleUgBkrVUY/XZW4p3TJcC1rH9zEeg3GA461htBIa/i9s+nSqD3
+         AozA==
+X-Gm-Message-State: AOAM532cBAatx6XFCyqDp4h+9xAUzRocj2e/MePJGXUEhxmsmkIoIR8L
+        7//Em0HjXd5t5mtHM92K3QydLrbYWPA=
+X-Google-Smtp-Source: ABdhPJzGUezUg4INgdLNqeoXK/yTHlSi59IDrIFaxus0siwD8YC6Pdb+hNAf8UMMEgApUYh2mgK7vw==
+X-Received: by 2002:a5d:678f:: with SMTP id v15mr11818307wru.196.1629302539362;
+        Wed, 18 Aug 2021 09:02:19 -0700 (PDT)
+Received: from localhost.localdomain ([185.69.145.2])
+        by smtp.gmail.com with ESMTPSA id i9sm252676wre.36.2021.08.18.09.02.18
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 18 Aug 2021 09:02:19 -0700 (PDT)
+From:   Pavel Begunkov <asml.silence@gmail.com>
+To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
+Subject: [PATCH for-next] io_uring: extend task put optimisations
+Date:   Wed, 18 Aug 2021 17:01:43 +0100
+Message-Id: <824a7cbd745ddeee4a0f3ff85c558a24fd005872.1629302453.git.asml.silence@gmail.com>
+X-Mailer: git-send-email 2.32.0
 MIME-Version: 1.0
-In-Reply-To: <a56b633c-b88b-dfe8-11da-fcb3853a2edf@kernel.dk>
-Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 8bit
-Content-Language: en-US
-X-Barracuda-Connect: UNKNOWN[10.10.4.126]
-X-Barracuda-Start-Time: 1629297477
-X-Barracuda-URL: https://10.10.4.122:443/cgi-mod/mark.cgi
-X-Barracuda-BRTS-Status: 1
-X-Virus-Scanned: by bsmtpd at cybernetics.com
-X-Barracuda-Scan-Msg-Size: 3597
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 8/17/21 6:05 PM, Jens Axboe wrote:
-> On 8/17/21 3:39 PM, Tony Battersby wrote:
->> On 8/17/21 5:28 PM, Jens Axboe wrote:
->>> Another approach - don't allow TWA_SIGNAL task_work to get queued if
->>> PF_SIGNALED has been set on the task. This is similar to how we reject
->>> task_work_add() on process exit, and the callers must be able to handle
->>> that already.
->>>
->>> Can you test this one on top of your 5.10-stable?
->>>
->>>
->>> diff --git a/fs/coredump.c b/fs/coredump.c
->>> index 07afb5ddb1c4..ca7c1ee44ada 100644
->>> --- a/fs/coredump.c
->>> +++ b/fs/coredump.c
->>> @@ -602,6 +602,14 @@ void do_coredump(const kernel_siginfo_t *siginfo)
->>>  		.mm_flags = mm->flags,
->>>  	};
->>>  
->>> +	/*
->>> +	 * task_work_add() will refuse to add work after PF_SIGNALED has
->>> +	 * been set, ensure that we flush any pending TIF_NOTIFY_SIGNAL work
->>> +	 * if any was queued before that.
->>> +	 */
->>> +	if (test_thread_flag(TIF_NOTIFY_SIGNAL))
->>> +		tracehook_notify_signal();
->>> +
->>>  	audit_core_dumps(siginfo->si_signo);
->>>  
->>>  	binfmt = mm->binfmt;
->>> diff --git a/kernel/task_work.c b/kernel/task_work.c
->>> index 1698fbe6f0e1..1ab28904adc4 100644
->>> --- a/kernel/task_work.c
->>> +++ b/kernel/task_work.c
->>> @@ -41,6 +41,12 @@ int task_work_add(struct task_struct *task, struct callback_head *work,
->>>  		head = READ_ONCE(task->task_works);
->>>  		if (unlikely(head == &work_exited))
->>>  			return -ESRCH;
->>> +		/*
->>> +		 * TIF_NOTIFY_SIGNAL notifications will interfere with
->>> +		 * a core dump in progress, reject them.
->>> +		 */
->>> +		if ((task->flags & PF_SIGNALED) && notify == TWA_SIGNAL)
->>> +			return -ESRCH;
->>>  		work->next = head;
->>>  	} while (cmpxchg(&task->task_works, head, work) != head);
->>>  
->>>
->> Doesn't compile.  5.10 doesn't have TIF_NOTIFY_SIGNAL.
-> Oh right... Here's one hacked up for the 5.10 TWA_SIGNAL setup. Totally
-> untested...
->
-> diff --git a/fs/coredump.c b/fs/coredump.c
-> index c6acfc694f65..9e899ce67589 100644
-> --- a/fs/coredump.c
-> +++ b/fs/coredump.c
-> @@ -603,6 +603,19 @@ void do_coredump(const kernel_siginfo_t *siginfo)
->  		.mm_flags = mm->flags,
->  	};
->  
-> +	/*
-> +	 * task_work_add() will refuse to add work after PF_SIGNALED has
-> +	 * been set, ensure that we flush any pending TWA_SIGNAL work
-> +	 * if any was queued before that.
-> +	 */
-> +	if (signal_pending(current) && (current->jobctl & JOBCTL_TASK_WORK)) {
-> +		task_work_run();
-> +		spin_lock_irq(&current->sighand->siglock);
-> +		current->jobctl &= ~JOBCTL_TASK_WORK;
-> +		recalc_sigpending();
-> +		spin_unlock_irq(&current->sighand->siglock);
-> +	}
-> +
->  	audit_core_dumps(siginfo->si_signo);
->  
->  	binfmt = mm->binfmt;
-> diff --git a/kernel/task_work.c b/kernel/task_work.c
-> index 8d6e1217c451..93b3f262eb4a 100644
-> --- a/kernel/task_work.c
-> +++ b/kernel/task_work.c
-> @@ -39,6 +39,12 @@ int task_work_add(struct task_struct *task, struct callback_head *work,
->  		head = READ_ONCE(task->task_works);
->  		if (unlikely(head == &work_exited))
->  			return -ESRCH;
-> +		/*
-> +		 * TWA_SIGNAL notifications will interfere with
-> +		 * a core dump in progress, reject them.
-> +		 */
-> +		if ((task->flags & PF_SIGNALED) && notify == TWA_SIGNAL)
-> +			return -ESRCH;
->  		work->next = head;
->  	} while (cmpxchg(&task->task_works, head, work) != head);
->  
->
-Tested with 5.10.59 + backport 06af8679449d + the patch above.  That
-fixes it for me.  I tested a couple of variations to make sure.
+Now with IRQ completions done via IRQ, almost all requests freeing
+are done from the context of submitter task, so it makes sense to
+extend task_put optimisation from io_req_free_batch_finish() to cover
+all the cases including task_work by moving it into io_put_task().
 
-Thanks!
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+---
+ fs/io_uring.c | 16 +++++++++-------
+ 1 file changed, 9 insertions(+), 7 deletions(-)
 
-Tested-by: Tony Battersby <tonyb@cybernetics.com>
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index ba087f395507..5e99473ad6fc 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -1628,10 +1628,14 @@ static inline void io_put_task(struct task_struct *task, int nr)
+ {
+ 	struct io_uring_task *tctx = task->io_uring;
+ 
+-	percpu_counter_sub(&tctx->inflight, nr);
+-	if (unlikely(atomic_read(&tctx->in_idle)))
+-		wake_up(&tctx->wait);
+-	put_task_struct_many(task, nr);
++	if (likely(task == current)) {
++		tctx->cached_refs += nr;
++	} else {
++		percpu_counter_sub(&tctx->inflight, nr);
++		if (unlikely(atomic_read(&tctx->in_idle)))
++			wake_up(&tctx->wait);
++		put_task_struct_many(task, nr);
++	}
+ }
+ 
+ static bool io_cqring_event_overflow(struct io_ring_ctx *ctx, u64 user_data,
+@@ -2179,9 +2183,7 @@ static void io_req_free_batch_finish(struct io_ring_ctx *ctx,
+ {
+ 	if (rb->ctx_refs)
+ 		percpu_ref_put_many(&ctx->refs, rb->ctx_refs);
+-	if (rb->task == current)
+-		current->io_uring->cached_refs += rb->task_refs;
+-	else if (rb->task)
++	if (rb->task)
+ 		io_put_task(rb->task, rb->task_refs);
+ }
+ 
+-- 
+2.32.0
 

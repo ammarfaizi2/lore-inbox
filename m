@@ -2,86 +2,136 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
+X-Spam-Status: No, score=-11.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 01390C4338F
-	for <io-uring@archiver.kernel.org>; Wed, 18 Aug 2021 13:30:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CBB92C4338F
+	for <io-uring@archiver.kernel.org>; Wed, 18 Aug 2021 14:41:23 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D801460F4C
-	for <io-uring@archiver.kernel.org>; Wed, 18 Aug 2021 13:30:45 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B22D961075
+	for <io-uring@archiver.kernel.org>; Wed, 18 Aug 2021 14:41:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236731AbhHRNbT (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Wed, 18 Aug 2021 09:31:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36390 "EHLO
+        id S238593AbhHROl4 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 18 Aug 2021 10:41:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53158 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235943AbhHRNbT (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Wed, 18 Aug 2021 09:31:19 -0400
-Received: from mail-pj1-x102f.google.com (mail-pj1-x102f.google.com [IPv6:2607:f8b0:4864:20::102f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A7672C061764
-        for <io-uring@vger.kernel.org>; Wed, 18 Aug 2021 06:30:44 -0700 (PDT)
-Received: by mail-pj1-x102f.google.com with SMTP id nt11so2627586pjb.2
-        for <io-uring@vger.kernel.org>; Wed, 18 Aug 2021 06:30:44 -0700 (PDT)
+        with ESMTP id S239379AbhHROlw (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Wed, 18 Aug 2021 10:41:52 -0400
+Received: from mail-wr1-x42a.google.com (mail-wr1-x42a.google.com [IPv6:2a00:1450:4864:20::42a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC02BC061764
+        for <io-uring@vger.kernel.org>; Wed, 18 Aug 2021 07:41:17 -0700 (PDT)
+Received: by mail-wr1-x42a.google.com with SMTP id x12so3870153wrr.11
+        for <io-uring@vger.kernel.org>; Wed, 18 Aug 2021 07:41:17 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:cc:references:from:message-id:date:user-agent
+        d=gmail.com; s=20161025;
+        h=to:cc:references:from:subject:message-id:date:user-agent
          :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=JiAEKqw1TmaXG5ey30yvp0VAO5EclWS4YuSYejPpRTY=;
-        b=AycjMMqhwlYIW1ijZTPQVS12fZKgquQqE2Oxp2pINc2+CTNVUc+QB3yZ1hd5XlBw7L
-         5+RdyMHrVKOSEg8unXD0TLGGNNYz35UpeV9jJP8/kggqrLjTCKj1cU0Mk49n6ebGnuWx
-         W84WbWt6oxOXq4Y+PkZrXjcJuM79mKExEwoeNLSshwb2fccfAAdRGdCsLn5n4NntKfvi
-         +s0QImtyrSUTFKzwDGzZJkpLwOGYE88agrbfRBbGJ6XRGbwnqXZO+Cm1KH+lx1IMYjJV
-         dUJieUwOP9nXifVPguZHGVLHlYwViTAZaD5W7Iomtv1/JT06EjvStbEh2SDwrWFZdkKZ
-         Npcw==
+        bh=bqk9WUlREf6DcH9UX7aCkBu9iFUoc3CwXeGP1rHqct0=;
+        b=EUBFKpiSEQYdLguD8IbecKSurqe6joSK7AfHhApdjEGE/7W7TdwVBsQcf6jAUWyCHo
+         57vfyDvK8dijaPLwTmgO2+HsEz69JXpDFt7VeF6cbiNL3Mw+KdykJs4z0Ql+J9PNOf2l
+         4cHUNUmxwxabIr1cX+/yI/1FIrf6lRuAuvtXLzevLmat2m3cKV8TkY4pruUjTEysbmrX
+         yeaQQr5ZIJ2i4UKD+XGOddY0jHhg3WtbrcWB965Kgd/BBrVbNOlly2ZJHSjpbJLJI/gj
+         MmYDXagkB9ZKShTyBDmxvZgLUYhqyyyKotCtTBksAWCwl+EWieg82wqRvxRPKwManeZc
+         OCrg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+        h=x-gm-message-state:to:cc:references:from:subject:message-id:date
          :user-agent:mime-version:in-reply-to:content-language
          :content-transfer-encoding;
-        bh=JiAEKqw1TmaXG5ey30yvp0VAO5EclWS4YuSYejPpRTY=;
-        b=S8b6UR7QcqrZdAU+swU8Vy3oZzUkpXezlgr9cY0PoQ6jQoceMb5ZcfiFnE5b0wZTGO
-         w0+C/7h4StqkCOVN/ugf1ziFjcgEVyCqpEzL2Gd+SV7xDFAEX81AXhS6tCTMDL4H9wRu
-         l+Qvt09k1uGIR0pc+e9GHIu1cA3GJPxxVwD5yHSpvb9U/ivKEtXqh/j9YacehbhEVjET
-         VNHxMu0xRii7WV45pMrXl2lUMaXF2gcqDKMWwtD+utWH76kD/BDqAVPgpxrDUy6iUVDi
-         gpQc9peWCRK9mJdA816P2OzaN2tNBACsBteGPnL1tkWfB1DEbiVJFSf+62Gd8fpbFvWN
-         vViA==
-X-Gm-Message-State: AOAM530tm5ctpiaI8PYgWOnOs06M3x0ebxVpw4b2YBWpqMkY9pEta2n9
-        U3DFcTNIptFel0Lb0e4/yZ1+yA==
-X-Google-Smtp-Source: ABdhPJyU6qLIy37UH3XENdWCN2YDjkxYHtMEqpB/Si5Lyh4NdoxMlmpFg2JztRpczf5spGft/M7xNw==
-X-Received: by 2002:a17:903:310e:b0:12d:c3e7:a8d9 with SMTP id w14-20020a170903310e00b0012dc3e7a8d9mr7295026plc.35.1629293444180;
-        Wed, 18 Aug 2021 06:30:44 -0700 (PDT)
-Received: from [192.168.1.116] ([66.219.217.159])
-        by smtp.gmail.com with ESMTPSA id q21sm5231817pjg.55.2021.08.18.06.30.43
+        bh=bqk9WUlREf6DcH9UX7aCkBu9iFUoc3CwXeGP1rHqct0=;
+        b=PjFHcHoYu/JQPa+uTiThfkLbGDStBnN8lvzqO+umY1UXvBR773yOzRCEBkhIjRrL4J
+         iYQzQ6YpYhoIRge7eN7yDs78SYgK3TSubiyZMtusbnMI2MM+6JlT+KZQW93pfQvDU86E
+         mMLBfcgDZVSB3wY5qowXyi+XlJktMu9rs0zBnEPu9U2Ux0YjlmE0eKhRI3Sp2xBMIoiU
+         x7jCn1xVa1FR9TAUQs0GX5VQubV7y8GQ1+MkLxHLOdczjEMhzeT9lPlAlLAAFCaHr6Wk
+         vCz0dfoqhf+Au7TImLzSduoQn1V4Csdg+nF7DWY0ljhNgLCmUDyCIeh4ZX8RE/sWKzG5
+         CI9g==
+X-Gm-Message-State: AOAM530kYcp9LaW7kjFpHWMqW/p5iJ4Wfauv3vhv8XlY63qmi9tQHMos
+        vQMBZiq3ADfzclsZxljaSHY=
+X-Google-Smtp-Source: ABdhPJzTwuw0WXzGFwEczeHL6EleymlMQucnYCn+e7qZvBUB2EvRPWCBXt3LtD/IC9R+fgkgoN7ZjA==
+X-Received: by 2002:a5d:674c:: with SMTP id l12mr11119801wrw.112.1629297676283;
+        Wed, 18 Aug 2021 07:41:16 -0700 (PDT)
+Received: from [192.168.8.197] ([185.69.145.2])
+        by smtp.gmail.com with ESMTPSA id u5sm5888938wrr.94.2021.08.18.07.41.15
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 18 Aug 2021 06:30:43 -0700 (PDT)
-Subject: Re: [PATCH 01/01] io_uring: Add register support to other PAGE_SIZE
-To:     wangyangbo <wangyangbo@uniontech.com>
-Cc:     asml.silence@gmail.com, io-uring@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-References: <20210818055613.1655-1-wangyangbo@uniontech.com>
-From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <24d10cda-445e-10f3-d249-dac254e199e0@kernel.dk>
-Date:   Wed, 18 Aug 2021 07:30:42 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        Wed, 18 Aug 2021 07:41:15 -0700 (PDT)
+To:     Hao Xu <haoxu@linux.alibaba.com>, Jens Axboe <axboe@kernel.dk>
+Cc:     io-uring@vger.kernel.org, Joseph Qi <joseph.qi@linux.alibaba.com>
+References: <20210818074316.22347-1-haoxu@linux.alibaba.com>
+ <20210818074316.22347-3-haoxu@linux.alibaba.com>
+ <d23478e6-2d2f-dbc1-91c0-b091b3c6cbc9@gmail.com>
+ <9a27608b-bb14-e3e8-09e3-08f182260937@linux.alibaba.com>
+From:   Pavel Begunkov <asml.silence@gmail.com>
+Subject: Re: [PATCH 2/3] io_uring: fix failed linkchain code logic
+Message-ID: <6c8941c1-c56d-3c4e-9d71-e5ed73a9db41@gmail.com>
+Date:   Wed, 18 Aug 2021 15:40:44 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.12.0
 MIME-Version: 1.0
-In-Reply-To: <20210818055613.1655-1-wangyangbo@uniontech.com>
+In-Reply-To: <9a27608b-bb14-e3e8-09e3-08f182260937@linux.alibaba.com>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 8/17/21 11:56 PM, wangyangbo wrote:
-> Define rsrc table shift from PAGE_SHIFT
+On 8/18/21 1:22 PM, Hao Xu wrote:
+> 在 2021/8/18 下午6:20, Pavel Begunkov 写道:
+>> On 8/18/21 8:43 AM, Hao Xu wrote:
+>>> Given a linkchain like this:
+>>> req0(link_flag)-->req1(link_flag)-->...-->reqn(no link_flag)
+>>>
+[...]
+>>>       struct io_submit_link *link = &ctx->submit_state.link;
+>>> +    bool is_link = sqe->flags & (IOSQE_IO_LINK | IOSQE_IO_HARDLINK);
+>>> +    struct io_kiocb *head;
+>>>       int ret;
+>>>   +    /*
+>>> +     * we don't update link->last until we've done io_req_prep()
+>>> +     * since linked timeout uses old link->last
+>>> +     */
+>>> +    if (link->head)
+>>> +        link->last->link = req;
+>>> +    else if (is_link)
+>>> +        link->head = req;
+>>> +    head = link->head;
+>>
+>> It's a horrorsome amount of overhead. How about to set the fail flag
+>> if failed early and actually fail on io_queue_sqe(), as below. It's
+>> not tested and a couple more bits added, but hopefully gives the idea.
+> I get the idea, it's truely with less change. But why do you think the
+> above code bring in more overhead, since anyway we have to link the req
+> to the linkchain. I tested it with fio-direct-4k-read-with/without-sqpoll, didn't see performance regression.
 
-This really needs a lot better explanation. A good commit message
-explains "why" a change is done, this one doesn't have anything really.
-It briefly tells you "what" is being done, but no reasoning for why.
+Well, it's an exaggeration :) However, we were cutting the overhead,
+and there is no atomics or other heavy operations left in the hot path,
+just pure number of instructions a request should go through. That's
+just to clear the reason why I don't want extras on the path.
+
+For the non-linked path, first it adds 2 ifs in front and removes one
+at the end. Then there is is_link, which is most likely to be saved
+on stack. And same with @head which I'd expect to be saved on stack.
+
+If we have a way to avoid it, that's great, and it looks we can.
+
+[...]
+>>   -    ret = io_req_prep(req, sqe);
+>> -    if (unlikely(ret))
+>> -        goto fail_req;
+>>         /* don't need @sqe from now on */
+>>       trace_io_uring_submit_sqe(ctx, req, req->opcode, req->user_data,
+>> @@ -6670,8 +6670,10 @@ static int io_submit_sqe(struct io_ring_ctx *ctx, struct io_kiocb *req,
+>>           struct io_kiocb *head = link->head;
+>>   
+> maybe better to add an if(head & FAIL) here, since we don't need to
+> prep_async if we know it will be cancelled.
+
+Such an early fail is marginal enough to not care about performance,
+but I agree that the check is needed as io_req_prep_async() won't be
+able to handle it. E.g. if it failed to grab a file.
 
 -- 
-Jens Axboe
-
+Pavel Begunkov

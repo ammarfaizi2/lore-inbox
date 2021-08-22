@@ -2,29 +2,32 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.7 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.7 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BDA6DC4338F
-	for <io-uring@archiver.kernel.org>; Sun, 22 Aug 2021 21:05:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 005F6C4338F
+	for <io-uring@archiver.kernel.org>; Sun, 22 Aug 2021 21:05:56 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 94BC261051
-	for <io-uring@archiver.kernel.org>; Sun, 22 Aug 2021 21:05:49 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D7FC661051
+	for <io-uring@archiver.kernel.org>; Sun, 22 Aug 2021 21:05:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232897AbhHVVG3 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sun, 22 Aug 2021 17:06:29 -0400
-Received: from cloud48395.mywhc.ca ([173.209.37.211]:36020 "EHLO
+        id S233176AbhHVVGg (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sun, 22 Aug 2021 17:06:36 -0400
+Received: from cloud48395.mywhc.ca ([173.209.37.211]:36180 "EHLO
         cloud48395.mywhc.ca" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232539AbhHVVG3 (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Sun, 22 Aug 2021 17:06:29 -0400
-Received: from modemcable064.203-130-66.mc.videotron.ca ([66.130.203.64]:52706 helo=localhost)
+        with ESMTP id S232539AbhHVVGf (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Sun, 22 Aug 2021 17:06:35 -0400
+Received: from modemcable064.203-130-66.mc.videotron.ca ([66.130.203.64]:52708 helo=localhost)
         by cloud48395.mywhc.ca with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
         (Exim 4.94.2)
         (envelope-from <olivier@trillion01.com>)
-        id 1mHuf4-0001qj-4c; Sun, 22 Aug 2021 17:05:46 -0400
-Date:   Sun, 22 Aug 2021 17:05:44 -0400
-Message-Id: <cover.1629655338.git.olivier@trillion01.com>
+        id 1mHufA-0001rP-JR; Sun, 22 Aug 2021 17:05:52 -0400
+Date:   Sun, 22 Aug 2021 17:05:51 -0400
+Message-Id: <5eee1da51b7aaac3f55d6923e96182012b00deaa.1629655338.git.olivier@trillion01.com>
+In-Reply-To: <cover.1629655338.git.olivier@trillion01.com>
+References: <cover.1629655338.git.olivier@trillion01.com>
 From:   Olivier Langlois <olivier@trillion01.com>
 To:     Jens Axboe <axboe@kernel.dk>,
         Pavel Begunkov <asml.silence@gmail.com>,
@@ -34,7 +37,7 @@ To:     Jens Axboe <axboe@kernel.dk>,
         "Eric W. Biederman" <ebiederm@xmission.com>,
         io-uring@vger.kernel.org, linux-fsdevel@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: [PATCH 0/3] coredump: io_uring: Cancel io_uring to avoid core truncation
+Subject: [PATCH 1/3] tracehook: Add a return value to tracehook_notify_signal
 X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
 X-AntiAbuse: Primary Hostname - cloud48395.mywhc.ca
 X-AntiAbuse: Original Domain - vger.kernel.org
@@ -49,53 +52,39 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Before writing the core dump, io_uring requests have to be cancelled.
+The return value indicates if task_work_run has been called.
+This knowledge can be of value to the caller. In particular, it allows
+io_uring to easily replace calls to io_run_task_work with
+tracehook_notify_signal when clearing TIF_NOTIFY_SIGNAL is needed.
 
-Also, io_uring cancellation code had to be modified as it could set the
-TIF_NOTIFY_SIGNAL bit.
-
-Few notes about this patchset:
-
-1. My coredump.c proposal puts the io_uring_task_cancel call further
-down the do_coredump function over what Jens did propose.
-
-Considering that this function call can be relatively expensive, I
-believe that postponing it as much as possible is the way to go.
-
-I did place it before coredump_wait which clears signal bits so that
-seems to be an appropriate location but the logic could possibly be
-pushed even more with possibly no harm.
-
-2. The current patch proposal only address specifically the issue caused
-by io_uring. It could reoccur as soon as something else flips the
-TIF_NOTIFY_SIGNAL bit.
-
-Therefore, another solution would simply be to modify __dump_emit to make it
-resilient to TIF_NOTIFY_SIGNAL as Eric W. Biederman originally
-suggested.
-
-or maybe do both...
-
-So making __dump_emit more robust to the TIF_NOTIFY_SIGNAL situation
-might be something interesting to investigate if it would be a good idea
-to do on top or in replacement to this patchset.
-
-Lastly, Jens did already submit a patch to solve the same problem:
-https://lkml.org/lkml/2021/8/17/1156
-
-If his patch ends being a superior solution to the problem,
-the first 2 patches of this set are still relevant.
-
-Olivier Langlois (3):
-  tracehook: Add a return value to tracehook_notify_signal
-  io_uring: Clear TIF_NOTIFY_SIGNAL when cancelling requests
-  coredump: cancel io_uring requests before dumping core
-
- fs/coredump.c             | 3 +++
- fs/io_uring.c             | 2 +-
+Signed-off-by: Olivier Langlois <olivier@trillion01.com>
+---
  include/linux/tracehook.h | 8 ++++++--
- 3 files changed, 10 insertions(+), 3 deletions(-)
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
+diff --git a/include/linux/tracehook.h b/include/linux/tracehook.h
+index 3e80c4bc66f7..1f778ed9c6e2 100644
+--- a/include/linux/tracehook.h
++++ b/include/linux/tracehook.h
+@@ -204,12 +204,16 @@ static inline void tracehook_notify_resume(struct pt_regs *regs)
+  * is currently used by TWA_SIGNAL based task_work, which requires breaking
+  * wait loops to ensure that task_work is noticed and run.
+  */
+-static inline void tracehook_notify_signal(void)
++static inline bool tracehook_notify_signal(void)
+ {
++	bool ret;
++
+ 	clear_thread_flag(TIF_NOTIFY_SIGNAL);
+ 	smp_mb__after_atomic();
+-	if (current->task_works)
++	ret = current->task_works;
++	if (ret)
+ 		task_work_run();
++	return ret;
+ }
+ 
+ /*
 -- 
 2.32.0
 

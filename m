@@ -2,83 +2,104 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F0C1CC4338F
-	for <io-uring@archiver.kernel.org>; Tue, 24 Aug 2021 13:58:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 30810C4320A
+	for <io-uring@archiver.kernel.org>; Tue, 24 Aug 2021 13:58:35 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D3B9061176
-	for <io-uring@archiver.kernel.org>; Tue, 24 Aug 2021 13:58:34 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 13D5761212
+	for <io-uring@archiver.kernel.org>; Tue, 24 Aug 2021 13:58:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237473AbhHXN7S (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        id S237451AbhHXN7S (ORCPT <rfc822;io-uring@archiver.kernel.org>);
         Tue, 24 Aug 2021 09:59:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41856 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41868 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237451AbhHXN7P (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Tue, 24 Aug 2021 09:59:15 -0400
+        with ESMTP id S237618AbhHXN7R (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Tue, 24 Aug 2021 09:59:17 -0400
 Received: from mail-wr1-x430.google.com (mail-wr1-x430.google.com [IPv6:2a00:1450:4864:20::430])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AAB16C061757
-        for <io-uring@vger.kernel.org>; Tue, 24 Aug 2021 06:58:30 -0700 (PDT)
-Received: by mail-wr1-x430.google.com with SMTP id h13so31541827wrp.1
-        for <io-uring@vger.kernel.org>; Tue, 24 Aug 2021 06:58:30 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 87F7FC061757
+        for <io-uring@vger.kernel.org>; Tue, 24 Aug 2021 06:58:32 -0700 (PDT)
+Received: by mail-wr1-x430.google.com with SMTP id f5so31433308wrm.13
+        for <io-uring@vger.kernel.org>; Tue, 24 Aug 2021 06:58:32 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:subject:date:message-id:mime-version
+        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=HrtAnA0s28VPKXs7X4rLiGdzQx7TUkFShe4+1jQaCVk=;
-        b=WFRCD6p1IjkAz48GJwcUO4hXTldvBu/+YiqGCOhi7L3ndwTGrHSRTo6Zn+qzC34ixx
-         i/YwFQtpijfx4q8Zq16kfNc3BxRakyHgyQ2tJ7XozjQpsMdTUFpSmC8/MFQauJUjhHTi
-         5ixZOyFtxgIyED0dqb9PPu214RqD1le8ie+fHE4AFBAGySrDKYo7ga0DYHAORKC5h6L+
-         yYGmYO0wXTn3FB+xD3/mor5wIypv76X41uHrl0SFD97g46gNVcmcQ1RcNfEsvmNxxR4h
-         QgCL2KH+B304hEq9GzGAxyEqac05/o78h4bVomg84ktnkwM3S8CMTy9Hoq+FsmmjPUfM
-         z3zA==
+        bh=usKcXXE7LD6xR/J83+xwOB3ds6fThGvXWh81u3oWUiI=;
+        b=bWoeZc7sk6TFyJ8IbnCn5mHQicTEOF8r6BMSVe07m6FqX1vK7R+ZeuK9CXujkaQaRk
+         V++lf/HQUh/WGeM+eKCF7I8dXygoC9DpoD5ixfaWhxz8ia0U0qEFfApie7aVTlkQIQNY
+         tgVQ6xE1+Y1nsauWFsOqZK78Y8bzl1veObED3aRQfaiWS7CLz77E6qVOEmWMncOQALJP
+         rTPRmdsxS//Ok3TM7rdhNtzVTWekIJexPpjzpkNDkNNgo9FFy/Ytc5SXqt9iGU21HAZX
+         bg+mczxlCi2C4SbyJpjsysOveyBT2JrsVb+KIbtQrIY2gmGrexfweI7Y/8jVtHjsfqhy
+         azMQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=HrtAnA0s28VPKXs7X4rLiGdzQx7TUkFShe4+1jQaCVk=;
-        b=jlD8ZHmEtKX+LTLlThWVKp6uI1v3TjkgDlXqAh9B6SQMk/A214rzs54vdOfA52oQty
-         gMhNvhzsCIBQF69pU8ehEX2qbeHmYK96z5yFRPQ8RYYdtrF5A2uwSVbFPLb75It5C3uv
-         ChfP7Qp6s/kHRho04Qy1Znkm02YcRy1yM8pnhuS6kcqeeSIKloLhRfEASSMMbmSi0PIB
-         tSJbX5mCOv/ZkFR97BxLzw69sqKXIV0fpMqx64195roj+VT8I10duIp6TJv2rri9CNHX
-         3cUpPjMPhcUHeQRxK8hBAhY5qNM+g7D4RmnPHg0s0I0WYezR5OGyuuBI/R5LdLvUYXm3
-         AkIQ==
-X-Gm-Message-State: AOAM532ox1aWnbx6MHt0AZ532BbLstlUVkxS0uRWu7PlFmlW8fdTnwTd
-        EfbGZmmr3fpSyaagYtbK1GY=
-X-Google-Smtp-Source: ABdhPJzM/Sn4GGUFN2SeU5/3Uu2nOgorr1HoZ4FDSe8OB7OCszGxXN2O0bzxPQ405Ff9VOFzWGSenA==
-X-Received: by 2002:adf:dd11:: with SMTP id a17mr19487527wrm.132.1629813509381;
-        Tue, 24 Aug 2021 06:58:29 -0700 (PDT)
+        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=usKcXXE7LD6xR/J83+xwOB3ds6fThGvXWh81u3oWUiI=;
+        b=UtDZ27XeaHI+iylAolZssflYBmzC+0ZFlOTfzdC0FsS8p4SGC3erWShH5Div55TnDh
+         0vQgsgF8/RPtAtp42ja6ysWKJkiZ8xXHR0KIZgz8xAL3XHNejggi1Kry1R4Q6MaBz/Bw
+         mIeiMmJZhhxvZsqrncoJRRPyIEh8sdUGeFfFrdxvLnSOwPX0w1dGE9CFRlUt8N1tiHxu
+         a4HiszQe3msW45cD4ozjmBhTj5SzOmL+UgAzUlh+D+yfbJwsIzI7LGbttvE93N8CXwxZ
+         pwxyiaoECEh1Vkjn8R77sHyZKBJ5IoUieyplyKMZtjVTFyzEH9NS0JU5BCJrzwbmjuGr
+         t/hg==
+X-Gm-Message-State: AOAM530OwOEDRL+5uk2oXVA9c1UbUKyHtQ3hk5dSs9xiDuAIkNafjsdd
+        9uJAWaX2nB/zLQuWr/qfGRI=
+X-Google-Smtp-Source: ABdhPJyKbd6r/8N/7tSmIcUCB1N25U6+O7DMyLBTsGGSXrE/VrVhOCwcVCtOFi2aIVeN1h99oNJ93g==
+X-Received: by 2002:adf:d1c3:: with SMTP id b3mr18626671wrd.286.1629813511240;
+        Tue, 24 Aug 2021 06:58:31 -0700 (PDT)
 Received: from localhost.localdomain ([85.255.232.113])
-        by smtp.gmail.com with ESMTPSA id y21sm2568622wmc.11.2021.08.24.06.58.28
+        by smtp.gmail.com with ESMTPSA id y21sm2568622wmc.11.2021.08.24.06.58.30
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 24 Aug 2021 06:58:29 -0700 (PDT)
+        Tue, 24 Aug 2021 06:58:30 -0700 (PDT)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH liburing 0/2] non-root fixes
-Date:   Tue, 24 Aug 2021 14:57:50 +0100
-Message-Id: <cover.1629813328.git.asml.silence@gmail.com>
+Subject: [PATCH liburing 2/2] tests: non-root io_uring_register
+Date:   Tue, 24 Aug 2021 14:57:52 +0100
+Message-Id: <2d40f84f0fa5e5dc53ef8b55bdcc00a11e0dc5a7.1629813328.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.32.0
+In-Reply-To: <cover.1629813328.git.asml.silence@gmail.com>
+References: <cover.1629813328.git.asml.silence@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-1/1 fixes non-root rw tests, and 2/2 makes yet another
-test case to handle non-root users.
+Non-previliged users can't register too many buffers, just skip the test
+in this case.
 
-Pavel Begunkov (2):
-  tests: rw: don't exit ring when init failed
-  tests: non-root io_uring_register
-
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+---
  test/io_uring_register.c | 8 +++++---
- test/iopoll.c            | 3 +--
- test/read-write.c        | 4 +---
- 3 files changed, 7 insertions(+), 8 deletions(-)
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
+diff --git a/test/io_uring_register.c b/test/io_uring_register.c
+index 53e3987..9475739 100644
+--- a/test/io_uring_register.c
++++ b/test/io_uring_register.c
+@@ -303,12 +303,14 @@ test_iovec_nr(int fd)
+ 	printf("io_uring_register(%d, %u, %p, %u)\n",
+ 	       fd, IORING_REGISTER_BUFFERS, iovs, nr);
+ 	ret = __sys_io_uring_register(fd, IORING_REGISTER_BUFFERS, iovs, nr);
+-	if (ret != 0) {
++	if (ret && (errno == ENOMEM || errno == EPERM) && geteuid()) {
++		printf("can't register large iovec for regular users, skip\n");
++	} else if (ret != 0) {
+ 		printf("expected success, got %d\n", errno);
+ 		status = 1;
+-	} else
++	} else {
+ 		__sys_io_uring_register(fd, IORING_UNREGISTER_BUFFERS, 0, 0);
+-
++	}
+ 	free(buf);
+ 	free(iovs);
+ 	return status;
 -- 
 2.32.0
 

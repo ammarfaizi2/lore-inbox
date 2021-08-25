@@ -2,201 +2,149 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.6 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,
-	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.5 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3DBA4C4338F
-	for <io-uring@archiver.kernel.org>; Wed, 25 Aug 2021 03:19:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 00500C4338F
+	for <io-uring@archiver.kernel.org>; Wed, 25 Aug 2021 11:18:35 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0F73761247
-	for <io-uring@archiver.kernel.org>; Wed, 25 Aug 2021 03:19:39 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CCBF96108E
+	for <io-uring@archiver.kernel.org>; Wed, 25 Aug 2021 11:18:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236811AbhHYDUX (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Tue, 24 Aug 2021 23:20:23 -0400
-Received: from out30-131.freemail.mail.aliyun.com ([115.124.30.131]:43892 "EHLO
-        out30-131.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230021AbhHYDUW (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Tue, 24 Aug 2021 23:20:22 -0400
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R101e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04423;MF=haoxu@linux.alibaba.com;NM=1;PH=DS;RN=4;SR=0;TI=SMTPD_---0Ulgw7LG_1629861573;
-Received: from B-25KNML85-0107.local(mailfrom:haoxu@linux.alibaba.com fp:SMTPD_---0Ulgw7LG_1629861573)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Wed, 25 Aug 2021 11:19:34 +0800
-Subject: Re: [PATCH 2/2] io_uring: add irq completion work to the head of
- task_list
-To:     Pavel Begunkov <asml.silence@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>
+        id S239411AbhHYLTU (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 25 Aug 2021 07:19:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53232 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231697AbhHYLTU (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Wed, 25 Aug 2021 07:19:20 -0400
+Received: from mail-wr1-x429.google.com (mail-wr1-x429.google.com [IPv6:2a00:1450:4864:20::429])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8CCAFC061757
+        for <io-uring@vger.kernel.org>; Wed, 25 Aug 2021 04:18:34 -0700 (PDT)
+Received: by mail-wr1-x429.google.com with SMTP id q14so1711728wrp.3
+        for <io-uring@vger.kernel.org>; Wed, 25 Aug 2021 04:18:34 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=to:cc:references:from:subject:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=QxzAxSBh94yQywG5jps0wIgVj4eeVZKBqpESyLfptFQ=;
+        b=u0Bd261WP31zZvz3+M+MCfigvqb+DW9VNg11TpyUsGsTg/bXsCYrZ3lADgm3pKcLN+
+         2ao22D/yQrHTafH6YW2ei0SX1/UpCyUp+81DeIEAsMPYfLMKKFMmq5uFPVAbWWLW7hoe
+         aCiJiaUer5XTedTZ1mNwafsCZv5YF935GF+ffJX0BZm3B05ehbcESt+unTdGCTf24aXz
+         DgPO2xu1cuLQT1CSpP0FEI4cgVTcYcr34Bh1SgscAQ0oJA4MxtrYYuccz/2+dzXyHKoq
+         pNXJOyBSpYwdoi+aeE6oXlA2sXH+YZPaJz8p6YPGZG0roIjAmnwP1//Lm/lP/voNGOoe
+         SJXg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:to:cc:references:from:subject:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=QxzAxSBh94yQywG5jps0wIgVj4eeVZKBqpESyLfptFQ=;
+        b=SPsieykbcg3AdWgAKlTbOpRMxRTF81/wTBWp5CWikWAWG+LnAw8zN9CLeB5rh4/HUb
+         XRX/OUs2EZUhvCIsOslBjkoOFlHjR5lJXzqzye1/VRlcxJ4WyhXN8Cdk82SoJpRkY3m2
+         +cHRtsLmQEzq/5nJPCTc7uVdmf7MmXRKKubyeKy22zYPnfvB6P/E+a+5K7dpzTmnLYI9
+         BhNxuQGmbcsXqtUJTOQmWkh0Sd/6DXm+X4Ebq6oMKjtqS6PWxwCjTNcvF+yzsshyMbx9
+         X0jnj9zX1CaPFln3WY9U6LvvdqWJhrwqa0NNVHXPW/ycdsaKOLGkr/W+QmEntBNmRnQE
+         n7yw==
+X-Gm-Message-State: AOAM5328mKzSgFeV6EzmwYX6XiHB5EK6WaIHXDgAVsJITu6CP9KQ9ZC/
+        aRo9SEvmz/s9bHD+8HUiXt6Zp+RRcfw=
+X-Google-Smtp-Source: ABdhPJzk+D7lDo2GVuzyWlRZYTHLxx5dv0KPpTooLIaX/cqBA+mEFaXg5NY+ZK09HewV92Dk9YZtQQ==
+X-Received: by 2002:adf:fc45:: with SMTP id e5mr24132060wrs.127.1629890313106;
+        Wed, 25 Aug 2021 04:18:33 -0700 (PDT)
+Received: from [192.168.8.197] ([85.255.232.117])
+        by smtp.gmail.com with ESMTPSA id n4sm5258120wro.81.2021.08.25.04.18.32
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 25 Aug 2021 04:18:32 -0700 (PDT)
+To:     Hao Xu <haoxu@linux.alibaba.com>, Jens Axboe <axboe@kernel.dk>
 Cc:     io-uring@vger.kernel.org, Joseph Qi <joseph.qi@linux.alibaba.com>
 References: <20210823183648.163361-1-haoxu@linux.alibaba.com>
  <20210823183648.163361-3-haoxu@linux.alibaba.com>
  <50876fd1-9e8a-baf4-e76e-7232eaae45d9@gmail.com>
-From:   Hao Xu <haoxu@linux.alibaba.com>
-Message-ID: <edd2c9c4-774b-6aa2-c871-df8312067f3e@linux.alibaba.com>
-Date:   Wed, 25 Aug 2021 11:19:33 +0800
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0)
- Gecko/20100101 Thunderbird/78.12.0
+ <edd2c9c4-774b-6aa2-c871-df8312067f3e@linux.alibaba.com>
+From:   Pavel Begunkov <asml.silence@gmail.com>
+Subject: Re: [PATCH 2/2] io_uring: add irq completion work to the head of
+ task_list
+Message-ID: <e8d3cfe4-0dd0-7708-c660-0f4df6e2f6f7@gmail.com>
+Date:   Wed, 25 Aug 2021 12:18:01 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.12.0
 MIME-Version: 1.0
-In-Reply-To: <50876fd1-9e8a-baf4-e76e-7232eaae45d9@gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
+In-Reply-To: <edd2c9c4-774b-6aa2-c871-df8312067f3e@linux.alibaba.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-在 2021/8/24 下午8:57, Pavel Begunkov 写道:
-> On 8/23/21 7:36 PM, Hao Xu wrote:
->> Now we have a lot of task_work users, some are just to complete a req
->> and generate a cqe. Let's put the work at the head position of the
->> task_list, so that it can be handled quickly and thus to reduce
->> avg req latency. an explanatory case:
+On 8/25/21 4:19 AM, Hao Xu wrote:
+> 在 2021/8/24 下午8:57, Pavel Begunkov 写道:
+>> On 8/23/21 7:36 PM, Hao Xu wrote:
+>>> Now we have a lot of task_work users, some are just to complete a req
+>>> and generate a cqe. Let's put the work at the head position of the
+>>> task_list, so that it can be handled quickly and thus to reduce
+>>> avg req latency. an explanatory case:
+>>>
+>>> origin timeline:
+>>>      submit_sqe-->irq-->add completion task_work
+>>>      -->run heavy work0~n-->run completion task_work
+>>> now timeline:
+>>>      submit_sqe-->irq-->add completion task_work
+>>>      -->run completion task_work-->run heavy work0~n
 >>
->> origin timeline:
->>      submit_sqe-->irq-->add completion task_work
->>      -->run heavy work0~n-->run completion task_work
->> now timeline:
->>      submit_sqe-->irq-->add completion task_work
->>      -->run completion task_work-->run heavy work0~n
-> 
-> Might be good. There are not so many hot tw users:
-> poll, queuing linked requests, and the new IRQ. Could be
-> BPF in the future.
-async buffered reads as well, regarding buffered reads is
-hot operation.
-> 
-> So, for the test case I'd think about some heavy-ish
-> submissions linked to your IRQ req. For instance,
-> keeping a large QD of
-> 
-> read(IRQ-based) -> linked read_pipe(PAGE_SIZE);
-> 
-> and running it for a while, so they get completely
-> out of sync and tw works really mix up. It reads
-> from pipes size<=PAGE_SIZE, so it completes inline,
-> but the copy takes enough of time.
-Thanks Pavel, previously I tried
-direct read-->buffered read(async buffered read)
-didn't see much difference. I'll try the above case
-you offered.
-> 
-> One thing is that Jens specifically wanted tw's to
-> be in FIFO order, where IRQ based will be in LIFO.
-> I don't think it's a real problem though, the
-> completion handler should be brief enough.In my latest code, the IRQ based tw are also FIFO,
-only LIFO between IRQ based tw and other tw:
-timeline: tw1 tw2 irq1 irq2
-task_list: irq1 irq2 tw1 tw2
-> 
->> Signed-off-by: Hao Xu <haoxu@linux.alibaba.com>
->> ---
->>   fs/io-wq.h    |  9 +++++++++
->>   fs/io_uring.c | 21 ++++++++++++---------
->>   2 files changed, 21 insertions(+), 9 deletions(-)
->>
->> diff --git a/fs/io-wq.h b/fs/io-wq.h
->> index 308af3928424..51b4408fd177 100644
->> --- a/fs/io-wq.h
->> +++ b/fs/io-wq.h
->> @@ -41,6 +41,15 @@ static inline void wq_list_add_after(struct io_wq_work_node *node,
->>   		list->last = node;
->>   }
->>   
->> +static inline void wq_list_add_head(struct io_wq_work_node *node,
->> +				    struct io_wq_work_list *list)
->> +{
->> +	node->next = list->first;
->> +	list->first = node;
->> +	if (!node->next)
->> +		list->last = node;
->> +}
->> +
->>   static inline void wq_list_add_tail(struct io_wq_work_node *node,
->>   				    struct io_wq_work_list *list)
->>   {
->> diff --git a/fs/io_uring.c b/fs/io_uring.c
->> index 8172f5f893ad..954cd8583945 100644
->> --- a/fs/io_uring.c
->> +++ b/fs/io_uring.c
->> @@ -2050,7 +2050,7 @@ static void tctx_task_work(struct callback_head *cb)
->>   	ctx_flush_and_put(ctx);
->>   }
->>   
->> -static void io_req_task_work_add(struct io_kiocb *req)
->> +static void io_req_task_work_add(struct io_kiocb *req, bool emergency)
->>   {
->>   	struct task_struct *tsk = req->task;
->>   	struct io_uring_task *tctx = tsk->io_uring;
->> @@ -2062,7 +2062,10 @@ static void io_req_task_work_add(struct io_kiocb *req)
->>   	WARN_ON_ONCE(!tctx);
->>   
->>   	spin_lock_irqsave(&tctx->task_lock, flags);
->> -	wq_list_add_tail(&req->io_task_work.node, &tctx->task_list);
->> +	if (emergency)
->> +		wq_list_add_head(&req->io_task_work.node, &tctx->task_list);
->> +	else
->> +		wq_list_add_tail(&req->io_task_work.node, &tctx->task_list);
->>   	running = tctx->task_running;
->>   	if (!running)
->>   		tctx->task_running = true;
->> @@ -2122,19 +2125,19 @@ static void io_req_task_queue_fail(struct io_kiocb *req, int ret)
->>   {
->>   	req->result = ret;
->>   	req->io_task_work.func = io_req_task_cancel;
->> -	io_req_task_work_add(req);
->> +	io_req_task_work_add(req, true);
->>   }
->>   
->>   static void io_req_task_queue(struct io_kiocb *req)
->>   {
->>   	req->io_task_work.func = io_req_task_submit;
->> -	io_req_task_work_add(req);
->> +	io_req_task_work_add(req, false);
->>   }
->>   
->>   static void io_req_task_queue_reissue(struct io_kiocb *req)
->>   {
->>   	req->io_task_work.func = io_queue_async_work;
->> -	io_req_task_work_add(req);
->> +	io_req_task_work_add(req, false);
->>   }
->>   
->>   static inline void io_queue_next(struct io_kiocb *req)
->> @@ -2249,7 +2252,7 @@ static inline void io_put_req_deferred(struct io_kiocb *req)
->>   {
->>   	if (req_ref_put_and_test(req)) {
->>   		req->io_task_work.func = io_free_req;
->> -		io_req_task_work_add(req);
->> +		io_req_task_work_add(req, false);
->>   	}
->>   }
->>   
->> @@ -2564,7 +2567,7 @@ static void io_complete_rw(struct kiocb *kiocb, long res, long res2)
->>   		return;
->>   	req->result = res;
->>   	req->io_task_work.func = io_req_task_complete;
->> -	io_req_task_work_add(req);
->> +	io_req_task_work_add(req, true);
->>   }
->>   
->>   static void io_complete_rw_iopoll(struct kiocb *kiocb, long res, long res2)
->> @@ -4881,7 +4884,7 @@ static int __io_async_wake(struct io_kiocb *req, struct io_poll_iocb *poll,
->>   	 * of executing it. We can't safely execute it anyway, as we may not
->>   	 * have the needed state needed for it anyway.
->>   	 */
->> -	io_req_task_work_add(req);
->> +	io_req_task_work_add(req, false);
->>   	return 1;
->>   }
->>   
->> @@ -6430,7 +6433,7 @@ static enum hrtimer_restart io_link_timeout_fn(struct hrtimer *timer)
->>   	spin_unlock_irqrestore(&ctx->timeout_lock, flags);
->>   
->>   	req->io_task_work.func = io_req_task_link_timeout;
->> -	io_req_task_work_add(req);
->> +	io_req_task_work_add(req, false);
->>   	return HRTIMER_NORESTART;
->>   }
->>   
->>
-> 
+>> Might be good. There are not so many hot tw users:
+>> poll, queuing linked requests, and the new IRQ. Could be
+>> BPF in the future.
+> async buffered reads as well, regarding buffered reads is
+> hot operation.
 
+Good case as well, forgot about it. Should be not so hot,
+as it's only when reads are served out of the buffer cache.
+
+
+>> So, for the test case I'd think about some heavy-ish
+>> submissions linked to your IRQ req. For instance,
+>> keeping a large QD of
+>>
+>> read(IRQ-based) -> linked read_pipe(PAGE_SIZE);
+>>
+>> and running it for a while, so they get completely
+>> out of sync and tw works really mix up. It reads
+>> from pipes size<=PAGE_SIZE, so it completes inline,
+>> but the copy takes enough of time.
+> Thanks Pavel, previously I tried
+> direct read-->buffered read(async buffered read)
+> didn't see much difference. I'll try the above case
+> you offered.
+
+Hmm, considering that pipes have to be refilled, buffered reads
+may be a better option. I'd make them all to read the same page,
++ registered buffer + reg file. And then it'd probably depend on
+how fast your main SSD is.
+
+mem = malloc_align(4096);
+io_uring_register_buffer(mem, 4096);
+// preferably another disk/SSD from the fast one
+fd2 = open("./file");
+// loop
+read(fast_ssd, DIRECT, 512) -> read(fd2, fixed_buf, 4096)
+
+Interesting what it'll yield. Probably with buffered reads
+it can be experimented to have 2 * PAGE_SIZE or even slightly
+more, to increase the heavy part.
+
+btw, I'd look for latency distribution (90%, 99%) as well, it
+may get the worst hit. 
+
+>>
+>> One thing is that Jens specifically wanted tw's to
+>> be in FIFO order, where IRQ based will be in LIFO.
+>> I don't think it's a real problem though, the
+>> completion handler should be brief enough.In my latest code, the IRQ based tw are also FIFO,
+> only LIFO between IRQ based tw and other tw:
+> timeline: tw1 tw2 irq1 irq2
+> task_list: irq1 irq2 tw1 tw2
+>>
+-- 
+Pavel Begunkov

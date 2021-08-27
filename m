@@ -2,98 +2,115 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-4.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 72FDAC432BE
-	for <io-uring@archiver.kernel.org>; Fri, 27 Aug 2021 19:35:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id ADA40C432BE
+	for <io-uring@archiver.kernel.org>; Fri, 27 Aug 2021 19:49:38 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 59FC860FE6
-	for <io-uring@archiver.kernel.org>; Fri, 27 Aug 2021 19:35:34 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7CF4060FE6
+	for <io-uring@archiver.kernel.org>; Fri, 27 Aug 2021 19:49:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230371AbhH0TgX (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Fri, 27 Aug 2021 15:36:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35294 "EHLO
+        id S231202AbhH0Tu0 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Fri, 27 Aug 2021 15:50:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38396 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230245AbhH0TgW (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Fri, 27 Aug 2021 15:36:22 -0400
-Received: from mail-wr1-x434.google.com (mail-wr1-x434.google.com [IPv6:2a00:1450:4864:20::434])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D41BC061757
-        for <io-uring@vger.kernel.org>; Fri, 27 Aug 2021 12:35:33 -0700 (PDT)
-Received: by mail-wr1-x434.google.com with SMTP id v10so12038368wrd.4
-        for <io-uring@vger.kernel.org>; Fri, 27 Aug 2021 12:35:33 -0700 (PDT)
+        with ESMTP id S229821AbhH0Tu0 (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Fri, 27 Aug 2021 15:50:26 -0400
+Received: from mail-ej1-x62d.google.com (mail-ej1-x62d.google.com [IPv6:2a00:1450:4864:20::62d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94B46C0613D9
+        for <io-uring@vger.kernel.org>; Fri, 27 Aug 2021 12:49:36 -0700 (PDT)
+Received: by mail-ej1-x62d.google.com with SMTP id x11so16314081ejv.0
+        for <io-uring@vger.kernel.org>; Fri, 27 Aug 2021 12:49:36 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=subject:to:references:from:message-id:date:user-agent:mime-version
-         :in-reply-to:content-language:content-transfer-encoding;
-        bh=URUiQ+Q5c0GhxOsXgJsjAF/ktTLb15XxeVpjne4jfKY=;
-        b=j5hu/AMxeCCYj5KIjLqtFrY/utm92ev2zsdKpQvjWtTv6px0vmvY2Q/80sxH6TIcy2
-         CA7GAmh2HJv/vNnX2apFDitGiG7GSnsWwoEyS5koHv+xYm7eIHUDtP+A2yYG2MpmY6N0
-         5mQLo+5T0aCXIBxTu5+J43Qsu0ijIZuwUdvZw2srj2bPZqu+hYCWn790yqWKlmBsKW8d
-         DT+MbaiQARUvpN3eyKalHBJww8eN8fcEN7RnCMHC7H/O59lEGkCFDE1YX1qEeyjFo5Fv
-         GvFPMpwl5Bj4Locy24GsG4P/N6rWsrRv26O8Kd4MGdUFW2M1ck4qt/lY++ELD5YP8lwu
-         iNRg==
+        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=MarwsWWGC0vgeYe2TT0Bknreciph81Y5zQko1bbo3dg=;
+        b=VDp9L1aSEtB6Ja57TrDn9eWLnenyIwAPGW7I3DZLgoSo3HZ0yIzE269UHR381x5vj1
+         ysj2a3K4xBRAtql47MJkvyqD3biO5iHkTxq7LUxf8A7YxN2DAdkNqD3E0FwgSb+YvXNs
+         ge+kQcRBgUBgUxfo9Q/xTcK9QPgqQYaRBeGPxqZ83AwOcZXP0AOoTClsQ1FEe1Yl1ctC
+         VLfSCOhfKOcbp/nG0AlQCx7+XHBM0dihc955Q6L1ITt6cPmsqG6jKyITvbaDxCYaXjNm
+         QqLm8lse9PxFEpOgXgN88LgyE3rCEyQCUhUCK6eKot8KK/v9AKpN5zjuwgExd7flJ/iJ
+         nMsA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=URUiQ+Q5c0GhxOsXgJsjAF/ktTLb15XxeVpjne4jfKY=;
-        b=NiR9vG8Tb8sfq6eVVobATU6Rwro/M+RjkJeFLto1ePP49AOx2hCyQ0hoZn8iavgUIo
-         MrhecFFtsh1oGVwr6nKYVXVtULXtGIfIRfagcTcIGbl6i4t13qi+2iCkIXU4whs1+TAt
-         Hn7m8zgRS8u1X0Iydp89DB8aAp31+AhNdmJKbDCfHSQj6H+MzziJL/kvUsD0beRa7+7A
-         1kh0rc/qgUkv+3TGWGZgaXYCs/GAAScjE+b7d6nzk0NtPDNuuMGhuIXg/2C3uZHtqPTE
-         /aY/V50Wkwp+dTP9DcISMnO3J3I0ow6zuCAEmKyzsbruoqSJXpBvEyRW2a7ytOzg9+2z
-         s9lg==
-X-Gm-Message-State: AOAM532a4sgruc5dSAj07/A4OmaeotpL/ksBv+lEibiFeDVzKKC1CrdP
-        MH/qPyKWAm8ivHlgK6SV6VdbiyQ98ZA=
-X-Google-Smtp-Source: ABdhPJyuDyNc1VQyyKAVsNp+VNIVWnjqmLDZFoQ7KKzvOMwvbej7knEifENAdMle1BUp8ZNHDVl/6g==
-X-Received: by 2002:a5d:4d8c:: with SMTP id b12mr11979785wru.232.1630092931791;
-        Fri, 27 Aug 2021 12:35:31 -0700 (PDT)
-Received: from [192.168.8.197] ([148.252.128.94])
-        by smtp.gmail.com with ESMTPSA id o5sm7092923wrw.17.2021.08.27.12.35.31
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 27 Aug 2021 12:35:31 -0700 (PDT)
-Subject: Re: [PATCH liburing] register: add tagging and buf update helpers
-To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-References: <f4f19901c6f925e103dea32be252763ba8a4d2d3.1630089830.git.asml.silence@gmail.com>
- <7c95d8a0-7449-ce1e-4c7b-c6fb8537d61f@kernel.dk>
- <652de562-c9ac-3a03-fdd1-e91751eb1997@gmail.com>
- <52832dbf-1c55-db0e-4521-198ec6443fe7@kernel.dk>
-From:   Pavel Begunkov <asml.silence@gmail.com>
-Message-ID: <45ba112f-feb0-6b35-2daa-97ff768415ab@gmail.com>
-Date:   Fri, 27 Aug 2021 20:35:00 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.13.0
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=MarwsWWGC0vgeYe2TT0Bknreciph81Y5zQko1bbo3dg=;
+        b=ktNCOr37EPacDTop9KUaQZJcqqlYX5SZ/D3/mXKns48Ad0EBrgFYszxhFyfBsmTMsJ
+         U9kZsfy6Ku8f3i8HQK+HIymQvR6DtWEiUVTEqZSycgyF4sU9FrWs7ohbWN+WluB1En3J
+         7RkQcJ3Ym+/YwteiC9wGlXkABMyiV88H+fF1dmpKcWiKZSJ4Mb35BL0HjKVsZmABAy2/
+         dtPlzDeUJPBuhwjcHBo496vnCaPZK7qikO3pxsiNRW7O7suaE9fVSmlEkWcTfcEu+HYN
+         hSoT2narrKsS1BpARaafOUcKWpGeM0ULxx2kfFz9t5/zD7U6r5gagH02GHosfycdjzLl
+         Ygfg==
+X-Gm-Message-State: AOAM5335IEjPk4KkEEkaKldVKxzfyfvmIa+NsJAzDEw7q2YCVMT3d6Sx
+        2OwElEiglG0S7k8aBc4hbGuewmLZ5UmhX6WJVwh0
+X-Google-Smtp-Source: ABdhPJx8Cuhrg3SXaR2CWgIvHRns6qh4/y+RRqlTaCS2oPMgn9tWv4WqNnZLocutZJdvMikV0ssmc2A4ucAVfrKNtmY=
+X-Received: by 2002:a17:907:2a85:: with SMTP id fl5mr510228ejc.91.1630093774900;
+ Fri, 27 Aug 2021 12:49:34 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <52832dbf-1c55-db0e-4521-198ec6443fe7@kernel.dk>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+References: <162871480969.63873.9434591871437326374.stgit@olly>
+ <20210824205724.GB490529@madcap2.tricolour.ca> <20210826011639.GE490529@madcap2.tricolour.ca>
+ <CAHC9VhSADQsudmD52hP8GQWWR4+=sJ7mvNkh9xDXuahS+iERVA@mail.gmail.com>
+ <20210826163230.GF490529@madcap2.tricolour.ca> <CAHC9VhTkZ-tUdrFjhc2k1supzW1QJpY-15pf08mw6=ynU9yY5g@mail.gmail.com>
+ <20210827133559.GG490529@madcap2.tricolour.ca>
+In-Reply-To: <20210827133559.GG490529@madcap2.tricolour.ca>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Fri, 27 Aug 2021 15:49:24 -0400
+Message-ID: <CAHC9VhRqSO6+MVX+LYBWHqwzd3QYgbSz3Gd8E756J0QNEmmHdQ@mail.gmail.com>
+Subject: Re: [RFC PATCH v2 0/9] Add LSM access controls and auditing to io_uring
+To:     Richard Guy Briggs <rgb@redhat.com>
+Cc:     linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        linux-audit@redhat.com, io-uring@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org,
+        Kumar Kartikeya Dwivedi <memxor@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>,
+        Pavel Begunkov <asml.silence@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 8/27/21 8:14 PM, Jens Axboe wrote:
-> On 8/27/21 12:51 PM, Pavel Begunkov wrote:
->> On 8/27/21 7:48 PM, Jens Axboe wrote:
->>> On 8/27/21 12:46 PM, Pavel Begunkov wrote:
->>>> Add heplers for rsrc (buffers, files) updates and registration with
->>>> tags.
->>>
->>> Excellent! They should go into src/liburing.map too though. 
->>
->> Hmm, indeed
->>
->> Should it be LIBURING_2.2 or LIBURING_2.1 ?
-> 
-> It should go into the 2.1 section, as it'll be part of 2.1 release.
-> Any symbols added after 2.1 has been tagged would go into a 2.2
-> section.
+On Fri, Aug 27, 2021 at 9:36 AM Richard Guy Briggs <rgb@redhat.com> wrote:
+> On 2021-08-26 15:14, Paul Moore wrote:
+> > On Thu, Aug 26, 2021 at 12:32 PM Richard Guy Briggs <rgb@redhat.com> wrote:
+> > > I'm getting:
+> > >         # ./iouring.2
+> > >         Kernel thread io_uring-sq is not running.
+> > >         Unable to setup io_uring: Permission denied
+> > >
+> > >         # ./iouring.3s
+> > >         >>> server started, pid = 2082
+> > >         >>> memfd created, fd = 3
+> > >         io_uring_queue_init: Permission denied
+> > >
+> > > I have CONFIG_IO_URING=y set, what else is needed?
+> >
+> > I'm not sure how you tried to run those tests, but try running as root
+> > and with SELinux in permissive mode.
+>
+> Ok, they ran, including iouring.4.  iouring.2 claimed twice: "Kernel
+> thread io_uring-sq is not running." and I didn't get any URING records
+> with ausearch.  I don't know if any of this is expected.
 
-Good, sent it out
+Now that I've written iouring.4, I would skip the others; while
+helpful at the time, they are pretty crap.
+
+I have no idea what kernel you are running, but I'm going to assume
+you've applied the v2 patches (if not, you obviously need to do that
+<g>).  Beyond that you may need to set a filter for the
+io_uring_enter() syscall to force the issue; theoretically your audit
+userspace patches should allow a uring op specifically to be filtered
+but I haven't had a chance to try that yet so either the kernel or
+userspace portion could be broken.
+
+At this point if you are running into problems you'll probably need to
+spend some time debugging them, as I think you're the only person who
+has tested your audit userspace patches at this point (and the only
+one who has access to your latest bits).
 
 -- 
-Pavel Begunkov
+paul moore
+www.paul-moore.com

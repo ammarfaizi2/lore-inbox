@@ -6,57 +6,56 @@ X-Spam-Status: No, score=-11.4 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
 	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6E7F5C432BE
-	for <io-uring@archiver.kernel.org>; Tue, 31 Aug 2021 02:58:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E3C1AC43214
+	for <io-uring@archiver.kernel.org>; Tue, 31 Aug 2021 02:58:35 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 51D9A61004
-	for <io-uring@archiver.kernel.org>; Tue, 31 Aug 2021 02:58:34 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CB60661027
+	for <io-uring@archiver.kernel.org>; Tue, 31 Aug 2021 02:58:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239416AbhHaC70 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Mon, 30 Aug 2021 22:59:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60040 "EHLO mail.kernel.org"
+        id S239443AbhHaC72 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Mon, 30 Aug 2021 22:59:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60062 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239317AbhHaC70 (ORCPT <rfc822;io-uring@vger.kernel.org>);
-        Mon, 30 Aug 2021 22:59:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPS id 9C23F61004;
-        Tue, 31 Aug 2021 02:58:31 +0000 (UTC)
+        id S239317AbhHaC71 (ORCPT <rfc822;io-uring@vger.kernel.org>);
+        Mon, 30 Aug 2021 22:59:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPS id AF55A60FED;
+        Tue, 31 Aug 2021 02:58:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1630378711;
-        bh=nsGIPinlH5h/JDi1gy6Eve4ENDYJPYs8DA2FJi2z3E8=;
+        s=k20201202; t=1630378712;
+        bh=q5Xe73qB9ShXTXAbyfmXe/hq0zO0S8Fk4FhZgW0o2Is=;
         h=Subject:From:In-Reply-To:References:Date:To:Cc:From;
-        b=TzjijQp3505tf5eIRupQDGQeVNzXq3fNbo5ktO3a4PIHVsv4s9B5jnYPBHANVP/S3
-         CewSu66Y5OOWAFv+tm/cwcrM1kzpNHGhYvu+DMD+b3f8e3UAuvi8mJWPirLqlE+hwF
-         a9NE9ZI23Ijpbqf1gTz9RFhAVEfwq+aFnaJ8/4b7fbUF95fs7NOytuo1yMJKxqi907
-         EDmYZV7iIsFmFHjfpJ4o4O6Uw6R2cg7vZIVemKo2+RCBYcVu6fDB/cwlBJbsG2vjQT
-         61VT5QsWtBcuZ9D8bNaqE5ERw3//xS3owAi3ans/SyVnT/XdKd2sV0dODdh8cNGvye
-         lXPYWOHRGcNvA==
-Subject: Re: [GIT PULL] bio recycling support
+        b=JEs701GmetC4Oy8NbX5iAU2nTpF8UfbnBu0LJyZtXNalaWnEVhLQfCIDxilPiVvnd
+         rvF710v+klCJU7sOp0q1KFPF3LLycqQwQ6imUzs8D5NNCddh3dsaRX+rPqxHKtA0VV
+         aPFmJTBManb3+EMvMENSEmQw70Ncn1B5QJqCkPdJLvBj+kteVgdFrxHO0XUahP6OAn
+         zGCcS/GJQouxKnaUrETQdKcRNr73/J6USH8gd/pNl6eG17fjgzpZDoTrCEEVTIC80z
+         kLA4Qz8bZDv1CQ/pOp/pulk5qJpD2xkhkF5hXgHdv6+hbYjdgjLWq7L99OlbFQtYgF
+         kJet9XaJcxc6w==
+Subject: Re: [GIT PULL] io_uring updates for 5.15-rc1
 From:   pr-tracker-bot@kernel.org
-In-Reply-To: <baf16ffa-1c31-95e8-dae5-ac4b98ee984a@kernel.dk>
-References: <baf16ffa-1c31-95e8-dae5-ac4b98ee984a@kernel.dk>
-X-PR-Tracked-List-Id: <linux-block.vger.kernel.org>
-X-PR-Tracked-Message-Id: <baf16ffa-1c31-95e8-dae5-ac4b98ee984a@kernel.dk>
-X-PR-Tracked-Remote: git://git.kernel.dk/linux-block.git tags/io_uring-bio-cache.5-2021-08-30
-X-PR-Tracked-Commit-Id: 3d5b3fbedad65088ec079a4c4d1a2f47e11ae1e7
+In-Reply-To: <9ef2a5e9-7380-7e56-7959-b65859ed8f05@kernel.dk>
+References: <9ef2a5e9-7380-7e56-7959-b65859ed8f05@kernel.dk>
+X-PR-Tracked-List-Id: <io-uring.vger.kernel.org>
+X-PR-Tracked-Message-Id: <9ef2a5e9-7380-7e56-7959-b65859ed8f05@kernel.dk>
+X-PR-Tracked-Remote: git://git.kernel.dk/linux-block.git tags/for-5.15/io_uring-2021-08-30
+X-PR-Tracked-Commit-Id: 87df7fb922d18e96992aa5e824aa34b2065fef59
 X-PR-Merge-Tree: torvalds/linux.git
 X-PR-Merge-Refname: refs/heads/master
-X-PR-Merge-Commit-Id: 3b629f8d6dc04d3af94429c18fe17239d6fbe2c3
-Message-Id: <163037871151.18446.12415632165848863516.pr-tracker-bot@kernel.org>
-Date:   Tue, 31 Aug 2021 02:58:31 +0000
+X-PR-Merge-Commit-Id: c547d89a9a445f6bb757b93247de43d312e722da
+Message-Id: <163037871269.18446.11084387754660654532.pr-tracker-bot@kernel.org>
+Date:   Tue, 31 Aug 2021 02:58:32 +0000
 To:     Jens Axboe <axboe@kernel.dk>
 Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        io-uring <io-uring@vger.kernel.org>,
-        "linux-block@vger.kernel.org" <linux-block@vger.kernel.org>
+        io-uring <io-uring@vger.kernel.org>
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-The pull request you sent on Mon, 30 Aug 2021 08:57:41 -0600:
+The pull request you sent on Mon, 30 Aug 2021 08:53:09 -0600:
 
-> git://git.kernel.dk/linux-block.git tags/io_uring-bio-cache.5-2021-08-30
+> git://git.kernel.dk/linux-block.git tags/for-5.15/io_uring-2021-08-30
 
 has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/3b629f8d6dc04d3af94429c18fe17239d6fbe2c3
+https://git.kernel.org/torvalds/c/c547d89a9a445f6bb757b93247de43d312e722da
 
 Thank you!
 

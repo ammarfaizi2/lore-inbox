@@ -7,29 +7,29 @@ X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 73733C433FE
-	for <io-uring@archiver.kernel.org>; Fri,  3 Sep 2021 11:01:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D69DAC4332F
+	for <io-uring@archiver.kernel.org>; Fri,  3 Sep 2021 11:01:02 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5AB3B610CE
-	for <io-uring@archiver.kernel.org>; Fri,  3 Sep 2021 11:01:03 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id BAA69610E5
+	for <io-uring@archiver.kernel.org>; Fri,  3 Sep 2021 11:01:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348398AbhICLCC (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Fri, 3 Sep 2021 07:02:02 -0400
-Received: from out30-42.freemail.mail.aliyun.com ([115.124.30.42]:39572 "EHLO
-        out30-42.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231497AbhICLCA (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Fri, 3 Sep 2021 07:02:00 -0400
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R731e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04394;MF=haoxu@linux.alibaba.com;NM=1;PH=DS;RN=4;SR=0;TI=SMTPD_---0Un61DbM_1630666849;
+        id S1348376AbhICLCB (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Fri, 3 Sep 2021 07:02:01 -0400
+Received: from out30-54.freemail.mail.aliyun.com ([115.124.30.54]:55948 "EHLO
+        out30-54.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1348390AbhICLB7 (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Fri, 3 Sep 2021 07:01:59 -0400
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R131e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=alimailimapcm10staff010182156082;MF=haoxu@linux.alibaba.com;NM=1;PH=DS;RN=4;SR=0;TI=SMTPD_---0Un61DbM_1630666849;
 Received: from e18g09479.et15sqa.tbsite.net(mailfrom:haoxu@linux.alibaba.com fp:SMTPD_---0Un61DbM_1630666849)
           by smtp.aliyun-inc.com(127.0.0.1);
-          Fri, 03 Sep 2021 19:00:59 +0800
+          Fri, 03 Sep 2021 19:00:58 +0800
 From:   Hao Xu <haoxu@linux.alibaba.com>
 To:     Jens Axboe <axboe@kernel.dk>
 Cc:     io-uring@vger.kernel.org, Pavel Begunkov <asml.silence@gmail.com>,
         Joseph Qi <joseph.qi@linux.alibaba.com>
-Subject: [PATCH 4/6] io_uring: let fast poll support multishot
-Date:   Fri,  3 Sep 2021 19:00:47 +0800
-Message-Id: <20210903110049.132958-5-haoxu@linux.alibaba.com>
+Subject: [PATCH 1/6] io_uring: enhance flush completion logic
+Date:   Fri,  3 Sep 2021 19:00:44 +0800
+Message-Id: <20210903110049.132958-2-haoxu@linux.alibaba.com>
 X-Mailer: git-send-email 2.24.4
 In-Reply-To: <20210903110049.132958-1-haoxu@linux.alibaba.com>
 References: <20210903110049.132958-1-haoxu@linux.alibaba.com>
@@ -39,55 +39,46 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-For operations like accept, multishot is a useful feature, since we can
-reduce a number of accept sqe. Let's integrate it to fast poll, it may
-be good for other operations in the future.
+Though currently refcount of a req is always one when we flush inline
+completions, but still a chance there will be exception in the future.
+Enhance the flush logic to make sure we maintain compl_nr correctly.
 
 Signed-off-by: Hao Xu <haoxu@linux.alibaba.com>
 ---
- fs/io_uring.c | 15 ++++++++++++---
- 1 file changed, 12 insertions(+), 3 deletions(-)
+
+we need to either removing the if check to claim clearly that the req's
+refcount is 1 or adding this patch's logic.
+
+ fs/io_uring.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index d6df60c4cdb9..dae7044e0c24 100644
+index 2bde732a1183..c48d43207f57 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -5277,8 +5277,15 @@ static void io_async_task_func(struct io_kiocb *req, bool *locked)
- 		return;
+@@ -2291,7 +2291,7 @@ static void io_submit_flush_completions(struct io_ring_ctx *ctx)
+ 	__must_hold(&ctx->uring_lock)
+ {
+ 	struct io_submit_state *state = &ctx->submit_state;
+-	int i, nr = state->compl_nr;
++	int i, nr = state->compl_nr, remain = 0;
+ 	struct req_batch rb;
+ 
+ 	spin_lock(&ctx->completion_lock);
+@@ -2311,10 +2311,12 @@ static void io_submit_flush_completions(struct io_ring_ctx *ctx)
+ 
+ 		if (req_ref_put_and_test(req))
+ 			io_req_free_batch(&rb, req, &ctx->submit_state);
++		else
++			state->compl_reqs[remain++] = state->compl_reqs[i];
  	}
  
--	hash_del(&req->hash_node);
--	io_poll_remove_double(req);
-+	if (READ_ONCE(apoll->poll.canceled))
-+		apoll->poll.events |= EPOLLONESHOT;
-+	if (apoll->poll.events & EPOLLONESHOT) {
-+		hash_del(&req->hash_node);
-+		io_poll_remove_double(req);
-+	} else {
-+		add_wait_queue(apoll->poll.head, &apoll->poll.wait);
-+	}
-+
- 	spin_unlock(&ctx->completion_lock);
+ 	io_req_free_batch_finish(ctx, &rb);
+-	state->compl_nr = 0;
++	state->compl_nr = remain;
+ }
  
- 	if (!READ_ONCE(apoll->poll.canceled))
-@@ -5366,7 +5373,7 @@ static int io_arm_poll_handler(struct io_kiocb *req)
- 	struct io_ring_ctx *ctx = req->ctx;
- 	struct async_poll *apoll;
- 	struct io_poll_table ipt;
--	__poll_t ret, mask = EPOLLONESHOT | POLLERR | POLLPRI;
-+	__poll_t ret, mask = POLLERR | POLLPRI;
- 	int rw;
- 
- 	if (!req->file || !file_can_poll(req->file))
-@@ -5388,6 +5395,8 @@ static int io_arm_poll_handler(struct io_kiocb *req)
- 		rw = WRITE;
- 		mask |= POLLOUT | POLLWRNORM;
- 	}
-+	if (!(req->flags & REQ_F_APOLL_MULTISHOT))
-+		mask |= EPOLLONESHOT;
- 
- 	/* if we can't nonblock try, then no point in arming a poll handler */
- 	if (!io_file_supports_nowait(req, rw))
+ /*
 -- 
 2.24.4
 

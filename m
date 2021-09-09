@@ -6,42 +6,42 @@ X-Spam-Status: No, score=-3.7 required=3.0 tests=BAYES_00,FROM_LOCAL_HEX,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
 	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E55C0C433F5
-	for <io-uring@archiver.kernel.org>; Thu,  9 Sep 2021 00:09:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 31ECBC433EF
+	for <io-uring@archiver.kernel.org>; Thu,  9 Sep 2021 00:09:24 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id CA7866109F
-	for <io-uring@archiver.kernel.org>; Thu,  9 Sep 2021 00:09:22 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 163186109F
+	for <io-uring@archiver.kernel.org>; Thu,  9 Sep 2021 00:09:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348062AbhIIAK2 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Wed, 8 Sep 2021 20:10:28 -0400
-Received: from mail-il1-f198.google.com ([209.85.166.198]:35620 "EHLO
-        mail-il1-f198.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347973AbhIIAK0 (ORCPT
+        id S1348090AbhIIAK3 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 8 Sep 2021 20:10:29 -0400
+Received: from mail-io1-f70.google.com ([209.85.166.70]:46035 "EHLO
+        mail-io1-f70.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1348028AbhIIAK0 (ORCPT
         <rfc822;io-uring@vger.kernel.org>); Wed, 8 Sep 2021 20:10:26 -0400
-Received: by mail-il1-f198.google.com with SMTP id b5-20020a92db05000000b0022c6493d0e5so161959iln.2
-        for <io-uring@vger.kernel.org>; Wed, 08 Sep 2021 17:09:17 -0700 (PDT)
+Received: by mail-io1-f70.google.com with SMTP id d23-20020a056602281700b005b5b34670c7so29807ioe.12
+        for <io-uring@vger.kernel.org>; Wed, 08 Sep 2021 17:09:18 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:date:message-id:subject:from:to;
-        bh=f9JDtlDNgAiKWOeJQqZ+jhVp+uIKqLFY+K0VgxPDgJM=;
-        b=bxP2WSxcBztEl8KSSFVTk4IEL6nR73VEQ1OI42xIpXmpryGOAumGHMbAJ2pRkCskiD
-         gittTE5HGnc3NNs/Ml58v+yfirTEiCsTfoAd5HsFRPMw1AlbSVjHWhh0MzSxxugpn7fv
-         oWfxMbinlJPxbfLRRRmW3u4rPyOrCoR8ehjuh4SzizA4ILHT3OPbwVWEanyQwv2OEXMu
-         pJ0wpON7j4ps4YfxhR7w/3bmmTv204f3o2/C6aHccKYzPq2jzp3mZtifZjp4hyOxTyOD
-         Fx67ipujLM1fbJxrsoEFlTkgBtjC4II7iI6+92d/TWU7OFOZRSkJTWk/gwwu911+1WqA
-         dafw==
-X-Gm-Message-State: AOAM533pxXSL7MZakBSpPrOhbXHckGiF1WfMMPzqjSZopjZk2NI17ttU
-        nWuYuOOxoJRqFSl/rj86KMeRuZPFLw74tvJTuRPwp/nJGfNS
-X-Google-Smtp-Source: ABdhPJxjutmq8HJxRTZP3PZbQnLw7sP2X/GtXKENjZnKlQ4sP7zvgMgtTg7TjTD/FScccZGMUHtmHVTSyxULFQcNiQ+t9WmNipal
+        bh=QPkkC/1Bh97x6PmNJUT4Hxi4h89kOXJouRdSjI8zf0Y=;
+        b=3c1ROD7EazdCzH3K9VMtxz8L+PV2uvKC4y7kOMRCy0HpwcT3/kQmFJvYQ4XzFx7daP
+         sPjISsK7DA4vL3QjZT8ucA5NqnNWRoEvUFlO8cpfX0K87krxbvhAM2Vaqyi1uTX9Ib6G
+         /dTWgN+E69JnJKSowRU02lgbT7V5lsjkJdwdGkRP/tw+Rs11toYhfxcZiEvOvSR7XrJI
+         gm5YD+X7p2Or6DKjicyzYw4/IchSsx76X22GqRal6fxAOBWPhQDp1Wk5/um0gCY/r6fs
+         Clp9PMgupMkwzrEZmAzDcRMcJISkEd2Wt7R5YY4Yjd4XEB13zX1aIkQWNxhms5gdGum9
+         qHWg==
+X-Gm-Message-State: AOAM533Pej3wdENgi51FhYVmt8s2BOzlgsWum2nm1epsQ8AMaZyWDljY
+        IHwA8XmqoZ6S2aAcMlp/UFBzjSW9wWinti1O8q8YCNVpl49V
+X-Google-Smtp-Source: ABdhPJyIRrR7Hdh76tEY/CQM34AZbdIzkcE2dCcxDMT8REmvqwSZmWUL0+MwVYvj7CDDhTO1UpGXgtA61SS7uhITCwSXAc5H4RRX
 MIME-Version: 1.0
-X-Received: by 2002:a92:130e:: with SMTP id 14mr95475ilt.129.1631146157259;
+X-Received: by 2002:a02:cebc:: with SMTP id z28mr185001jaq.49.1631146157527;
  Wed, 08 Sep 2021 17:09:17 -0700 (PDT)
 Date:   Wed, 08 Sep 2021 17:09:17 -0700
 X-Google-Appengine-App-Id: s~syzkaller
 X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <00000000000047c10a05cb84cf00@google.com>
-Subject: [syzbot] INFO: task hung in io_wq_put_and_exit
-From:   syzbot <syzbot+f62d3e0a4ea4f38f5326@syzkaller.appspotmail.com>
+Message-ID: <0000000000004bda3905cb84cfc0@google.com>
+Subject: [syzbot] WARNING in io_wq_submit_work (2)
+From:   syzbot <syzbot+bc2d90f602545761f287@syzkaller.appspotmail.com>
 To:     asml.silence@gmail.com, axboe@kernel.dk, io-uring@vger.kernel.org,
         linux-kernel@vger.kernel.org, syzkaller-bugs@googlegroups.com
 Content-Type: text/plain; charset="UTF-8"
@@ -55,119 +55,73 @@ syzbot found the following issue on:
 
 HEAD commit:    4b93c544e90e thunderbolt: test: split up test cases in tb_..
 git tree:       upstream
-console output: https://syzkaller.appspot.com/x/log.txt?x=111b2c2b300000
+console output: https://syzkaller.appspot.com/x/log.txt?x=10b7836d300000
 kernel config:  https://syzkaller.appspot.com/x/.config?x=ac2f9cc43f6b17e4
-dashboard link: https://syzkaller.appspot.com/bug?extid=f62d3e0a4ea4f38f5326
+dashboard link: https://syzkaller.appspot.com/bug?extid=bc2d90f602545761f287
 compiler:       gcc (Debian 10.2.1-6) 10.2.1 20210110, GNU ld (GNU Binutils for Debian) 2.35.1
-syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=1152501b300000
-C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=16612dcd300000
+syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=10e8ce0b300000
+
+The issue was bisected to:
+
+commit 3146cba99aa284b1d4a10fbd923df953f1d18035
+Author: Jens Axboe <axboe@kernel.dk>
+Date:   Wed Sep 1 17:20:10 2021 +0000
+
+    io-wq: make worker creation resilient against signals
+
+bisection log:  https://syzkaller.appspot.com/x/bisect.txt?x=11098e0d300000
+final oops:     https://syzkaller.appspot.com/x/report.txt?x=13098e0d300000
+console output: https://syzkaller.appspot.com/x/log.txt?x=15098e0d300000
 
 IMPORTANT: if you fix the issue, please add the following tag to the commit:
-Reported-by: syzbot+f62d3e0a4ea4f38f5326@syzkaller.appspotmail.com
+Reported-by: syzbot+bc2d90f602545761f287@syzkaller.appspotmail.com
+Fixes: 3146cba99aa2 ("io-wq: make worker creation resilient against signals")
 
-INFO: task syz-executor687:8514 blocked for more than 143 seconds.
-      Not tainted 5.14.0-syzkaller #0
-"echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
-task:syz-executor687 state:D stack:27296 pid: 8514 ppid:  8479 flags:0x00024004
+------------[ cut here ]------------
+WARNING: CPU: 1 PID: 8804 at fs/io_uring.c:1164 req_ref_get fs/io_uring.c:1164 [inline]
+WARNING: CPU: 1 PID: 8804 at fs/io_uring.c:1164 io_wq_submit_work+0x272/0x300 fs/io_uring.c:6731
+Modules linked in:
+CPU: 1 PID: 8804 Comm: syz-executor.0 Not tainted 5.14.0-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+RIP: 0010:req_ref_get fs/io_uring.c:1164 [inline]
+RIP: 0010:io_wq_submit_work+0x272/0x300 fs/io_uring.c:6731
+Code: e8 d3 21 91 ff 83 fb 7f 76 1b e8 89 1a 91 ff be 04 00 00 00 4c 89 ef e8 bc 62 d8 ff f0 ff 45 a4 e9 41 fe ff ff e8 6e 1a 91 ff <0f> 0b eb dc e8 65 1a 91 ff 4c 89 e7 e8 ad dc fb ff 48 85 c0 49 89
+RSP: 0018:ffffc900027b7ae8 EFLAGS: 00010293
+RAX: 0000000000000000 RBX: 000000000000007f RCX: 0000000000000000
+RDX: ffff8880209cb900 RSI: ffffffff81e506d2 RDI: 0000000000000003
+RBP: ffff888071824978 R08: 000000000000007f R09: ffff88807182491f
+R10: ffffffff81e506ad R11: 0000000000000000 R12: ffff8880718248c0
+R13: ffff88807182491c R14: ffff888071824918 R15: 0000000000100000
+FS:  0000000002b68400(0000) GS:ffff8880b9c00000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 000055f33208ca50 CR3: 0000000071827000 CR4: 00000000001506f0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
 Call Trace:
- context_switch kernel/sched/core.c:4940 [inline]
- __schedule+0x940/0x26f0 kernel/sched/core.c:6287
- schedule+0xd3/0x270 kernel/sched/core.c:6366
- schedule_timeout+0x1db/0x2a0 kernel/time/timer.c:1857
- do_wait_for_common kernel/sched/completion.c:85 [inline]
- __wait_for_common kernel/sched/completion.c:106 [inline]
- wait_for_common kernel/sched/completion.c:117 [inline]
- wait_for_completion+0x176/0x280 kernel/sched/completion.c:138
- io_wq_exit_workers fs/io-wq.c:1162 [inline]
- io_wq_put_and_exit+0x40c/0xc70 fs/io-wq.c:1197
+ io_run_cancel fs/io-wq.c:809 [inline]
+ io_acct_cancel_pending_work.isra.0+0x2a9/0x5e0 fs/io-wq.c:950
+ io_wqe_cancel_pending_work+0x98/0x130 fs/io-wq.c:968
+ io_wq_destroy fs/io-wq.c:1185 [inline]
+ io_wq_put_and_exit+0x7d1/0xc70 fs/io-wq.c:1198
  io_uring_clean_tctx fs/io_uring.c:9607 [inline]
  io_uring_cancel_generic+0x5fe/0x740 fs/io_uring.c:9687
  io_uring_files_cancel include/linux/io_uring.h:16 [inline]
  do_exit+0x265/0x2a30 kernel/exit.c:780
  do_group_exit+0x125/0x310 kernel/exit.c:922
- get_signal+0x47f/0x2160 kernel/signal.c:2868
- arch_do_signal_or_restart+0x2a9/0x1c40 arch/x86/kernel/signal.c:865
- handle_signal_work kernel/entry/common.c:148 [inline]
- exit_to_user_mode_loop kernel/entry/common.c:172 [inline]
- exit_to_user_mode_prepare+0x17d/0x290 kernel/entry/common.c:209
- __syscall_exit_to_user_mode_work kernel/entry/common.c:291 [inline]
- syscall_exit_to_user_mode+0x19/0x60 kernel/entry/common.c:302
- do_syscall_64+0x42/0xb0 arch/x86/entry/common.c:86
+ __do_sys_exit_group kernel/exit.c:933 [inline]
+ __se_sys_exit_group kernel/exit.c:931 [inline]
+ __x64_sys_exit_group+0x3a/0x50 kernel/exit.c:931
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
  entry_SYSCALL_64_after_hwframe+0x44/0xae
-RIP: 0033:0x445cd9
-RSP: 002b:00007fc657f4b308 EFLAGS: 00000246 ORIG_RAX: 00000000000000ca
-RAX: 0000000000000001 RBX: 00000000004cb448 RCX: 0000000000445cd9
-RDX: 00000000000f4240 RSI: 0000000000000081 RDI: 00000000004cb44c
-RBP: 00000000004cb440 R08: 000000000000000e R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000246 R12: 000000000049b154
-R13: 0000000000000003 R14: 00007fc657f4b400 R15: 0000000000022000
-
-Showing all locks held in the system:
-1 lock held by khungtaskd/1655:
- #0: ffffffff8b97f960 (rcu_read_lock){....}-{1:2}, at: debug_show_all_locks+0x53/0x260 kernel/locking/lockdep.c:6446
-
-=============================================
-
-NMI backtrace for cpu 1
-CPU: 1 PID: 1655 Comm: khungtaskd Not tainted 5.14.0-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-Call Trace:
- __dump_stack lib/dump_stack.c:88 [inline]
- dump_stack_lvl+0xcd/0x134 lib/dump_stack.c:105
- nmi_cpu_backtrace.cold+0x47/0x144 lib/nmi_backtrace.c:105
- nmi_trigger_cpumask_backtrace+0x1ae/0x220 lib/nmi_backtrace.c:62
- trigger_all_cpu_backtrace include/linux/nmi.h:146 [inline]
- check_hung_uninterruptible_tasks kernel/hung_task.c:210 [inline]
- watchdog+0xc1d/0xf50 kernel/hung_task.c:295
- kthread+0x3e5/0x4d0 kernel/kthread.c:319
- ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:295
-Sending NMI from CPU 1 to CPUs 0:
-NMI backtrace for cpu 0
-CPU: 0 PID: 10 Comm: kworker/u4:1 Not tainted 5.14.0-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-Workqueue: events_unbound toggle_allocation_gate
-RIP: 0010:__text_poke+0x5f0/0x8c0 arch/x86/kernel/alternative.c:878
-Code: fb 48 8b 7c 24 60 e8 5f 67 0d 08 48 8b 4c 24 18 48 b8 00 00 00 00 00 fc ff df 48 c7 04 01 00 00 00 00 48 8b 84 24 98 00 00 00 <65> 48 2b 04 25 28 00 00 00 0f 85 2e 02 00 00 48 81 c4 a0 00 00 00
-RSP: 0018:ffffc90000cf7a00 EFLAGS: 00000286
-RAX: cfe52cf07638a100 RBX: 0000000000000007 RCX: 1ffff9200019ef48
-RDX: 0000000000000001 RSI: 0000000000000004 RDI: 0000000000000001
-RBP: ffff888011eaa558 R08: 0000000000000000 R09: ffff888010db8123
-R10: ffffed10021b7024 R11: 000000000000003f R12: ffffffff81bcfd53
-R13: 0000000000000001 R14: 0000000000000d54 R15: ffffffff8baa9900
-FS:  0000000000000000(0000) GS:ffff8880b9c00000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00007f442218f000 CR3: 000000000b68e000 CR4: 0000000000350ef0
-Call Trace:
- text_poke_bp_batch+0x3d7/0x560 arch/x86/kernel/alternative.c:1178
- text_poke_flush arch/x86/kernel/alternative.c:1268 [inline]
- text_poke_flush arch/x86/kernel/alternative.c:1265 [inline]
- text_poke_finish+0x16/0x30 arch/x86/kernel/alternative.c:1275
- arch_jump_label_transform_apply+0x13/0x20 arch/x86/kernel/jump_label.c:146
- jump_label_update+0x1d5/0x430 kernel/jump_label.c:830
- static_key_enable_cpuslocked+0x1b1/0x260 kernel/jump_label.c:177
- static_key_enable+0x16/0x20 kernel/jump_label.c:190
- toggle_allocation_gate mm/kfence/core.c:623 [inline]
- toggle_allocation_gate+0x100/0x390 mm/kfence/core.c:615
- process_one_work+0x9bf/0x16b0 kernel/workqueue.c:2297
- worker_thread+0x658/0x11f0 kernel/workqueue.c:2444
- kthread+0x3e5/0x4d0 kernel/kthread.c:319
- ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:295
-----------------
-Code disassembly (best guess):
-   0:	fb                   	sti
-   1:	48 8b 7c 24 60       	mov    0x60(%rsp),%rdi
-   6:	e8 5f 67 0d 08       	callq  0x80d676a
-   b:	48 8b 4c 24 18       	mov    0x18(%rsp),%rcx
-  10:	48 b8 00 00 00 00 00 	movabs $0xdffffc0000000000,%rax
-  17:	fc ff df
-  1a:	48 c7 04 01 00 00 00 	movq   $0x0,(%rcx,%rax,1)
-  21:	00
-  22:	48 8b 84 24 98 00 00 	mov    0x98(%rsp),%rax
-  29:	00
-* 2a:	65 48 2b 04 25 28 00 	sub    %gs:0x28,%rax <-- trapping instruction
-  31:	00 00
-  33:	0f 85 2e 02 00 00    	jne    0x267
-  39:	48 81 c4 a0 00 00 00 	add    $0xa0,%rsp
+RIP: 0033:0x4665f9
+Code: ff ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 40 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 bc ff ff ff f7 d8 64 89 01 48
+RSP: 002b:00007ffdd0a294a8 EFLAGS: 00000246 ORIG_RAX: 00000000000000e7
+RAX: ffffffffffffffda RBX: 000000000000001e RCX: 00000000004665f9
+RDX: 000000000041940b RSI: ffffffffffffffbc RDI: 0000000000000000
+RBP: 0000000000000000 R08: 0000001b2be20070 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000001
+R13: 0000000000000000 R14: 0000000000000000 R15: 00007ffdd0a295a0
 
 
 ---
@@ -177,5 +131,6 @@ syzbot engineers can be reached at syzkaller@googlegroups.com.
 
 syzbot will keep track of this issue. See:
 https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
+For information about bisection process see: https://goo.gl/tpsmEJ#bisection
 syzbot can test patches for this issue, for details see:
 https://goo.gl/tpsmEJ#testing-patches

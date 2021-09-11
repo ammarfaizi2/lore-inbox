@@ -2,51 +2,71 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,UNPARSEABLE_RELAY,USER_AGENT_GIT autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9B5B2C433F5
-	for <io-uring@archiver.kernel.org>; Sat, 11 Sep 2021 19:41:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 30168C4332F
+	for <io-uring@archiver.kernel.org>; Sat, 11 Sep 2021 19:41:02 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6F0F16113E
-	for <io-uring@archiver.kernel.org>; Sat, 11 Sep 2021 19:41:01 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1115761152
+	for <io-uring@archiver.kernel.org>; Sat, 11 Sep 2021 19:41:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233561AbhIKTmN (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sat, 11 Sep 2021 15:42:13 -0400
-Received: from out30-56.freemail.mail.aliyun.com ([115.124.30.56]:32880 "EHLO
-        out30-56.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229977AbhIKTmN (ORCPT
+        id S232047AbhIKTmO (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sat, 11 Sep 2021 15:42:14 -0400
+Received: from out30-131.freemail.mail.aliyun.com ([115.124.30.131]:50734 "EHLO
+        out30-131.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S233742AbhIKTmN (ORCPT
         <rfc822;io-uring@vger.kernel.org>); Sat, 11 Sep 2021 15:42:13 -0400
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R211e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04395;MF=haoxu@linux.alibaba.com;NM=1;PH=DS;RN=4;SR=0;TI=SMTPD_---0Uo.lhDo_1631389252;
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R201e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04426;MF=haoxu@linux.alibaba.com;NM=1;PH=DS;RN=4;SR=0;TI=SMTPD_---0Uo.lhDo_1631389252;
 Received: from e18g09479.et15sqa.tbsite.net(mailfrom:haoxu@linux.alibaba.com fp:SMTPD_---0Uo.lhDo_1631389252)
           by smtp.aliyun-inc.com(127.0.0.1);
-          Sun, 12 Sep 2021 03:40:58 +0800
+          Sun, 12 Sep 2021 03:40:59 +0800
 From:   Hao Xu <haoxu@linux.alibaba.com>
 To:     Jens Axboe <axboe@kernel.dk>
 Cc:     io-uring@vger.kernel.org, Pavel Begunkov <asml.silence@gmail.com>,
         Joseph Qi <joseph.qi@linux.alibaba.com>
-Subject: [PATCH 0/4] iowq fix
-Date:   Sun, 12 Sep 2021 03:40:48 +0800
-Message-Id: <20210911194052.28063-1-haoxu@linux.alibaba.com>
+Subject: [PATCH 3/4] io-wq: fix worker->refcount when creating worker in work exit
+Date:   Sun, 12 Sep 2021 03:40:51 +0800
+Message-Id: <20210911194052.28063-4-haoxu@linux.alibaba.com>
 X-Mailer: git-send-email 2.24.4
+In-Reply-To: <20210911194052.28063-1-haoxu@linux.alibaba.com>
+References: <20210911194052.28063-1-haoxu@linux.alibaba.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-several iowq fixes, all in theory, haven't been manually triggered.
-Hao Xu (4):
-  io-wq: tweak return value of io_wqe_create_worker()
-  io-wq: code clean of io_wqe_create_worker()
-  io-wq: fix worker->refcount when creating worker in work exit
-  io-wq: fix potential race of acct->nr_workers
+We may enter the worker creation path from io_worker_exit(), and
+refcount is already zero, which causes definite failure of worker
+creation.
+io_worker_exit
+                              ref = 0
+->io_wqe_dec_running
+  ->io_queue_worker_create
+    ->io_worker_get           failure since ref is 0
 
- fs/io-wq.c | 24 ++++++++++--------------
- 1 file changed, 10 insertions(+), 14 deletions(-)
+Signed-off-by: Hao Xu <haoxu@linux.alibaba.com>
+---
+ fs/io-wq.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
+diff --git a/fs/io-wq.c b/fs/io-wq.c
+index 0e1288a549eb..75e79571bdfd 100644
+--- a/fs/io-wq.c
++++ b/fs/io-wq.c
+@@ -188,7 +188,9 @@ static void io_worker_exit(struct io_worker *worker)
+ 	list_del_rcu(&worker->all_list);
+ 	acct->nr_workers--;
+ 	preempt_disable();
++	refcount_set(&worker->ref, 1);
+ 	io_wqe_dec_running(worker);
++	refcount_set(&worker->ref, 0);
+ 	worker->flags = 0;
+ 	current->flags &= ~PF_IO_WORKER;
+ 	preempt_enable();
 -- 
 2.24.4
 

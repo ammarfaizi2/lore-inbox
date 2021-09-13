@@ -2,107 +2,79 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.7 required=3.0 tests=BAYES_00,FROM_LOCAL_HEX,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6932EC433F5
-	for <io-uring@archiver.kernel.org>; Mon, 13 Sep 2021 08:30:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AA5D1C433F5
+	for <io-uring@archiver.kernel.org>; Mon, 13 Sep 2021 09:23:04 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4B49960F45
-	for <io-uring@archiver.kernel.org>; Mon, 13 Sep 2021 08:30:50 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8C74560FDA
+	for <io-uring@archiver.kernel.org>; Mon, 13 Sep 2021 09:23:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237920AbhIMIcD (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Mon, 13 Sep 2021 04:32:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47908 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237811AbhIMIcC (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Mon, 13 Sep 2021 04:32:02 -0400
-Received: from mail-ej1-x62a.google.com (mail-ej1-x62a.google.com [IPv6:2a00:1450:4864:20::62a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 059C2C061760;
-        Mon, 13 Sep 2021 01:30:47 -0700 (PDT)
-Received: by mail-ej1-x62a.google.com with SMTP id t19so19197086ejr.8;
-        Mon, 13 Sep 2021 01:30:46 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=S04yNFgZ4hxBAhctv/zD4ywMbFHZufB8ODvyMoyYBUs=;
-        b=SSfu2QX7uPQFkLNNvYenowTcZkH/mds0SwrzE25hxOI6RojTHP0gx3m/GVFRvGn/cx
-         a2yA4FoBB6tnGr1r9LbSSsEw1sbThjaQb1qWDlSc8pzFLd0wwgip3Mo2QS5orTdo+UD/
-         H1IEZ6qFBNRbuI4+UW/ByscyoBNB8lHEFdJhfeL6fbzfhT0ftdYMv0HObUwTy+ZXDp+g
-         xl4Mh9F/w3BU1M5syOPgl/nt87pjnsnfM3jHgBntJXq9cQSU8UnPOILpMuhhC52B1Sfx
-         E2MdtCBiToOFF2PigOH8xZZcWahokDJI/5TNMSFZyNFQOUwc+LnIpmojzl8xZbXIhfua
-         ipcQ==
+        id S238568AbhIMJXw (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Mon, 13 Sep 2021 05:23:52 -0400
+Received: from mail-io1-f71.google.com ([209.85.166.71]:38489 "EHLO
+        mail-io1-f71.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S238520AbhIMJXk (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Mon, 13 Sep 2021 05:23:40 -0400
+Received: by mail-io1-f71.google.com with SMTP id n8-20020a6b7708000000b005bd491bdb6aso13418437iom.5
+        for <io-uring@vger.kernel.org>; Mon, 13 Sep 2021 02:22:19 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=S04yNFgZ4hxBAhctv/zD4ywMbFHZufB8ODvyMoyYBUs=;
-        b=L4m9Iiuz1o7tv7ykKY86pccVypF97zWEDrYMf8xls+sdnfSnxf4tZq8sO1JEgfOK96
-         TJYcaVsNYjeS8zB0ESbgnvH6EJW2wbIT6n8RMTn3UwxWTu+EjbtCMvwKFtNulkcBckdB
-         tDX7j3gpKVsZ/HKzpPdliYU+J57LxPaXdtMEHtrSjs5DrMWxXEB9DHJJKJZXhqLWbIpr
-         K/ZM9ETYimTHkEMi9/O9Ib4sHb6VfBbO+dlPWIzRQyBSC5Dwq5lpOs3KIFhDJUmiq09A
-         qqjJM+xRJOPhbtv3hdFPQL4dio3gOxVwPAf+6fWcAl4aA71gGqOp0OhPeL02sA2Tv3nH
-         WugA==
-X-Gm-Message-State: AOAM5303ivpHkvoqmYouloMeiC0p19nC0dMl7ovBsFZLV7ykj6lkkcod
-        xUSvCBciOVhFbjkjPlBM1D8wbtsg5dc=
-X-Google-Smtp-Source: ABdhPJxy609z7lNvG5cLClXJDmiweRbYipKNo16255Iydj1lvDaG4H74OPpBd38bmx4CLAwvvvSUJw==
-X-Received: by 2002:a17:906:1d41:: with SMTP id o1mr11671160ejh.232.1631521845117;
-        Mon, 13 Sep 2021 01:30:45 -0700 (PDT)
-Received: from [192.168.8.197] ([85.255.232.220])
-        by smtp.gmail.com with ESMTPSA id t14sm3115615ejf.24.2021.09.13.01.30.44
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 13 Sep 2021 01:30:44 -0700 (PDT)
-Subject: Re: INFO: task hung in io_uring_cancel_generic
-To:     Hao Sun <sunhao.th@gmail.com>, Jens Axboe <axboe@kernel.dk>
-Cc:     io-uring@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <CACkBjsbs2tahJMC_TBZhQUBQiFYhLo-CW+kyzNxyUqgs5NCaXA@mail.gmail.com>
- <df072429-3f45-4d9d-c81d-73174aaf2e7d@kernel.dk>
- <e5ac817b-bc96-bea6-aadb-89d3c201446d@gmail.com>
- <CACkBjsZLyNbMwyoZc8T9ggq+R6-0aBFPCRB54jzAOF8f2QCH0Q@mail.gmail.com>
- <CACkBjsaGTkxsrBW+HNsgR0Pj7kbbrK-F5E4hp3CJJjYf3ASimQ@mail.gmail.com>
- <ce4db530-3e7c-1a90-f271-42d471b098ed@gmail.com>
- <CACkBjsYvCPQ2PpryOT5rHNTg5AuFpzOYip4UNjh40HwW2+XbsA@mail.gmail.com>
-From:   Pavel Begunkov <asml.silence@gmail.com>
-Message-ID: <7faa04f8-cd98-7d8a-2e54-e84e1fe742f7@gmail.com>
-Date:   Mon, 13 Sep 2021 09:30:09 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.13.0
+        h=x-gm-message-state:mime-version:date:in-reply-to:message-id:subject
+         :from:to;
+        bh=HFFQPLAJXYx4bvBZVVBupuysAIuBOZazsLsw7gSGXPM=;
+        b=1D6T2ZQO3jFNuWU/LBGvgUFyn/UGeCjWm7Kz4tmEM+OV1nFbIa3qqtdC41Fv7+1S5q
+         SWX7YjFbFBpab+lrxdXWm1YJ4OUSvw4x3IIBSdEga1dFAK9cVXzI3P7BUmbWkj31hvf4
+         rPHSiRJmE8iCc0h64XI588+PD4uhAPGKu1L7RDEi3FyP01zi7VnQdfQy9G2T6ySTMv5S
+         CiUfNCHn8j//h2xPhses9ZzwuLmjfRn1HxyF/4q1TPpEZdfGtijyDHIk3vkfDJmIjzOk
+         Nqv7hL6WPOy+C/LnSrWU+HPJbmx46xx8opl3fF/H781G1qcZA9cMbRlMY0ix5lDGy18W
+         GcRw==
+X-Gm-Message-State: AOAM533tn2cM6iVkb9hjteYnuz+vJ1k2kvY2aN2PgD1ewxQQQZgnHgSV
+        oVJBly+t6TotOew77VpgEr0demThNDAXcXe2PILvuy+vCvv4
+X-Google-Smtp-Source: ABdhPJz7iVHqBJwGMWVtkrGExpiG1/xH+YHaKqOpWGtfsh6vf6jjB1BWXgH366JewGOkGwNFwNOdUNMP/62JNgA5QSGR5CPvzAXQ
 MIME-Version: 1.0
-In-Reply-To: <CACkBjsYvCPQ2PpryOT5rHNTg5AuFpzOYip4UNjh40HwW2+XbsA@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+X-Received: by 2002:a05:6e02:1564:: with SMTP id k4mr7564234ilu.146.1631524938755;
+ Mon, 13 Sep 2021 02:22:18 -0700 (PDT)
+Date:   Mon, 13 Sep 2021 02:22:18 -0700
+In-Reply-To: <0000000000006e9e0705bd91f762@google.com>
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <0000000000006ab57905cbdd002c@google.com>
+Subject: Re: [syzbot] WARNING in __percpu_ref_exit (2)
+From:   syzbot <syzbot+d6218cb2fae0b2411e9d@syzkaller.appspotmail.com>
+To:     asml.silence@gmail.com, axboe@kernel.dk, coreteam@netfilter.org,
+        davem@davemloft.net, dsahern@kernel.org, fw@strlen.de,
+        hdanton@sina.com, io-uring@vger.kernel.org, kadlec@netfilter.org,
+        kuba@kernel.org, linux-kernel@vger.kernel.org, ming.lei@redhat.com,
+        netdev@vger.kernel.org, netfilter-devel@vger.kernel.org,
+        pablo@netfilter.org, syzkaller-bugs@googlegroups.com,
+        yoshfuji@linux-ipv6.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 9/13/21 3:26 AM, Hao Sun wrote:
-> Hi
-> 
-> Healer found a C reproducer for this crash ("INFO: task hung in
-> io_ring_exit_work").
-> 
-> HEAD commit: 4b93c544e90e-thunderbolt: test: split up test cases
-> git tree: upstream
-> console output:
-> https://drive.google.com/file/d/1NswMU2yMRTc8-EqbZcVvcJejV92cuZIk/view?usp=sharing
-> kernel config: https://drive.google.com/file/d/1c0u2EeRDhRO-ZCxr9MP2VvAtJd6kfg-p/view?usp=sharing
-> C reproducer: https://drive.google.com/file/d/170wk5_T8mYDaAtDcrdVi2UU9_dW1894s/view?usp=sharing
-> Syzlang reproducer:
-> https://drive.google.com/file/d/1eo-jAS9lncm4i-1kaCBkexrjpQHXboBq/view?usp=sharing
-> 
-> If you fix this issue, please add the following tag to the commit:
-> Reported-by: Hao Sun <sunhao.th@gmail.com>
+syzbot suspects this issue was fixed by commit:
 
-I don't see the repro using io_uring at all. Can it be because of
-the delay before the warning shows itself? 120 secs, this appeared
-after 143.
+commit 43016d02cf6e46edfc4696452251d34bba0c0435
+Author: Florian Westphal <fw@strlen.de>
+Date:   Mon May 3 11:51:15 2021 +0000
 
-[...]
+    netfilter: arptables: use pernet ops struct during unregister
 
--- 
-Pavel Begunkov
+bisection log:  https://syzkaller.appspot.com/x/bisect.txt?x=10acd273300000
+start commit:   c98ff1d013d2 Merge tag 'scsi-fixes' of git://git.kernel.or..
+git tree:       upstream
+kernel config:  https://syzkaller.appspot.com/x/.config?x=1c70e618af4c2e92
+dashboard link: https://syzkaller.appspot.com/bug?extid=d6218cb2fae0b2411e9d
+syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=145cb2b6d00000
+C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=157b72b1d00000
+
+If the result looks correct, please mark the issue as fixed by replying with:
+
+#syz fix: netfilter: arptables: use pernet ops struct during unregister
+
+For information about bisection process see: https://goo.gl/tpsmEJ#bisection

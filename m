@@ -2,98 +2,182 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 572E7C433F5
-	for <io-uring@archiver.kernel.org>; Tue, 14 Sep 2021 14:11:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3C458C433F5
+	for <io-uring@archiver.kernel.org>; Tue, 14 Sep 2021 14:18:22 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 343AF60FDA
-	for <io-uring@archiver.kernel.org>; Tue, 14 Sep 2021 14:11:14 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 24EBC60EE3
+	for <io-uring@archiver.kernel.org>; Tue, 14 Sep 2021 14:18:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233481AbhINOMa (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Tue, 14 Sep 2021 10:12:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33944 "EHLO
+        id S233748AbhINOTe (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Tue, 14 Sep 2021 10:19:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35488 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233349AbhINOM3 (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Tue, 14 Sep 2021 10:12:29 -0400
-Received: from mail-ej1-x629.google.com (mail-ej1-x629.google.com [IPv6:2a00:1450:4864:20::629])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 713ABC061574
-        for <io-uring@vger.kernel.org>; Tue, 14 Sep 2021 07:11:12 -0700 (PDT)
-Received: by mail-ej1-x629.google.com with SMTP id i21so29260118ejd.2
-        for <io-uring@vger.kernel.org>; Tue, 14 Sep 2021 07:11:12 -0700 (PDT)
+        with ESMTP id S233544AbhINOTO (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Tue, 14 Sep 2021 10:19:14 -0400
+Received: from mail-io1-xd41.google.com (mail-io1-xd41.google.com [IPv6:2607:f8b0:4864:20::d41])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7A15C061766
+        for <io-uring@vger.kernel.org>; Tue, 14 Sep 2021 07:17:56 -0700 (PDT)
+Received: by mail-io1-xd41.google.com with SMTP id b200so17237655iof.13
+        for <io-uring@vger.kernel.org>; Tue, 14 Sep 2021 07:17:56 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=to:references:from:subject:message-id:date:user-agent:mime-version
-         :in-reply-to:content-language:content-transfer-encoding;
-        bh=mah8uLBtV9sGiwKoyMAPqvDxuaHBTO9oOc3LAYpUTi8=;
-        b=Q8oURUz3VkH52o6vweLtOGcrVWdssxn8KctQjpsyGvcZzUXDAV43D10YZqHwnXL2VI
-         jIzbzKUbxZ1dSW1wLL9TwfgNe4jAnZsoOC4sEyssocMnMbyWxPaOeLdPBe6Lx5GeOoCl
-         T6Xkuu9d9KLPaiFb1pbjOWmZa84K8gfnyhHoq2ULYEkYUVMztWtl57FXItJecqzTz2qF
-         1W5KpOsq5H6YVQxOhXWjJ8mCuPdTT0FNwQVdclyGy8f4cvvzIDR80HFUpMH//jWTwu/4
-         fC4TrNmm3iGVoXB1FmwZTHX19eStEF2g0ilmBPJHgqacR7nuILsMD9MC8X0DCVheF9ez
-         YyUw==
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=z7c8syQSjn5yBCKSSFtxNAKMp+iDYztMNgRmqIUn/y4=;
+        b=ot4kB+Ih3QhytiaAfiLfEBF0Igh+Z2lvHWRkckVTvNJwEqmcJ/J1Vu9OAEa44SAd+J
+         7+HPo2kLRSDdZFK97efrKeLZ9ucPXeCut16oOePaS5gtMCeBNmi+LZIVpBy8srXdin2u
+         1p1vemZiAsGj4p9qBMCwYUYecc5m1fbXhBd9JmL8SGyyGaI0kOjFTEWxIjKyjb588yn/
+         j9bQW78HkWFbcvcTAOSt8gSwoqb5G/bJng3dqqYDCvfaR6nq1sOTtlfXH0MWfjm+U6xf
+         S9BBNadbk/bELyDBwb6R287yv+jEm7xkk3R1V7duDv+yzi9t2/Evv4DBhvZTQh/aLRsr
+         Gbuw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:to:references:from:subject:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=mah8uLBtV9sGiwKoyMAPqvDxuaHBTO9oOc3LAYpUTi8=;
-        b=pQB2JiqTO05gHS/RBAjIj2NNVFNthoQ+JObN4FYkz7RjAI2Cet4E6p+JbvnX1WoMtZ
-         QC4WZjF/Mqfxjr6drDBR3ZUwp+zauG8/+ShyBozZ87WPGZN6r+nNFBF8EXur5Hw8xYTQ
-         zgvLt5SJSNG3rFcyuFkqwCVD+jefPw0elJQqjq/YZf4BQ02zHxnE7ykAN3PKbnzLatnG
-         /IjcIMJtL496qwK+qC6ZCPBKVG9Yv7AB/xKnHUh2d2rwiBoB8rgJygj4aQWujXULS2y9
-         lSfTK+oixEzWas/J/BJKkLIEHOwR+SwFmqoL3UofSVb1bmz9i/T6Svkm6mtFnyorMUF0
-         VpKw==
-X-Gm-Message-State: AOAM532UWkwZ+M8g2FuVvkhWG9Pol95AzlsIdl5gRE9rnAHvB4yHrqyh
-        ztt2LR7UpXRm7nHg6bfb6ie5sunN/FA=
-X-Google-Smtp-Source: ABdhPJzs3QuFm1lZSMuxyCagv2XeQWfg7J12eHLf6yAVuxDy8Y7gU93cmYkUgAsEf6Xg9aKhyn6rhg==
-X-Received: by 2002:a17:906:9742:: with SMTP id o2mr19379465ejy.532.1631628670667;
-        Tue, 14 Sep 2021 07:11:10 -0700 (PDT)
-Received: from [192.168.8.197] ([85.255.232.220])
-        by smtp.gmail.com with ESMTPSA id bs13sm4934891ejb.98.2021.09.14.07.11.09
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 14 Sep 2021 07:11:10 -0700 (PDT)
-To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-References: <0ef71a006879b9168f0d1bd6a5b5511ac87e7c40.1631626476.git.asml.silence@gmail.com>
- <27718f96-30af-2ebc-3a53-8fb6bb7155ec@kernel.dk>
-From:   Pavel Begunkov <asml.silence@gmail.com>
-Subject: Re: [PATCH 5.15] io_uring: auto-removal for direct open/accept
-Message-ID: <450eb78a-a714-c6d1-c844-dbe8424a1c1c@gmail.com>
-Date:   Tue, 14 Sep 2021 15:10:36 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.13.0
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=z7c8syQSjn5yBCKSSFtxNAKMp+iDYztMNgRmqIUn/y4=;
+        b=laXRvaxSTtRCPW1Y9y+dU65iuKwn2gW3MN3qFHjeLe2pxJXkDWzYmImBHv+PmbezPS
+         w1aOgyLDwsSEZOJ0MN55a1wvyVTfzO7vh9aFnoM7yxidmM4o6sd6jaaaEeDIoQqhFALK
+         89rx77ZeLKJTo3tmnaaQ2PGKgikFSV18MXBIZGyXkNkxVJ7CwWfa52RdF28sQ5Hc0BAG
+         459h0clWyuOSLgb6eisWVx9/RfebmwoJhnkrnOBO5s1yP3On5sPbPy0tNUCoV18iqUi7
+         bS8ccRlBcbbJtSUhBZipoy8cskTqBomFh8hw3vAESzzkunS1NpuW3GMvqx6NHADu+xK2
+         u3Hg==
+X-Gm-Message-State: AOAM53262B7/gJlrFztmnFIjikG44fZZhljEzyyI37sgnZTK95h5xXS3
+        faoHXlDmcr+K5Phz+y0im/F8+aNTyCWZ5kQfVX0=
+X-Google-Smtp-Source: ABdhPJwHJDdCWKE4tIBEqkfAhQtAcMRw/R/WoKebKZMWNAPpX4dOsCBr92Sms5Kzb0IRQ9Y2wbj9RA==
+X-Received: by 2002:a6b:5c17:: with SMTP id z23mr13746798ioh.3.1631629075962;
+        Tue, 14 Sep 2021 07:17:55 -0700 (PDT)
+Received: from p1.localdomain ([207.135.234.126])
+        by smtp.gmail.com with ESMTPSA id p135sm6673803iod.26.2021.09.14.07.17.55
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 14 Sep 2021 07:17:55 -0700 (PDT)
+From:   Jens Axboe <axboe@kernel.dk>
+To:     io-uring@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, viro@zeniv.linux.org.uk,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 1/3] iov_iter: add helper to save iov_iter state
+Date:   Tue, 14 Sep 2021 08:17:48 -0600
+Message-Id: <20210914141750.261568-2-axboe@kernel.dk>
+X-Mailer: git-send-email 2.33.0
+In-Reply-To: <20210914141750.261568-1-axboe@kernel.dk>
+References: <20210914141750.261568-1-axboe@kernel.dk>
 MIME-Version: 1.0
-In-Reply-To: <27718f96-30af-2ebc-3a53-8fb6bb7155ec@kernel.dk>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 9/14/21 3:02 PM, Jens Axboe wrote:
-> On 9/14/21 7:37 AM, Pavel Begunkov wrote:
->> It might be inconvenient that direct open/accept deviates from the
->> update semantics and fails if the slot is taken instead of removing a
->> file sitting there. Implement the auto-removal.
->>
->> Note that removal might need to allocate and so may fail. However, if an
->> empty slot is specified, it's guaraneed to not fail on the fd
->> installation side. It's needed for users that can't tolerate spuriously
->> closed files, e.g. accepts where the other end doesn't expect it.
-> 
-> I think this makes sense, just curious if this was driven by feedback
-> from a user, or if it's something that came about thinking about the use
-> cases? This is certainly more flexible and allows an application to open
-> a new file in an existing slot, rather than needing to explicitly close
-> it first.
+In an ideal world, when someone is passed an iov_iter and returns X bytes,
+then X bytes would have been consumed/advanced from the iov_iter. But we
+have use cases that always consume the entire iterator, a few examples
+of that are iomap and bdev O_DIRECT. This means we cannot rely on the
+state of the iov_iter once we've called ->read_iter() or ->write_iter().
 
-Franz noticed that it would've been more convenient this way. Good idea
-to add his suggested-by. I had been thinking to make it this way before
-that, but without particular use cases, it just felt better.
+This would be easier if we didn't always have to deal with truncate of
+the iov_iter, as rewinding would be trivial without that. We recently
+added a commit to track the truncate state, but that grew the iov_iter
+by 8 bytes and wasn't the best solution.
 
+Implement a helper to save enough of the iov_iter state to sanely restore
+it after we've called the read/write iterator helpers. This currently
+only works for IOVEC/BVEC/KVEC as that's all we need, support for other
+iterator types are left as an exercise for the reader.
+
+Link: https://lore.kernel.org/linux-fsdevel/CAHk-=wiacKV4Gh-MYjteU0LwNBSGpWrK-Ov25HdqB1ewinrFPg@mail.gmail.com/
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+---
+ include/linux/uio.h | 15 +++++++++++++++
+ lib/iov_iter.c      | 36 ++++++++++++++++++++++++++++++++++++
+ 2 files changed, 51 insertions(+)
+
+diff --git a/include/linux/uio.h b/include/linux/uio.h
+index 5265024e8b90..984c4ab74859 100644
+--- a/include/linux/uio.h
++++ b/include/linux/uio.h
+@@ -27,6 +27,12 @@ enum iter_type {
+ 	ITER_DISCARD,
+ };
+ 
++struct iov_iter_state {
++	size_t iov_offset;
++	size_t count;
++	unsigned long nr_segs;
++};
++
+ struct iov_iter {
+ 	u8 iter_type;
+ 	bool data_source;
+@@ -55,6 +61,14 @@ static inline enum iter_type iov_iter_type(const struct iov_iter *i)
+ 	return i->iter_type;
+ }
+ 
++static inline void iov_iter_save_state(struct iov_iter *iter,
++				       struct iov_iter_state *state)
++{
++	state->iov_offset = iter->iov_offset;
++	state->count = iter->count;
++	state->nr_segs = iter->nr_segs;
++}
++
+ static inline bool iter_is_iovec(const struct iov_iter *i)
+ {
+ 	return iov_iter_type(i) == ITER_IOVEC;
+@@ -233,6 +247,7 @@ ssize_t iov_iter_get_pages(struct iov_iter *i, struct page **pages,
+ ssize_t iov_iter_get_pages_alloc(struct iov_iter *i, struct page ***pages,
+ 			size_t maxsize, size_t *start);
+ int iov_iter_npages(const struct iov_iter *i, int maxpages);
++void iov_iter_restore(struct iov_iter *i, struct iov_iter_state *state);
+ 
+ const void *dup_iter(struct iov_iter *new, struct iov_iter *old, gfp_t flags);
+ 
+diff --git a/lib/iov_iter.c b/lib/iov_iter.c
+index f2d50d69a6c3..755c10c5138c 100644
+--- a/lib/iov_iter.c
++++ b/lib/iov_iter.c
+@@ -1972,3 +1972,39 @@ int import_single_range(int rw, void __user *buf, size_t len,
+ 	return 0;
+ }
+ EXPORT_SYMBOL(import_single_range);
++
++/**
++ * iov_iter_restore() - Restore a &struct iov_iter to the same state as when
++ *     iov_iter_save_state() was called.
++ *
++ * @i: &struct iov_iter to restore
++ * @state: state to restore from
++ *
++ * Used after iov_iter_save_state() to bring restore @i, if operations may
++ * have advanced it.
++ *
++ * Note: only works on ITER_IOVEC, ITER_BVEC, and ITER_KVEC
++ */
++void iov_iter_restore(struct iov_iter *i, struct iov_iter_state *state)
++{
++	if (WARN_ON_ONCE(!iov_iter_is_bvec(i) && !iter_is_iovec(i)) &&
++			 !iov_iter_is_kvec(i))
++		return;
++	i->iov_offset = state->iov_offset;
++	i->count = state->count;
++	/*
++	 * For the *vec iters, nr_segs + iov is constant - if we increment
++	 * the vec, then we also decrement the nr_segs count. Hence we don't
++	 * need to track both of these, just one is enough and we can deduct
++	 * the other from that. ITER_KVEC and ITER_IOVEC are the same struct
++	 * size, so we can just increment the iov pointer as they are unionzed.
++	 * ITER_BVEC _may_ be the same size on some archs, but on others it is
++	 * not. Be safe and handle it separately.
++	 */
++	BUILD_BUG_ON(sizeof(struct iovec) != sizeof(struct kvec));
++	if (iov_iter_is_bvec(i))
++		i->bvec -= state->nr_segs - i->nr_segs;
++	else
++		i->iov -= state->nr_segs - i->nr_segs;
++	i->nr_segs = state->nr_segs;
++}
 -- 
-Pavel Begunkov
+2.33.0
+

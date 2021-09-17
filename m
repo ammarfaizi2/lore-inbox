@@ -2,58 +2,98 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.7 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,UNPARSEABLE_RELAY,USER_AGENT_GIT autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 09800C433F5
-	for <io-uring@archiver.kernel.org>; Fri, 17 Sep 2021 19:38:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AD833C433FE
+	for <io-uring@archiver.kernel.org>; Fri, 17 Sep 2021 19:38:36 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D4923611C3
-	for <io-uring@archiver.kernel.org>; Fri, 17 Sep 2021 19:38:34 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8E7B4611C3
+	for <io-uring@archiver.kernel.org>; Fri, 17 Sep 2021 19:38:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343489AbhIQTjy (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Fri, 17 Sep 2021 15:39:54 -0400
-Received: from out30-56.freemail.mail.aliyun.com ([115.124.30.56]:53919 "EHLO
-        out30-56.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S236021AbhIQTjt (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Fri, 17 Sep 2021 15:39:49 -0400
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R151e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04357;MF=haoxu@linux.alibaba.com;NM=1;PH=DS;RN=4;SR=0;TI=SMTPD_---0UoidwXr_1631907500;
+        id S236021AbhIQTjz (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Fri, 17 Sep 2021 15:39:55 -0400
+Received: from out30-45.freemail.mail.aliyun.com ([115.124.30.45]:48986 "EHLO
+        out30-45.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S242566AbhIQTju (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Fri, 17 Sep 2021 15:39:50 -0400
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R171e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04423;MF=haoxu@linux.alibaba.com;NM=1;PH=DS;RN=4;SR=0;TI=SMTPD_---0UoidwXr_1631907500;
 Received: from e18g09479.et15sqa.tbsite.net(mailfrom:haoxu@linux.alibaba.com fp:SMTPD_---0UoidwXr_1631907500)
           by smtp.aliyun-inc.com(127.0.0.1);
-          Sat, 18 Sep 2021 03:38:25 +0800
+          Sat, 18 Sep 2021 03:38:26 +0800
 From:   Hao Xu <haoxu@linux.alibaba.com>
 To:     Jens Axboe <axboe@kernel.dk>
 Cc:     io-uring@vger.kernel.org, Pavel Begunkov <asml.silence@gmail.com>,
         Joseph Qi <joseph.qi@linux.alibaba.com>
-Subject: [RFC 0/5] leverage completion cache for poll requests
-Date:   Sat, 18 Sep 2021 03:38:15 +0800
-Message-Id: <20210917193820.224671-1-haoxu@linux.alibaba.com>
+Subject: [PATCH 3/5] io_uring: fix race between poll completion and cancel_hash insertion
+Date:   Sat, 18 Sep 2021 03:38:18 +0800
+Message-Id: <20210917193820.224671-4-haoxu@linux.alibaba.com>
 X-Mailer: git-send-email 2.24.4
+In-Reply-To: <20210917193820.224671-1-haoxu@linux.alibaba.com>
+References: <20210917193820.224671-1-haoxu@linux.alibaba.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-1st is a non-related code clean
-2nd ~ 4th are fixes.
-5th is the the main logic, I tested it with an echo-server, both in
-single-shot mode and multishot mode poll, not much difference compared
-to code before with regard to req/s. But that may be resulted from my
-poor network knowledge, feel free to test it and leave comments.
+If poll arming and poll completion runs parallelly, there maybe races.
+For instance, run io_poll_add in iowq and io_poll_task_func in original
+context, then:
+             iowq                          original context
+  io_poll_add
+    vfs_poll
+     (interruption happens
+      tw queued to original
+      context)                              io_poll_task_func
+                                              generate cqe
+                                              del from cancel_hash[]
+    if !poll.done
+      insert to cancel_hash[]
 
-Hao Xu (5):
-  io_uring: return boolean value for io_alloc_async_data
-  io_uring: code clean for io_poll_complete()
-  io_uring: fix race between poll completion and cancel_hash insertion
-  io_uring: fix lacking of EPOLLONESHOT
-  io_uring: leverage completion cache for poll requests
+The entry left in cancel_hash[], similar case for fast poll.
+Fix it by set poll.done = true when del from cancel_hash[].
 
- fs/io_uring.c | 70 ++++++++++++++++++++++++++++++++++++++-------------
- 1 file changed, 53 insertions(+), 17 deletions(-)
+Fixes: 5082620fb2ca ("io_uring: terminate multishot poll for CQ ring overflow")
+Signed-off-by: Hao Xu <haoxu@linux.alibaba.com>
+---
+ fs/io_uring.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 6ea7d4003499..02425022c3b0 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -5340,10 +5340,8 @@ static bool __io_poll_complete(struct io_kiocb *req, __poll_t mask)
+ 	}
+ 	if (req->poll.events & EPOLLONESHOT)
+ 		flags = 0;
+-	if (!io_cqring_fill_event(ctx, req->user_data, error, flags)) {
+-		req->poll.done = true;
++	if (!io_cqring_fill_event(ctx, req->user_data, error, flags))
+ 		flags = 0;
+-	}
+ 	if (flags & IORING_CQE_F_MORE)
+ 		ctx->cq_extra++;
+ 
+@@ -5374,6 +5372,7 @@ static void io_poll_task_func(struct io_kiocb *req, bool *locked)
+ 		if (done) {
+ 			io_poll_remove_double(req);
+ 			hash_del(&req->hash_node);
++			req->poll.done = true;
+ 		} else {
+ 			req->result = 0;
+ 			add_wait_queue(req->poll.head, &req->poll.wait);
+@@ -5511,6 +5510,7 @@ static void io_async_task_func(struct io_kiocb *req, bool *locked)
+ 
+ 	hash_del(&req->hash_node);
+ 	io_poll_remove_double(req);
++	apoll->poll.done = true;
+ 	spin_unlock(&ctx->completion_lock);
+ 
+ 	if (!READ_ONCE(apoll->poll.canceled))
 -- 
 2.24.4
 

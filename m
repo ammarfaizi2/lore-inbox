@@ -2,73 +2,68 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-20.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,INCLUDES_PULL_REQUEST,
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 54E37C433FE
-	for <io-uring@archiver.kernel.org>; Thu, 16 Sep 2021 16:26:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4E3C8C433F5
+	for <io-uring@archiver.kernel.org>; Fri, 17 Sep 2021 14:45:17 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3B5516127A
-	for <io-uring@archiver.kernel.org>; Thu, 16 Sep 2021 16:26:13 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1B8B7611C3
+	for <io-uring@archiver.kernel.org>; Fri, 17 Sep 2021 14:45:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242274AbhIPQ1c (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Thu, 16 Sep 2021 12:27:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47274 "EHLO
+        id S230186AbhIQOq1 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Fri, 17 Sep 2021 10:46:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39862 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241132AbhIPQZ3 (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Thu, 16 Sep 2021 12:25:29 -0400
-Received: from mail-io1-xd2f.google.com (mail-io1-xd2f.google.com [IPv6:2607:f8b0:4864:20::d2f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C53A7C061146
-        for <io-uring@vger.kernel.org>; Thu, 16 Sep 2021 09:10:02 -0700 (PDT)
-Received: by mail-io1-xd2f.google.com with SMTP id b10so8541174ioq.9
-        for <io-uring@vger.kernel.org>; Thu, 16 Sep 2021 09:10:02 -0700 (PDT)
+        with ESMTP id S229998AbhIQOpx (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Fri, 17 Sep 2021 10:45:53 -0400
+Received: from mail-io1-xd41.google.com (mail-io1-xd41.google.com [IPv6:2607:f8b0:4864:20::d41])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D16A8C061764
+        for <io-uring@vger.kernel.org>; Fri, 17 Sep 2021 07:44:30 -0700 (PDT)
+Received: by mail-io1-xd41.google.com with SMTP id a22so12484080iok.12
+        for <io-uring@vger.kernel.org>; Fri, 17 Sep 2021 07:44:30 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernel-dk.20210112.gappssmtp.com; s=20210112;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=LNfszvXiWgDI6EDtDbmsSQhzeS38fRUrMmntryou2XE=;
-        b=zhaMPc55gDXQzGvk0PYF61B2JgkYfZBdC/jCgVzBDGO1/NT5TG1DSOAxtFiojv59TS
-         4xy/fZVdwJqKC9xzQUHZjLytim3uZKgAFbKNK4UE/AHi9gWtHJAdDfbfv5/KPWAvmVBP
-         OvRYFvTTmfJw3DlCoMslS9aX5rPMbTflZB7HYlRtM/z2+T5gAFsEHfhQsKn5wjGomKUL
-         16WuwuX6YwNXiWc9tBozeln5UEh7mEdEtcfLcRE4JzfzlBy1q4J/uouNHaZ1H+aqL/Lf
-         jd6/50yDRu5TjkwFjXfmz+1Qqwq74FglJ6nUfYnlC57++B6vV4Q/Pm3pCRspWT7pIRHd
-         6EvQ==
+        h=from:subject:to:cc:message-id:date:user-agent:mime-version
+         :content-language:content-transfer-encoding;
+        bh=+L7ROLwGNbEc6N0aiE0xTqt2AcozCRFG1j8eIZyaeZ4=;
+        b=TpTWN8umAVC+xG81DJGOpPRSZ/u7cFMgDVDoru9uUHP481EuareWcKU33FudyXQ/2X
+         lG2XB8WLXppCZ4bHocAKkH+bsQ4yb3JW8xtmsmWusrVjRCVTgp+9x4spaq4hGPAh+Vxd
+         k1h9Ueg5ijWMxeptntxoEo818uHTU3p2gN1kGROejHbePNiYGryZXOwaEikH5fmvYBo0
+         nQq5D/iJ0TbSSEqzj8F7KfhRCyAxHqBLvjZXfW0BFkPUwGF4w+rlwOWjBVOqrEoghwcs
+         5Nbb/08PjhKR5RgZKYEN23oEtoZn727wIDRDORgP/OnV0pfjAGMsggUl+uKZ+QP28m6R
+         TX6g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=LNfszvXiWgDI6EDtDbmsSQhzeS38fRUrMmntryou2XE=;
-        b=HYan8oWRXUenuGf3iVuOWwpcM5nCYTbE79sqgBk/p3AREvl6RlH1fNV4RVjq2CTEq1
-         lD753DDdmvgUT67JEHgL3WQXTcRCcPMW2TuWQ0oJ8+KdAqcOO9t6Itvys98z6oA2EsKp
-         fd74qPpjZdhvtweonZU5RnR7kTKk8MDwcFEKr8tc21QNCncHxVLS6RhoUnRcxT9qheKW
-         E6FL7F/oiT9/TOLPUrZb2Q9ydVMaxpefeQsZZYH2+B+rWylJmMqqTWxCnzbkHQqWtAiY
-         tgn/yYV2y+NnYnq6JBLbRh1wzqBEn+LkzOYL6sywFLlMp8R6NM5bsC8/Fxzs7gs/MYBL
-         hVcA==
-X-Gm-Message-State: AOAM531a9eNigavVh2THy108ZLhV9yqNnsxSN7FVqWSu518RtZ6AZOJj
-        ecIt7dsFBGIOKGLZExqX80etGFXPst7mdEU5YmM=
-X-Google-Smtp-Source: ABdhPJwm3CCY3RzpdL9GLroEGIeWrGOhaKGzuyd4II6DMbREXBd3v+zzUiUPq08KT9a0zF2u9VOZHA==
-X-Received: by 2002:a5e:df47:: with SMTP id g7mr1938941ioq.92.1631808602154;
-        Thu, 16 Sep 2021 09:10:02 -0700 (PDT)
+        h=x-gm-message-state:from:subject:to:cc:message-id:date:user-agent
+         :mime-version:content-language:content-transfer-encoding;
+        bh=+L7ROLwGNbEc6N0aiE0xTqt2AcozCRFG1j8eIZyaeZ4=;
+        b=OKWgAGrt82CGWEhhmM1QMwh7Sw+ZHsRPI3Qj+LQI8OE8r0gZK08u+2rBYaS8uqbck5
+         i/QjvYWMrhYTKNb8O6cUt5SZO7MUHw+o5k7KxMpOrAhEYKkr2dpyS8obcgxuIztIrfDq
+         z0U4IrcGt45RVCwQZlpYaaj7uhRPsL5Ff5DJlUjuozaxtyiRIllCexyJHToASkjOp0Lk
+         uJrGxf3lLH3XY8kelIe4RuA+6BIbofYZIvYaux94FmfTjfsSWTUiVcUb/So+lDGUDPAg
+         vZ44dWh0X8roknQIjgQnGY9sqzDU10WfkMeMcA13SUmb1zH9CF7G5B+RopqnVA2GSawV
+         ktTg==
+X-Gm-Message-State: AOAM5338h4C22lt+ga/GjobDFbr053dJjs9d1clNlIxfGfeXKBq8Xx0l
+        90J/mh9GMg/6/Kd1gjCtCiQ3ob1KrLJ8rqKjvUI=
+X-Google-Smtp-Source: ABdhPJz3wGDOe7gB0XwGRpbkzCxHp5I+3wV0F6yV1FxVWFLfmnWuyP1Ii5hJaOlJdWXHg27yXE6/TA==
+X-Received: by 2002:a02:b605:: with SMTP id h5mr9141942jam.119.1631889870022;
+        Fri, 17 Sep 2021 07:44:30 -0700 (PDT)
 Received: from [192.168.1.30] ([207.135.234.126])
-        by smtp.gmail.com with ESMTPSA id i14sm1994687iol.27.2021.09.16.09.10.01
+        by smtp.gmail.com with ESMTPSA id f3sm3737650iow.3.2021.09.17.07.44.29
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 16 Sep 2021 09:10:01 -0700 (PDT)
-Subject: Re: [PATCHSET v3 0/3] Add ability to save/restore iov_iter state
-To:     Al Viro <viro@zeniv.linux.org.uk>
-Cc:     io-uring@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        torvalds@linux-foundation.org
-References: <20210915162937.777002-1-axboe@kernel.dk>
- <YULMf13OXvU70zV+@zeniv-ca.linux.org.uk>
+        Fri, 17 Sep 2021 07:44:29 -0700 (PDT)
 From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <e7588d27-8dc8-a5bb-c024-05b6e7c336db@kernel.dk>
-Date:   Thu, 16 Sep 2021 10:10:00 -0600
+Subject: [GIT PULL] io_uring fixes for 5.15-rc2
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     io-uring <io-uring@vger.kernel.org>
+Message-ID: <a80f867d-ae3f-02d4-405d-2e9e0fa56439@kernel.dk>
+Date:   Fri, 17 Sep 2021 08:44:28 -0600
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.10.0
 MIME-Version: 1.0
-In-Reply-To: <YULMf13OXvU70zV+@zeniv-ca.linux.org.uk>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -76,33 +71,72 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 9/15/21 10:47 PM, Al Viro wrote:
-> 	Jens, may I politely inquire why is struct io_rw playing
-> these games with overloading ->rw.addr, instead of simply having
-> struct io_buffer *kbuf in it?
+Hi Linus,
 
-Very simply to avoid growing the union command part of io_kiocb beyond a
-cacheline. We're pretty sensitive to io_kiocb size in general, and io_rw
-is already the biggest member in there.
- 
-> 	Another question: what the hell are the rules for
-> REQ_F_BUFFER_SELECT?  The first time around io_iov_buffer_select()
-> will
-> 	* read iovec from ->rw.addr
-> 	* replace iovec.iov_base with value derived from
-> ->buf_index
-> 	* cap iovec.iov_len with value derived from ->buf_index
-> Next time around it will use the same base *AND* replace the
-> length with the value used to cap the original.
-> 	Is that deliberate?
+Mostly fixes for regressions in this cycle, but also a few fixes that
+predate this release. The odd one out is a tweak to the direct files
+added in this release, where attempting to reuse a slot is allowed
+instead of needing an explicit removal of that slot first. It's a
+considerable improvement in usability to that API, hence I'm sending it
+for -rc2.
 
-Probably not strictly needed, but doesn't harm anything. The buffer is
-being consumed (and hence removed) at completion anyway, it's not a
-persistent change. Selected buffers must be re-provided by the
-application as the kernel has no way of knowing when the application
-would otherwise be ready for it to get reused, and that's done by
-issuing a new provide buffers request for the buffers that can get
-recycled.
+- io-wq race fix and cleanup (Hao)
+
+- loop_rw_iter() type fix
+
+- SQPOLL max worker race fix
+
+- Allow poll arm for O_NONBLOCK files, fixing a case where it's
+  impossible to properly use io_uring if you cannot modify the file
+  flags
+
+- Allow direct open to simply reuse a slot, instead of needing it
+  explicitly removed first (Pavel)
+
+- Fix a case where we missed signal mask restoring in cqring_wait, if we
+  hit -EFAULT (Xiaoguang)
+
+Please pull!
+
+
+The following changes since commit 6880fa6c56601bb8ed59df6c30fd390cc5f6dd8f:
+
+  Linux 5.15-rc1 (2021-09-12 16:28:37 -0700)
+
+are available in the Git repository at:
+
+  git://git.kernel.dk/linux-block.git tags/io_uring-5.15-2021-09-17
+
+for you to fetch changes up to 5d329e1286b0a040264e239b80257c937f6e685f:
+
+  io_uring: allow retry for O_NONBLOCK if async is supported (2021-09-14 11:09:42 -0600)
+
+----------------------------------------------------------------
+io_uring-5.15-2021-09-17
+
+----------------------------------------------------------------
+Eugene Syromiatnikov (1):
+      io-wq: provide IO_WQ_* constants for IORING_REGISTER_IOWQ_MAX_WORKERS arg items
+
+Hao Xu (2):
+      io-wq: code clean of io_wqe_create_worker()
+      io-wq: fix potential race of acct->nr_workers
+
+Jens Axboe (3):
+      io_uring: ensure symmetry in handling iter types in loop_rw_iter()
+      io_uring: pin SQPOLL data before unlocking ring lock
+      io_uring: allow retry for O_NONBLOCK if async is supported
+
+Pavel Begunkov (1):
+      io_uring: auto-removal for direct open/accept
+
+Xiaoguang Wang (1):
+      io_uring: fix missing sigmask restore in io_cqring_wait()
+
+ fs/io-wq.c                    |  27 ++++++-----
+ fs/io_uring.c                 | 105 +++++++++++++++++++++++++++---------------
+ include/uapi/linux/io_uring.h |   8 +++-
+ 3 files changed, 88 insertions(+), 52 deletions(-)
 
 -- 
 Jens Axboe

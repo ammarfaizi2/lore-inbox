@@ -4,66 +4,187 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,
+	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0BBF3C433F5
-	for <io-uring@archiver.kernel.org>; Fri, 17 Sep 2021 19:39:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D4D2BC4332F
+	for <io-uring@archiver.kernel.org>; Fri, 17 Sep 2021 19:52:13 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E562961164
-	for <io-uring@archiver.kernel.org>; Fri, 17 Sep 2021 19:39:01 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B832561164
+	for <io-uring@archiver.kernel.org>; Fri, 17 Sep 2021 19:52:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242538AbhIQTkX (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Fri, 17 Sep 2021 15:40:23 -0400
-Received: from out30-56.freemail.mail.aliyun.com ([115.124.30.56]:55980 "EHLO
-        out30-56.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S242348AbhIQTkU (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Fri, 17 Sep 2021 15:40:20 -0400
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R431e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04394;MF=haoxu@linux.alibaba.com;NM=1;PH=DS;RN=4;SR=0;TI=SMTPD_---0UoidwXr_1631907500;
-Received: from e18g09479.et15sqa.tbsite.net(mailfrom:haoxu@linux.alibaba.com fp:SMTPD_---0UoidwXr_1631907500)
+        id S1343999AbhIQTxf (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Fri, 17 Sep 2021 15:53:35 -0400
+Received: from out4436.biz.mail.alibaba.com ([47.88.44.36]:60588 "EHLO
+        out4436.biz.mail.alibaba.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S242572AbhIQTxK (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Fri, 17 Sep 2021 15:53:10 -0400
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R191e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04407;MF=haoxu@linux.alibaba.com;NM=1;PH=DS;RN=4;SR=0;TI=SMTPD_---0UoidBlQ_1631908295;
+Received: from B-25KNML85-0107.local(mailfrom:haoxu@linux.alibaba.com fp:SMTPD_---0UoidBlQ_1631908295)
           by smtp.aliyun-inc.com(127.0.0.1);
-          Sat, 18 Sep 2021 03:38:26 +0800
+          Sat, 18 Sep 2021 03:51:36 +0800
+Subject: Re: [PATCH 5/5] io_uring: leverage completion cache for poll requests
 From:   Hao Xu <haoxu@linux.alibaba.com>
 To:     Jens Axboe <axboe@kernel.dk>
 Cc:     io-uring@vger.kernel.org, Pavel Begunkov <asml.silence@gmail.com>,
         Joseph Qi <joseph.qi@linux.alibaba.com>
-Subject: [PATCH 4/5] io_uring: fix lacking of EPOLLONESHOT
-Date:   Sat, 18 Sep 2021 03:38:19 +0800
-Message-Id: <20210917193820.224671-5-haoxu@linux.alibaba.com>
-X-Mailer: git-send-email 2.24.4
-In-Reply-To: <20210917193820.224671-1-haoxu@linux.alibaba.com>
 References: <20210917193820.224671-1-haoxu@linux.alibaba.com>
+ <20210917193820.224671-6-haoxu@linux.alibaba.com>
+Message-ID: <f2eb5195-283c-90f9-795f-2d0eab5f07b7@linux.alibaba.com>
+Date:   Sat, 18 Sep 2021 03:51:35 +0800
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0)
+ Gecko/20100101 Thunderbird/78.13.0
 MIME-Version: 1.0
+In-Reply-To: <20210917193820.224671-6-haoxu@linux.alibaba.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-We should set EPOLLONESHOT if cqring_fill_event() returns false since
-io_poll_add() decides to put req or not by it.
-
-Fixes: 5082620fb2ca ("io_uring: terminate multishot poll for CQ ring overflow")
-Signed-off-by: Hao Xu <haoxu@linux.alibaba.com>
----
- fs/io_uring.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
-
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 02425022c3b0..b1d6c3a1d3cd 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -5340,8 +5340,10 @@ static bool __io_poll_complete(struct io_kiocb *req, __poll_t mask)
- 	}
- 	if (req->poll.events & EPOLLONESHOT)
- 		flags = 0;
--	if (!io_cqring_fill_event(ctx, req->user_data, error, flags))
-+	if (!io_cqring_fill_event(ctx, req->user_data, error, flags)) {
-+		req->poll.events |= EPOLLONESHOT;
- 		flags = 0;
-+	}
- 	if (flags & IORING_CQE_F_MORE)
- 		ctx->cq_extra++;
- 
--- 
-2.24.4
+在 2021/9/18 上午3:38, Hao Xu 写道:
+> Leverage completion cache to handle completions of poll requests in a
+> batch.
+> Good thing is we save compl_nr - 1 completion_lock and
+> io_cqring_ev_posted.
+> Bad thing is compl_nr extra ifs in flush_completion.
+> 
+> Signed-off-by: Hao Xu <haoxu@linux.alibaba.com>
+Sorry, please ignore this one, didn't notice it failed to pass
+poll-mshot-update test
+> ---
+>   fs/io_uring.c | 64 +++++++++++++++++++++++++++++++++++++++------------
+>   1 file changed, 49 insertions(+), 15 deletions(-)
+> 
+> diff --git a/fs/io_uring.c b/fs/io_uring.c
+> index b1d6c3a1d3cd..0f72cb0bf79a 100644
+> --- a/fs/io_uring.c
+> +++ b/fs/io_uring.c
+> @@ -1099,6 +1099,8 @@ static int io_install_fixed_file(struct io_kiocb *req, struct file *file,
+>   				 unsigned int issue_flags, u32 slot_index);
+>   static enum hrtimer_restart io_link_timeout_fn(struct hrtimer *timer);
+>   
+> +static bool io_complete_poll(struct io_kiocb *req);
+> +
+>   static struct kmem_cache *req_cachep;
+>   
+>   static const struct file_operations io_uring_fops;
+> @@ -2333,6 +2335,11 @@ static void __io_submit_flush_completions(struct io_ring_ctx *ctx)
+>   	for (i = 0; i < nr; i++) {
+>   		struct io_kiocb *req = state->compl_reqs[i];
+>   
+> +		if (req->opcode == IORING_OP_POLL_ADD) {
+> +			if (!io_complete_poll(req))
+> +				state->compl_reqs[i] = NULL;
+> +			continue;
+> +		}
+>   		__io_cqring_fill_event(ctx, req->user_data, req->result,
+>   					req->compl.cflags);
+>   	}
+> @@ -2344,7 +2351,7 @@ static void __io_submit_flush_completions(struct io_ring_ctx *ctx)
+>   	for (i = 0; i < nr; i++) {
+>   		struct io_kiocb *req = state->compl_reqs[i];
+>   
+> -		if (req_ref_put_and_test(req))
+> +		if (req && req_ref_put_and_test(req))
+>   			io_req_free_batch(&rb, req, &ctx->submit_state);
+>   	}
+>   
+> @@ -5360,6 +5367,23 @@ static inline void io_poll_complete(struct io_kiocb *req, __poll_t mask)
+>   	return;
+>   }
+>   
+> +static bool io_complete_poll(struct io_kiocb *req)
+> +{
+> +	bool done;
+> +
+> +	done = __io_poll_complete(req, req->result);
+> +	if (done) {
+> +		io_poll_remove_double(req);
+> +		hash_del(&req->hash_node);
+> +		req->poll.done = true;
+> +	} else {
+> +		req->result = 0;
+> +		add_wait_queue(req->poll.head, &req->poll.wait);
+> +	}
+> +
+> +	return done;
+> +}
+> +
+>   static void io_poll_task_func(struct io_kiocb *req, bool *locked)
+>   {
+>   	struct io_ring_ctx *ctx = req->ctx;
+> @@ -5367,18 +5391,10 @@ static void io_poll_task_func(struct io_kiocb *req, bool *locked)
+>   
+>   	if (io_poll_rewait(req, &req->poll)) {
+>   		spin_unlock(&ctx->completion_lock);
+> -	} else {
+> +	} else if (!*locked) {
+>   		bool done;
+>   
+> -		done = __io_poll_complete(req, req->result);
+> -		if (done) {
+> -			io_poll_remove_double(req);
+> -			hash_del(&req->hash_node);
+> -			req->poll.done = true;
+> -		} else {
+> -			req->result = 0;
+> -			add_wait_queue(req->poll.head, &req->poll.wait);
+> -		}
+> +		done = io_complete_poll(req);
+>   		io_commit_cqring(ctx);
+>   		spin_unlock(&ctx->completion_lock);
+>   		io_cqring_ev_posted(ctx);
+> @@ -5388,6 +5404,13 @@ static void io_poll_task_func(struct io_kiocb *req, bool *locked)
+>   			if (nxt)
+>   				io_req_task_submit(nxt, locked);
+>   		}
+> +	} else {
+> +		struct io_submit_state *state = &ctx->submit_state;
+> +
+> +		spin_unlock(&ctx->completion_lock);
+> +		state->compl_reqs[state->compl_nr++] = req;
+> +		if (state->compl_nr == ARRAY_SIZE(state->compl_reqs))
+> +			io_submit_flush_completions(ctx);
+>   	}
+>   }
+>   
+> @@ -5833,6 +5856,7 @@ static int io_poll_add(struct io_kiocb *req, unsigned int issue_flags)
+>   	struct io_ring_ctx *ctx = req->ctx;
+>   	struct io_poll_table ipt;
+>   	__poll_t mask;
+> +	bool locked = current == req->task;
+>   
+>   	ipt.pt._qproc = io_poll_queue_proc;
+>   
+> @@ -5841,14 +5865,24 @@ static int io_poll_add(struct io_kiocb *req, unsigned int issue_flags)
+>   
+>   	if (mask) { /* no async, we'd stolen it */
+>   		ipt.error = 0;
+> -		io_poll_complete(req, mask);
+> +		if (!locked)
+> +			io_poll_complete(req, mask);
+>   	}
+>   	spin_unlock(&ctx->completion_lock);
+>   
+>   	if (mask) {
+> -		io_cqring_ev_posted(ctx);
+> -		if (poll->events & EPOLLONESHOT)
+> -			io_put_req(req);
+> +		if (!locked) {
+> +			io_cqring_ev_posted(ctx);
+> +			if (poll->events & EPOLLONESHOT)
+> +				io_put_req(req);
+> +		} else {
+> +			struct io_submit_state *state = &ctx->submit_state;
+> +
+> +			req->result = mask;
+> +			state->compl_reqs[state->compl_nr++] = req;
+> +			if (state->compl_nr == ARRAY_SIZE(state->compl_reqs))
+> +				io_submit_flush_completions(ctx);
+> +		}
+>   	}
+>   	return ipt.error;
+>   }
+> 
 

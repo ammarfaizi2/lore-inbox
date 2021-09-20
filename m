@@ -2,85 +2,74 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-20.5 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 30AFEC433EF
-	for <io-uring@archiver.kernel.org>; Mon, 20 Sep 2021 12:13:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id ADFBCC433EF
+	for <io-uring@archiver.kernel.org>; Mon, 20 Sep 2021 12:19:25 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0437B6108E
-	for <io-uring@archiver.kernel.org>; Mon, 20 Sep 2021 12:13:57 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 806EE6109D
+	for <io-uring@archiver.kernel.org>; Mon, 20 Sep 2021 12:19:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233202AbhITMPW (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Mon, 20 Sep 2021 08:15:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44900 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233150AbhITMPW (ORCPT <rfc822;io-uring@vger.kernel.org>);
-        Mon, 20 Sep 2021 08:15:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C1F2F60F9D;
-        Mon, 20 Sep 2021 12:13:54 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1632140035;
-        bh=XwUrIj5+6nOT5dCt/z9etZTa1PDih4x2UqcmzigtlRg=;
-        h=From:To:Cc:Subject:Date:From;
-        b=tzfxz8THzOv1RAPbtUlPLWfsTB3ciEj2j4ZJdD3ISt+LF9ZuJJGxNzfQPbcr0sh/Y
-         qmZChtSUVjqv5KJRGS6CNnyKjUvKh3iz1pdJoi9tXkHVuAcrelEL9XQpDhOeJAxljz
-         dnjkqApXxHyK/dYPG+bXlBwz+XBQxJxtdZELjuBEq65DZeJIATI0AZozd1Rh2bRTrb
-         W2t2rUoEZykpMU+jjvKJ48wS2iWK6OBKN6tUg5aHopQY8BS5uj5ZbGZSrDuQinIoXe
-         355Ib2R5xXysol1MLFZR1MlZSKW6MqGW18apRHKre1+4+mv+12KZxF4PteLwZyMheL
-         kiyG7bcYMp7WA==
-From:   Arnd Bergmann <arnd@kernel.org>
-To:     Jens Axboe <axboe@kernel.dk>,
-        Pavel Begunkov <asml.silence@gmail.com>
-Cc:     Arnd Bergmann <arnd@arndb.de>, io-uring@vger.kernel.org,
+        id S232994AbhITMUv (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Mon, 20 Sep 2021 08:20:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48942 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232858AbhITMUu (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Mon, 20 Sep 2021 08:20:50 -0400
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 374F7C061574;
+        Mon, 20 Sep 2021 05:19:24 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=wfXs9/qwoOMAzXZ/BK5m1l64BNcgy6HZMP06a/9fWyo=; b=KEf6nwYE0AAFd9pXs8mIm7zPgb
+        8PHeG4jyD5P4I87ypOPZEJ28jd5ulMXi5EJLxviysHEuCCNkY9KAbTMt3ZFx9J+uI4II3IaMvwRWB
+        GRfKN0OuJ6Qz5O0x3OQW2Wz9H4GeLpxQJMCfcyILzaZsiAgV7HwVXB931TjBIuZ6ncr4BufWGhNS+
+        9gSszMGMTZ+81P9crYXHenanXpsk0OmZRGpWTtyyOlx4S4/REry7AzOC7znzWD+jeqa9V1BC4zdPY
+        Fs/EmjE0sMsuU+FCL9wY1p4DDrnsciq54WlYT7n4aatHZb/+WukBh9Muqk9lRqVRkEiIJKBVjUFIT
+        5JTSYCkQ==;
+Received: from hch by casper.infradead.org with local (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1mSIGA-002e3G-CM; Mon, 20 Sep 2021 12:19:03 +0000
+Date:   Mon, 20 Sep 2021 13:18:58 +0100
+From:   Christoph Hellwig <hch@infradead.org>
+To:     Arnd Bergmann <arnd@kernel.org>
+Cc:     Jens Axboe <axboe@kernel.dk>,
+        Pavel Begunkov <asml.silence@gmail.com>,
+        Arnd Bergmann <arnd@arndb.de>, io-uring@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: [PATCH] [RFC] io_uring: warning about unused-but-set parameter
-Date:   Mon, 20 Sep 2021 14:13:44 +0200
-Message-Id: <20210920121352.93063-1-arnd@kernel.org>
-X-Mailer: git-send-email 2.29.2
+Subject: Re: [PATCH] [RFC] io_uring: warning about unused-but-set parameter
+Message-ID: <YUh8Mj59BtyBdTRH@infradead.org>
+References: <20210920121352.93063-1-arnd@kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210920121352.93063-1-arnd@kernel.org>
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by casper.infradead.org. See http://www.infradead.org/rpr.html
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+On Mon, Sep 20, 2021 at 02:13:44PM +0200, Arnd Bergmann wrote:
+> From: Arnd Bergmann <arnd@arndb.de>
+> 
+> When enabling -Wunused warnings by building with W=1, I get an
+> instance of the -Wunused-but-set-parameter warning in the io_uring code:
+> 
+> fs/io_uring.c: In function 'io_queue_async_work':
+> fs/io_uring.c:1445:61: error: parameter 'locked' set but not used [-Werror=unused-but-set-parameter]
+>  1445 | static void io_queue_async_work(struct io_kiocb *req, bool *locked)
+>       |                                                       ~~~~~~^~~~~~
+> 
+> There are very few warnings of this type, so it would be nice to enable
+> this by default and fix all the existing instances. I was almost
+> done, but this was added recently as a precaution to prevent code
+> from using the parameter, which could be done by either removing
+> the initialization, or by adding a (fake) use of the variable, which
+> I do here with the cast to void.
 
-When enabling -Wunused warnings by building with W=1, I get an
-instance of the -Wunused-but-set-parameter warning in the io_uring code:
-
-fs/io_uring.c: In function 'io_queue_async_work':
-fs/io_uring.c:1445:61: error: parameter 'locked' set but not used [-Werror=unused-but-set-parameter]
- 1445 | static void io_queue_async_work(struct io_kiocb *req, bool *locked)
-      |                                                       ~~~~~~^~~~~~
-
-There are very few warnings of this type, so it would be nice to enable
-this by default and fix all the existing instances. I was almost
-done, but this was added recently as a precaution to prevent code
-from using the parameter, which could be done by either removing
-the initialization, or by adding a (fake) use of the variable, which
-I do here with the cast to void.
-
-Fixes: f237c30a5610 ("io_uring: batch task work locking")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
----
- fs/io_uring.c | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 63b0425d6a32..36fbc7f06f5e 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -1450,6 +1450,7 @@ static void io_queue_async_work(struct io_kiocb *req, bool *locked)
- 
- 	/* must not take the lock, NULL it as a precaution */
- 	locked = NULL;
-+	(void)locked;
- 
- 	BUG_ON(!tctx);
- 	BUG_ON(!tctx->io_wq);
--- 
-2.29.2
-
+Please don't.  These warning are utterly stupid and should not be
+enabled.  For anything that is a "method" of sorts (that is assigned
+to a function pointer), unused argument are perfectly normal.

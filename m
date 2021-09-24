@@ -2,112 +2,134 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 12BA4C4332F
-	for <io-uring@archiver.kernel.org>; Fri, 24 Sep 2021 16:36:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2E3F0C433EF
+	for <io-uring@archiver.kernel.org>; Fri, 24 Sep 2021 16:36:05 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id F265961212
-	for <io-uring@archiver.kernel.org>; Fri, 24 Sep 2021 16:35:59 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 12301610C9
+	for <io-uring@archiver.kernel.org>; Fri, 24 Sep 2021 16:36:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344635AbhIXQhc (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Fri, 24 Sep 2021 12:37:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38546 "EHLO
+        id S1347565AbhIXQhf (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Fri, 24 Sep 2021 12:37:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38552 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347584AbhIXQgm (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Fri, 24 Sep 2021 12:36:42 -0400
-Received: from mail-ed1-x535.google.com (mail-ed1-x535.google.com [IPv6:2a00:1450:4864:20::535])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7BA2C0617BC
-        for <io-uring@vger.kernel.org>; Fri, 24 Sep 2021 09:32:47 -0700 (PDT)
-Received: by mail-ed1-x535.google.com with SMTP id ee50so38224513edb.13
-        for <io-uring@vger.kernel.org>; Fri, 24 Sep 2021 09:32:47 -0700 (PDT)
+        with ESMTP id S1347811AbhIXQgr (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Fri, 24 Sep 2021 12:36:47 -0400
+Received: from mail-ed1-x52e.google.com (mail-ed1-x52e.google.com [IPv6:2a00:1450:4864:20::52e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE61CC06139F
+        for <io-uring@vger.kernel.org>; Fri, 24 Sep 2021 09:32:49 -0700 (PDT)
+Received: by mail-ed1-x52e.google.com with SMTP id v10so33636484edj.10
+        for <io-uring@vger.kernel.org>; Fri, 24 Sep 2021 09:32:49 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=from:to:subject:date:message-id:mime-version
+        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=aM2DvxedSyxmPyluuSIjdTUJVWHKYl6F+53Wg27XMYY=;
-        b=azz7hhpM15yyx9iiz5E5jgvoPsL+dtw+BBSXFYDdffLGg+o4RZD4tE7OPdc0RM9jKk
-         9UraodHI4a+zegTwKh8JSAHobFhHeMcmp1Eb/LRXOcT7dCgO/r5uvNOMsAIr+IwniHVH
-         xn1gJqANb2dxaW4sBwgVFUOKdeSRVCg5wjvMouyRw0wT+5C4i8/vZR+R/DhLXmLndJRV
-         4wefUw1HcLwqHbgrIG2wVk6q8PEy5+/s4F+BjFdFLGTvYCTMIcmTvDBfsr4x0Q7NFE6y
-         lneRQTHbBb15k4ymn5xbyDXvuSUuu7ljDVfm8Vykbcl2jstCdlCHuN3M1mG/6mX6f6nd
-         NJPg==
+        bh=/uh6i+Ok3qgHY4mfFQAHpjjKLNJCR/w2urT4NB8vp8s=;
+        b=YhIrRcRfIuOn10HwdNSM/g8o6zej00jtEJJNY2snQSGvst7c7bZ8R27NYZqdpIHbXs
+         BI+yJTW0brB5YECEd+jOzNMtO/pe4jaKqdVc9CNmXW2RqRtpH3rY4m0fFaaSbgxjCAKB
+         e2T+HlJk8/JKsKxTpTbbpzMTzlJfMXXQc999Pm5XN7IbJKWlg+T10r4rj3xrABR0mZVt
+         3A2yOWzFQcjlZI8i0GGrP6AQcOXpQxwzNGsdO74hsaN/pQfKufdPiPkoU5i1RHiiU8hJ
+         zFaE76Lx79Yq0reT4sDvpCwh15/SpmLQaVtSbjYlZ/BxrjnX3Za/xNHFgReJU9BiaIEn
+         c5YA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=aM2DvxedSyxmPyluuSIjdTUJVWHKYl6F+53Wg27XMYY=;
-        b=LEVIBRok9sXgK7lnf3BNBvp5fFROnaAAYar2MtsrQdcE+WGvwRL43W+EaOG+eMw9up
-         xT5+hrEHiG5MQ/4RMu29XCejxzvOo802k2Aedg5sGUx7ri71tbtKVyO+b1Nt7R5XZBk/
-         +ypExFtGj3JZ6FQC6Qko1+cOoQP8zuIhT1zRKitZiyb4XNFlw3j5uTWyD+IwQ1sme86z
-         EMCZP1u6i/J3Ts9TJj8YWtWEt4KtUX0aVqURlrE8a30TNxkq1NEwaPhSbZw8++MqAIzW
-         0K99t2jWnyx1j8TUiSYOkrgiUQYCC4NHcPkin2j9tMuZannB8eOT388wEhmihUyqgSGu
-         9ATQ==
-X-Gm-Message-State: AOAM532+G8OK0Gf/84ggtIwvzR1H4DHZhhuKEncp/IGJ+udB5YXTjS1S
-        EN8KZ/W41vUnZUFPR1igW07S0a6JQB0=
-X-Google-Smtp-Source: ABdhPJyqjLDwlckuZfUvNeLBlxpG11nrrP4CA3cEY8PQb1T5QWsCM0zZpOX+mQ3HhHe8FuUPYDbwCQ==
-X-Received: by 2002:a17:906:1289:: with SMTP id k9mr12407947ejb.2.1632501166372;
-        Fri, 24 Sep 2021 09:32:46 -0700 (PDT)
+        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=/uh6i+Ok3qgHY4mfFQAHpjjKLNJCR/w2urT4NB8vp8s=;
+        b=ogfIm+q0GuWzE08lhXWPnt9S0tTW1FJtxGHqNe+pQK+wkMCUqETulRbtbXFl90QeGI
+         S/0zXXf/863nSkR2lPM0LljtlRwT01wojIyF48ytO8k+9vjh1eT6ll2p6yq8GDIKfs8B
+         wYKZ8uGAPaLExyMcqK/zi6G1BkF0sHl86k/xM8ojegiboE1ECihabqrHPOPpTED1U5RG
+         pCW4I6TsivdojFzotLsIyJAzpyTPr/prt4wqlRxzp0ZeK/1hdEa+Baf0vNZcA3cTab/Y
+         qShAhStyJfJpdKpksYAADax7s7jOc0kHk5ztEZ7fDNvOeyCZC42iYyYyijZv+Izfw9/q
+         87bg==
+X-Gm-Message-State: AOAM530eBuz9PqHaV32CWe6xQJqWddSP6maBcJwfSPeCaqabz0+bvdE5
+        IyELU3lnfUUNNzEQf/AZHdLPr8ywSBY=
+X-Google-Smtp-Source: ABdhPJxI60Ldu8Oc1k6UvGMbLBo1dLb2aFYCsp7ArS7MYvJUtCjSSs5dJHCxI7oYBF5RLx9KlmrjXw==
+X-Received: by 2002:a17:906:b782:: with SMTP id dt2mr12152969ejb.310.1632501168543;
+        Fri, 24 Sep 2021 09:32:48 -0700 (PDT)
 Received: from localhost.localdomain ([85.255.232.225])
-        by smtp.gmail.com with ESMTPSA id w10sm6167021eds.30.2021.09.24.09.32.45
+        by smtp.gmail.com with ESMTPSA id w10sm6167021eds.30.2021.09.24.09.32.47
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 24 Sep 2021 09:32:45 -0700 (PDT)
+        Fri, 24 Sep 2021 09:32:48 -0700 (PDT)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [RFC][PATCHSET 00/23] rework/optimise submission+completion paths
-Date:   Fri, 24 Sep 2021 17:31:38 +0100
-Message-Id: <cover.1632500264.git.asml.silence@gmail.com>
+Subject: [PATCH 02/23] io_uring: force_nonspin
+Date:   Fri, 24 Sep 2021 17:31:40 +0100
+Message-Id: <cd5e593890e6bdbb6eb2430aa124106d2f4e5e97.1632500264.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.33.0
+In-Reply-To: <cover.1632500264.git.asml.silence@gmail.com>
+References: <cover.1632500264.git.asml.silence@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-tested with fio/t/io_uring nops all batching=32:
-24 vs 31.5 MIOPS, or ~30% win
+We don't really need to pass the number of requests to complete into
+io_do_iopoll(), a flag whether to enforce non-spin mode is enough.
 
-WARNING: there is one problem with draining, will fix in v2
+Should be straightforward, maybe except io_iopoll_check(). We pass !min
+there, because we do never enter with the number of already reaped
+requests is larger than the specified @min, apart from the first
+iteration, where nr_events is 0 and so the final check should be
+identical.
 
-There are two parts:
-1-14 are about optimising the completion path:
-- replaces lists with single linked lists
-- kills 64 * 8B of caches in ctx
-- adds some shuffling of iopoll bits
-- list splice instead of per-req list_add in one place
-- inlines io_req_free_batch() and other helpers
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+---
+ fs/io_uring.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-15-22: inlines __io_queue_sqe() so all the submission path
-up to io_issue_sqe() is inlined + little tweaks
-
-
-Pavel Begunkov (23):
-  io_uring: mark having different creds unlikely
-  io_uring: force_nonspin
-  io_uring: make io_do_iopoll return number of reqs
-  io_uring: use slist for completion batching
-  io_uring: remove allocation cache array
-  io-wq: add io_wq_work_node based stack
-  io_uring: replace list with stack for req caches
-  io_uring: split iopoll loop
-  io_uring: use single linked list for iopoll
-  io_uring: add a helper for batch free
-  io_uring: convert iopoll_completed to store_release
-  io_uring: optimise batch completion
-  io_uring: inline completion batching helpers
-  io_uring: don't pass tail into io_free_batch_list
-  io_uring: don't pass state to io_submit_state_end
-  io_uring: deduplicate io_queue_sqe() call sites
-  io_uring: remove drain_active check from hot path
-  io_uring: split slow path from io_queue_sqe
-  io_uring: inline hot path of __io_queue_sqe()
-  io_uring: reshuffle queue_sqe completion handling
-  io_uring: restructure submit sqes to_submit checks
-  io_uring: kill off ->inflight_entry field
-  io_uring: comment why inline complete calls io_clean_op()
-
- fs/io-wq.h    |  60 +++++-
- fs/io_uring.c | 503 +++++++++++++++++++++++---------------------------
- 2 files changed, 283 insertions(+), 280 deletions(-)
-
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 8d0751fba1c2..b5631dcc4540 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -2455,7 +2455,7 @@ static void io_iopoll_complete(struct io_ring_ctx *ctx, unsigned int *nr_events,
+ }
+ 
+ static int io_do_iopoll(struct io_ring_ctx *ctx, unsigned int *nr_events,
+-			long min)
++			bool force_nonspin)
+ {
+ 	struct io_kiocb *req, *tmp;
+ 	LIST_HEAD(done);
+@@ -2463,9 +2463,9 @@ static int io_do_iopoll(struct io_ring_ctx *ctx, unsigned int *nr_events,
+ 
+ 	/*
+ 	 * Only spin for completions if we don't have multiple devices hanging
+-	 * off our complete list, and we're under the requested amount.
++	 * off our complete list.
+ 	 */
+-	spin = !ctx->poll_multi_queue && *nr_events < min;
++	spin = !ctx->poll_multi_queue && !force_nonspin;
+ 
+ 	list_for_each_entry_safe(req, tmp, &ctx->iopoll_list, inflight_entry) {
+ 		struct kiocb *kiocb = &req->rw.kiocb;
+@@ -2513,7 +2513,7 @@ static void io_iopoll_try_reap_events(struct io_ring_ctx *ctx)
+ 	while (!list_empty(&ctx->iopoll_list)) {
+ 		unsigned int nr_events = 0;
+ 
+-		io_do_iopoll(ctx, &nr_events, 0);
++		io_do_iopoll(ctx, &nr_events, true);
+ 
+ 		/* let it sleep and repeat later if can't complete a request */
+ 		if (nr_events == 0)
+@@ -2575,7 +2575,7 @@ static int io_iopoll_check(struct io_ring_ctx *ctx, long min)
+ 			    list_empty(&ctx->iopoll_list))
+ 				break;
+ 		}
+-		ret = io_do_iopoll(ctx, &nr_events, min);
++		ret = io_do_iopoll(ctx, &nr_events, !min);
+ 	} while (!ret && nr_events < min && !need_resched());
+ out:
+ 	mutex_unlock(&ctx->uring_lock);
+@@ -7338,7 +7338,7 @@ static int __io_sq_thread(struct io_ring_ctx *ctx, bool cap_entries)
+ 
+ 		mutex_lock(&ctx->uring_lock);
+ 		if (!list_empty(&ctx->iopoll_list))
+-			io_do_iopoll(ctx, &nr_events, 0);
++			io_do_iopoll(ctx, &nr_events, true);
+ 
+ 		/*
+ 		 * Don't submit if refs are dying, good for io_uring_register(),
 -- 
 2.33.0
 

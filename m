@@ -2,59 +2,59 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AD2AAC433FE
-	for <io-uring@archiver.kernel.org>; Fri, 24 Sep 2021 16:36:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1EFAAC43219
+	for <io-uring@archiver.kernel.org>; Fri, 24 Sep 2021 16:36:28 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8EEB86125F
-	for <io-uring@archiver.kernel.org>; Fri, 24 Sep 2021 16:36:26 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 09EF7610C9
+	for <io-uring@archiver.kernel.org>; Fri, 24 Sep 2021 16:36:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344201AbhIXQh6 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Fri, 24 Sep 2021 12:37:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38544 "EHLO
+        id S1344295AbhIXQiA (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Fri, 24 Sep 2021 12:38:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38540 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347465AbhIXQha (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Fri, 24 Sep 2021 12:37:30 -0400
-Received: from mail-ed1-x52c.google.com (mail-ed1-x52c.google.com [IPv6:2a00:1450:4864:20::52c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85965C0613AE
-        for <io-uring@vger.kernel.org>; Fri, 24 Sep 2021 09:32:54 -0700 (PDT)
-Received: by mail-ed1-x52c.google.com with SMTP id y89so27464379ede.2
-        for <io-uring@vger.kernel.org>; Fri, 24 Sep 2021 09:32:54 -0700 (PDT)
+        with ESMTP id S1347416AbhIXQh3 (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Fri, 24 Sep 2021 12:37:29 -0400
+Received: from mail-ed1-x52f.google.com (mail-ed1-x52f.google.com [IPv6:2a00:1450:4864:20::52f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE991C0613AB
+        for <io-uring@vger.kernel.org>; Fri, 24 Sep 2021 09:32:52 -0700 (PDT)
+Received: by mail-ed1-x52f.google.com with SMTP id dj4so38328942edb.5
+        for <io-uring@vger.kernel.org>; Fri, 24 Sep 2021 09:32:52 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=RlkuLRq021QrBzfTDUk7OE8sj5Z8kua25E79lsZW76k=;
-        b=UWJKQ0VLYJ65Rp+y6UY06MNDOtDJz51cZfQvHUJ4lw3/EDJMftfADQiMsFvV21FUgr
-         tooLahxTWYjk+B0TG99eZ7YPzQvnN8m4cY9FFabxutXOeIYkBC+ztN18EzE24FkbW/BP
-         JWPXcj/mUdRV/FSnBnRr68q9cHLe8EofpFZ22i9W0ur6AFchPuvsSHEvpOiDEaaIB7uR
-         fHJsWJe5FOGdZyDHhDs1dejqIsGwZvchypRZQzfMmW6p8KAQIk3/JCfXVqDO2qBh/4r1
-         KGIEOKgzWPIHz0KnugZwM4UxQw3lewz+neScZZmVgwB+amDYeB3YB8lkWxJoqHP/in0K
-         pvsg==
+        bh=+mZohRSDgXnqBDXWtmR0vwh24ksKijItKSQqbC5GsgQ=;
+        b=fNBrxCUN127LI9H04sHxtIYlRiPLg8DjIm5u7cjAML550Kw2hkiBN3AzXNt0c0ONO1
+         zdtZwOJT9CvdnFB1KS0sOqyepcLcYDzZzO9OVbbYCNwIECNO0etNbCw3s3IGNI7LPBbH
+         37yhC2fWj4UJ+oicVUbu7jBnV3+LaxzZFM9Ntn1wZn+9Wnf5dzLUNGR5DSRyJiWdZtzS
+         t7DJQe52Fy+saKsrKI6JjcAu54tShkCzfjQrgeC8QP6tuCkBVVFBPl9jUdD/+3uLr4jA
+         QaYJFHnyvV9jmIbKH6Eu3ED522JgdWttk1hyU1lXCJk++EVkHZTiaVG6XPRVotAG+S5s
+         ZVdQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=RlkuLRq021QrBzfTDUk7OE8sj5Z8kua25E79lsZW76k=;
-        b=B501R2WhBsjrhWxRP/3YjO3AYuBu2d5rEExJc7JhSZDs9jwx6g4g3aHVX8Crt1VozJ
-         +PPSe9/0x3pw0+aMMguWptDHQ4o7yl2JvGek4DBmQAO9lw7r/B9MxVP60jaNIQnovKsd
-         g7In2tQGb2skbJbCU3dlfqiO0qB8Vmr0B2knSgR6lP0K9VohPsH7sYlSgAFIhTK1n3pe
-         xK//p6B0bum3SH4gJhXLoCj4dJO5h0/U7v+79v+XXoEA2SeJO+GLK7ggwawfLWSCLmZD
-         0ED/ZUKyyuL5jx9F8cTaIhV6F1JyS+yBS678uHlvBnW61tcjFzmZTltZMX9OAWBphKBJ
-         368w==
-X-Gm-Message-State: AOAM533nTsVpjUes+OilrXL336zQfxYIlyNvTqa1/S7/WgdfULlei7aU
-        fieOE1zOG60gKcKkOp6UbDXLH7pAxmo=
-X-Google-Smtp-Source: ABdhPJwc9MApbiyxI+O1KNTkcQr2LsYopu6SC3KKtWF1h9F8JD+Q50njJ++m0pGSOiGAyT0a+cW8tA==
-X-Received: by 2002:a17:906:1f81:: with SMTP id t1mr12217071ejr.510.1632501173153;
-        Fri, 24 Sep 2021 09:32:53 -0700 (PDT)
+        bh=+mZohRSDgXnqBDXWtmR0vwh24ksKijItKSQqbC5GsgQ=;
+        b=hAdJLPToe0JGqA2GIL3qFb2iFbAfyOYyN5F0Ix+diHlSuL8+7HBJYqq2TQdIqFi9P8
+         Z5sc6vDfehhD9BQ6fCVs4oClURRySWiVfyVlhGa+o5+iyX0WjafaHHeLHlYZj7vPE0Rm
+         VZmmNI/4v760cb9ozG+P1/7l3Bun9hJHvttR238s5UDONsSfELWE+FM74SST1Dh6XTA1
+         weZgedTqZhQ1YX779q0XdGB4n0ct/11yt4AXAVSao+lLcXNvKFsh6jxjbwQqZ8eaD7uD
+         W2zIbax87YjGaau1pDpQr2vCv9Eq8Cdh4U4R3JCZrftbbDfotlduasZNzR9YZZJOzrOz
+         6ILg==
+X-Gm-Message-State: AOAM530GDPGYa70PK/bMFoE49qG+j7r0A7bOy1i6DGMYh5nbrgpP0n0L
+        rAaeTm5TMrJasiihXg5RB6KEJcLG2Ss=
+X-Google-Smtp-Source: ABdhPJwSJddTzUCsn2DrhK1DdDdmCoo25gSfJD3q+MKIuG5pYaQddILm7/V2ozjhveyNt67HVCuRVg==
+X-Received: by 2002:a50:a0a2:: with SMTP id 31mr5844221edo.252.1632501171319;
+        Fri, 24 Sep 2021 09:32:51 -0700 (PDT)
 Received: from localhost.localdomain ([85.255.232.225])
-        by smtp.gmail.com with ESMTPSA id w10sm6167021eds.30.2021.09.24.09.32.52
+        by smtp.gmail.com with ESMTPSA id w10sm6167021eds.30.2021.09.24.09.32.50
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 24 Sep 2021 09:32:52 -0700 (PDT)
+        Fri, 24 Sep 2021 09:32:50 -0700 (PDT)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH 07/23] io_uring: replace list with stack for req caches
-Date:   Fri, 24 Sep 2021 17:31:45 +0100
-Message-Id: <fa66aa76e3dd212adc96bbd9d9c45f03c6701f53.1632500264.git.asml.silence@gmail.com>
+Subject: [PATCH 05/23] io_uring: remove allocation cache array
+Date:   Fri, 24 Sep 2021 17:31:43 +0100
+Message-Id: <21ee9095e4b7fbb3fa42de8c4879a4a4cfa798a9.1632500264.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <cover.1632500264.git.asml.silence@gmail.com>
 References: <cover.1632500264.git.asml.silence@gmail.com>
@@ -64,164 +64,135 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Replace struct list_head free_list serving for caching requests with
-singly linked stack, which is faster.
+We have several of request allocation layers, remove the last one, which
+is the submit->reqs array, and always use submit->free_reqs instead.
 
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
- fs/io_uring.c | 51 ++++++++++++++++++++++++---------------------------
- 1 file changed, 24 insertions(+), 27 deletions(-)
+ fs/io_uring.c | 60 +++++++++++++++------------------------------------
+ 1 file changed, 17 insertions(+), 43 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index bf59ca19aef2..67390b131fb0 100644
+index 027e6595321e..bf59ca19aef2 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -319,7 +319,7 @@ struct io_submit_state {
- 	struct io_wq_work_list	compl_reqs;
+@@ -310,12 +310,6 @@ struct io_submit_state {
+ 	struct blk_plug		plug;
+ 	struct io_submit_link	link;
  
- 	/* inline/task_work completion list, under ->uring_lock */
--	struct list_head	free_list;
-+	struct io_wq_work_node	free_list;
- };
+-	/*
+-	 * io_kiocb alloc cache
+-	 */
+-	void			*reqs[IO_REQ_CACHE_SIZE];
+-	unsigned int		free_reqs;
+-
+ 	bool			plug_started;
+ 	bool			need_plug;
  
- struct io_ring_ctx {
-@@ -379,7 +379,7 @@ struct io_ring_ctx {
- 	} ____cacheline_aligned_in_smp;
- 
- 	/* IRQ completion list, under ->completion_lock */
--	struct list_head	locked_free_list;
-+	struct io_wq_work_list	locked_free_list;
- 	unsigned int		locked_free_nr;
- 
- 	const struct cred	*sq_creds;	/* cred used for __io_sq_thread() */
-@@ -1316,8 +1316,8 @@ static struct io_ring_ctx *io_ring_ctx_alloc(struct io_uring_params *p)
- 	INIT_DELAYED_WORK(&ctx->rsrc_put_work, io_rsrc_put_work);
- 	init_llist_head(&ctx->rsrc_put_llist);
- 	INIT_LIST_HEAD(&ctx->tctx_list);
--	INIT_LIST_HEAD(&ctx->submit_state.free_list);
--	INIT_LIST_HEAD(&ctx->locked_free_list);
-+	ctx->submit_state.free_list.next = NULL;
-+	INIT_WQ_LIST(&ctx->locked_free_list);
- 	INIT_DELAYED_WORK(&ctx->fallback_work, io_fallback_req_func);
- 	INIT_WQ_LIST(&ctx->submit_state.compl_reqs);
- 	return ctx;
-@@ -1808,7 +1808,7 @@ static void io_req_complete_post(struct io_kiocb *req, long res,
- 		}
- 		io_dismantle_req(req);
- 		io_put_task(req->task, 1);
--		list_add(&req->inflight_entry, &ctx->locked_free_list);
-+		wq_list_add_head(&req->comp_list, &ctx->locked_free_list);
- 		ctx->locked_free_nr++;
- 		percpu_ref_put(&ctx->refs);
- 	}
-@@ -1885,7 +1885,7 @@ static void io_flush_cached_locked_reqs(struct io_ring_ctx *ctx,
- 					struct io_submit_state *state)
+@@ -1900,7 +1894,6 @@ static void io_flush_cached_locked_reqs(struct io_ring_ctx *ctx,
+ static bool io_flush_cached_reqs(struct io_ring_ctx *ctx)
  {
- 	spin_lock(&ctx->completion_lock);
--	list_splice_init(&ctx->locked_free_list, &state->free_list);
-+	wq_list_splice(&ctx->locked_free_list, &state->free_list);
- 	ctx->locked_free_nr = 0;
- 	spin_unlock(&ctx->completion_lock);
- }
-@@ -1902,7 +1902,7 @@ static bool io_flush_cached_reqs(struct io_ring_ctx *ctx)
+ 	struct io_submit_state *state = &ctx->submit_state;
+-	int nr;
+ 
+ 	/*
+ 	 * If we have more than a batch's worth of requests in our IRQ side
+@@ -1909,20 +1902,7 @@ static bool io_flush_cached_reqs(struct io_ring_ctx *ctx)
  	 */
  	if (READ_ONCE(ctx->locked_free_nr) > IO_COMPL_BATCH)
  		io_flush_cached_locked_reqs(ctx, state);
--	return !list_empty(&state->free_list);
-+	return !!state->free_list.next;
+-
+-	nr = state->free_reqs;
+-	while (!list_empty(&state->free_list)) {
+-		struct io_kiocb *req = list_first_entry(&state->free_list,
+-					struct io_kiocb, inflight_entry);
+-
+-		list_del(&req->inflight_entry);
+-		state->reqs[nr++] = req;
+-		if (nr == ARRAY_SIZE(state->reqs))
+-			break;
+-	}
+-
+-	state->free_reqs = nr;
+-	return nr != 0;
++	return !list_empty(&state->free_list);
  }
  
  /*
-@@ -1917,10 +1917,11 @@ static struct io_kiocb *io_alloc_req(struct io_ring_ctx *ctx)
+@@ -1936,33 +1916,36 @@ static struct io_kiocb *io_alloc_req(struct io_ring_ctx *ctx)
+ {
  	struct io_submit_state *state = &ctx->submit_state;
  	gfp_t gfp = GFP_KERNEL | __GFP_NOWARN;
- 	void *reqs[IO_REQ_ALLOC_BATCH];
-+	struct io_wq_work_node *node;
- 	struct io_kiocb *req;
++	void *reqs[IO_REQ_ALLOC_BATCH];
++	struct io_kiocb *req;
  	int ret, i;
  
--	if (likely(!list_empty(&state->free_list) || io_flush_cached_reqs(ctx)))
-+	if (likely(state->free_list.next || io_flush_cached_reqs(ctx)))
+-	BUILD_BUG_ON(ARRAY_SIZE(state->reqs) < IO_REQ_ALLOC_BATCH);
+-
+-	if (likely(state->free_reqs || io_flush_cached_reqs(ctx)))
++	if (likely(!list_empty(&state->free_list) || io_flush_cached_reqs(ctx)))
  		goto got_req;
  
- 	ret = kmem_cache_alloc_bulk(req_cachep, gfp, ARRAY_SIZE(reqs), reqs);
-@@ -1940,12 +1941,11 @@ static struct io_kiocb *io_alloc_req(struct io_ring_ctx *ctx)
- 		req = reqs[i];
+-	ret = kmem_cache_alloc_bulk(req_cachep, gfp, IO_REQ_ALLOC_BATCH,
+-				    state->reqs);
++	ret = kmem_cache_alloc_bulk(req_cachep, gfp, ARRAY_SIZE(reqs), reqs);
  
- 		io_preinit_req(req, ctx);
--		list_add(&req->inflight_entry, &state->free_list);
-+		wq_stack_add_head(&req->comp_list, &state->free_list);
+ 	/*
+ 	 * Bulk alloc is all-or-nothing. If we fail to get a batch,
+ 	 * retry single alloc to be on the safe side.
+ 	 */
+ 	if (unlikely(ret <= 0)) {
+-		state->reqs[0] = kmem_cache_alloc(req_cachep, gfp);
+-		if (!state->reqs[0])
++		reqs[0] = kmem_cache_alloc(req_cachep, gfp);
++		if (!reqs[0])
+ 			return NULL;
+ 		ret = 1;
  	}
+ 
+-	for (i = 0; i < ret; i++)
+-		io_preinit_req(state->reqs[i], ctx);
+-	state->free_reqs = ret;
++	for (i = 0; i < ret; i++) {
++		req = reqs[i];
++
++		io_preinit_req(req, ctx);
++		list_add(&req->inflight_entry, &state->free_list);
++	}
  got_req:
--	req = list_first_entry(&state->free_list, struct io_kiocb, inflight_entry);
--	list_del(&req->inflight_entry);
--	return req;
-+	node = wq_stack_extract(&state->free_list);
-+	return container_of(node, struct io_kiocb, comp_list);
+-	state->free_reqs--;
+-	return state->reqs[state->free_reqs];
++	req = list_first_entry(&state->free_list, struct io_kiocb, inflight_entry);
++	list_del(&req->inflight_entry);
++	return req;
  }
  
  static inline void io_put_file(struct file *file)
-@@ -1978,7 +1978,7 @@ static void __io_free_req(struct io_kiocb *req)
- 	io_put_task(req->task, 1);
- 
- 	spin_lock(&ctx->completion_lock);
--	list_add(&req->inflight_entry, &ctx->locked_free_list);
-+	wq_list_add_head(&req->comp_list, &ctx->locked_free_list);
- 	ctx->locked_free_nr++;
- 	spin_unlock(&ctx->completion_lock);
- 
-@@ -2302,8 +2302,7 @@ static void io_req_free_batch(struct req_batch *rb, struct io_kiocb *req,
- 	}
+@@ -2320,10 +2303,7 @@ static void io_req_free_batch(struct req_batch *rb, struct io_kiocb *req,
  	rb->task_refs++;
  	rb->ctx_refs++;
--
--	list_add(&req->inflight_entry, &state->free_list);
-+	wq_stack_add_head(&req->comp_list, &state->free_list);
+ 
+-	if (state->free_reqs != ARRAY_SIZE(state->reqs))
+-		state->reqs[state->free_reqs++] = req;
+-	else
+-		list_add(&req->inflight_entry, &state->free_list);
++	list_add(&req->inflight_entry, &state->free_list);
  }
  
  static void __io_submit_flush_completions(struct io_ring_ctx *ctx)
-@@ -7252,7 +7251,7 @@ static int io_submit_sqes(struct io_ring_ctx *ctx, unsigned int nr)
- 		}
- 		sqe = io_get_sqe(ctx);
- 		if (unlikely(!sqe)) {
--			list_add(&req->inflight_entry, &ctx->submit_state.free_list);
-+			wq_stack_add_head(&req->comp_list, &ctx->submit_state.free_list);
- 			break;
- 		}
- 		/* will complete beyond this point, count as submitted */
-@@ -9144,23 +9143,21 @@ static void io_destroy_buffers(struct io_ring_ctx *ctx)
- 		__io_remove_buffers(ctx, buf, index, -1U);
- }
- 
--static void io_req_cache_free(struct list_head *list)
--{
--	struct io_kiocb *req, *nxt;
--
--	list_for_each_entry_safe(req, nxt, list, inflight_entry) {
--		list_del(&req->inflight_entry);
--		kmem_cache_free(req_cachep, req);
--	}
--}
--
- static void io_req_caches_free(struct io_ring_ctx *ctx)
- {
+@@ -9179,12 +9159,6 @@ static void io_req_caches_free(struct io_ring_ctx *ctx)
  	struct io_submit_state *state = &ctx->submit_state;
  
  	mutex_lock(&ctx->uring_lock);
+-
+-	if (state->free_reqs) {
+-		kmem_cache_free_bulk(req_cachep, state->free_reqs, state->reqs);
+-		state->free_reqs = 0;
+-	}
+-
  	io_flush_cached_locked_reqs(ctx, state);
--	io_req_cache_free(&state->free_list);
-+
-+	while (state->free_list.next) {
-+		struct io_wq_work_node *node;
-+		struct io_kiocb *req;
-+
-+		node = wq_stack_extract(&state->free_list);
-+		req = container_of(node, struct io_kiocb, comp_list);
-+		kmem_cache_free(req_cachep, req);
-+	}
+ 	io_req_cache_free(&state->free_list);
  	mutex_unlock(&ctx->uring_lock);
- }
- 
 -- 
 2.33.0
 

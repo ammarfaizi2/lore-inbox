@@ -2,59 +2,59 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 94069C433EF
-	for <io-uring@archiver.kernel.org>; Fri, 24 Sep 2021 16:36:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 23875C4332F
+	for <io-uring@archiver.kernel.org>; Fri, 24 Sep 2021 16:36:27 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 788FB6124D
-	for <io-uring@archiver.kernel.org>; Fri, 24 Sep 2021 16:36:26 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0B1676124D
+	for <io-uring@archiver.kernel.org>; Fri, 24 Sep 2021 16:36:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343997AbhIXQh7 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        id S1344278AbhIXQh7 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
         Fri, 24 Sep 2021 12:37:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38550 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38472 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347545AbhIXQhc (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Fri, 24 Sep 2021 12:37:32 -0400
-Received: from mail-ed1-x52b.google.com (mail-ed1-x52b.google.com [IPv6:2a00:1450:4864:20::52b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 919DFC0613B1
-        for <io-uring@vger.kernel.org>; Fri, 24 Sep 2021 09:32:55 -0700 (PDT)
-Received: by mail-ed1-x52b.google.com with SMTP id g8so38219975edt.7
-        for <io-uring@vger.kernel.org>; Fri, 24 Sep 2021 09:32:55 -0700 (PDT)
+        with ESMTP id S1347556AbhIXQhe (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Fri, 24 Sep 2021 12:37:34 -0400
+Received: from mail-ed1-x532.google.com (mail-ed1-x532.google.com [IPv6:2a00:1450:4864:20::532])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A847BC0613B4
+        for <io-uring@vger.kernel.org>; Fri, 24 Sep 2021 09:32:57 -0700 (PDT)
+Received: by mail-ed1-x532.google.com with SMTP id v24so38250702eda.3
+        for <io-uring@vger.kernel.org>; Fri, 24 Sep 2021 09:32:57 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=ruvRk+DZIqJJI+n2l3D4uAy2ZGaf2Qy8bwYtD7Bu5oo=;
-        b=ZqFoTZOkplU3V2DHpkUZiVYjH5BBt57aK0q2WOhQoqKzKPQDwiPWNPy/wNueDnvbOI
-         wQLJtMaO3ygQsMS/F/zCGqPOt74bycmwuL+GZe1+cNMJ6XUEKMcKYJ3jsJJF31qjigst
-         GpXvStDdcz7jkApISOfsIYzre15XYw0n5S2LCVp4HJEd6pM1B8FpBwPT8WBtBDL59/Q7
-         OyyUDZNADE2TJLqBzm5isFI6H3+dv1YbpnZQ/XftfVR+o8Mab1ox07PtDiIEP4Tehcxb
-         oepRzAT7H/p20trg42hRIacgym3MLuG+fL5sA7BwSltUI0igzsfx/dvJtBnYMkqvXlBB
-         wV6w==
+        bh=abMcxi95/hsxjJx9hpHZMsBHFjMiR3lwaSwingOsX18=;
+        b=AxE6abbV8ukkMVTpdd4b8E8clYOQYm6760Qpn/RDGesmn9lbSFFpzSUxSkCftV0c5M
+         +7Z6TZ58lOx1Y7zZERZUQLcCbUrjcBLwk3nMqd+6kHecgTMZbB4/MUs5whM0fZb485bR
+         4H2P/p+wR/7mp3m9RtW2XO+gjFUOtt6avJOSj6KFdDgLiRCgOfslutpQLeUH1ZUQnbCC
+         /4EK/BAbRrZhLDasgo6V7s1MyitMnCfBijjqooc3A4wpMzpNyMddEgBJ1IEb9CFT5UAL
+         dmsBNGhfBfXvQN3YHUSO5kdfeHXgt9iLIqjBaA+0y3X5RvuG3fQmX7AkBSWlaDidO8dy
+         6k4A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=ruvRk+DZIqJJI+n2l3D4uAy2ZGaf2Qy8bwYtD7Bu5oo=;
-        b=dYe9K1qPD6EdLXP1XtnlsL3PeYB6dDrdWaGAVDKrYM0RGJ2/Iq/DT24COmuMLa1yFk
-         evbh5IPPXvXy43pUcSf4l1gUuB88zpjbXfYVDG5GciqJXeVm/HJaOSTJS6/ezxcCyPEZ
-         GgJ+plEulHbs/pgJrfdsAphBcnZHiotQt66nd9jBemynPz6DKXpN+6iGxy0r6DsBAl9v
-         XkW7kdFiJWq4V1ToJRIj5lF4ICrtXmfGjihGuOjyiAueOibWizhYtOetuPkJ9zOtxQ5n
-         U8R/KiSQqV2kFn670yOmzuvbV6W7XA6/F0vz67/1nFoXDFwdaFHVuwGQWOoHx3JGgGPO
-         5BuQ==
-X-Gm-Message-State: AOAM533N+rtwPe4hGqf79tpWfse8ulFehatu0hKXhnJI9L77eV4zfsXP
-        yHki4oSwZeuS+caYzwlgLMyKPgpqVS4=
-X-Google-Smtp-Source: ABdhPJze8AwkjMGOwoAjwAkUG22IlyE8AHLnIMdLBGx+a7Ys6B5BB8hAPCCD8z+MxZyZSCd70c7SRw==
-X-Received: by 2002:a50:d9c5:: with SMTP id x5mr5965651edj.37.1632501174051;
-        Fri, 24 Sep 2021 09:32:54 -0700 (PDT)
+        bh=abMcxi95/hsxjJx9hpHZMsBHFjMiR3lwaSwingOsX18=;
+        b=NllpJFKAe1xFTzQZS8kSrHrFVE09vr8STHKzYrU/aXGqcFWgAUVQnaXvZOtBuFksk/
+         4qZS5mLzZyrOXHj61q95+1rtgN0y4aeq1UEPuSywNDqecUHEZDL45fTNBGQ87QIEF7Do
+         +nEP11igFN+ePK5GUxlwBaL5bcIoUCJka6QbPCl/FX9w8HtF8crxuGyS0b/vL0JH9LDC
+         /qBOVnStVxvlrSPYi7I8uKQCrxAjYFEy76RNddQDyHtYJKAgEGtI/y2oguLJfr+d6U0U
+         VM8cjrpHBRJgwz4rOKIldVCIOys+em4M28Kn46ixaxFJDgD0toaDs2lMjmvc21fkWgGF
+         NQ2A==
+X-Gm-Message-State: AOAM531R6KJVcptreY/ERhLFCashtfLqofi9LHBklS96K3CnaQeS0N/c
+        Fijw0OLSVO7eD9hlyS8+7aaTtK1D4pM=
+X-Google-Smtp-Source: ABdhPJxuIlxQcxtvEIrzuvHU1FfXrPUQls4plYWEtRxeQuOT3kwaqEScgzHzFT70WICne7jqgtPoFQ==
+X-Received: by 2002:a17:906:8151:: with SMTP id z17mr11927043ejw.468.1632501176283;
+        Fri, 24 Sep 2021 09:32:56 -0700 (PDT)
 Received: from localhost.localdomain ([85.255.232.225])
-        by smtp.gmail.com with ESMTPSA id w10sm6167021eds.30.2021.09.24.09.32.53
+        by smtp.gmail.com with ESMTPSA id w10sm6167021eds.30.2021.09.24.09.32.55
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 24 Sep 2021 09:32:53 -0700 (PDT)
+        Fri, 24 Sep 2021 09:32:55 -0700 (PDT)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH 08/23] io_uring: split iopoll loop
-Date:   Fri, 24 Sep 2021 17:31:46 +0100
-Message-Id: <7ebcd52c18f38c3c79db90b5c24f7ee2bdf428ed.1632500264.git.asml.silence@gmail.com>
+Subject: [PATCH 10/23] io_uring: add a helper for batch free
+Date:   Fri, 24 Sep 2021 17:31:48 +0100
+Message-Id: <159c8a3c639572625290f90dd3561a277027a457.1632500264.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <cover.1632500264.git.asml.silence@gmail.com>
 References: <cover.1632500264.git.asml.silence@gmail.com>
@@ -64,83 +64,70 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-The main loop of io_do_iopoll() iterates and does ->iopoll() until it
-meets a first completed request, then it continues from that position
-and splices requests to pass them through io_iopoll_complete().
-
-Split the loop in two for clearness, iopolling and reaping completed
-requests from the list.
+Add a helper io_free_batch_list(), which takes a single linked list and
+puts/frees all requests from it in an efficient manner. Will be reused
+later.
 
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
- fs/io_uring.c | 32 +++++++++++++++++++-------------
- 1 file changed, 19 insertions(+), 13 deletions(-)
+ fs/io_uring.c | 34 +++++++++++++++++++++-------------
+ 1 file changed, 21 insertions(+), 13 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 67390b131fb0..e0f897c3779d 100644
+index f4a7468c4570..e1c8374954fc 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -2443,6 +2443,12 @@ static void io_iopoll_complete(struct io_ring_ctx *ctx, struct list_head *done)
- 	io_req_free_batch_finish(ctx, &rb);
+@@ -2305,12 +2305,31 @@ static void io_req_free_batch(struct req_batch *rb, struct io_kiocb *req,
+ 	wq_stack_add_head(&req->comp_list, &state->free_list);
  }
  
-+/* same as "continue" but starts from the pos, not next to it */
-+#define list_for_each_entry_safe_resume(pos, n, head, member) 		\
-+	for (n = list_next_entry(pos, member);				\
-+	     !list_entry_is_head(pos, head, member);			\
-+	     pos = n, n = list_next_entry(n, member))
++static void io_free_batch_list(struct io_ring_ctx *ctx,
++			       struct io_wq_work_list *list)
++	__must_hold(&ctx->uring_lock)
++{
++	struct io_wq_work_node *node;
++	struct req_batch rb;
 +
- static int io_do_iopoll(struct io_ring_ctx *ctx, bool force_nonspin)
++	io_init_req_batch(&rb);
++	node = list->first;
++	do {
++		struct io_kiocb *req = container_of(node, struct io_kiocb,
++						    comp_list);
++
++		node = req->comp_list.next;
++		if (req_ref_put_and_test(req))
++			io_req_free_batch(&rb, req, &ctx->submit_state);
++	} while (node);
++	io_req_free_batch_finish(ctx, &rb);
++}
++
+ static void __io_submit_flush_completions(struct io_ring_ctx *ctx)
+ 	__must_hold(&ctx->uring_lock)
  {
- 	struct io_kiocb *req, *tmp;
-@@ -2456,7 +2462,7 @@ static int io_do_iopoll(struct io_ring_ctx *ctx, bool force_nonspin)
- 	 */
- 	spin = !ctx->poll_multi_queue && !force_nonspin;
+ 	struct io_wq_work_node *node, *prev;
+ 	struct io_submit_state *state = &ctx->submit_state;
+-	struct req_batch rb;
  
--	list_for_each_entry_safe(req, tmp, &ctx->iopoll_list, inflight_entry) {
-+	list_for_each_entry(req, &ctx->iopoll_list, inflight_entry) {
- 		struct kiocb *kiocb = &req->rw.kiocb;
- 		int ret;
+ 	spin_lock(&ctx->completion_lock);
+ 	wq_list_for_each(node, prev, &state->compl_reqs) {
+@@ -2324,18 +2343,7 @@ static void __io_submit_flush_completions(struct io_ring_ctx *ctx)
+ 	spin_unlock(&ctx->completion_lock);
+ 	io_cqring_ev_posted(ctx);
  
-@@ -2465,12 +2471,7 @@ static int io_do_iopoll(struct io_ring_ctx *ctx, bool force_nonspin)
- 		 * If we find a request that requires polling, break out
- 		 * and complete those lists first, if we have entries there.
- 		 */
--		if (READ_ONCE(req->iopoll_completed)) {
--			list_move_tail(&req->inflight_entry, &done);
--			nr_events++;
--			continue;
--		}
--		if (!list_empty(&done))
-+		if (READ_ONCE(req->iopoll_completed))
- 			break;
- 
- 		ret = kiocb->ki_filp->f_op->iopoll(kiocb, spin);
-@@ -2480,15 +2481,20 @@ static int io_do_iopoll(struct io_ring_ctx *ctx, bool force_nonspin)
- 			spin = false;
- 
- 		/* iopoll may have completed current req */
--		if (READ_ONCE(req->iopoll_completed)) {
--			list_move_tail(&req->inflight_entry, &done);
--			nr_events++;
--		}
-+		if (READ_ONCE(req->iopoll_completed))
-+			break;
- 	}
- 
--	if (!list_empty(&done))
--		io_iopoll_complete(ctx, &done);
-+	list_for_each_entry_safe_resume(req, tmp, &ctx->iopoll_list,
-+					inflight_entry) {
-+		if (!READ_ONCE(req->iopoll_completed))
-+			break;
-+		list_move_tail(&req->inflight_entry, &done);
-+		nr_events++;
-+	}
- 
-+	if (nr_events)
-+		io_iopoll_complete(ctx, &done);
- 	return nr_events;
+-	io_init_req_batch(&rb);
+-	node = state->compl_reqs.first;
+-	do {
+-		struct io_kiocb *req = container_of(node, struct io_kiocb,
+-						    comp_list);
+-
+-		node = req->comp_list.next;
+-		if (req_ref_put_and_test(req))
+-			io_req_free_batch(&rb, req, &ctx->submit_state);
+-	} while (node);
+-
+-	io_req_free_batch_finish(ctx, &rb);
++	io_free_batch_list(ctx, &state->compl_reqs);
+ 	INIT_WQ_LIST(&state->compl_reqs);
  }
  
 -- 

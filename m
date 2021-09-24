@@ -2,59 +2,59 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B0B67C433FE
-	for <io-uring@archiver.kernel.org>; Fri, 24 Sep 2021 16:36:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C196AC433EF
+	for <io-uring@archiver.kernel.org>; Fri, 24 Sep 2021 16:36:58 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9E8E4610FD
-	for <io-uring@archiver.kernel.org>; Fri, 24 Sep 2021 16:36:51 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id ACDDE60D07
+	for <io-uring@archiver.kernel.org>; Fri, 24 Sep 2021 16:36:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245667AbhIXQiY (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Fri, 24 Sep 2021 12:38:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38608 "EHLO
+        id S1347524AbhIXQib (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Fri, 24 Sep 2021 12:38:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38464 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343839AbhIXQiC (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Fri, 24 Sep 2021 12:38:02 -0400
-Received: from mail-ed1-x52b.google.com (mail-ed1-x52b.google.com [IPv6:2a00:1450:4864:20::52b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 44429C0612AC
-        for <io-uring@vger.kernel.org>; Fri, 24 Sep 2021 09:33:06 -0700 (PDT)
-Received: by mail-ed1-x52b.google.com with SMTP id eg28so38476180edb.1
-        for <io-uring@vger.kernel.org>; Fri, 24 Sep 2021 09:33:06 -0700 (PDT)
+        with ESMTP id S1344065AbhIXQiM (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Fri, 24 Sep 2021 12:38:12 -0400
+Received: from mail-ed1-x529.google.com (mail-ed1-x529.google.com [IPv6:2a00:1450:4864:20::529])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 02B19C0612AF
+        for <io-uring@vger.kernel.org>; Fri, 24 Sep 2021 09:33:08 -0700 (PDT)
+Received: by mail-ed1-x529.google.com with SMTP id g8so38222414edt.7
+        for <io-uring@vger.kernel.org>; Fri, 24 Sep 2021 09:33:07 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=dwuHYoWiy5kr6udRWs6XQrftdmCbpgDwihakLCb03n4=;
-        b=keyXHk/JgMhhVYzxFvUtMKPAlZck9BQnrwvUR3HrHU03vUby7g3ihi9jTDDrfv1fvD
-         1arSKYnzdjbj2IXKjbi98SboCACzo3xIGIgPAe2Ny7/XNz0i9g/XbKbKMbyJPBeKlT28
-         5oU+2B72k+gOxU0+O0G8Rb2HgyKkKed8hTbYTZE0YSGlnw/PLkuQtXJw2Hln5Sql/TOA
-         AeLT276rxA5ta45qmPgb7+ldcOKFLdfRHak7W0++hltnYMSlQ8nl/kbN0zUTQdp9J1ft
-         ZsxsK9Pk3YbFX9xl2zgJ8s+o6s1bZKcnkh4xtet0jDd3LgtlRwaLxJa6nzK/wkKDU6DY
-         zwQA==
+        bh=rMjmxdosJwCWERhXhGA5JeUltvRDhbQHXuwlhLP9Mds=;
+        b=NB5c9LULkUiwzQzkrsNvzeflbPUoHRyn1MDjtnf8eaMQ4G+NfT1CwP+9qv4UKIs+vQ
+         ZJil7Vy1/ktq98xgtcUSsjn92bkMdWbFxcp6lYB5fK3gufJ1kqnJwOvcnm2HYVupP5rw
+         6VjnGPYmL0p4XfOJOxYN6+CDEJ6KpRBcmwXhxIaindvaOqe52EM0MjzVi9f8+CL9/U2P
+         G2rjBFfX/XJK83s1iHWf3bpdMIoHqabwlA/v1QrCe6r5zy7K50BKS61ZUVyzSsUoZKgf
+         4h3bG8bJOm3077j+PB2GJOpSHgMMg6S9qj3IY1T+pCh6lmUoGARpT5EzmtKWspowARsY
+         Fr7w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=dwuHYoWiy5kr6udRWs6XQrftdmCbpgDwihakLCb03n4=;
-        b=1wLmCeyRgBTC2OjiRe/ncSKdMBjo2bcvc6Yyiy3yxtnjuNxyFbpYWoHzqnv4KcggIk
-         bB38hIEe0WSxITaYYOTrLhm55G0fnopO/xrpooksF8ilQJYcl9DHbn+n9NwDZMWJm0fd
-         OHKScnmbiFPKmQjYLeB7P6ZwEXRUJHgjgM7Qm8dnX5+hzBVpMrKC8zfJ25jLW2wymo7C
-         7KQQuN+WWg5LvccuDq2Xs0ZOoq4uh4h8NzdHO7yGDo4qXToSqmH9rRerxvFHq4RZhbTQ
-         4OT9SPQPHwaU4Rir50LEiki0wz1Wn6UTIrx8m7Vk6LT6xgbZmRAjtD0fLULiDe0sFdKS
-         24YQ==
-X-Gm-Message-State: AOAM533Z3W34sj0O4TpcnB6QPGOOLjHF2MJSFEyTjT8TqwAmbyl+FNi1
-        36EJfxn3F4y9/COvmtqCC+EceBNWQ3I=
-X-Google-Smtp-Source: ABdhPJybjRyYeP3vhQ57rsoXO/NYFSgvNuJ/Rz/ap2LBn9vVdBI00NVJoiKmh+UtmwkeShaDoaqbyQ==
-X-Received: by 2002:a05:6402:c8b:: with SMTP id cm11mr6031579edb.368.1632501184901;
-        Fri, 24 Sep 2021 09:33:04 -0700 (PDT)
+        bh=rMjmxdosJwCWERhXhGA5JeUltvRDhbQHXuwlhLP9Mds=;
+        b=2gNB41CxTGhy/RyRpIH8Rxk5MC/PIJhw9nYeqwWWtmbPx5AIMj0AALFRU8ZW3NB5HV
+         4uSowsTbh9YMwOnY26S8wcPYUYtd2HI/PexJ9rKV0hSlesBBHkEpzzGkQfB23WEdUI8J
+         Lt6pxBa6X+SpQ4TU1hamFYIzLNhBSLgzX+XGqDeffKwxXV++XLFIUB/+o183iaWUJfCk
+         kzz+E8Es05822sBJENoeiQYvti8Q0BW5Bz9louRZoZNHcUSO91Dv72B2rQtn4rUxPJ1W
+         Qj+ZjR5s3jsHQ0AcR0aPuuFy1j9M8Aa1RxOaofFufr3hAmNMTis6jENIOJbyECxBfjSA
+         bRbw==
+X-Gm-Message-State: AOAM532w0s9GkLh1k6+4+jEKcbuwVY0U6tXjgNSdOwUlnlPLv8AGgeJg
+        sSDYfJXWsZnSxL1UU2uW/qS/cT2ZDHw=
+X-Google-Smtp-Source: ABdhPJw3GKZ6T7k+rUIhqMBclhSbPuq3UBDnNFJA4KPRUY2YYkSY+VKsaa+Gbr3Ga+PJdZgByWUm9A==
+X-Received: by 2002:aa7:d74a:: with SMTP id a10mr6052543eds.102.1632501186611;
+        Fri, 24 Sep 2021 09:33:06 -0700 (PDT)
 Received: from localhost.localdomain ([85.255.232.225])
-        by smtp.gmail.com with ESMTPSA id w10sm6167021eds.30.2021.09.24.09.33.04
+        by smtp.gmail.com with ESMTPSA id w10sm6167021eds.30.2021.09.24.09.33.05
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 24 Sep 2021 09:33:04 -0700 (PDT)
+        Fri, 24 Sep 2021 09:33:06 -0700 (PDT)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org
-Subject: [PATCH 20/23] io_uring: reshuffle queue_sqe completion handling
-Date:   Fri, 24 Sep 2021 17:31:58 +0100
-Message-Id: <69ebb7881aee83866f87e75a806061d87e8ae299.1632500265.git.asml.silence@gmail.com>
+Subject: [PATCH 22/23] io_uring: kill off ->inflight_entry field
+Date:   Fri, 24 Sep 2021 17:32:00 +0100
+Message-Id: <c3ca5e467274879fc753bd389f746318397960a4.1632500265.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <cover.1632500264.git.asml.silence@gmail.com>
 References: <cover.1632500264.git.asml.silence@gmail.com>
@@ -64,41 +64,41 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-If a request completed inline the result should only be zero, it's a
-grave error otherwise. So, when we see REQ_F_COMPLETE_INLINE it's not
-even necessary to check the return code, and the flag check can be moved
-earlier.
-
-It's one "if" less for inline completions, and same two checks for it
-normally completing (ret == 0). Those are two cases we care about the
-most.
+->inflight_entry is not used anymore after converting everything to
+single linked lists, remove it. Also adjust io_kiocb layout, so all hot
+bits are in first 3 cachelines.
 
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
- fs/io_uring.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ fs/io_uring.c | 9 +++------
+ 1 file changed, 3 insertions(+), 6 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 76838d18493f..7c91e194a43b 100644
+index 3ddca031d7d5..c53e0f48dc69 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -6917,14 +6917,13 @@ static inline void __io_queue_sqe(struct io_kiocb *req)
+@@ -868,18 +868,15 @@ struct io_kiocb {
+ 	struct percpu_ref		*fixed_rsrc_refs;
  
- 	ret = io_issue_sqe(req, IO_URING_F_NONBLOCK|IO_URING_F_COMPLETE_DEFER);
- 
-+	if (req->flags & REQ_F_COMPLETE_INLINE)
-+		return;
- 	/*
- 	 * We async punt it if the file wasn't marked NOWAIT, or if the file
- 	 * doesn't support non-blocking read/write attempts
- 	 */
- 	if (likely(!ret)) {
--		if (req->flags & REQ_F_COMPLETE_INLINE)
--			return;
+ 	/* used with ctx->iopoll_list with reads/writes */
+-	struct list_head		inflight_entry;
++	struct io_wq_work_node		comp_list;
+ 	struct io_task_work		io_task_work;
+ 	/* for polled requests, i.e. IORING_OP_POLL_ADD and async armed poll */
+ 	struct hlist_node		hash_node;
+ 	struct async_poll		*apoll;
+-	struct io_wq_work		work;
+-	const struct cred		*creds;
 -
- 		linked_timeout = io_prep_linked_timeout(req);
- 		if (linked_timeout)
- 			io_queue_linked_timeout(linked_timeout);
+-	struct io_wq_work_node		comp_list;
+-
+ 	/* store used ubuf, so we can prevent reloading */
+ 	struct io_mapped_ubuf		*imu;
++	struct io_wq_work		work;
++	const struct cred		*creds;
+ };
+ 
+ struct io_tctx_node {
 -- 
 2.33.0
 

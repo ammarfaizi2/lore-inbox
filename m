@@ -2,29 +2,29 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F3AC6C433EF
-	for <io-uring@archiver.kernel.org>; Mon, 27 Sep 2021 10:51:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5F65CC433F5
+	for <io-uring@archiver.kernel.org>; Mon, 27 Sep 2021 10:52:16 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D75A860555
-	for <io-uring@archiver.kernel.org>; Mon, 27 Sep 2021 10:51:44 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 439CB60555
+	for <io-uring@archiver.kernel.org>; Mon, 27 Sep 2021 10:52:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233885AbhI0KxV (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Mon, 27 Sep 2021 06:53:21 -0400
-Received: from out4436.biz.mail.alibaba.com ([47.88.44.36]:41724 "EHLO
-        out4436.biz.mail.alibaba.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S233881AbhI0KxV (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Mon, 27 Sep 2021 06:53:21 -0400
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R801e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04423;MF=haoxu@linux.alibaba.com;NM=1;PH=DS;RN=4;SR=0;TI=SMTPD_---0Upn7J34_1632739883;
+        id S233895AbhI0Kxx (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Mon, 27 Sep 2021 06:53:53 -0400
+Received: from out30-43.freemail.mail.aliyun.com ([115.124.30.43]:51827 "EHLO
+        out30-43.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S233878AbhI0Kxw (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Mon, 27 Sep 2021 06:53:52 -0400
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R191e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04407;MF=haoxu@linux.alibaba.com;NM=1;PH=DS;RN=4;SR=0;TI=SMTPD_---0Upn7J34_1632739883;
 Received: from e18g09479.et15sqa.tbsite.net(mailfrom:haoxu@linux.alibaba.com fp:SMTPD_---0Upn7J34_1632739883)
           by smtp.aliyun-inc.com(127.0.0.1);
-          Mon, 27 Sep 2021 18:51:32 +0800
+          Mon, 27 Sep 2021 18:51:31 +0800
 From:   Hao Xu <haoxu@linux.alibaba.com>
 To:     Jens Axboe <axboe@kernel.dk>
 Cc:     io-uring@vger.kernel.org, Pavel Begunkov <asml.silence@gmail.com>,
         Joseph Qi <joseph.qi@linux.alibaba.com>
-Subject: [PATCH 7/8] io_uring: add tw_ctx for io_uring_task
-Date:   Mon, 27 Sep 2021 18:51:22 +0800
-Message-Id: <20210927105123.169301-8-haoxu@linux.alibaba.com>
+Subject: [PATCH 5/8] io_uring: split io_req_complete_post() and add a helper
+Date:   Mon, 27 Sep 2021 18:51:20 +0800
+Message-Id: <20210927105123.169301-6-haoxu@linux.alibaba.com>
 X-Mailer: git-send-email 2.24.4
 In-Reply-To: <20210927105123.169301-1-haoxu@linux.alibaba.com>
 References: <20210927105123.169301-1-haoxu@linux.alibaba.com>
@@ -34,45 +34,47 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Add tw_ctx to represent whether there is only one ctx in
-prior_task_list or not, this is useful in the next patch
+Split io_req_complete_post(), this is a prep for the next patch.
 
 Signed-off-by: Hao Xu <haoxu@linux.alibaba.com>
 ---
- fs/io_uring.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ fs/io_uring.c | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 7f7b77a458d0..231d0a47025b 100644
+index af3811f1ef2e..91bb4a7bb84a 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -477,6 +477,7 @@ struct io_uring_task {
- 	struct io_wq_work_list	task_list;
- 	struct callback_head	task_work;
- 	struct io_wq_work_list	prior_task_list;
-+	struct io_ring_ctx	*tw_ctx;
- 	unsigned int		nr;
- 	unsigned int		prior_nr;
- 	bool			task_running;
-@@ -2224,6 +2225,10 @@ static void io_req_task_work_add(struct io_kiocb *req, bool emergency)
- 	if (emergency && tctx->prior_nr * MAX_EMERGENCY_TW_RATIO < tctx->nr) {
- 		wq_list_add_tail(&req->io_task_work.node, &tctx->prior_task_list);
- 		tctx->prior_nr++;
-+		if (tctx->prior_nr == 1)
-+			tctx->tw_ctx = req->ctx;
-+		else if (tctx->tw_ctx && req->ctx != tctx->tw_ctx)
-+			tctx->tw_ctx = NULL;
- 	} else {
- 		wq_list_add_tail(&req->io_task_work.node, &tctx->task_list);
- 	}
-@@ -2252,6 +2257,7 @@ static void io_req_task_work_add(struct io_kiocb *req, bool emergency)
+@@ -1793,12 +1793,11 @@ static noinline bool io_cqring_fill_event(struct io_ring_ctx *ctx, u64 user_data
+ 	return __io_cqring_fill_event(ctx, user_data, res, cflags);
+ }
  
- 	spin_lock_irqsave(&tctx->task_lock, flags);
- 	tctx->nr = tctx->prior_nr = 0;
-+	tctx->tw_ctx = NULL;
- 	tctx->task_running = false;
- 	merged_list = wq_list_merge(&tctx->prior_task_list, &tctx->task_list);
- 	node = merged_list->first;
+-static void io_req_complete_post(struct io_kiocb *req, long res,
++static void __io_req_complete_post(struct io_kiocb *req, long res,
+ 				 unsigned int cflags)
+ {
+ 	struct io_ring_ctx *ctx = req->ctx;
+ 
+-	spin_lock(&ctx->completion_lock);
+ 	__io_cqring_fill_event(ctx, req->user_data, res, cflags);
+ 	/*
+ 	 * If we're the last reference to this request, add to our locked
+@@ -1819,6 +1818,15 @@ static void io_req_complete_post(struct io_kiocb *req, long res,
+ 		ctx->locked_free_nr++;
+ 		percpu_ref_put(&ctx->refs);
+ 	}
++}
++
++static void io_req_complete_post(struct io_kiocb *req, long res,
++				 unsigned int cflags)
++{
++	struct io_ring_ctx *ctx = req->ctx;
++
++	spin_lock(&ctx->completion_lock);
++	__io_req_complete_post(req, res, cflags);
+ 	io_commit_cqring(ctx);
+ 	spin_unlock(&ctx->completion_lock);
+ 	io_cqring_ev_posted(ctx);
 -- 
 2.24.4
 

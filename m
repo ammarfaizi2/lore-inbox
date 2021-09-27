@@ -2,98 +2,89 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CE06CC433F5
-	for <io-uring@archiver.kernel.org>; Sun, 26 Sep 2021 10:00:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4B1FBC433F5
+	for <io-uring@archiver.kernel.org>; Mon, 27 Sep 2021 04:38:22 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B7BBE6103B
-	for <io-uring@archiver.kernel.org>; Sun, 26 Sep 2021 10:00:16 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2C50760FC2
+	for <io-uring@archiver.kernel.org>; Mon, 27 Sep 2021 04:38:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230514AbhIZKBv (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sun, 26 Sep 2021 06:01:51 -0400
-Received: from out30-57.freemail.mail.aliyun.com ([115.124.30.57]:54086 "EHLO
-        out30-57.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231336AbhIZKBm (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Sun, 26 Sep 2021 06:01:42 -0400
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R831e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04395;MF=haoxu@linux.alibaba.com;NM=1;PH=DS;RN=4;SR=0;TI=SMTPD_---0UpbrNVT_1632650404;
-Received: from B-25KNML85-0107.local(mailfrom:haoxu@linux.alibaba.com fp:SMTPD_---0UpbrNVT_1632650404)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Sun, 26 Sep 2021 18:00:05 +0800
-Subject: Re: [PATCH RFC 5.13 1/2] io_uring: add support for ns granularity of
- io_sq_thread_idle
-To:     Pavel Begunkov <asml.silence@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>
-Cc:     io-uring@vger.kernel.org, Joseph Qi <joseph.qi@linux.alibaba.com>
-References: <1619616748-17149-1-git-send-email-haoxu@linux.alibaba.com>
- <1619616748-17149-2-git-send-email-haoxu@linux.alibaba.com>
- <7136bf4f-089f-25d5-eaf8-1f55b946c005@gmail.com>
- <51308ac4-03b7-0f66-7f26-8678807195ca@linux.alibaba.com>
- <96ef70e8-7abf-d820-3cca-0f8aedc969d8@gmail.com>
-From:   Hao Xu <haoxu@linux.alibaba.com>
-Message-ID: <0d781b5f-3d2d-5ad4-9ad3-8fabc994313a@linux.alibaba.com>
-Date:   Sun, 26 Sep 2021 18:00:04 +0800
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0)
- Gecko/20100101 Thunderbird/78.13.0
+        id S229674AbhI0Ej6 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Mon, 27 Sep 2021 00:39:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35706 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232599AbhI0Ej5 (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Mon, 27 Sep 2021 00:39:57 -0400
+Received: from mail-pj1-x1035.google.com (mail-pj1-x1035.google.com [IPv6:2607:f8b0:4864:20::1035])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB2CCC061570
+        for <io-uring@vger.kernel.org>; Sun, 26 Sep 2021 21:38:20 -0700 (PDT)
+Received: by mail-pj1-x1035.google.com with SMTP id on12-20020a17090b1d0c00b001997c60aa29so10698244pjb.1
+        for <io-uring@vger.kernel.org>; Sun, 26 Sep 2021 21:38:20 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=VB/zGx6Jjv+TMqGHrLtjb2NfJvB0jHNvPpw8TCz8BTA=;
+        b=VbL3TqXlRJUzZ7HQYu3HYs8g7Qq1mPVvmZAFMSm2KP45/hPo162kGt2C4te5znpPr+
+         DpqW8htkm74w8SRjavyK8EQY4zQkCX2Us8YNT7SIUz0LgrIu1N7/cMzQokf+joQxPp5i
+         y4l+EF8tEeV0+U6xPZdgO1fp7QP07gpnc2SQPG5h6NYu/YpqFeBE98d0zPsEA67n5As7
+         NAw1Ii1T1mGfSoHy0UKxrguKVnGkWhJuXoG+fnp5fLwMTJYe+ksHzcrz9r7rFKgUOBsi
+         8TAO+PQXbvMdEzFCZz+JuU0lbZvPHQkZ/vH+krJO8K0kKoE4ECuxWRwORkscqiLlvmsK
+         nePQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=VB/zGx6Jjv+TMqGHrLtjb2NfJvB0jHNvPpw8TCz8BTA=;
+        b=D0AXEbveyyUt/RvFfq01BHh/0DRCec72iUsWXqwQkyA/k2k9LPPCBK5HQ9Uvh94OvX
+         8Pji75BJ1sMSnakMMb5nb0/8XyZKUmZma+JcJ8Oo9jl2HydZSy7K4Dae/wrHyFruu5TK
+         NK3ObMpg4Rs1FyoJrFIvsrzM1S+9LkWLYW4uU6kuV9mgytA3hqLO6V6ejn+H3VgzeNt/
+         +csulo82dksLqEW/O3xjUT/AhDB5xaqKCpp8/DRhi7fcn6mtvAIgetAFPAc5jfNQS+K0
+         mlaca5v1YKUk5pa/kDIzJOSTHRcOcZIgEAaAqYbx0FfY/zTTbL1cTd+cpzyceCghojrj
+         ZtxQ==
+X-Gm-Message-State: AOAM530w5hhWJyVF3sPOm/E/rVnyF9goXmieyf0OS4U4ydPhqORVIyXb
+        RRgadg9qe2M80rBtCYWu34fnVnHP9w/4yw==
+X-Google-Smtp-Source: ABdhPJzUy8SEkcjrDjGfABq3KiGVp9XXkCpjYri0a4PoxdT/Vt/oABHO12oKPL6vn5mkPURz1oXrtw==
+X-Received: by 2002:a17:90a:5a86:: with SMTP id n6mr17340488pji.3.1632717500205;
+        Sun, 26 Sep 2021 21:38:20 -0700 (PDT)
+Received: from integral.. ([68.183.184.174])
+        by smtp.gmail.com with ESMTPSA id l128sm15623040pfd.106.2021.09.26.21.38.18
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 26 Sep 2021 21:38:19 -0700 (PDT)
+From:   Ammar Faizi <ammarfaizi2@gmail.com>
+To:     Jens Axboe <axboe@kernel.dk>
+Cc:     io-uring@vger.kernel.org
+Subject: [PATCH liburing 0/2] Fix endianess issue and add srand()
+Date:   Mon, 27 Sep 2021 11:37:42 +0700
+Message-Id: <20210927043744.162792-1-ammarfaizi2@gmail.com>
+X-Mailer: git-send-email 2.30.2
 MIME-Version: 1.0
-In-Reply-To: <96ef70e8-7abf-d820-3cca-0f8aedc969d8@gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-在 2021/4/30 上午6:15, Pavel Begunkov 写道:
-> On 4/29/21 4:28 AM, Hao Xu wrote:
->> 在 2021/4/28 下午10:07, Pavel Begunkov 写道:
->>> On 4/28/21 2:32 PM, Hao Xu wrote:
->>>> currently unit of io_sq_thread_idle is millisecond, the smallest value
->>>> is 1ms, which means for IOPS > 1000, sqthread will very likely  take
->>>> 100% cpu usage. This is not necessary in some cases, like users may
->>>> don't care about latency much in low IO pressure
->>>> (like 1000 < IOPS < 20000), but cpu resource does matter. So we offer
->>>> an option of nanosecond granularity of io_sq_thread_idle. Some test
->>>> results by fio below:
->>>
->>> If numbers justify it, I don't see why not do it in ns, but I'd suggest
->>> to get rid of all the mess and simply convert to jiffies during ring
->>> creation (i.e. nsecs_to_jiffies64()), and leave io_sq_thread() unchanged.
->> 1) here I keep millisecond mode for compatibility
->> 2) I saw jiffies is calculated by HZ, and HZ could be large enough
->> (like HZ = 1000) to make nsecs_to_jiffies64() = 0:
->>
->>   u64 nsecs_to_jiffies64(u64 n)
->>   {
->>   #if (NSEC_PER_SEC % HZ) == 0
->>           /* Common case, HZ = 100, 128, 200, 250, 256, 500, 512, 1000 etc. */
->>           return div_u64(n, NSEC_PER_SEC / HZ);
->>   #elif (HZ % 512) == 0
->>           /* overflow after 292 years if HZ = 1024 */
->>           return div_u64(n * HZ / 512, NSEC_PER_SEC / 512);
->>   #else
->>           /*
->>           ¦* Generic case - optimized for cases where HZ is a multiple of 3.
->>           ¦* overflow after 64.99 years, exact for HZ = 60, 72, 90, 120 etc.
->>           ¦*/
->>           return div_u64(n * 9, (9ull * NSEC_PER_SEC + HZ / 2) / HZ);
->>   #endif
->>   }
->>
->> say HZ = 1000, then nsec_to_jiffies64(1us) = 1e3 / (1e9 / 1e3) = 0
->> iow, nsec_to_jiffies64() doesn't work for n < (1e9 / HZ).
-> 
-> Agree, apparently jiffies precision fractions of a second, e.g. 0.001s
-> But I'd much prefer to not duplicate all that. So, jiffies won't do,
-> ktime() may be ok but a bit heavier that we'd like it to be...
-> 
-> Jens, any chance you remember something in the middle? Like same source
-> as ktime() but without the heavy correction it does.
-I'm gonna pick this one up again, currently this patch
-with ktime_get_ns() works good on our productions. This
-patch makes the latency a bit higher than before, but
-still lower than aio.
-I haven't gotten a faster alternate for ktime_get_ns(),
-any hints?
+Hi Jens,
 
-Regards,
-Hao
-> 
+2 patches for liburing:
+  - Fix endiness issue (from me, suggested by Louvian).
+  - Add `srand()` before calling `rand()` (from me).
+
+----------------------------------------------------------------
+Ammar Faizi (2):
+      test: Fix endianess issue on `bind()` and `connect()`
+      test/accept-link: Add `srand()` for better randomness
+
+ test/232c93d07b74-test.c |  9 +++++----
+ test/accept-link.c       | 14 ++++++++++----
+ test/accept.c            |  5 +++--
+ test/poll-link.c         | 11 +++++++----
+ test/shutdown.c          |  5 +++--
+ test/socket-rw-eagain.c  |  5 +++--
+ test/socket-rw.c         |  5 +++--
+ 7 files changed, 34 insertions(+), 20 deletions(-)
+
+---
+Ammar Faizi
+
+
 

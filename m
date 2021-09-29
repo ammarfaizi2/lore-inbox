@@ -2,106 +2,108 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 70466C433EF
-	for <io-uring@archiver.kernel.org>; Wed, 29 Sep 2021 11:38:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DE55BC433FE
+	for <io-uring@archiver.kernel.org>; Wed, 29 Sep 2021 12:08:49 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4FFB661409
-	for <io-uring@archiver.kernel.org>; Wed, 29 Sep 2021 11:38:14 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C58786140D
+	for <io-uring@archiver.kernel.org>; Wed, 29 Sep 2021 12:08:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245692AbhI2Ljy (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Wed, 29 Sep 2021 07:39:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59828 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245647AbhI2Ljy (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Wed, 29 Sep 2021 07:39:54 -0400
-Received: from mail-wr1-x42c.google.com (mail-wr1-x42c.google.com [IPv6:2a00:1450:4864:20::42c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1425DC06161C
-        for <io-uring@vger.kernel.org>; Wed, 29 Sep 2021 04:38:13 -0700 (PDT)
-Received: by mail-wr1-x42c.google.com with SMTP id x20so3683466wrg.10
-        for <io-uring@vger.kernel.org>; Wed, 29 Sep 2021 04:38:13 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=to:cc:references:from:subject:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=RdJNe1Yq7iF4k+jdNKcQvlZm3nbZyJM3+hjysZYasIM=;
-        b=Ol7cGRq/GGY2owJpgEsB7XH9aEToNl3rEzpvdKx3q8lnYnVYn/rdJqB0d+bOEHKqn2
-         +//Y0O6R/wfqLJcHNWTtiq8c9MIlqL+Si8f95bGvPY5ythIxsIcH/Up0XMN/rIAFHF+U
-         kbavQ6kehKM4xNl/Z9XAuY2XE+vBCSGMvaTgO8xG1z9y8LdO+A+lxFUB+FqMvLdAMoYj
-         mpMVw/1uevk/bUMvBMZUTXZT/r1Ncvg34GMV/4ZOpjNgLXABbV8jAPQjQDqe4Cg7k3KQ
-         3wpdRXa2JsjqWXw+53bLynclrQ2QS3nPg2zJiHRjOa8iM9frRs6R3fhjZYu1Y7dJohU7
-         4apA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:to:cc:references:from:subject:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=RdJNe1Yq7iF4k+jdNKcQvlZm3nbZyJM3+hjysZYasIM=;
-        b=akpd8qhPVLgG5iCi4wPs0gLQ+j4qGiStga73MRs74Fe828yyl8q+qCH3NTa6+AHbMQ
-         1N1wnHJ/CWxd8wYPq3iwwD+jPE7dSA5QTfQtHzY1gUCpDacf9FGHSp6N7lUsXFlh2ZYy
-         OL6bd0SLjxN/vIV8xss+a5B6sartfl1hl3FzaWfr40LLA9T/T7RR+/iDVuuaiyFI6EbF
-         M9yzMDbGBqKTBdrZmcBPAakjI+iSgwz7cdyE6s2SluV8kJF3/qUh8gbOHdXWx+cHBif7
-         OrHOvqTavDveLCGMoew0nvHsPBOy2WjK9hZBdN5E02gFVRALp0JT+VMVdliz3httAMDv
-         uPSA==
-X-Gm-Message-State: AOAM531q5Gwi6taZlyC6qZgAi7LoTnqiKP4C7BdSgvXTB6uRt8UENhI8
-        NSOQxnUlgigccrnjZe5jgYI=
-X-Google-Smtp-Source: ABdhPJxz2pUyoxOEBdu9Bf0BZbdrbpJpqsSANXohEdqkIdaGrv4v9Z32hYWyvcvHEIsZ11pfJHL5Ag==
-X-Received: by 2002:a5d:4810:: with SMTP id l16mr6170829wrq.3.1632915491671;
-        Wed, 29 Sep 2021 04:38:11 -0700 (PDT)
-Received: from [192.168.8.197] ([185.69.144.229])
-        by smtp.gmail.com with ESMTPSA id f123sm1472363wmf.30.2021.09.29.04.38.10
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 29 Sep 2021 04:38:11 -0700 (PDT)
-To:     Hao Xu <haoxu@linux.alibaba.com>, Jens Axboe <axboe@kernel.dk>
+        id S1343504AbhI2MK3 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 29 Sep 2021 08:10:29 -0400
+Received: from out30-133.freemail.mail.aliyun.com ([115.124.30.133]:58658 "EHLO
+        out30-133.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1343586AbhI2MK2 (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Wed, 29 Sep 2021 08:10:28 -0400
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R731e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04407;MF=haoxu@linux.alibaba.com;NM=1;PH=DS;RN=4;SR=0;TI=SMTPD_---0Uq1TOFa_1632917325;
+Received: from B-25KNML85-0107.local(mailfrom:haoxu@linux.alibaba.com fp:SMTPD_---0Uq1TOFa_1632917325)
+          by smtp.aliyun-inc.com(127.0.0.1);
+          Wed, 29 Sep 2021 20:08:46 +0800
+Subject: Re: [PATCH 2/2] io_uring: fix tw list mess-up by adding tw while it's
+ already in tw list
+To:     Pavel Begunkov <asml.silence@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>
 Cc:     io-uring@vger.kernel.org, Joseph Qi <joseph.qi@linux.alibaba.com>
-References: <1619616748-17149-1-git-send-email-haoxu@linux.alibaba.com>
- <1619616748-17149-2-git-send-email-haoxu@linux.alibaba.com>
- <7136bf4f-089f-25d5-eaf8-1f55b946c005@gmail.com>
- <51308ac4-03b7-0f66-7f26-8678807195ca@linux.alibaba.com>
- <96ef70e8-7abf-d820-3cca-0f8aedc969d8@gmail.com>
- <0d781b5f-3d2d-5ad4-9ad3-8fabc994313a@linux.alibaba.com>
- <11c738b2-8024-1870-d54b-79e89c5bea54@gmail.com>
- <10358b7e-9eb3-290f-34b6-5f257e98bcb9@linux.alibaba.com>
-From:   Pavel Begunkov <asml.silence@gmail.com>
-Subject: Re: [PATCH RFC 5.13 1/2] io_uring: add support for ns granularity of
- io_sq_thread_idle
-Message-ID: <f9c93212-1bc9-5025-f96d-510bbde84e21@gmail.com>
-Date:   Wed, 29 Sep 2021 12:37:34 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.13.0
+References: <20210927123600.234405-1-haoxu@linux.alibaba.com>
+ <20210927123600.234405-3-haoxu@linux.alibaba.com>
+ <513c3482-0d46-fd6a-2ee5-fe2b0b060105@gmail.com>
+From:   Hao Xu <haoxu@linux.alibaba.com>
+Message-ID: <f5f8c56d-e616-1016-0be5-3ca5f1ea7d6c@linux.alibaba.com>
+Date:   Wed, 29 Sep 2021 20:08:45 +0800
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0)
+ Gecko/20100101 Thunderbird/78.13.0
 MIME-Version: 1.0
-In-Reply-To: <10358b7e-9eb3-290f-34b6-5f257e98bcb9@linux.alibaba.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
+In-Reply-To: <513c3482-0d46-fd6a-2ee5-fe2b0b060105@gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 9/29/21 10:24 AM, Hao Xu wrote:
-> 在 2021/9/28 下午6:51, Pavel Begunkov 写道:
->> On 9/26/21 11:00 AM, Hao Xu wrote:
-[...]
->>> I'm gonna pick this one up again, currently this patch
->>> with ktime_get_ns() works good on our productions. This
->>> patch makes the latency a bit higher than before, but
->>> still lower than aio.
->>> I haven't gotten a faster alternate for ktime_get_ns(),
->>> any hints?
+在 2021/9/29 下午7:13, Pavel Begunkov 写道:
+> On 9/27/21 1:36 PM, Hao Xu wrote:
+>> For multishot mode, there may be cases like:
+>> io_poll_task_func()
+>> -> add_wait_queue()
+>>                              async_wake()
+>>                              ->io_req_task_work_add()
+>>                              this one mess up the running task_work list
+>>                              since req->io_task_work.node is in use.
+> 
+> By the time req->io_task_work.func() is called, node->next is undefined
+> and free to use. io_req_task_work_add() will override it without looking
+> at a prior value and that's fine, as the calling code doesn't touch it
+> after the callback.
+I misunderstood the code, since node->next will be reset to NULL in
+wq_list_add_tail(), so no problem here.
+> 
+>> similar situation for req->io_task_work.fallback_node.
+>> Fix it by set node->next = NULL before we run the tw, so that when we
+>> add req back to the wait queue in middle of tw running, we can safely
+>> re-add it to the tw list.
+> 
+> I might be missing what is the problem you're trying to fix. Does the
+> above makes sense? It doesn't sound like node->next=NULL can solve
+> anything.
+> 
+>> Fixes: 7cbf1722d5fc ("io_uring: provide FIFO ordering for task_work")
+>> Signed-off-by: Hao Xu <haoxu@linux.alibaba.com>
+>> ---
+>>   fs/io_uring.c | 11 ++++++++---
+>>   1 file changed, 8 insertions(+), 3 deletions(-)
 >>
->> Good, I'd suggest to look through Documentation/core-api/timekeeping.rst
->> In particular coarse variants may be of interest.
->> https://www.kernel.org/doc/html/latest/core-api/timekeeping.html#coarse-and-fast-ns-access
+>> diff --git a/fs/io_uring.c b/fs/io_uring.c
+>> index d0b358b9b589..f667d6286438 100644
+>> --- a/fs/io_uring.c
+>> +++ b/fs/io_uring.c
+>> @@ -1250,13 +1250,17 @@ static void io_fallback_req_func(struct work_struct *work)
+>>   	struct io_ring_ctx *ctx = container_of(work, struct io_ring_ctx,
+>>   						fallback_work.work);
+>>   	struct llist_node *node = llist_del_all(&ctx->fallback_llist);
+>> -	struct io_kiocb *req, *tmp;
+>> +	struct io_kiocb *req;
+>>   	bool locked = false;
+>>   
+>>   	percpu_ref_get(&ctx->refs);
+>> -	llist_for_each_entry_safe(req, tmp, node, io_task_work.fallback_node)
+>> +	req = llist_entry(node, struct io_kiocb, io_task_work.fallback_node);
+>> +	while (member_address_is_nonnull(req, io_task_work.fallback_node)) {
+>> +		node = req->io_task_work.fallback_node.next;
+>> +		req->io_task_work.fallback_node.next = NULL;
+>>   		req->io_task_work.func(req, &locked);
+>> -
+>> +		req = llist_entry(node, struct io_kiocb, io_task_work.fallback_node);
+>> +	}
+>>   	if (locked) {
+>>   		io_submit_flush_completions(ctx);
+>>   		mutex_unlock(&ctx->uring_lock);
+>> @@ -2156,6 +2160,7 @@ static void tctx_task_work(struct callback_head *cb)
+>>   				locked = mutex_trylock(&ctx->uring_lock);
+>>   				percpu_ref_get(&ctx->refs);
+>>   			}
+>> +			node->next = NULL;
+>>   			req->io_task_work.func(req, &locked);
+>>   			node = next;
+>>   		} while (node);
 >>
-> The coarse functions seems to be like jiffies, because they use the last
-> timer tick(from the explanation in that doc, it seems the timer tick is
-> in the same frequency as jiffies update). So I believe it is just
-> another format of jiffies which is low accurate.
+> 
 
-I haven't looked into the details, but it seems that unlike jiffies for
-the coarse mode 10ms (or whatever) is the worst case, but it _may_ be
-much better on average and feasible for your case, but can't predict
-if that's really the case in a real system and what will be the
-relative error comparing to normal ktime_ns().
-
--- 
-Pavel Begunkov

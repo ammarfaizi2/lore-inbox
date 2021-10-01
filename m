@@ -2,89 +2,146 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D1703C433EF
-	for <io-uring@archiver.kernel.org>; Thu, 30 Sep 2021 16:04:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5EC75C433EF
+	for <io-uring@archiver.kernel.org>; Fri,  1 Oct 2021 06:44:49 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B00E6613A9
-	for <io-uring@archiver.kernel.org>; Thu, 30 Sep 2021 16:04:59 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 44C5161A71
+	for <io-uring@archiver.kernel.org>; Fri,  1 Oct 2021 06:44:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347991AbhI3QGl (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Thu, 30 Sep 2021 12:06:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58826 "EHLO
+        id S1352171AbhJAGqc (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Fri, 1 Oct 2021 02:46:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59000 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346913AbhI3QGl (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Thu, 30 Sep 2021 12:06:41 -0400
-Received: from mail-il1-x136.google.com (mail-il1-x136.google.com [IPv6:2607:f8b0:4864:20::136])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5046C06176A
-        for <io-uring@vger.kernel.org>; Thu, 30 Sep 2021 09:04:58 -0700 (PDT)
-Received: by mail-il1-x136.google.com with SMTP id t15so5007655ilj.1
-        for <io-uring@vger.kernel.org>; Thu, 30 Sep 2021 09:04:58 -0700 (PDT)
+        with ESMTP id S231165AbhJAGqb (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Fri, 1 Oct 2021 02:46:31 -0400
+Received: from mail-pl1-x636.google.com (mail-pl1-x636.google.com [IPv6:2607:f8b0:4864:20::636])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 694E1C06176A
+        for <io-uring@vger.kernel.org>; Thu, 30 Sep 2021 23:44:47 -0700 (PDT)
+Received: by mail-pl1-x636.google.com with SMTP id n2so5655943plk.12
+        for <io-uring@vger.kernel.org>; Thu, 30 Sep 2021 23:44:47 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20210112.gappssmtp.com; s=20210112;
-        h=subject:to:references:from:message-id:date:user-agent:mime-version
-         :in-reply-to:content-language:content-transfer-encoding;
-        bh=mL7PyfBlSExzFN7ULRo5F0OQ3ENeR18OOqR+JJn/Sw0=;
-        b=6XbhO5ZoPyEtrpMFP3lRe928a083t1nBtJ5kZVkg9JTGt1A4dTnILhdvkW36jcQtKA
-         xvnOE7pl8zu/gKQhiDqR7wEVJ+fVBEIsu0qwbzZ2AvZ/ArWqm4YLPq58tTNncX7Z1wEM
-         27FVV5BeqE7Jk9IbzFivCVd09mWiZbMW2Mbt6Tj9crc+ZCjXAhNTp0IV9PvU2I1cY3RP
-         +aqvjSItXz/eQJh6ZX9wmdx8IbMDjpMcn/japiKhlLGNoWPJzROlYNAMBEZN95p155e6
-         06kzgNNuZWpCIEJAoDMEkWhxXE+kITtjRWopczZSAP5HF1bfGMY1pEKzGLQeNUVpn+jQ
-         pppA==
+        d=gmail.com; s=20210112;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=33qZFAu9Fhqooj342fhTL+VSwjk2kKh/jHVBudbP514=;
+        b=Thyk7ZCGd9D8A2EYWdCioeJP6tAmW8QEOVKCOuOuEPjk/kWNOQZhrOyPtaRS5n+CxW
+         eN485okvWIGJsYWp4xzud/A7fBQ/x5gIFGuaRkxZFvdppdWTOxfn4lWFNfbmo91+8f8Z
+         D4INedRRwf0S000B8LmizxIQuO9o89pV+B29IV5ssmGokHURXIew9J8j6HHcepkEzp0p
+         yJaCMVM8ZxMgZd7Zhi/Nccd02DHDx2AS2GcUcoUtKcLWd4L0EgkpmoZlO06NM/tc0r3h
+         kL8jN0ob36GeTiC0xUz7o2J4m53I6H0UJ+mUmWfT3n+/xvI67R5w6M4ZyuykXEyrHqzX
+         cRRQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:subject:to:references:from:message-id:date
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
          :user-agent:mime-version:in-reply-to:content-language
          :content-transfer-encoding;
-        bh=mL7PyfBlSExzFN7ULRo5F0OQ3ENeR18OOqR+JJn/Sw0=;
-        b=quzHxz6jnSDp1vIld7+w48dsZQt9C4/0DInvRA3a69r6e7dOZrbZD4tIxig83NYjCr
-         HRuyM/r0GGZZahX9+gFVA5NAWn8n3FdG38DqvVIX3XSv6wgVxEcaKVhWAa3eCMuDyWEI
-         zt7m+i3yWKnEQxECCFPEkxglTCG4V8xxgtdnXJm+ABdjnpgJr8U2+Tqiaitwa0hgQr18
-         eXYhSfqdn/iOR9bMGDzEfuoWQ/QrF2wBG0VmJ0YGKMsU4vH43W6k8E1vzmLQuNdFq9+P
-         Kxw8eGSM5zjKgRHQhg1oIQ3wWs5okULTE3c/MlVblgVqhgEOCHgqTTQChvGxSFBpJWqc
-         AwQw==
-X-Gm-Message-State: AOAM533hM+hJInTlqnccihcij7X1gchvJ9JQPJERUwJvgi7cm5NAKVEp
-        NbPmP+Gey7PO2ORspBeqsahXW3EHym/fHaKWgiM=
-X-Google-Smtp-Source: ABdhPJzVqVTGgwOPwCf0DykwJSRkd+sWk/KGg0K1ITnsEO8ARwIdMz1WS9UexJsEbJzGZke+jzWNzQ==
-X-Received: by 2002:a92:ca84:: with SMTP id t4mr4785874ilo.41.1633017893966;
-        Thu, 30 Sep 2021 09:04:53 -0700 (PDT)
-Received: from [192.168.1.30] ([207.135.234.126])
-        by smtp.gmail.com with ESMTPSA id s8sm1911912ilt.47.2021.09.30.09.04.53
+        bh=33qZFAu9Fhqooj342fhTL+VSwjk2kKh/jHVBudbP514=;
+        b=JPecbXXErs+U6lHw/GXzZgSSyyIQRWFVnNUyaeQ+qCBfiOcxclYNHuwd9SWeQP4T9y
+         sF1YunwYz+0de8hbI+qQid/e3fCH+tsYImzk7wrzibRTFmsE1I8OUaPC1RWuY7vbzb+b
+         G/SSlH0DbXZcCaFykFu+St4jxSk0HBwZxykoD5mj4bsFj6WRfUJBG2GwDnAdV8F8T5Ys
+         Lr97NnPvdGje7Clxvu8hoFrqWqlo4U+ekuR3m5KT/GPcXxMuOHJnvID+AZA/LiCCppxa
+         0DuycsnTOWCRMWhCgEBqlIfg6PAIgSeBsP+RsyDH2aieuNb4oZSuXuh7RLucbaMcmkXt
+         zv3Q==
+X-Gm-Message-State: AOAM530ABYQkuplIar1POVXhI/0lELPz+oRmlTuQ6jGYRG5QzlM3X34w
+        X0kqsp5I0sUzfM2JbXA52vRvUGAqdICDPw==
+X-Google-Smtp-Source: ABdhPJz0UEIkgCvWSMq+kLBjeQUhiOsH1CXhlQlU52RlhMZlbtaLzPbWlTT+vdduxnRfhnS2+XUMKQ==
+X-Received: by 2002:a17:90a:680c:: with SMTP id p12mr11157585pjj.33.1633070687004;
+        Thu, 30 Sep 2021 23:44:47 -0700 (PDT)
+Received: from [192.168.43.248] ([182.2.72.37])
+        by smtp.gmail.com with ESMTPSA id s17sm4880489pge.50.2021.09.30.23.44.44
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 30 Sep 2021 09:04:53 -0700 (PDT)
-Subject: Re: [PATCH v2 00/24] rework and optimise submission+completion paths
-To:     Pavel Begunkov <asml.silence@gmail.com>, io-uring@vger.kernel.org
-References: <cover.1632516769.git.asml.silence@gmail.com>
-From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <e5a5e7f8-f602-ba2d-8077-06dfdf226705@kernel.dk>
-Date:   Thu, 30 Sep 2021 10:04:52 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        Thu, 30 Sep 2021 23:44:46 -0700 (PDT)
+Subject: Re: [PATCHSET v1 RFC liburing 0/6] Implement the kernel style return
+ value
+To:     Ammar Faizi <ammar.faizi@students.amikom.ac.id>,
+        Jens Axboe <axboe@kernel.dk>,
+        Pavel Begunkov <asml.silence@gmail.com>
+Cc:     io-uring Mailing List <io-uring@vger.kernel.org>,
+        Ammar Faizi <ammarfaizi2@gmail.com>
+References: <20210929101606.62822-1-ammar.faizi@students.amikom.ac.id>
+ <CAGzmLMX5X45jukOgWuT=+FLvh4eq=mRZ54Rgh1J1W2U3f69fPQ@mail.gmail.com>
+From:   Louvian Lyndal <louvianlyndal@gmail.com>
+Message-ID: <89cf843d-be43-4bd6-0e20-4fb04a500512@gmail.com>
+Date:   Fri, 1 Oct 2021 13:44:42 +0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.13.0
 MIME-Version: 1.0
-In-Reply-To: <cover.1632516769.git.asml.silence@gmail.com>
-Content-Type: text/plain; charset=utf-8
+In-Reply-To: <CAGzmLMX5X45jukOgWuT=+FLvh4eq=mRZ54Rgh1J1W2U3f69fPQ@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 9/24/21 2:59 PM, Pavel Begunkov wrote:
-> 24 MIOPS vs 31.5, or ~30% win for fio/t/io_uring nops batching=32
-> Jens mentioned that with his standard test against Optane it gave
-> yet another +3% to throughput.
-> 
-> 1-14 are about optimising the completion path:
-> - replaces lists with single linked lists
-> - kills 64 * 8B of caches in ctx
-> - adds some shuffling of iopoll bits
-> - list splice instead of per-req list_add in one place
-> - inlines io_req_free_batch() and other helpers
-> 
-> 15-22: inlines __io_queue_sqe() so all the submission path
-> up to io_issue_sqe() is inlined + little tweaks
+On 9/29/21 5:16 PM, Ammar Faizi wrote:
+> ### 3) How to deal syscalls
+>
+> We have 3 patches in this series to wrap the syscalls, they are:
+>   - Add `liburing_mmap()` and `liburing_munmap()`
+>   - Add `liburing_madvise()`
+>   - Add `liburing_getrlimit()` and `liburing_setrlimit()`
+>
+> For `liburing_{munmap,madvise,getrlimit,setrlimit}`, they will return
+> negative value of error code if error. They basically just return
+> an int, so nothing to worry about.
+>
+> Special case is for pointer return value like `liburing_mmap()`. In
+> this case we take the `include/linux/err.h` file from the Linux kernel
+> source tree and use `IS_ERR()`, `PTR_ERR()`, `ERR_PTR()` to deal with
+> it.
+>
+>
+> ### 4) How can this help to support no libc environment?
+>
+> When this kernel style return value gets adapted on liburing, we will
+> start working on raw syscall directly written in Assembly (arch
+> dependent).
+>
+> Me (Ammar Faizi) will start kicking the tires from x86-64 arch.
+> Hopefully we will get support for other architectures as well.
+>
+> The example of liburing syscall wrapper may look like this:
+>
+> ```c
+> void *liburing_mmap(void *addr, size_t length, int prot, int flags,
+>                     int fd, off_t offset)
+> {      
+> #ifdef LIBURING_NOLIBC
+>         /*
+>          * This is when we build without libc.
+>          *
+>          * Assume __raw_mmap is the syscall written in ASM.
+>          *
+>          * The return value is directly taken from the syscall
+>          * return value.
+>          */
+>         return __raw_mmap(addr, length, prot, flags, fd, offset);
+> #else
+>         /*
+>          * This is when libc exists.
+>          */
+>         void *ret;
+>
+>         ret = mmap(addr, length, prot, flags, fd, offset);
+>         if (ret == MAP_FAILED)
+>                 ret = ERR_PTR(-errno);
+>
+>         return ret;
+> #endif
+> }
+> ```
 
-Applied for 5.16, thanks!
+This will add extra call just to wrap the libc. Consider to static
+inline them?
 
--- 
-Jens Axboe
+For libc they just check the retval, if it's -1 then return -errno. If
+they are inlined, they are ideally identical with the previous version.
 
+Besides they are all internal functions. I don't see why should we
+pollute global scope with extra wrappers.
+
+Regards,
+
+--
+Louvian Lyndal

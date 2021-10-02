@@ -2,120 +2,80 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 04BC8C433EF
-	for <io-uring@archiver.kernel.org>; Sat,  2 Oct 2021 18:37:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9F7A2C433F5
+	for <io-uring@archiver.kernel.org>; Sat,  2 Oct 2021 21:32:34 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id CF64C60FE8
-	for <io-uring@archiver.kernel.org>; Sat,  2 Oct 2021 18:37:03 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6F4566162E
+	for <io-uring@archiver.kernel.org>; Sat,  2 Oct 2021 21:32:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233856AbhJBSit (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sat, 2 Oct 2021 14:38:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34494 "EHLO
+        id S234089AbhJBVeT (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sat, 2 Oct 2021 17:34:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44528 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233849AbhJBSis (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Sat, 2 Oct 2021 14:38:48 -0400
-Received: from mail-ed1-x52b.google.com (mail-ed1-x52b.google.com [IPv6:2a00:1450:4864:20::52b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 51744C0613EC
-        for <io-uring@vger.kernel.org>; Sat,  2 Oct 2021 11:37:02 -0700 (PDT)
-Received: by mail-ed1-x52b.google.com with SMTP id dn26so47264456edb.13
-        for <io-uring@vger.kernel.org>; Sat, 02 Oct 2021 11:37:02 -0700 (PDT)
+        with ESMTP id S229503AbhJBVeT (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Sat, 2 Oct 2021 17:34:19 -0400
+Received: from mail-io1-xd2c.google.com (mail-io1-xd2c.google.com [IPv6:2607:f8b0:4864:20::d2c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60AB9C061714
+        for <io-uring@vger.kernel.org>; Sat,  2 Oct 2021 14:32:33 -0700 (PDT)
+Received: by mail-io1-xd2c.google.com with SMTP id d18so15748675iof.13
+        for <io-uring@vger.kernel.org>; Sat, 02 Oct 2021 14:32:33 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=xVUMrUQlO+NfOnqKJgwWbIAW/9rVaUDMkLw/zBuDLhs=;
-        b=qYoGl+cRn/R6BoURU2TSr+wvedV756fmB0dHYp3TwqAc6H+nV0yZhxSKwlze31sUTw
-         7Vc12ebqWTEuwAyf0UoRdvK4P6+ikms1osT6+X1gNw2PVUVoY2ZGg0ilRG5WkoZ9WqT+
-         rfRSvi+z5m/f6px3zfHB7gxldds3o2JH2t4zCaEkxiF2aQb+Ce0jXZ9eXT3rcoNDHcBf
-         AanzH3sqTev5hopZuz3irS8CmLNng29V3CoGy5xC9Mrj7i2InH/Eq3vWUrOnMYSSb5de
-         jLA475bXpG6H4NhWxKmpyBHko7z5pmfIlTmDGR6BT4RqDW++9PWAaa51agnEAk+Ja8Zp
-         1DQA==
+        d=kernel-dk.20210112.gappssmtp.com; s=20210112;
+        h=subject:to:references:from:message-id:date:user-agent:mime-version
+         :in-reply-to:content-language:content-transfer-encoding;
+        bh=slxJvLqIoIyNgVBm7X4YLfI4iWVi8o9k8bQd8I2W9R8=;
+        b=oAiAvDbn7s4i06aACeHhM4TRFxQBT4oeNJwz1ddX4pA5mE8hd0Xi5+1d2zeEaraxgG
+         AVfRU2v/nYbEj7BgS93VDw4QVOWp9Kgj81ZiGQH/GmKjwv36QkCFJsUgWcNgobbUovcc
+         rQ8i2IzwMdEOrIyeIQzv53W44biZnoS2Y8/IathbPN9Eyvn3MrS+8oquNQpZmHEyw7vV
+         UVhcNkO3nVdc+zHoNYGaxpuNq5FfQ8jq2AaEcHIGxPsN6fL8zs5aQSn16UEKxfoFBDu2
+         rP3B1g4z3pkY0748D6BHZ+fIWhHsi4Ax8TaPrgn8Otzud/cQlKWibbKo0RmIBq7sZskA
+         +BNg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+        h=x-gm-message-state:subject:to:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
          :content-transfer-encoding;
-        bh=xVUMrUQlO+NfOnqKJgwWbIAW/9rVaUDMkLw/zBuDLhs=;
-        b=k+BDeObWRTdNv5BJ8QHHQUn2uYxeX5Svy7JYEdCXtAyKevyxXwszeZOOiP+Hb7kPyy
-         JRT7giIACMGyX4OfYIqaVIfead0efY7Ww2pi352BwQu4sAsYx9InyhCy4Em8RZtUpPHC
-         feZWKpd1D+X/TrI9U4HSUpzWMqOvl0p294EvN2Q23xTdRj2jlh+UT2ZYDnxviY5LQSIK
-         7NYKN6dQNX+joNMW6K3zFGyj8LlHVbflIZyZjYQRYP4HUlpbZ/uFzV4OF8eDO/qjKzkQ
-         P4L/Cn1wlzUS5mh8XMhC6v3soGMqcpIyuudCruFkumpdwIBiddnFCwSCyaaouyMnGn2O
-         AsKw==
-X-Gm-Message-State: AOAM532fdFkmyU89A/X8vWnRl5wVHKgFZJgeg6xFHqK+pIF+BEVyRPXB
-        cUMwLt+QA7gddgRybSEpqR0B73nqxuU=
-X-Google-Smtp-Source: ABdhPJz0tyv9j6/Tz+2AapR/h3/VIvNAoNJGoLZike/ynyhbrAsBKXik6VKoQgYwkmkbZMjXdnitrQ==
-X-Received: by 2002:a17:907:3d9f:: with SMTP id he31mr5997834ejc.255.1633199820740;
-        Sat, 02 Oct 2021 11:37:00 -0700 (PDT)
-Received: from localhost.localdomain ([85.255.233.39])
-        by smtp.gmail.com with ESMTPSA id ee13sm2759996edb.14.2021.10.02.11.36.59
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 02 Oct 2021 11:37:00 -0700 (PDT)
-From:   Pavel Begunkov <asml.silence@gmail.com>
-To:     io-uring@vger.kernel.org
-Cc:     Jens Axboe <axboe@kernel.dk>, asml.silence@gmail.com
-Subject: [PATCH v3] io_uring: add flag to not fail link after timeout
-Date:   Sat,  2 Oct 2021 19:36:14 +0100
-Message-Id: <17c7ec0fb7a6113cc6be8cdaedcada0ba836ac0e.1633199723.git.asml.silence@gmail.com>
-X-Mailer: git-send-email 2.33.0
+        bh=slxJvLqIoIyNgVBm7X4YLfI4iWVi8o9k8bQd8I2W9R8=;
+        b=HwzMyqELsGUIqRPnLN9jN8mUPO2aYlzClzw3LOQCzLYhacP75pN+nxj8becMSewsQp
+         JuoK8Nj19pYOxHUAETkWjd0tVWYKcbiDsPglx6Es4XkmqnZcjeGjy4cFjqMA/RAzRwsb
+         USbPrh2IGfYUNZQN1JmyRwKEHgfdePrS8ZYZ23zfyOxN73kbq/jhxqrgnxop8KCDBqCG
+         3ZOs7IKyzcLPZHvg2O73WwZy+z1FytLgEU3kp4mfvqU1lhFbHKD/no7db4bIUkm1gCL6
+         of1/4WXxBgWzneQJhZFLNolO5KC+8XPud4uZEhR3UNRle3hGQw30dCDdyYSGH0nujZKk
+         efgQ==
+X-Gm-Message-State: AOAM531MqCBqZkeX97bo/4FpLLqGuWCI28YCndhVPq38rEARMTqZCJX6
+        v0tiwJRAvoFGh/HAOdV6CAqHkz4mpMapSA==
+X-Google-Smtp-Source: ABdhPJwj8ujZrWYgNbFSkYSoSiEg583hKfiHQlsTAYo9F+jjpyYJ5tJXj3NKEQeiJEwnA5nEcfqUeg==
+X-Received: by 2002:a05:6602:1812:: with SMTP id t18mr3627273ioh.36.1633210352554;
+        Sat, 02 Oct 2021 14:32:32 -0700 (PDT)
+Received: from [192.168.1.116] ([66.219.217.159])
+        by smtp.gmail.com with ESMTPSA id b5sm2182258ilq.77.2021.10.02.14.32.31
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sat, 02 Oct 2021 14:32:32 -0700 (PDT)
+Subject: Re: [PATCH v3] io_uring: add flag to not fail link after timeout
+To:     Pavel Begunkov <asml.silence@gmail.com>, io-uring@vger.kernel.org
+References: <17c7ec0fb7a6113cc6be8cdaedcada0ba836ac0e.1633199723.git.asml.silence@gmail.com>
+From:   Jens Axboe <axboe@kernel.dk>
+Message-ID: <ad256428-ea19-0b35-e8a0-01a1b6dc0271@kernel.dk>
+Date:   Sat, 2 Oct 2021 15:32:30 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <17c7ec0fb7a6113cc6be8cdaedcada0ba836ac0e.1633199723.git.asml.silence@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-For some reason non-off IORING_OP_TIMEOUT always fails links, it's
-pretty inconvenient and unnecessary limits chaining after it to hard
-linking, which is far from ideal, e.g. doesn't pair well with timeout
-cancellation. Add a flag forcing it to not fail links on -ETIME.
+On 10/2/21 12:36 PM, Pavel Begunkov wrote:
+> For some reason non-off IORING_OP_TIMEOUT always fails links, it's
+> pretty inconvenient and unnecessary limits chaining after it to hard
+> linking, which is far from ideal, e.g. doesn't pair well with timeout
+> cancellation. Add a flag forcing it to not fail links on -ETIME.
 
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
----
+Applied, thanks.
 
-v2: conditional behaviour with a new timeout flag
-v3: renaming (Jens)
-
- fs/io_uring.c                 | 8 ++++++--
- include/uapi/linux/io_uring.h | 1 +
- 2 files changed, 7 insertions(+), 2 deletions(-)
-
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index c1ad5817b114..a9eefd74b7e1 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -5860,7 +5860,10 @@ static int io_poll_update(struct io_kiocb *req, unsigned int issue_flags)
- 
- static void io_req_task_timeout(struct io_kiocb *req, bool *locked)
- {
--	req_set_fail(req);
-+	struct io_timeout_data *data = req->async_data;
-+
-+	if (!(data->flags & IORING_TIMEOUT_ETIME_SUCCESS))
-+		req_set_fail(req);
- 	io_req_complete_post(req, -ETIME, 0);
- }
- 
-@@ -6066,7 +6069,8 @@ static int io_timeout_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe,
- 	if (off && is_timeout_link)
- 		return -EINVAL;
- 	flags = READ_ONCE(sqe->timeout_flags);
--	if (flags & ~(IORING_TIMEOUT_ABS | IORING_TIMEOUT_CLOCK_MASK))
-+	if (flags & ~(IORING_TIMEOUT_ABS | IORING_TIMEOUT_CLOCK_MASK |
-+		      IORING_TIMEOUT_ETIME_SUCCESS))
- 		return -EINVAL;
- 	/* more than one clock specified is invalid, obviously */
- 	if (hweight32(flags & IORING_TIMEOUT_CLOCK_MASK) > 1)
-diff --git a/include/uapi/linux/io_uring.h b/include/uapi/linux/io_uring.h
-index b270a07b285e..c45b5e9a9387 100644
---- a/include/uapi/linux/io_uring.h
-+++ b/include/uapi/linux/io_uring.h
-@@ -158,6 +158,7 @@ enum {
- #define IORING_TIMEOUT_BOOTTIME		(1U << 2)
- #define IORING_TIMEOUT_REALTIME		(1U << 3)
- #define IORING_LINK_TIMEOUT_UPDATE	(1U << 4)
-+#define IORING_TIMEOUT_ETIME_SUCCESS	(1U << 5)
- #define IORING_TIMEOUT_CLOCK_MASK	(IORING_TIMEOUT_BOOTTIME | IORING_TIMEOUT_REALTIME)
- #define IORING_TIMEOUT_UPDATE_MASK	(IORING_TIMEOUT_UPDATE | IORING_LINK_TIMEOUT_UPDATE)
- /*
 -- 
-2.33.0
+Jens Axboe
 

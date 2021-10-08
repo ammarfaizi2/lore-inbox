@@ -2,129 +2,109 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6990CC433F5
-	for <io-uring@archiver.kernel.org>; Thu,  7 Oct 2021 15:03:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6D32CC433F5
+	for <io-uring@archiver.kernel.org>; Fri,  8 Oct 2021 12:36:52 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4DF7260EE5
-	for <io-uring@archiver.kernel.org>; Thu,  7 Oct 2021 15:03:17 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 58EEE60FD8
+	for <io-uring@archiver.kernel.org>; Fri,  8 Oct 2021 12:36:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242248AbhJGPFK (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Thu, 7 Oct 2021 11:05:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35638 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242243AbhJGPFK (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Thu, 7 Oct 2021 11:05:10 -0400
-Received: from mail-pf1-x42e.google.com (mail-pf1-x42e.google.com [IPv6:2607:f8b0:4864:20::42e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5AFFEC061570
-        for <io-uring@vger.kernel.org>; Thu,  7 Oct 2021 08:03:16 -0700 (PDT)
-Received: by mail-pf1-x42e.google.com with SMTP id s16so5637056pfk.0
-        for <io-uring@vger.kernel.org>; Thu, 07 Oct 2021 08:03:16 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=amikom.ac.id; s=google;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=qZ7sOEYsMyTuqvPKVFKD0W/AHjQgDTYbZRXoi2Vj5EY=;
-        b=AgZJpR0PaCZ0J5H7pCQSBJ1Af0WtNVi3PA3X8ZlD0D/2A9sfOR4qUje8S5P6iYpK/p
-         8cu8DcIFKXM7DLtwfhGwBJUeWdHjH8ujHXhVrs2Ca997jXvF7ZJ4DWVmqdwkPUTVnjUo
-         /j/25xKq1P3JyIL8HcDYVVJPt39zoI5JQ29QeIYxbT5vZcH13gGtgyAqIEFco8sM8HTO
-         4bZfOAk5x6pISMoo8zEL+TBxzNCu8NehapYEi+Bx8yvDJDCYAASsqpKzDkmhm23UW2kV
-         siaD2G+xtPmCbIY39JkvpcbDfH8K+5HdtGZJB1DBHdc5h1GOdMp/JAKQm/nAMTqA9/+x
-         mwqg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=qZ7sOEYsMyTuqvPKVFKD0W/AHjQgDTYbZRXoi2Vj5EY=;
-        b=U1RpJAFAtbIQehNJnKCmIOs2lnOi52IUQBYxa+veye7wKF2i3XrNzJ/AFCFs6STalU
-         UApT53GczWf7pMQ1xbEj5GtXG/c+OuV814Pz/BMyTZa3X8ZJldBIdvIrtNkCvpLfS/1r
-         Fs4p70GgfVXR5jTN3VKnlDroqOq39OMenUDLDy9hRYKCbJ7+i/GEwLndvLvPo+ypnm2a
-         uF5XwGVIiTqM5GZOaLhE94s88zSGd4HPLfb3QlRXPMYAr198fs2C1JDOdbuIak4mSlkK
-         DRz4Cr6WSXgFb5gkjAV+97n6f2dOmQ0dUDNKz8SENjWtsNVKPiQ9LCrdZjDWTZbNgfPx
-         0blw==
-X-Gm-Message-State: AOAM53094gZ5gJwwUZpi5Flq2mO/zr3835Db6gbqpU3HDXg5nkta+4jK
-        ScTvOz6o2Xh8XZ3LVPfPZHvW0A==
-X-Google-Smtp-Source: ABdhPJy4bjiGZLRLers+ZBoVcMHnhbmbW6+ojmO+k6S7Y5LTWI8COj0SSjbPJkoseGRqPNP4lW/9RA==
-X-Received: by 2002:a62:4e87:0:b0:447:ce02:c32e with SMTP id c129-20020a624e87000000b00447ce02c32emr4517454pfb.33.1633618995841;
-        Thu, 07 Oct 2021 08:03:15 -0700 (PDT)
-Received: from integral.. ([182.2.71.117])
-        by smtp.gmail.com with ESMTPSA id z23sm25078983pgv.45.2021.10.07.08.03.12
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 07 Oct 2021 08:03:15 -0700 (PDT)
-From:   Ammar Faizi <ammar.faizi@students.amikom.ac.id>
-To:     Jens Axboe <axboe@kernel.dk>,
-        Pavel Begunkov <asml.silence@gmail.com>,
-        io-uring Mailing List <io-uring@vger.kernel.org>
-Cc:     Bedirhan KURT <windowz414@gnuweeb.org>,
-        Louvian Lyndal <louvianlyndal@gmail.com>,
-        Ammar Faizi <ammar.faizi@students.amikom.ac.id>
-Subject: [PATCH liburing 4/4] Add LIBURING_NOLIBC variable and edit src/Makefile
-Date:   Thu,  7 Oct 2021 22:02:10 +0700
-Message-Id: <20211007150210.1390189-5-ammar.faizi@students.amikom.ac.id>
-X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20211007150210.1390189-1-ammar.faizi@students.amikom.ac.id>
-References: <20211007063157.1311033-1-ammar.faizi@students.amikom.ac.id>
- <20211007150210.1390189-1-ammar.faizi@students.amikom.ac.id>
+        id S230204AbhJHMiq (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Fri, 8 Oct 2021 08:38:46 -0400
+Received: from out30-130.freemail.mail.aliyun.com ([115.124.30.130]:53823 "EHLO
+        out30-130.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S241532AbhJHMip (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Fri, 8 Oct 2021 08:38:45 -0400
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R301e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04395;MF=haoxu@linux.alibaba.com;NM=1;PH=DS;RN=4;SR=0;TI=SMTPD_---0Ur.V7Wc_1633696602;
+Received: from e18g09479.et15sqa.tbsite.net(mailfrom:haoxu@linux.alibaba.com fp:SMTPD_---0Ur.V7Wc_1633696602)
+          by smtp.aliyun-inc.com(127.0.0.1);
+          Fri, 08 Oct 2021 20:36:49 +0800
+From:   Hao Xu <haoxu@linux.alibaba.com>
+To:     Jens Axboe <axboe@kernel.dk>
+Cc:     io-uring@vger.kernel.org, Pavel Begunkov <asml.silence@gmail.com>,
+        Joseph Qi <joseph.qi@linux.alibaba.com>
+Subject: [PATCH 1/2] io_uring: add IOSQE_ASYNC_HYBRID flag for pollable requests
+Date:   Fri,  8 Oct 2021 20:36:41 +0800
+Message-Id: <20211008123642.229338-2-haoxu@linux.alibaba.com>
+X-Mailer: git-send-email 2.24.4
+In-Reply-To: <20211008123642.229338-1-haoxu@linux.alibaba.com>
+References: <20211008123642.229338-1-haoxu@linux.alibaba.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Conditonal variable to enable nolibc build.
+The current logic of requests with IOSQE_FORCE_ASYNC is first queueing
+it to io-worker, then execute it in a synchronous way. For unbound works
+like pollable requests(e.g. read/write a socketfd), the io-worker may
+stuck there waiting for events for a long time. And thus other works
+wait in the list for a long time too.
+Let's introduce a new sqe flag IOSQE_ASYNC_HIBRID for unbound works
+(currently pollable requests), with this a request will first be queued
+to io-worker, then executed in a nonblock try rather than a synchronous
+way. Failure of that leads it to arm poll stuff and then the worker can
+begin to handle other works.
 
-Link: https://github.com/axboe/liburing/issues/443
-Signed-off-by: Ammar Faizi <ammar.faizi@students.amikom.ac.id>
+Suggested-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Hao Xu <haoxu@linux.alibaba.com>
 ---
- configure    |  7 +++++++
- src/Makefile | 13 ++++++++++++-
- 2 files changed, 19 insertions(+), 1 deletion(-)
+ fs/io_uring.c                 | 6 +++++-
+ include/uapi/linux/io_uring.h | 4 +++-
+ 2 files changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/configure b/configure
-index 92f51bd..6bdcead 100755
---- a/configure
-+++ b/configure
-@@ -358,6 +358,13 @@ print_config "has_memfd_create" "$has_memfd_create"
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 73135c5c6168..a99f7f46e6d4 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -104,7 +104,8 @@
+ #define IORING_MAX_REG_BUFFERS	(1U << 14)
  
+ #define SQE_COMMON_FLAGS (IOSQE_FIXED_FILE | IOSQE_IO_LINK | \
+-			  IOSQE_IO_HARDLINK | IOSQE_ASYNC)
++			  IOSQE_IO_HARDLINK | IOSQE_ASYNC | \
++			  IOSQE_ASYNC_HYBRID)
  
- #############################################################################
-+if test "$LIBURING_NOLIBC" = "y" -o "$LIBURING_NOLIBC" = "yes" -o "$LIBURING_NOLIBC" = "1"; then
-+  output_sym "LIBURING_NOLIBC"
-+  LIBURING_NOLIBC="yes"
-+else
-+  LIBURING_NOLIBC="no"
-+fi
-+print_config "LIBURING_NOLIBC" "$LIBURING_NOLIBC"
+ #define SQE_VALID_FLAGS	(SQE_COMMON_FLAGS|IOSQE_BUFFER_SELECT|IOSQE_IO_DRAIN)
  
- if test "$__kernel_rwf_t" = "yes"; then
-   output_sym "CONFIG_HAVE_KERNEL_RWF_T"
-diff --git a/src/Makefile b/src/Makefile
-index 5e46a9d..bc42675 100644
---- a/src/Makefile
-+++ b/src/Makefile
-@@ -32,11 +32,22 @@ endif
+@@ -709,6 +710,7 @@ enum {
+ 	REQ_F_HARDLINK_BIT	= IOSQE_IO_HARDLINK_BIT,
+ 	REQ_F_FORCE_ASYNC_BIT	= IOSQE_ASYNC_BIT,
+ 	REQ_F_BUFFER_SELECT_BIT	= IOSQE_BUFFER_SELECT_BIT,
++	REQ_F_ASYNC_HYBRID_BIT	= IOSQE_ASYNC_HYBRID_BIT,
  
- all: $(all_targets)
+ 	/* first byte is taken by user flags, shift it to not overlap */
+ 	REQ_F_FAIL_BIT		= 8,
+@@ -747,6 +749,8 @@ enum {
+ 	REQ_F_FORCE_ASYNC	= BIT(REQ_F_FORCE_ASYNC_BIT),
+ 	/* IOSQE_BUFFER_SELECT */
+ 	REQ_F_BUFFER_SELECT	= BIT(REQ_F_BUFFER_SELECT_BIT),
++	/* IOSQE_ASYNC_HYBRID */
++	REQ_F_ASYNC_HYBRID	= BIT(REQ_F_ASYNC_HYBRID_BIT),
  
--liburing_srcs := setup.c queue.c syscall.c register.c
-+liburing_srcs := setup.c queue.c register.c
-+
-+ifeq ($(LIBURING_NOLIBC),y)
-+	liburing_srcs += nolibc.c
-+	override CFLAGS += -nostdlib -nolibc -nodefaultlibs -ffreestanding -fno-stack-protector -fpic
-+	override CPPFLAGS += -nostdlib -nolibc -nodefaultlibs -ffreestanding -fno-stack-protector -fpic
-+	override LINK_FLAGS += -nostdlib -nolibc -nodefaultlibs -fpic
-+else
-+	liburing_srcs += syscall.c
-+endif
+ 	/* fail rest of links */
+ 	REQ_F_FAIL		= BIT(REQ_F_FAIL_BIT),
+diff --git a/include/uapi/linux/io_uring.h b/include/uapi/linux/io_uring.h
+index c45b5e9a9387..3e49a7dbe636 100644
+--- a/include/uapi/linux/io_uring.h
++++ b/include/uapi/linux/io_uring.h
+@@ -70,6 +70,7 @@ enum {
+ 	IOSQE_IO_HARDLINK_BIT,
+ 	IOSQE_ASYNC_BIT,
+ 	IOSQE_BUFFER_SELECT_BIT,
++	IOSQE_ASYNC_HYBRID_BIT,
+ };
  
- liburing_objs := $(patsubst %.c,%.ol,$(liburing_srcs))
- liburing_sobjs := $(patsubst %.c,%.os,$(liburing_srcs))
- 
-+$(liburing_srcs): syscall.h lib.h
-+
- $(liburing_objs) $(liburing_sobjs): include/liburing/io_uring.h
- 
- %.os: %.c
+ /*
+@@ -87,7 +88,8 @@ enum {
+ #define IOSQE_ASYNC		(1U << IOSQE_ASYNC_BIT)
+ /* select buffer from sqe->buf_group */
+ #define IOSQE_BUFFER_SELECT	(1U << IOSQE_BUFFER_SELECT_BIT)
+-
++/* first force async then arm poll */
++#define IOSQE_ASYNC_HYBRID	(1U << IOSQE_ASYNC_HYBRID_BIT)
+ /*
+  * io_uring_setup() flags
+  */
 -- 
-2.30.2
+2.24.4
 

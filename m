@@ -2,343 +2,552 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 07712C433F5
-	for <io-uring@archiver.kernel.org>; Sun, 10 Oct 2021 13:53:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1108DC433EF
+	for <io-uring@archiver.kernel.org>; Sun, 10 Oct 2021 13:53:56 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id DA39E60EE7
-	for <io-uring@archiver.kernel.org>; Sun, 10 Oct 2021 13:53:49 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E5750610E5
+	for <io-uring@archiver.kernel.org>; Sun, 10 Oct 2021 13:53:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232813AbhJJNzr (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sun, 10 Oct 2021 09:55:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54822 "EHLO
+        id S231842AbhJJNzx (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sun, 10 Oct 2021 09:55:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54852 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231842AbhJJNzr (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Sun, 10 Oct 2021 09:55:47 -0400
-Received: from mail-pf1-x42b.google.com (mail-pf1-x42b.google.com [IPv6:2607:f8b0:4864:20::42b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 578AFC061570
-        for <io-uring@vger.kernel.org>; Sun, 10 Oct 2021 06:53:48 -0700 (PDT)
-Received: by mail-pf1-x42b.google.com with SMTP id x130so3526275pfd.6
-        for <io-uring@vger.kernel.org>; Sun, 10 Oct 2021 06:53:48 -0700 (PDT)
+        with ESMTP id S232815AbhJJNzw (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Sun, 10 Oct 2021 09:55:52 -0400
+Received: from mail-pg1-x529.google.com (mail-pg1-x529.google.com [IPv6:2607:f8b0:4864:20::529])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5965BC061570
+        for <io-uring@vger.kernel.org>; Sun, 10 Oct 2021 06:53:54 -0700 (PDT)
+Received: by mail-pg1-x529.google.com with SMTP id q5so261070pgr.7
+        for <io-uring@vger.kernel.org>; Sun, 10 Oct 2021 06:53:54 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=amikom.ac.id; s=google;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=jKxcLh8F7ZX9q73sRkHR0nUn0CrgBx91S0ZJgfGE0dk=;
-        b=eyIHXI8UBGanqTB42DGNJcUtiWqtpyEMkYgM+frdu4Rh5Vi9fquBCID7iww66bM1tq
-         LhFw4nxBS2hfjGXbvOXa62WFAjois4L3rP8njLnwBH+5HK5jVYaT3RzyVvq8r5Z2I2HS
-         Bu82/8L/wPzw+Shq+kx9MS5QWOZcfGbPmyLyM2Ut+1C4lRZfJpvBlGSwPc4dxnRTUczS
-         6gSu3FuE+X6iIjIgM70cU63o1i1aCNcEbACuNjHOisbg6oYnyH53cbtQbxST3xHIR5FF
-         qd2fshUxaYEnUeqNOWAgGcH1BjGdpdV7MMf3QJ4XxJuR/pPzoZ4TMxget0dLo1plxecr
-         UfxQ==
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=IXYmfX3eoCF2/x1KMdFJRjlN3AYwy8TgrubzNdzn1oM=;
+        b=GjHG+/bWCeBOvnLipA76DSZupgeoUu6juJZx3bxp/CRjffrYdK2FWNrlBme+qvP4WJ
+         g2dfcyZfUwR09f547wBQA1hcQNowwUQU8jEIilq6xF0Yd5JoER1XZJxVh60AUBEveDFO
+         AmDiJtb+AxN5iBKFGl/ZuV0jJrtOukzM9vY3qaIWgmp8RdFK7I5wr0ubdbpnoDhr0T8L
+         1W2bk/EjDUFqBetHh6l/w/7HgUD/ahCMVNuV7NfIzo0/pPbBG+INJ4RXcelHwXCuPc0G
+         fs8+ByPvWZ3QjiTP95LzsZVdneRikcMtGOyfCP+1IKYAMFbezd/3pAnve8077PJIFYSB
+         sTMA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=jKxcLh8F7ZX9q73sRkHR0nUn0CrgBx91S0ZJgfGE0dk=;
-        b=aUZpGkJrgH2pTd8sY4K4mlNin6+o5Mp0XFi1CBB4SSw4FVVs1+TTEJXngJ0wTZHA/o
-         QBXSuI0Ss9JO1sKahwc+sDSJtSFWAAVz29gwm0rW6ERu1hzSf36See4fa5pA0SX/+MPH
-         XeyzefJn+RdEYTuEvrBQ9JGfXswL4Gf4J6SZfvzkh84wFqm17OXAUlsha55k+RPepq0V
-         VhFFyjovO8ASfg25BlndKnmR4LBhtRQrZjmLtSmLRQfRyGjlVQx2cD/JOFSGhUtaKcc5
-         QHREF3gUUCfIutmY1EPLbZIaD6Ww9t8OEFWVwc6ofzeKn1Z/j8hGsi+SQnyP0cvtsxt4
-         VVbQ==
-X-Gm-Message-State: AOAM531Rbj8HmYRktvcGGxvDK8Iwni06vQN9Cp4qLT4JROBg3TxXJWP2
-        HFXb7cZVxjJ3D045oUCQpF0FaQ==
-X-Google-Smtp-Source: ABdhPJyWDFi946bTkad/3K2DkI71kQwJ2EeLqBLW1L0CE7aAciqIFWF6sCnwVYCnQ1z29CE+1tcmag==
-X-Received: by 2002:a63:1d53:: with SMTP id d19mr13653536pgm.85.1633874027681;
-        Sun, 10 Oct 2021 06:53:47 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=IXYmfX3eoCF2/x1KMdFJRjlN3AYwy8TgrubzNdzn1oM=;
+        b=UDL5vggegLG/+SK6wcrZ8gG/qLUx00r1j5EouSkEmwMaXdOTh75ObiZH9VnYbOCvzv
+         ap2UDv0pQ8P2r2JqzgdjjnRVvfM6mDHXhtBMr7PMyvLei4nEoETTFlKVeE7ECxnvelwY
+         em7FC3CU6tQhFBjSymCp+KeNGuwwr30X6ugXHnx/mPHrRktUZF5F8/HKe4zPDq6RrRFo
+         3jxH4KzVKQ9cUW3nhAhacTmPkfoCuahDCio0rDS6UrmwYHMIh+XTtnQPDUm6ORWBGIMS
+         90AjoFUUGH2qMvVbHJ+guc8kKI2XP6tjfOyXOWDclD81McyV7E/bRR5IUUfdrqSLJrfh
+         6c6g==
+X-Gm-Message-State: AOAM5335L6gR3q02RbLm83Ed1R+gvP9wQ5BruGpi/gjSkyY/qKor8Zh+
+        8r/NTwudFy0jGDX0vN/zNPQJaA==
+X-Google-Smtp-Source: ABdhPJy2mZgN+7pdE0QLJ95+8AUQKpcUIiyW2AKu+hdBTWUCo++27wvLNIrREi9/fDvHuR3gdjnurQ==
+X-Received: by 2002:a62:15c6:0:b0:44c:74b7:14f5 with SMTP id 189-20020a6215c6000000b0044c74b714f5mr20238804pfv.80.1633874033809;
+        Sun, 10 Oct 2021 06:53:53 -0700 (PDT)
 Received: from integral.. ([182.2.41.40])
-        by smtp.gmail.com with ESMTPSA id p4sm4557249pjo.0.2021.10.10.06.53.44
+        by smtp.gmail.com with ESMTPSA id p4sm4557249pjo.0.2021.10.10.06.53.51
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 10 Oct 2021 06:53:46 -0700 (PDT)
+        Sun, 10 Oct 2021 06:53:53 -0700 (PDT)
 From:   Ammar Faizi <ammar.faizi@students.amikom.ac.id>
 To:     Jens Axboe <axboe@kernel.dk>,
         Pavel Begunkov <asml.silence@gmail.com>,
         io-uring Mailing List <io-uring@vger.kernel.org>
 Cc:     Bedirhan KURT <windowz414@gnuweeb.org>,
-        Louvian Lyndal <louvianlyndal@gmail.com>
-Subject: [PATCHSET v3 liburing 0/3] Add nolibc support for x86-64 arch 
-Date:   Sun, 10 Oct 2021 20:53:35 +0700
-Message-Id: <20211010135338.397115-1-ammar.faizi@students.amikom.ac.id>
+        Louvian Lyndal <louvianlyndal@gmail.com>,
+        Ammar Faizi <ammar.faizi@students.amikom.ac.id>
+Subject: [PATCH v3 liburing 2/3] Add nolibc build support
+Date:   Sun, 10 Oct 2021 20:53:37 +0700
+Message-Id: <20211010135338.397115-3-ammar.faizi@students.amikom.ac.id>
 X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20211010135338.397115-1-ammar.faizi@students.amikom.ac.id>
+References: <20211010135338.397115-1-ammar.faizi@students.amikom.ac.id>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Hi,
+Create `src/nolibc.c` to provide libc functions like `memset()`,
+`malloc()` and `free()`. Only build this file when we build liburing
+without libc.
 
-This is the patchset v3 to add support liburing nolibc x86-64. If you
-think there is more to be fixed, please let me know, I will be happy
-to address it.
+Add `get_page_size()` function to get the page size. When we build
+with libc, it uses `sysconf(_SC_PAGESIZE)`, otherwise it uses arch
+dependent implementation function that we provide at `src/arch` dir.
 
-In this patchset, I introduce nolibc support for x86-64 arch.
-Hopefully, one day we can get support for other architectures as well.
+Add conditional preprocessor in `src/syscall.h` to use arch dependent
+syscalls written in Assembly when we build liburing without libc.
 
-Motivation:
-Currently liburing depends on libc. We want to make liburing can be
-built without libc.
+Extra notes for tests:
+ 1) Functions in `src/syscall.c` require libc to work.
+ 2) Tests require functions in `src/syscall.c`.
 
-This idea firstly posted as an issue on the liburing GitHub
-repository here: https://github.com/axboe/liburing/issues/443
+So we build `src/syscall.c` manually from the test's Makefile.
 
-The subject of the issue is: "An option to use liburing without libc?".
+The Makefile in `src/` dir still builds `src/syscall.c` when we
+build liburing with libc.
 
-On Mon, Sep 27, 2021 at 4:18 PM Mahdi Rakhshandehroo <notifications@github.com> wrote:
-> There are a couple of issues with liburing's libc dependency:
-> 
->  1) libc implementations of errno, malloc, pthread etc. tend to
->     pollute the binary with unwanted global/thread-local state.
->     This makes reentrancy impossible and relocations expensive.
->  2) libc doesn't play nice with non-POSIX threading models, like
->     green threads with small stack sizes, or direct use of the
->     clone() system call. This makes interop with other
->     languages/runtimes difficult.
-> 
-> One could use the raw syscall interface to io_uring to address these
-> concerns, but that would be somewhat painful, so it would be nice
-> for liburing to support this use case out of the box. Perhaps
-> something like a NOLIBC macro could be added which, if defined,
-> would patch out libc constructs and replace them with non-libc
-> wrappers where applicable. A few API changes might be necessary for
-> the non-libc case (e.g. io_uring_get_probe/io_uring_free_probe), but
-> it shouldn't break existing applications as long as it's opt-in.
-
-----------------------------------------------------------------
-
-Explanation about the changes:
-
-- New directory for arch dependent files. We create a new directory
-  `src/arch`. This is where the arch dependent sources live. Currently
-  we only have single arch support `src/arch/x86`. This directory
-  contains crafted syscalls written in inline Assembly and get page
-  size function.
-
-- Currently, liburing uses 4 libc functions, they are:
-   1) `malloc`
-   2) `free`
-   3) `memset`
-   4) `sysconf` (to get the page size).
-  
-  To support nolibc build, we provide our own version of them. It is
-  defined in `src/nolibc.c`.
-
-- Procedure to free the return value of `io_uring_get_probe_{,ring}`.
-  Currently, several tests use `free()` to free the return value of
-  this *probe* functions. But since these changes we should always
-  use `io_uring_free_probe()`. Don't use `free()`.
-
-- Don't use `errno` to check error from liburing functions on tests.
-  We want the tests still work properly with liburing no libc.
-
-- New config variable and macro for conditional build. To support
-  nolibc build we add `CONFIG_NOLIBC` in the config.
-
-- New configure option `--nolibc`. This is to build liburing without
-  libc.
-
-----------------------------------------------------------------
-
-How to build liburing without libc?
-
-Execute `./configure --nolibc`, then run the `make`. Be sure to run
-`make clean` if you have dirty build, just to ensure consistency.
-
-  ammarfaizi2@integral:~/project/now/liburing$ ./configure --nolibc
-  prefix                        /usr
-  includedir                    /usr/include
-  libdir                        /usr/lib
-  libdevdir                     /usr/lib
-  relativelibdir                
-  mandir                        /usr/man
-  datadir                       /usr/share
-  stringop_overflow             yes
-  array_bounds                  yes
-  __kernel_rwf_t                yes
-  __kernel_timespec             yes
-  open_how                      yes
-  statx                         yes
-  C++                           yes
-  has_ucontext                  yes
-  has_memfd_create              yes
-  liburing_nolibc               yes
-  CC                            gcc
-  CXX                           g++
-  ammarfaizi2@integral:~/project/now/liburing$ taskset -c 0,1,2,3 make -j4
-
-Make sure you see the `liburing_nolibc` with `yes`.
-
-----------------------------------------------------------------
-
-Extra improvements of using liburing build without libc (x86-64):
-
-1) File size is reduced.
-
-  With libc:
-    116136 src/liburing.so.2.1.0
-
-  Without libc:
-    104136 src/liburing.so.2.1.0
-
-2) Efficient function call.
-
-   We inline all `syscall` instructions with inline Assembly. This
-   greatly reduces the data movement, as `syscall` only clobbers %rax,
-   %rcx and %r11. Plus it is compatible with the kernel style return
-   value, so no need a branch to catch error from `errno` variable
-   anymore.
-
-   With libc, we may spend more extra time to save caller saved
-   registers just to perform a syscall, because if we use libc, every
-   syscall is wrapped with a function call.
-
-   Another extra cost from libc is when we take the error branch, we
-   have to perform a call to `__errno_location` function just to get
-   the error code. With nolibc build, this is completely avoided and
-   we still have the thread-safe behavior.
-
-   Without libc, the generated Assembly code is also smaller. For
-   example, we can take a look at this generated Assembly code of
-   `__io_uring_sqring_wait` function.
-
-  With libc:
-
-    0000000000003340 <__io_uring_sqring_wait>:
-      3340: f3 0f 1e fa           endbr64 
-      3344: 48 83 ec 10           sub    $0x10,%rsp
-      3348: 8b b7 c4 00 00 00     mov    0xc4(%rdi),%esi
-      334e: 31 c9                 xor    %ecx,%ecx
-      3350: 31 d2                 xor    %edx,%edx
-      3352: 6a 08                 push   $0x8
-      3354: 41 b8 04 00 00 00     mov    $0x4,%r8d
-      335a: 45 31 c9              xor    %r9d,%r9d
-      335d: bf aa 01 00 00        mov    $0x1aa,%edi
-      3362: 31 c0                 xor    %eax,%eax
-      3364: e8 17 ef ff ff        call   2280 <syscall@plt>
-      3369: 5a                    pop    %rdx
-      336a: 59                    pop    %rcx
-      336b: 41 89 c0              mov    %eax,%r8d
-      336e: 85 c0                 test   %eax,%eax
-      3370: 79 0b                 jns    337d <__io_uring_sqring_wait+0x3d>
-      3372: e8 49 ee ff ff        call   21c0 <__errno_location@plt>
-      3377: 44 8b 00              mov    (%rax),%r8d
-      337a: 41 f7 d8              neg    %r8d
-      337d: 44 89 c0              mov    %r8d,%eax
-      3380: 48 83 c4 08           add    $0x8,%rsp
-      3384: c3                    ret
-      3385: 66 2e 0f 1f 84 00 00  cs nopw 0x0(%rax,%rax,1)
-      338c: 00 00 00 
-      338f: 90                    nop
-
-  Without libc:
-
-    0000000000001e20 <__io_uring_sqring_wait>:
-      1e20: f3 0f 1e fa           endbr64 
-      1e24: 31 d2                 xor    %edx,%edx
-      1e26: 8b bf c4 00 00 00     mov    0xc4(%rdi),%edi
-      1e2c: 45 31 c0              xor    %r8d,%r8d
-      1e2f: b8 aa 01 00 00        mov    $0x1aa,%eax
-      1e34: 41 ba 04 00 00 00     mov    $0x4,%r10d
-      1e3a: 41 b9 08 00 00 00     mov    $0x8,%r9d
-      1e40: 89 d6                 mov    %edx,%esi
-      1e42: 0f 05                 syscall
-      1e44: c3                    ret
-
-
-3) More portable shared library. Sometimes we meet a case where libc
-   version is not compatible with other versions of libc.
-
-   Now, as we do not depend on libc, it's easier to distribute the
-   liburing.so without worrying about libc version anymore. As long as
-   the architecture is the same and the kernel version is compatible,
-   that should not be a problem.
-----------------------------------------------------------------
-v3 (this patchset):
-  - Fix clang warning. The -nolibc flag is not necessary, remove it.
-
-  - Clean up error message language for not supported arch.
-
-  - When we run `make clean`, make sure nolibc objects are also removed.
-
-  - Drop one patch (fix UAF bug) as it has been applied in patchset v2.
-    Now we have 3 patches in this series.
-
-v2:
-  - Change `LIBURING_NOLIBC` to `CONFIG_NOLIBC` for consistency.
-
-  - To build liburing without libc, use `./configure --nolibc` instead
-    of `export LIBURING_NOLIBC=y`.
-
-  - Fix `test/thread-exit`, change the global variable to static as
-    we don't use it in other translation units.
-
-  - Add missing register comment in `src/arch/x86/syscall.h`
-
-v1:
-  - Drop extra wrappers for `malloc()`, `free()` and `memset()`.
-
-  - Fix UAF bug in test/thread-exit. I found this after I changed the
-    function name `uring_free()` to `free()` for nolibc build.
-
-  - 2 patches have been applied in RFC v2, drop them. Add one extra
-    patch to fix the UAF bug. So we have 4 patches here.
-
-RFC v2:
-  - Rebase the work based on commit 326ed975d49e8c7b ("configure: add
-    openat2.h for open_how and RESOLVE_* flags").
-
-  - Fix the patches order, make sure fix up the tests first, add
-    nolibc sources, and then add a variable build to enable it.
-
-  - Fix incorrect data type for `__arch_impl_mmap()` offset. It was
-    `int` (that's not right). The proper data type is `off_t`.
-
-  - Always use `long` or `void *` to contain the return value of
-    syscall in `__arch_impl_*` functions.
-
-  - Rename `src/no_libc.` to `src/nolibc.c`.
-
-  - Reduce the number of patches to 5, it was 6.
-
-Link: [RFC v1] https://lore.kernel.org/io-uring/20211006144911.1181674-1-ammar.faizi@students.amikom.ac.id/T/
-Link: [RFC v2] https://lore.kernel.org/io-uring/20211007063157.1311033-1-ammar.faizi@students.amikom.ac.id/
-Link: [PATCHSET v1] https://lore.kernel.org/io-uring/20211007063157.1311033-1-ammar.faizi@students.amikom.ac.id/T/#m91e5cf60a0813155104d5e676df903c1ffa1b62b
-Link: [PATCHSET v2] https://lore.kernel.org/io-uring/20211010063906.341014-1-ammar.faizi@students.amikom.ac.id/T/
-----------------------------------------------------------------
-
-If you want to view a git repository, you can take a look at:
-  
-  https://github.com/ammarfaizi2/liburing nolibc-x86-64
-
-Top commit is e78a436eb7d7f590af3bc7847c388156a224d43a:
-
-  configure: Add `CONFIG_NOLIBC` variable and macro (2021-10-10 20:45:11 +0700)
-
-----------------------------------------------------------------
-Ammar Faizi (3):
-      Add arch dependent directory and files
-      Add no libc build support
-      configure: Add `CONFIG_NOLIBC` variable and macro
-
- configure              |   9 +++
- src/Makefile           |  17 ++++-
- src/arch/x86/lib.h     |  26 +++++++
- src/arch/x86/syscall.h | 200 +++++++++++++++++++++++++++++++++++++++++++++++++
- src/lib.h              |  44 +++++++++++
- src/nolibc.c           |  48 ++++++++++++
- src/queue.c            |  14 +---
- src/register.c         |  12 +--
- src/setup.c            |  17 +----
- src/syscall.c          |  11 ++-
- src/syscall.h          |  71 ++++++++++++++----
- test/Makefile          |  19 ++++-
- 12 files changed, 434 insertions(+), 54 deletions(-)
- create mode 100644 src/arch/x86/lib.h
- create mode 100644 src/arch/x86/syscall.h
+Link: https://github.com/axboe/liburing/issues/443
+Reviewed-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Ammar Faizi <ammar.faizi@students.amikom.ac.id>
+---
+ src/lib.h      | 44 +++++++++++++++++++++++++++++++
+ src/nolibc.c   | 48 ++++++++++++++++++++++++++++++++++
+ src/queue.c    | 14 +++-------
+ src/register.c | 12 +++------
+ src/setup.c    | 17 +++---------
+ src/syscall.c  | 11 +++++++-
+ src/syscall.h  | 71 +++++++++++++++++++++++++++++++++++++++-----------
+ test/Makefile  | 19 +++++++++++---
+ 8 files changed, 183 insertions(+), 53 deletions(-)
  create mode 100644 src/lib.h
  create mode 100644 src/nolibc.c
 
+diff --git a/src/lib.h b/src/lib.h
+new file mode 100644
+index 0000000..58d91be
+--- /dev/null
++++ b/src/lib.h
+@@ -0,0 +1,44 @@
++/* SPDX-License-Identifier: MIT */
++#ifndef LIBURING_LIB_H
++#define LIBURING_LIB_H
++
++#include <stdlib.h>
++#include <string.h>
++#include <unistd.h>
++
++#ifdef CONFIG_NOLIBC
++#  if defined(__x86_64__) || defined(__i386__)
++#    include "arch/x86/lib.h"
++#  else
++#    error "This arch doesn't support building liburing without libc"
++#  endif
++#endif
++
++#ifndef offsetof
++# define offsetof(TYPE, FIELD) ((size_t) &((TYPE *)0)->FIELD)
++#endif
++
++#ifndef container_of
++# define container_of(PTR, TYPE, FIELD) ({				\
++	__typeof__(((TYPE *)0)->FIELD) *__FIELD_PTR = (PTR);		\
++	(TYPE *)((char *) __FIELD_PTR - offsetof(TYPE, FIELD));		\
++})
++#endif
++
++
++static inline long get_page_size(void)
++{
++#ifdef CONFIG_NOLIBC
++	return __arch_impl_get_page_size();
++#else
++	long page_size;
++
++	page_size = sysconf(_SC_PAGESIZE);
++	if (page_size < 0)
++		page_size = 4096;
++
++	return page_size;
++#endif
++}
++
++#endif /* #ifndef LIBURING_LIB_H */
+diff --git a/src/nolibc.c b/src/nolibc.c
+new file mode 100644
+index 0000000..5582ca0
+--- /dev/null
++++ b/src/nolibc.c
+@@ -0,0 +1,48 @@
++/* SPDX-License-Identifier: MIT */
++
++#ifndef CONFIG_NOLIBC
++# error "This file should only be compiled for no libc build"
++#endif
++
++#include "lib.h"
++#include "syscall.h"
++
++void *memset(void *s, int c, size_t n)
++{
++	size_t i;
++	unsigned char *p = s;
++
++	for (i = 0; i < n; i++)
++		p[i] = (unsigned char) c;
++
++	return s;
++}
++
++struct uring_heap {
++	size_t		len;
++	char		user_p[];
++};
++
++void *malloc(size_t len)
++{
++	struct uring_heap *heap;
++
++	heap = uring_mmap(NULL, sizeof(*heap) + len, PROT_READ | PROT_WRITE,
++			  MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
++	if (IS_ERR(heap))
++		return NULL;
++
++	heap->len = sizeof(*heap) + len;
++	return heap->user_p;
++}
++
++void free(void *p)
++{
++	struct uring_heap *heap;
++
++	if (uring_unlikely(!p))
++		return;
++
++	heap = container_of(p, struct uring_heap, user_p);
++	uring_munmap(heap, heap->len);
++}
+diff --git a/src/queue.c b/src/queue.c
+index 9af29d5..eb0c736 100644
+--- a/src/queue.c
++++ b/src/queue.c
+@@ -1,19 +1,11 @@
+ /* SPDX-License-Identifier: MIT */
+ #define _POSIX_C_SOURCE 200112L
+ 
+-#include <sys/types.h>
+-#include <sys/stat.h>
+-#include <sys/mman.h>
+-#include <unistd.h>
+-#include <string.h>
+-#include <stdbool.h>
+-
++#include "lib.h"
++#include "syscall.h"
++#include "liburing.h"
+ #include "liburing/compat.h"
+ #include "liburing/io_uring.h"
+-#include "liburing.h"
+-#include "liburing/barrier.h"
+-
+-#include "syscall.h"
+ 
+ /*
+  * Returns true if we're not using SQ thread (thus nobody submits but us)
+diff --git a/src/register.c b/src/register.c
+index 074223f..1f2c409 100644
+--- a/src/register.c
++++ b/src/register.c
+@@ -1,18 +1,12 @@
+ /* SPDX-License-Identifier: MIT */
+ #define _POSIX_C_SOURCE 200112L
+ 
+-#include <sys/types.h>
+-#include <sys/stat.h>
+-#include <sys/mman.h>
+-#include <sys/resource.h>
+-#include <unistd.h>
+-#include <string.h>
+-
++#include "lib.h"
++#include "syscall.h"
++#include "liburing.h"
+ #include "liburing/compat.h"
+ #include "liburing/io_uring.h"
+-#include "liburing.h"
+ 
+-#include "syscall.h"
+ 
+ int io_uring_register_buffers_update_tag(struct io_uring *ring, unsigned off,
+ 					 const struct iovec *iovecs,
+diff --git a/src/setup.c b/src/setup.c
+index 4f006de..5543468 100644
+--- a/src/setup.c
++++ b/src/setup.c
+@@ -1,18 +1,12 @@
+ /* SPDX-License-Identifier: MIT */
+ #define _DEFAULT_SOURCE
+ 
+-#include <sys/types.h>
+-#include <sys/stat.h>
+-#include <unistd.h>
+-#include <string.h>
+-#include <stdlib.h>
+-#include <signal.h>
+-
++#include "lib.h"
++#include "syscall.h"
++#include "liburing.h"
+ #include "liburing/compat.h"
+ #include "liburing/io_uring.h"
+-#include "liburing.h"
+ 
+-#include "syscall.h"
+ 
+ static void io_uring_unmap_rings(struct io_uring_sq *sq, struct io_uring_cq *cq)
+ {
+@@ -336,10 +330,7 @@ ssize_t io_uring_mlock_size_params(unsigned entries, struct io_uring_params *p)
+ 		cq_entries = 2 * entries;
+ 	}
+ 
+-	page_size = sysconf(_SC_PAGESIZE);
+-	if (page_size < 0)
+-		page_size = 4096;
+-
++	page_size = get_page_size();
+ 	return rings_size(entries, cq_entries, page_size);
+ }
+ 
+diff --git a/src/syscall.c b/src/syscall.c
+index 5923fbb..4e28e25 100644
+--- a/src/syscall.c
++++ b/src/syscall.c
+@@ -1,6 +1,16 @@
+ /* SPDX-License-Identifier: MIT */
+ #define _DEFAULT_SOURCE
+ 
++/*
++ * Functions in this file require libc, only build them when we use libc.
++ *
++ * Note:
++ * liburing's tests still need these functions.
++ */
++#if defined(CONFIG_NOLIBC) && !defined(LIBURING_BUILD_TEST)
++# error "This file should only be compiled for libc build, or for liburing tests"
++#endif
++
+ /*
+  * Will go away once libc support is there
+  */
+@@ -11,7 +21,6 @@
+ #include "liburing/io_uring.h"
+ #include "syscall.h"
+ 
+-
+ int __sys_io_uring_register(int fd, unsigned opcode, const void *arg,
+ 			    unsigned nr_args)
+ {
+diff --git a/src/syscall.h b/src/syscall.h
+index 9eff968..4b336f1 100644
+--- a/src/syscall.h
++++ b/src/syscall.h
+@@ -29,13 +29,13 @@
+ # endif
+ #elif defined __mips__
+ # ifndef __NR_io_uring_setup
+-#  define __NR_io_uring_setup           (__NR_Linux + 425)
++#  define __NR_io_uring_setup		(__NR_Linux + 425)
+ # endif
+ # ifndef __NR_io_uring_enter
+-#  define __NR_io_uring_enter           (__NR_Linux + 426)
++#  define __NR_io_uring_enter		(__NR_Linux + 426)
+ # endif
+ # ifndef __NR_io_uring_register
+-#  define __NR_io_uring_register        (__NR_Linux + 427)
++#  define __NR_io_uring_register	(__NR_Linux + 427)
+ # endif
+ #else /* !__alpha__ and !__mips__ */
+ # ifndef __NR_io_uring_setup
+@@ -49,9 +49,22 @@
+ # endif
+ #endif
+ 
+-
++/*
++ * Don't put this below the #include "arch/$arch/syscall.h", that
++ * file may need it.
++ */
+ struct io_uring_params;
+ 
++
++#ifdef CONFIG_NOLIBC
++#  if defined(__x86_64__) || defined(__i386__)
++#    include "arch/x86/syscall.h"
++#  else
++#    error "This arch doesn't support building liburing without libc"
++#  endif
++#endif
++
++
+ /*
+  * System calls
+  */
+@@ -68,12 +81,12 @@ static inline void *ERR_PTR(intptr_t n)
+ 	return (void *) n;
+ }
+ 
+-static inline intptr_t PTR_ERR(void *ptr)
++static inline intptr_t PTR_ERR(const void *ptr)
+ {
+ 	return (intptr_t) ptr;
+ }
+ 
+-static inline bool IS_ERR(void *ptr)
++static inline bool IS_ERR(const void *ptr)
+ {
+ 	return uring_unlikely((uintptr_t) ptr >= (uintptr_t) -4095UL);
+ }
+@@ -81,30 +94,40 @@ static inline bool IS_ERR(void *ptr)
+ static inline int ____sys_io_uring_register(int fd, unsigned opcode,
+ 					    const void *arg, unsigned nr_args)
+ {
++#ifdef CONFIG_NOLIBC
++	return __arch_impl_io_uring_register(fd, opcode, arg, nr_args);
++#else
+ 	int ret;
+-
+ 	ret = syscall(__NR_io_uring_register, fd, opcode, arg, nr_args);
+ 	return (ret < 0) ? -errno : ret;
++#endif
+ }
+ 
+ static inline int ____sys_io_uring_setup(unsigned entries,
+ 					 struct io_uring_params *p)
+ {
++#ifdef CONFIG_NOLIBC
++	return __arch_impl_io_uring_setup(entries, p);
++#else
+ 	int ret;
+-
+ 	ret = syscall(__NR_io_uring_setup, entries, p);
+ 	return (ret < 0) ? -errno : ret;
++#endif
+ }
+ 
+ static inline int ____sys_io_uring_enter2(int fd, unsigned to_submit,
+ 					  unsigned min_complete, unsigned flags,
+ 					  sigset_t *sig, int sz)
+ {
++#ifdef CONFIG_NOLIBC
++	return __arch_impl_io_uring_enter(fd, to_submit, min_complete, flags,
++					  sig, sz);
++#else
+ 	int ret;
+-
+ 	ret = syscall(__NR_io_uring_enter, fd, to_submit, min_complete, flags,
+ 		      sig, sz);
+ 	return (ret < 0) ? -errno : ret;
++#endif
+ }
+ 
+ static inline int ____sys_io_uring_enter(int fd, unsigned to_submit,
+@@ -118,50 +141,68 @@ static inline int ____sys_io_uring_enter(int fd, unsigned to_submit,
+ static inline void *uring_mmap(void *addr, size_t length, int prot, int flags,
+ 			       int fd, off_t offset)
+ {
++#ifdef CONFIG_NOLIBC
++	return __arch_impl_mmap(addr, length, prot, flags, fd, offset);
++#else
+ 	void *ret;
+-
+ 	ret = mmap(addr, length, prot, flags, fd, offset);
+ 	return (ret == MAP_FAILED) ? ERR_PTR(-errno) : ret;
++#endif
+ }
+ 
+ static inline int uring_munmap(void *addr, size_t length)
+ {
++#ifdef CONFIG_NOLIBC
++	return __arch_impl_munmap(addr, length);
++#else
+ 	int ret;
+-
+ 	ret = munmap(addr, length);
+ 	return (ret < 0) ? -errno : ret;
++#endif
+ }
+ 
+ static inline int uring_madvise(void *addr, size_t length, int advice)
+ {
++#ifdef CONFIG_NOLIBC
++	return __arch_impl_madvise(addr, length, advice);
++#else
+ 	int ret;
+-
+ 	ret = madvise(addr, length, advice);
+ 	return (ret < 0) ? -errno : ret;
++#endif
+ }
+ 
+ static inline int uring_getrlimit(int resource, struct rlimit *rlim)
+ {
++#ifdef CONFIG_NOLIBC
++	return __arch_impl_getrlimit(resource, rlim);
++#else
+ 	int ret;
+-
+ 	ret = getrlimit(resource, rlim);
+ 	return (ret < 0) ? -errno : ret;
++#endif
+ }
+ 
+ static inline int uring_setrlimit(int resource, const struct rlimit *rlim)
+ {
++#ifdef CONFIG_NOLIBC
++	return __arch_impl_setrlimit(resource, rlim);
++#else
+ 	int ret;
+-
+ 	ret = setrlimit(resource, rlim);
+ 	return (ret < 0) ? -errno : ret;
++#endif
+ }
+ 
+ static inline int uring_close(int fd)
+ {
++#ifdef CONFIG_NOLIBC
++	return __arch_impl_close(fd);
++#else
+ 	int ret;
+-
+ 	ret = close(fd);
+ 	return (ret < 0) ? -errno : ret;
++#endif
+ }
+ 
+ #endif
+diff --git a/test/Makefile b/test/Makefile
+index 2936469..1a10a24 100644
+--- a/test/Makefile
++++ b/test/Makefile
+@@ -21,8 +21,8 @@ ifdef CONFIG_HAVE_ARRAY_BOUNDS
+ endif
+ 
+ CXXFLAGS ?= $(CFLAGS)
+-override CFLAGS += $(XCFLAGS)
+-override CXXFLAGS += $(XCFLAGS) -std=c++11
++override CFLAGS += $(XCFLAGS) -DLIBURING_BUILD_TEST
++override CXXFLAGS += $(XCFLAGS) -std=c++11 -DLIBURING_BUILD_TEST
+ LDFLAGS ?=
+ override LDFLAGS += -L../src/ -luring
+ 
+@@ -153,11 +153,22 @@ test_targets += sq-full-cpp
+ endif
+ all_targets += sq-full-cpp
+ 
+-helpers = helpers.o
++#
++# Build ../src/syscall.c manually from test's Makefile to support
++# liburing nolibc.
++#
++# Functions in ../src/syscall.c require libc to work with, if we
++# build liburing without libc, we don't have those functions
++# in liburing.a. So build it manually here.
++#
++helpers = helpers.o ../src/syscall.o
+ 
+ all: ${helpers} $(test_targets)
+ 
+-helpers.o: helpers.c helpers.c
++../src/syscall.o: ../src/syscall.c
++	$(QUIET_CC)$(CC) $(CPPFLAGS) $(CFLAGS) -o $@ -c $<
++
++helpers.o: helpers.c
+ 	$(QUIET_CC)$(CC) $(CPPFLAGS) $(CFLAGS) -o $@ -c $<
+ 
+ %: %.c ${helpers} helpers.h
 -- 
-Ammar Faizi
-
+2.30.2
 

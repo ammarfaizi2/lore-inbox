@@ -2,184 +2,107 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6B783C433EF
-	for <io-uring@archiver.kernel.org>; Thu, 14 Oct 2021 15:12:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 21E28C433EF
+	for <io-uring@archiver.kernel.org>; Thu, 14 Oct 2021 18:18:04 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 593CF60E97
-	for <io-uring@archiver.kernel.org>; Thu, 14 Oct 2021 15:12:23 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id F400F60EBB
+	for <io-uring@archiver.kernel.org>; Thu, 14 Oct 2021 18:18:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233495AbhJNPO0 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Thu, 14 Oct 2021 11:14:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49940 "EHLO
+        id S232822AbhJNSUI (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Thu, 14 Oct 2021 14:20:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36062 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233269AbhJNPOV (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Thu, 14 Oct 2021 11:14:21 -0400
-Received: from mail-wr1-x42a.google.com (mail-wr1-x42a.google.com [IPv6:2a00:1450:4864:20::42a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 51A61C06177F
-        for <io-uring@vger.kernel.org>; Thu, 14 Oct 2021 08:11:16 -0700 (PDT)
-Received: by mail-wr1-x42a.google.com with SMTP id g25so20459394wrb.2
-        for <io-uring@vger.kernel.org>; Thu, 14 Oct 2021 08:11:16 -0700 (PDT)
+        with ESMTP id S230119AbhJNSUF (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Thu, 14 Oct 2021 14:20:05 -0400
+Received: from mail-io1-xd35.google.com (mail-io1-xd35.google.com [IPv6:2607:f8b0:4864:20::d35])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1CC4AC061570
+        for <io-uring@vger.kernel.org>; Thu, 14 Oct 2021 11:18:00 -0700 (PDT)
+Received: by mail-io1-xd35.google.com with SMTP id p68so4855457iof.6
+        for <io-uring@vger.kernel.org>; Thu, 14 Oct 2021 11:18:00 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
+        d=kernel-dk.20210112.gappssmtp.com; s=20210112;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=amO6BHYoY732BRQ3C+3uD+BilWE7a4KJzuH+dyj+mZ4=;
-        b=FaC0YOJBcpKLmXB/lM2WZ/cJmBFqI6OB71Mj1F930mi4LrYCqYozRVR8UmDoB7xgY7
-         qyyfqRic397iCdjdimVt2QUy1lZnp5WIfUX01JxaBy4Y/f7owIDK64NmokanwJuwtK6O
-         dyLto5hBVZeTzagoxwkIYikvIKl7mXKXTkifGS+m7BvEvq5CT96i89Y7ZE7rx5kZwLT6
-         efsNELwfF58GC9Fqt2xoG73bAnUEBRSVJC4KR8WNaPWOSeKSP9CdBAoeRkEMdu8NVi43
-         Nt/qgwwiE+SAaYzgwk1viLf2lU7F3tRdietw7Hc1fsHFyTIQ/bEHuY8rC8kvYsqTAOuF
-         TjwQ==
+        bh=Xyyd/ZnubbTPPijSP/CT18OhYkXDXMoW5W01trrWwy8=;
+        b=v3vwOjaBOfztMUXuQjl04Pu1o8FOyIK/dt0PIQ+4wkDBwSCKznv19q81XZXvOcuc5l
+         JnaOrDf4jqIbRn+nUHMfB3ZqlG7tQqbbUgbuWwFl1aHkxhd+AOOLk2ugZPNPBDlCn8aE
+         zah64neVFnspy7C6Op0SP4XSTRcIVJAtgrIIkfZlRKMn/isFhYg6eG5KOwDjNQg9SPoy
+         211dy9i0g9A+mmH1zvzqxgbwIvdNl+j2jj0s5aX0Cg8dnTvUn3ajAtlhTfBEEFG852dJ
+         UtYnjeePHKPR6IkPX9EOfFUj5FgkMnVTBLezOWni+syGtz0S/1yTJ7597Uc0eBCn8o2j
+         FRaw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=amO6BHYoY732BRQ3C+3uD+BilWE7a4KJzuH+dyj+mZ4=;
-        b=GGbHigJPj5Mpec5ZpDQjVtPWkJNdiOQOMD4lEZO7HiW8sLM7oFsrdYQcbk1pg889Su
-         Vxn9aqCiBnO4litz+Jng6iwwDZ+8qcjcerE8rMzXg+a36okd35iDQXgovL4jo8uWBvRl
-         l4zwXea8xUTb5T6pEumeVMcwVHoiBa8WuUMKFk29jdeEn0X8mZ7qw4JrGq4MYZTnYk3D
-         DLYu0iZtFcgKeOiLfu9ajWdP0NLHLPEQkKRPeeR2gQfWeS7AOJ7PJVLXtOO0o3mNhv91
-         M46/4fVXgjRXSAqmi5whAnOlST7/kkRn18te0lFy7/i1gDs4xq82NKUfdAIpwanF4qHh
-         4v6w==
-X-Gm-Message-State: AOAM5316nxPFs2/EqRMbBAnxxxsBJ9JcsyEY99gl5FYZ8SPRbgIJqY6C
-        llaIfZstYHeir//bxiFAKknoPXnHZuE=
-X-Google-Smtp-Source: ABdhPJy9HHu2qxUAzEGu2OiozbxlSHpN0hB2fBH2PAF/N+OF+S8CXPO6W7SjEOKcZyQTPrlKkulyHQ==
-X-Received: by 2002:a7b:c444:: with SMTP id l4mr19858111wmi.115.1634224274288;
-        Thu, 14 Oct 2021 08:11:14 -0700 (PDT)
-Received: from localhost.localdomain ([185.69.145.214])
-        by smtp.gmail.com with ESMTPSA id c14sm2549557wrd.50.2021.10.14.08.11.13
+        bh=Xyyd/ZnubbTPPijSP/CT18OhYkXDXMoW5W01trrWwy8=;
+        b=6HzGJMOF99Tu1vhoVNcSmK46wqTdqKWHmgMrXsuqdfGwQYqCWxcU6r3BVwn+FhZ8yI
+         HP93YI+sToWSHe+WyZMYChWz9FkojX2HBiDsMBINP68EBI/mnY6h+sib1dHkF0sEoXKm
+         vKOasSL5a19jbAKKbmO0rEukGhkXcdjYXtx3AzDCppE4nyihNR9UgAoFgeJZ46NloKyg
+         ACp5VFMdCDjSmqW474KiosRq65XW06h15YWsQI1Lnv3ieW93fBLjVkWd9zc/GfIXyi2o
+         Vx0wnMsN5m1rVD27b1uImqlAW/XcHKPvwDYhDTJlL/NPKsQNibHbk9+1TGBx1vfRMpCf
+         KGOg==
+X-Gm-Message-State: AOAM530n6U0rkNnVHWXo/iH8HuukhcZicUAfdQkUiazd2JsRqnAFpEaW
+        PwuqJYUmY5j2GJcU56xeISSwddY64nMfqQ==
+X-Google-Smtp-Source: ABdhPJzieGDQISdL4XwbBzQo+7XwzhzPnesyADfKVMcDTUXpwlERoN0ikYTsn/P+fvlw3qJnnyC8sA==
+X-Received: by 2002:a05:6602:2ac1:: with SMTP id m1mr425108iov.118.1634235479422;
+        Thu, 14 Oct 2021 11:17:59 -0700 (PDT)
+Received: from p1.localdomain ([207.135.234.126])
+        by smtp.gmail.com with ESMTPSA id l18sm1548818ilj.12.2021.10.14.11.17.58
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 14 Oct 2021 08:11:13 -0700 (PDT)
-From:   Pavel Begunkov <asml.silence@gmail.com>
-To:     io-uring@vger.kernel.org
-Cc:     Jens Axboe <axboe@kernel.dk>, asml.silence@gmail.com
-Subject: [PATCH 7/8] io_uring: clean up io_import_iovec
-Date:   Thu, 14 Oct 2021 16:10:18 +0100
-Message-Id: <b1bbc213a95e5272d4da5867bb977d9acb6f2109.1634144845.git.asml.silence@gmail.com>
-X-Mailer: git-send-email 2.33.0
+        Thu, 14 Oct 2021 11:17:59 -0700 (PDT)
+From:   Jens Axboe <axboe@kernel.dk>
+To:     Pavel Begunkov <asml.silence@gmail.com>, io-uring@vger.kernel.org
+Cc:     Jens Axboe <axboe@kernel.dk>
+Subject: Re: [PATCH for-next 0/8] read/write cleanup
+Date:   Thu, 14 Oct 2021 12:17:50 -0600
+Message-Id: <163423546311.1385699.18367704997906902690.b4-ty@kernel.dk>
+X-Mailer: git-send-email 2.33.1
 In-Reply-To: <cover.1634144845.git.asml.silence@gmail.com>
 References: <cover.1634144845.git.asml.silence@gmail.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Make io_import_iovec taking struct io_rw_state instead of an iter
-pointer. First it takes care of initialising iovec pointer, which can be
-forgotten. Even more, we can not init it if not needed, e.g. in case of
-IORING_OP_READ_FIXED or IORING_OP_READ. Also hide saving iter_state
-inside of it by splitting out an inline function of it to avoid extra
-ifs.
+On Thu, 14 Oct 2021 16:10:11 +0100, Pavel Begunkov wrote:
+> gave very slight boost (nullb IO) for my testing, 2.89 vs 2.92 MIOPS,
+> but the main motivation is that I like the code better.
+> 
+> Pavel Begunkov (8):
+>   io_uring: consistent typing for issue_flags
+>   io_uring: prioritise read success path over fails
+>   io_uring: optimise rw comletion handlers
+>   io_uring: encapsulate rw state
+>   io_uring: optimise read/write iov state storing
+>   io_uring: optimise io_import_iovec nonblock passing
+>   io_uring: clean up io_import_iovec
+>   io_uring: rearrange io_read()/write()
+> 
+> [...]
 
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
----
- fs/io_uring.c | 40 +++++++++++++++++++++++++---------------
- 1 file changed, 25 insertions(+), 15 deletions(-)
+Applied, thanks!
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 9a22a983fb53..f9af54b10238 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -3117,9 +3117,10 @@ static ssize_t io_iov_buffer_select(struct io_kiocb *req, struct iovec *iov,
- 	return __io_iov_buffer_select(req, iov, issue_flags);
- }
- 
--static int io_import_iovec(int rw, struct io_kiocb *req, struct iovec **iovec,
--			   struct iov_iter *iter, unsigned int issue_flags)
-+static int __io_import_iovec(int rw, struct io_kiocb *req, struct iovec **iovec,
-+			     struct io_rw_state *s, unsigned int issue_flags)
- {
-+	struct iov_iter *iter = &s->iter;
- 	void __user *buf = u64_to_user_ptr(req->rw.addr);
- 	size_t sqe_len = req->rw.len;
- 	u8 opcode = req->opcode;
-@@ -3142,11 +3143,13 @@ static int io_import_iovec(int rw, struct io_kiocb *req, struct iovec **iovec,
- 			req->rw.len = sqe_len;
- 		}
- 
--		ret = import_single_range(rw, buf, sqe_len, *iovec, iter);
-+		ret = import_single_range(rw, buf, sqe_len, s->fast_iov, iter);
- 		*iovec = NULL;
- 		return ret;
- 	}
- 
-+	*iovec = s->fast_iov;
-+
- 	if (req->flags & REQ_F_BUFFER_SELECT) {
- 		ret = io_iov_buffer_select(req, *iovec, issue_flags);
- 		if (!ret)
-@@ -3159,6 +3162,19 @@ static int io_import_iovec(int rw, struct io_kiocb *req, struct iovec **iovec,
- 			      req->ctx->compat);
- }
- 
-+static inline int io_import_iovec(int rw, struct io_kiocb *req,
-+				  struct iovec **iovec, struct io_rw_state *s,
-+				  unsigned int issue_flags)
-+{
-+	int ret;
-+
-+	ret = __io_import_iovec(rw, req, iovec, s, issue_flags);
-+	if (unlikely(ret < 0))
-+		return ret;
-+	iov_iter_save_state(&s->iter, &s->iter_state);
-+	return ret;
-+}
-+
- static inline loff_t *io_kiocb_ppos(struct kiocb *kiocb)
- {
- 	return (kiocb->ki_filp->f_mode & FMODE_STREAM) ? NULL : &kiocb->ki_pos;
-@@ -3284,11 +3300,11 @@ static int io_setup_async_rw(struct io_kiocb *req, const struct iovec *iovec,
- static inline int io_rw_prep_async(struct io_kiocb *req, int rw)
- {
- 	struct io_async_rw *iorw = req->async_data;
--	struct iovec *iov = iorw->s.fast_iov;
-+	struct iovec *iov;
- 	int ret;
- 
- 	/* submission path, ->uring_lock should already be taken */
--	ret = io_import_iovec(rw, req, &iov, &iorw->s.iter, IO_URING_F_NONBLOCK);
-+	ret = io_import_iovec(rw, req, &iov, &iorw->s, IO_URING_F_NONBLOCK);
- 	if (unlikely(ret < 0))
- 		return ret;
- 
-@@ -3296,7 +3312,6 @@ static inline int io_rw_prep_async(struct io_kiocb *req, int rw)
- 	iorw->free_iovec = iov;
- 	if (iov)
- 		req->flags |= REQ_F_NEED_CLEANUP;
--	iov_iter_save_state(&iorw->s.iter, &iorw->s.iter_state);
- 	return 0;
- }
- 
-@@ -3415,12 +3430,9 @@ static int io_read(struct io_kiocb *req, unsigned int issue_flags)
- 		iovec = NULL;
- 	} else {
- 		s = &__s;
--		iovec = s->fast_iov;
--		ret = io_import_iovec(READ, req, &iovec, &s->iter, issue_flags);
--		if (ret < 0)
-+		ret = io_import_iovec(READ, req, &iovec, s, issue_flags);
-+		if (unlikely(ret < 0))
- 			return ret;
--
--		iov_iter_save_state(&s->iter, &s->iter_state);
- 	}
- 	req->result = iov_iter_count(&s->iter);
- 
-@@ -3543,11 +3555,9 @@ static int io_write(struct io_kiocb *req, unsigned int issue_flags)
- 		iovec = NULL;
- 	} else {
- 		s = &__s;
--		iovec = s->fast_iov;
--		ret = io_import_iovec(WRITE, req, &iovec, &s->iter, issue_flags);
--		if (ret < 0)
-+		ret = io_import_iovec(WRITE, req, &iovec, s, issue_flags);
-+		if (unlikely(ret < 0))
- 			return ret;
--		iov_iter_save_state(&s->iter, &s->iter_state);
- 	}
- 	req->result = iov_iter_count(&s->iter);
- 
+[1/8] io_uring: consistent typing for issue_flags
+      (no commit info)
+[2/8] io_uring: prioritise read success path over fails
+      (no commit info)
+[3/8] io_uring: optimise rw comletion handlers
+      (no commit info)
+[4/8] io_uring: encapsulate rw state
+      (no commit info)
+[5/8] io_uring: optimise read/write iov state storing
+      (no commit info)
+[6/8] io_uring: optimise io_import_iovec nonblock passing
+      (no commit info)
+[7/8] io_uring: clean up io_import_iovec
+      (no commit info)
+[8/8] io_uring: rearrange io_read()/write()
+      (no commit info)
+
+Best regards,
 -- 
-2.33.0
+Jens Axboe
+
 

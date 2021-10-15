@@ -2,60 +2,60 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E8D70C433FE
-	for <io-uring@archiver.kernel.org>; Fri, 15 Oct 2021 16:10:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 07E6EC433EF
+	for <io-uring@archiver.kernel.org>; Fri, 15 Oct 2021 16:10:19 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8A8FE611F0
-	for <io-uring@archiver.kernel.org>; Fri, 15 Oct 2021 16:10:14 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E60A661181
+	for <io-uring@archiver.kernel.org>; Fri, 15 Oct 2021 16:10:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241135AbhJOQMU (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Fri, 15 Oct 2021 12:12:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50830 "EHLO
+        id S241141AbhJOQMV (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Fri, 15 Oct 2021 12:12:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50868 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241137AbhJOQMP (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Fri, 15 Oct 2021 12:12:15 -0400
-Received: from mail-wm1-x335.google.com (mail-wm1-x335.google.com [IPv6:2a00:1450:4864:20::335])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39511C061767
-        for <io-uring@vger.kernel.org>; Fri, 15 Oct 2021 09:10:09 -0700 (PDT)
-Received: by mail-wm1-x335.google.com with SMTP id g198-20020a1c20cf000000b0030d60cd7fd6so2756638wmg.0
-        for <io-uring@vger.kernel.org>; Fri, 15 Oct 2021 09:10:09 -0700 (PDT)
+        with ESMTP id S241151AbhJOQMS (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Fri, 15 Oct 2021 12:12:18 -0400
+Received: from mail-wr1-x434.google.com (mail-wr1-x434.google.com [IPv6:2a00:1450:4864:20::434])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7AFDC061768
+        for <io-uring@vger.kernel.org>; Fri, 15 Oct 2021 09:10:10 -0700 (PDT)
+Received: by mail-wr1-x434.google.com with SMTP id e3so27129880wrc.11
+        for <io-uring@vger.kernel.org>; Fri, 15 Oct 2021 09:10:10 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=uF84gtAz0m9P5TQwf10BmuUUFMOx1aVa4LjSpnXnbs4=;
-        b=DYJVUh6S9Ni0s1eaPzInwuxLkR5JAKGOeTAWQrSzePIwh7nO2ilT64PbGxtPAL9VPA
-         Yw5y6rllBQ808ifslU/Ao3nxWSQToj/76cFVmRnkhQx/akyQlHpm4JrzfXewsaW/2Bxc
-         62c5CiTmZidXRHA7B8PfQ2XL+78dxmxFyuzpfmx+mTDpxWWLhaPAyEOmgm9doqZwn6HL
-         q6XfnRGoslPxqtMjCk65uCYhO3a0N6KHXh8hPQy8cs8xZaePJV8pG+LjOwHKuiGwYw8q
-         HaRDBvFPeVRSb5HBlkdoM4b5yGcZ3pU1KOdy5n+qWLDEOiRVzflXCzSTPjZ3Gvhgmjvh
-         K5UA==
+        bh=N0+SAdaJJw6z7CHZxNHDnL4TkGKNw0IKKn/SnL6jyxk=;
+        b=Bz9vzk4t7O1AKHp92jglU/+eNX8tRHcWiSIBPCiIKXv/Zrv3vyUKITXvxz+tPxKbVk
+         baKcOFvp7OB75DjuHXKHpEgt28f2+lhCEtHDGCjFKQdBATr6TNR4dho5xUWZoCG+8OIU
+         tdEHfzEcX45txTX8ke+Dw3R48gI0ti2mRtgR4mPzS/+PfZaPeuVvYG6vStPIGDq00sGm
+         Jy7os2mbQClEL32IAirR/sg2obxzIWIRQCnyoej0lJkwysl748piCHBvcKaW14rywpSD
+         vRSynXt9GMtQ41SSLekgiCFAAKRFA98koBpTtBTicQ7pf8lUi3FlXLJ01SeaaBNe4OSm
+         nAqQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=uF84gtAz0m9P5TQwf10BmuUUFMOx1aVa4LjSpnXnbs4=;
-        b=IfPohLAzx1Rqhg6Wj5KXFFw0okGuWVqOTUn194Ld3yLdHmg1HS4Kn39DoLZGWD1ToC
-         ItGitkvS4oCDu4Don4TxSoGwHuN5Mb5JO/lPHAn0YrqAD72aIzz+StwzzVothXe0RN4c
-         ull3CIpTvGVdxEe+eN5TWMS/EM+KtH2cEiHprjk2H+YhTkmtRXC+B6UpWNrr3rbhrD9r
-         aNnUizG6UpL8uCaYmOfdwhdY3wQihrWQZV06hul0zLsD35LAZ+mBP5NRiZgJEgnc6Jhe
-         ZaLXnF3hYjuwBLsahlr148T/aVmUDwAuajQJXRHiZ5PqD5p4jV8sXyUda+F2inXH6gEm
-         TnQw==
-X-Gm-Message-State: AOAM5320qFTu+7QT/wOuTvmrxTU0Ag8ct6P02RtAuh9r5Invto99MsXk
-        3Gbs2P/p8phlpwGZ8/K5GbvsJ7/tAbw=
-X-Google-Smtp-Source: ABdhPJxXE16ZBLu5LnYLJQrMcLvBZtilM4nt4Kvbm54C4fQ/kf4Dw7zqKlDhjDLEZKls/vnugV0JOQ==
-X-Received: by 2002:a1c:1bce:: with SMTP id b197mr27356443wmb.88.1634314207650;
-        Fri, 15 Oct 2021 09:10:07 -0700 (PDT)
+        bh=N0+SAdaJJw6z7CHZxNHDnL4TkGKNw0IKKn/SnL6jyxk=;
+        b=S+qnPlr6bVExkYZMHEa4FaapMZpRfTde+8gXU2UBB1PkhcId7Vj8ANpLuhRNXnSFKG
+         7E2jCqgT7vBBExkY13Dpyn6dWQYWpzC+1xtsuEX6riT9AQPFDZMJWP8Avmsvl0vzHvPL
+         pMSGgX9C7CkYIZ75GW0w4tRc2N6BuhdQTjN2MKSV5hcA2EaEezzWlWzZw1AOtIz1OlpO
+         Mu2OUrbwnY0wquH/UFQRR8XIqXufEWULVUZh9xIsWWdSijaWis6Pkv5gqEVsQuDz55Bv
+         +QQ6J0Ec3ZwcbfLfiNhRZuix3HVnJ23Dfm3LUeOsqzQobISh31DOWI++SvALabwhEUhQ
+         BNJA==
+X-Gm-Message-State: AOAM5306X3cWx+B7RU+l9QyBQ2v0PCoQ5aoXTdHVWQSECwPO6jdzTYzO
+        RbANYJEMsJWGp0IwLi/63r30yxoXPgk=
+X-Google-Smtp-Source: ABdhPJwDz9b8+LlHAAiJNcXEzit0Mk79Fr7RKMGxIl2pec8J806QmD7/nGmKb0XR8iXjEhiuC06qJQ==
+X-Received: by 2002:adf:a413:: with SMTP id d19mr15765805wra.246.1634314209336;
+        Fri, 15 Oct 2021 09:10:09 -0700 (PDT)
 Received: from localhost.localdomain ([185.69.145.218])
-        by smtp.gmail.com with ESMTPSA id c15sm5282811wrs.19.2021.10.15.09.10.07
+        by smtp.gmail.com with ESMTPSA id c15sm5282811wrs.19.2021.10.15.09.10.08
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 15 Oct 2021 09:10:07 -0700 (PDT)
+        Fri, 15 Oct 2021 09:10:09 -0700 (PDT)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     io-uring@vger.kernel.org
 Cc:     Jens Axboe <axboe@kernel.dk>, asml.silence@gmail.com
-Subject: [PATCH 4/8] io_uring: return iovec from __io_import_iovec
-Date:   Fri, 15 Oct 2021 17:09:14 +0100
-Message-Id: <6230e9769982f03a8f86fa58df24666088c44d3e.1634314022.git.asml.silence@gmail.com>
+Subject: [PATCH 6/8] io_uring: clean io_prep_rw()
+Date:   Fri, 15 Oct 2021 17:09:16 +0100
+Message-Id: <2f5889fc7ab670daefd5ccaedd99416d8355f0ad.1634314022.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <cover.1634314022.git.asml.silence@gmail.com>
 References: <cover.1634314022.git.asml.silence@gmail.com>
@@ -65,110 +65,39 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-We pass iovec** into __io_import_iovec(), which should keep it,
-initialise and modify accordingly. It's expensive, return it directly
-from __io_import_iovec encoding errors with ERR_PTR if needed.
-
-io_import_iovec keeps the old interface, but it's inline and so
-everything is optimised nicely.
+We already store req->file in a variable in io_prep_rw(), just use it
+instead of a couple of left references to kicob->ki_filp.
 
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
- fs/io_uring.c | 45 +++++++++++++++++++++++----------------------
- 1 file changed, 23 insertions(+), 22 deletions(-)
+ fs/io_uring.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index f354f4ae4f8c..a2514d2937c0 100644
+index 64ef04c9628d..ce9a1b89da3f 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -3158,23 +3158,25 @@ static ssize_t io_iov_buffer_select(struct io_kiocb *req, struct iovec *iov,
- 	return __io_iov_buffer_select(req, iov, issue_flags);
- }
- 
--static int __io_import_iovec(int rw, struct io_kiocb *req, struct iovec **iovec,
--			     struct io_rw_state *s, unsigned int issue_flags)
-+static struct iovec *__io_import_iovec(int rw, struct io_kiocb *req,
-+				       struct io_rw_state *s,
-+				       unsigned int issue_flags)
- {
- 	struct iov_iter *iter = &s->iter;
- 	u8 opcode = req->opcode;
-+	struct iovec *iovec;
- 	void __user *buf;
- 	size_t sqe_len;
- 	ssize_t ret;
- 
--	if (opcode == IORING_OP_READ_FIXED || opcode == IORING_OP_WRITE_FIXED) {
--		*iovec = NULL;
--		return io_import_fixed(req, rw, iter);
--	}
-+	BUILD_BUG_ON(ERR_PTR(0) != NULL);
-+
-+	if (opcode == IORING_OP_READ_FIXED || opcode == IORING_OP_WRITE_FIXED)
-+		return ERR_PTR(io_import_fixed(req, rw, iter));
- 
- 	/* buffer index only valid with fixed read/write, or buffer select  */
- 	if (unlikely(req->buf_index && !(req->flags & REQ_F_BUFFER_SELECT)))
--		return -EINVAL;
-+		return ERR_PTR(-EINVAL);
- 
- 	buf = u64_to_user_ptr(req->rw.addr);
- 	sqe_len = req->rw.len;
-@@ -3183,40 +3185,39 @@ static int __io_import_iovec(int rw, struct io_kiocb *req, struct iovec **iovec,
- 		if (req->flags & REQ_F_BUFFER_SELECT) {
- 			buf = io_rw_buffer_select(req, &sqe_len, issue_flags);
- 			if (IS_ERR(buf))
--				return PTR_ERR(buf);
-+				return ERR_PTR(PTR_ERR(buf));
- 			req->rw.len = sqe_len;
- 		}
- 
- 		ret = import_single_range(rw, buf, sqe_len, s->fast_iov, iter);
--		*iovec = NULL;
--		return ret;
-+		return ERR_PTR(ret);
+@@ -2835,8 +2835,8 @@ static int io_prep_rw(struct io_kiocb *req, const struct io_uring_sqe *sqe,
+ 		req->flags |= REQ_F_CUR_POS;
+ 		kiocb->ki_pos = file->f_pos;
  	}
+-	kiocb->ki_hint = ki_hint_validate(file_write_hint(kiocb->ki_filp));
+-	kiocb->ki_flags = iocb_flags(kiocb->ki_filp);
++	kiocb->ki_hint = ki_hint_validate(file_write_hint(file));
++	kiocb->ki_flags = iocb_flags(file);
+ 	ret = kiocb_set_rw_flags(kiocb, READ_ONCE(sqe->rw_flags));
+ 	if (unlikely(ret))
+ 		return ret;
+@@ -2861,8 +2861,7 @@ static int io_prep_rw(struct io_kiocb *req, const struct io_uring_sqe *sqe,
+ 		kiocb->ki_ioprio = get_current_ioprio();
  
--	*iovec = s->fast_iov;
--
-+	iovec = s->fast_iov;
- 	if (req->flags & REQ_F_BUFFER_SELECT) {
--		ret = io_iov_buffer_select(req, *iovec, issue_flags);
-+		ret = io_iov_buffer_select(req, iovec, issue_flags);
- 		if (!ret)
--			iov_iter_init(iter, rw, *iovec, 1, (*iovec)->iov_len);
--		*iovec = NULL;
--		return ret;
-+			iov_iter_init(iter, rw, iovec, 1, iovec->iov_len);
-+		return ERR_PTR(ret);
- 	}
+ 	if (ctx->flags & IORING_SETUP_IOPOLL) {
+-		if (!(kiocb->ki_flags & IOCB_DIRECT) ||
+-		    !kiocb->ki_filp->f_op->iopoll)
++		if (!(kiocb->ki_flags & IOCB_DIRECT) || !file->f_op->iopoll)
+ 			return -EOPNOTSUPP;
  
--	return __import_iovec(rw, buf, sqe_len, UIO_FASTIOV, iovec, iter,
-+	ret = __import_iovec(rw, buf, sqe_len, UIO_FASTIOV, &iovec, iter,
- 			      req->ctx->compat);
-+	if (unlikely(ret < 0))
-+		return ERR_PTR(ret);
-+	return iovec;
- }
- 
- static inline int io_import_iovec(int rw, struct io_kiocb *req,
- 				  struct iovec **iovec, struct io_rw_state *s,
- 				  unsigned int issue_flags)
- {
--	int ret;
-+	*iovec = __io_import_iovec(rw, req, s, issue_flags);
-+	if (unlikely(IS_ERR(*iovec)))
-+		return PTR_ERR(*iovec);
- 
--	ret = __io_import_iovec(rw, req, iovec, s, issue_flags);
--	if (unlikely(ret < 0))
--		return ret;
- 	iov_iter_save_state(&s->iter, &s->iter_state);
--	return ret;
-+	return 0;
- }
- 
- static inline loff_t *io_kiocb_ppos(struct kiocb *kiocb)
+ 		kiocb->ki_flags |= IOCB_HIPRI | IOCB_ALLOC_CACHE;
 -- 
 2.33.0
 

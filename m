@@ -2,91 +2,78 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A256EC433EF
-	for <io-uring@archiver.kernel.org>; Sun, 17 Oct 2021 14:25:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0AB03C433F5
+	for <io-uring@archiver.kernel.org>; Sun, 17 Oct 2021 20:33:15 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7233160FED
-	for <io-uring@archiver.kernel.org>; Sun, 17 Oct 2021 14:25:34 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DF7E460F59
+	for <io-uring@archiver.kernel.org>; Sun, 17 Oct 2021 20:33:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343854AbhJQO1n (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sun, 17 Oct 2021 10:27:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37586 "EHLO
+        id S242906AbhJQUfY (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sun, 17 Oct 2021 16:35:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33716 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231156AbhJQO1m (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Sun, 17 Oct 2021 10:27:42 -0400
-Received: from mail-io1-xd31.google.com (mail-io1-xd31.google.com [IPv6:2607:f8b0:4864:20::d31])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13B3CC061765
-        for <io-uring@vger.kernel.org>; Sun, 17 Oct 2021 07:25:33 -0700 (PDT)
-Received: by mail-io1-xd31.google.com with SMTP id o184so1310749iof.6
-        for <io-uring@vger.kernel.org>; Sun, 17 Oct 2021 07:25:33 -0700 (PDT)
+        with ESMTP id S242900AbhJQUfX (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Sun, 17 Oct 2021 16:35:23 -0400
+Received: from mail-ed1-x536.google.com (mail-ed1-x536.google.com [IPv6:2a00:1450:4864:20::536])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3981AC06161C
+        for <io-uring@vger.kernel.org>; Sun, 17 Oct 2021 13:33:13 -0700 (PDT)
+Received: by mail-ed1-x536.google.com with SMTP id d3so62158905edp.3
+        for <io-uring@vger.kernel.org>; Sun, 17 Oct 2021 13:33:13 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20210112.gappssmtp.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=rFZ0Jn5/odiPtbqwOvMA4pbQMBHIE+j2K4Ry7Pi3CLM=;
-        b=HTsW/UrhwnGfFc9UO+Dd30JLAU29D3q0cLj64rounQTCtnZ9uOcsoX8L7TJYSNu2RE
-         Vvv13khIS7IG0pXGyfsukUrT/N5wDDviNxUwIdd9OqCrknoohPXnSH4uDdtV/6reHE6x
-         6VqHY/nMsQYEODnpKQE7yLzuAPzAVjcL6h3gCtneGnkxtBptQKHF06yXLjkP6lQ2wd+x
-         1Jvxehw6YBsV03kuMt8Wkt2jw/ufCDIRgcQZWPmqjbtA7eb83r7u0eNMUoSsX29tPo99
-         DlSUd/tLPABIv4cSpouz2SPNwcaNYgEa5XvO2j/o86lsYm0QH/VvMC6iHE/xuYDsbORt
-         t5yg==
+        d=gmail.com; s=20210112;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=T8EbthODhXi/M1cP7quHaoZ9NwI6zhL6wnsh2Uloe48=;
+        b=LHtwhzb2sez1i3vfa2JZrNWfHIprXLnVU2pdHs6GXFSiYyAG9Y5cRTeUfyeK/4xIJN
+         qbFaIRgWy+UY3+WWGnjDGvFbqouuQC43vDtI5aBJyBDJUfECxaFthG6jT4gX1my4/5MR
+         7TN7TIB94hgSNFA57OKao9tUgCzaScbeJOofufbyaxxdieDiHlYEAw0bU/5/jc64bpIR
+         wOLQBxxLNrTtEE+h92t0QEsgUcquHGr3ltVPfiAazbyXGzMU7v/1EEYDIMQ11C0WKJ0u
+         BogLmAPiK+H18LJpPvFl2zDpdIl5Vu/Cmcd5CodMmuHBK9U9a3uFu2P7K+ppxCZpY6C2
+         86Pw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=rFZ0Jn5/odiPtbqwOvMA4pbQMBHIE+j2K4Ry7Pi3CLM=;
-        b=a9H5LxtXwe2H6+FOdXLToMs789/tOyHEC/+bfBAaV+V/bXjjJjUckzd3a4MtVBCB4Q
-         LoF3KmlLuO6+sjpxZMus+wUmKtQiWyy57ZVAL6f67GIUvmJFKpvSUh0q42nDyAOu12jz
-         6swVN3xNQRJIxgteJ7302SLW5H5Z8DTXRxl/ozA5kUVWkJ6ECYc/pQuMVnytlMs13m5N
-         cUbqragAOpYdecWPvS3kf4LzYQNn+egehxifpz0A3uYhLn+v1vtfrPwbAb5W17UBJDyG
-         8wC9iVar/KFNEKYGtuPTiEyc/plV7dpjbpVjZOjeyJGZ+1T9sOOzrt7DylQJEH5HBatY
-         r5gg==
-X-Gm-Message-State: AOAM533gBPxRxp3vhRqq3mqI3W1Mtt3VMNxIixBo0w2oRpzqSbxBOK0u
-        wJ8502986kKBXqMSTrA+La+b7A==
-X-Google-Smtp-Source: ABdhPJzpcIRVmKsESUvAnc7NxK6arVgO383HZIkSwBqsAXWdaAChkeavYtJ41OV4WCkfUFIFomr90A==
-X-Received: by 2002:a6b:5c02:: with SMTP id z2mr10841825ioh.11.1634480732515;
-        Sun, 17 Oct 2021 07:25:32 -0700 (PDT)
-Received: from localhost.localdomain ([66.219.217.159])
-        by smtp.gmail.com with ESMTPSA id r17sm5252034ioj.43.2021.10.17.07.25.31
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=T8EbthODhXi/M1cP7quHaoZ9NwI6zhL6wnsh2Uloe48=;
+        b=2ttuSUvx+AY6nC/iu0s0eeObe0SCl3X+az5FitC7h6Kf2X1jeCIiAKHMrkITryZGMQ
+         CCcGXwtNbN20uETV8QrG1Ma6d5YW22p2t0IFqHGey1eYy6qrQivU4LUVesUhowoBD8Ml
+         sBWmDa7uMefLIMvSxzGzOzBz3tnH+6pV54WZ2WcNrlzUV3ERuXoJtkceekTCFlqcKPpm
+         7deNvVMwuWXpou/FcNoyA8Nl9y8zJsWUJDNzh/q8wp2JwGaHjm5G08jkhbVs6wXTO58E
+         CHqgT1E3U80T2adm8U2W7AY9y3o37m52yMo6/BqC3NhCiejMBzIpsDHkTi9t1/8Rw8un
+         BrpQ==
+X-Gm-Message-State: AOAM532ZsemldNwM0E36Z9/rjw2lyAiYkWzlTjXO4xBWkEKCTdiw0WDu
+        DuArVrDmJ24cZq7mHzTDjaSOwLSDOe8KYA==
+X-Google-Smtp-Source: ABdhPJyyQKxk0/weEcBiTcmlGicWOEV2CabtENNFq9a0bUfhl4ZWqph5x81XoQxrcFVA3b+HUdCmuA==
+X-Received: by 2002:a17:907:330e:: with SMTP id ym14mr25825252ejb.417.1634502791733;
+        Sun, 17 Oct 2021 13:33:11 -0700 (PDT)
+Received: from 127.0.0.1localhost ([185.69.145.195])
+        by smtp.gmail.com with ESMTPSA id ca4sm8119651ejb.1.2021.10.17.13.33.10
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 17 Oct 2021 07:25:32 -0700 (PDT)
-From:   Jens Axboe <axboe@kernel.dk>
-To:     Pavel Begunkov <asml.silence@gmail.com>, io-uring@vger.kernel.org
-Cc:     Jens Axboe <axboe@kernel.dk>
-Subject: Re: [PATCH 0/3] rw optimisation partial resend
-Date:   Sun, 17 Oct 2021 08:25:29 -0600
-Message-Id: <163448072609.102114.3849123498935963727.b4-ty@kernel.dk>
+        Sun, 17 Oct 2021 13:33:11 -0700 (PDT)
+From:   Pavel Begunkov <asml.silence@gmail.com>
+To:     io-uring@vger.kernel.org
+Cc:     Jens Axboe <axboe@kernel.dk>,
+        Pavel Begunkov <asml.silence@gmail.com>
+Subject: [PATCH 0/2] two small fixes
+Date:   Sun, 17 Oct 2021 20:33:20 +0000
+Message-Id: <cover.1634501363.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <cover.1634425438.git.asml.silence@gmail.com>
-References: <cover.1634425438.git.asml.silence@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On Sun, 17 Oct 2021 00:07:07 +0100, Pavel Begunkov wrote:
-> Screwed commit messages with rebase, it returns back the intended
-> structure: splitting 1/3 as a separate patch, 2/3 gets an actual
-> explanation.
-> 
-> Also, merge a change reported by kernel test robot about
-> set but not used variable rw.
-> 
-> [...]
+The first correctly attributes failed iopoll requests.
+2/2 fixes a for-next bug.
 
-Applied, thanks!
+Pavel Begunkov (2):
+  io_uring: fail iopoll links if can't retry
+  io_uring: fix async_data checks for msg setup
 
-[1/3] io_uring: arm poll for non-nowait files
-      commit: feabed278b191505df0ab7a382bc04b270ffb1f4
-[2/3] io_uring: combine REQ_F_NOWAIT_{READ,WRITE} flags
-      commit: c142f8627b24af12b958acd79c55761d52eab548
-[3/3] io_uring: simplify io_file_supports_nowait()
-      commit: c533d6e48e8a1d20e46c54231052b574005c2725
+ fs/io_uring.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-Best regards,
 -- 
-Jens Axboe
-
+2.33.1
 

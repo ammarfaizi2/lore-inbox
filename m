@@ -2,109 +2,82 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6968BC433FE
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7DD76C4332F
 	for <io-uring@archiver.kernel.org>; Mon, 18 Oct 2021 00:29:26 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 43547610C7
+	by mail.kernel.org (Postfix) with ESMTP id 5D42C61247
 	for <io-uring@archiver.kernel.org>; Mon, 18 Oct 2021 00:29:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234749AbhJRAbf (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        id S1344858AbhJRAbf (ORCPT <rfc822;io-uring@archiver.kernel.org>);
         Sun, 17 Oct 2021 20:31:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56314 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56310 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344845AbhJRAbe (ORCPT
+        with ESMTP id S242859AbhJRAbe (ORCPT
         <rfc822;io-uring@vger.kernel.org>); Sun, 17 Oct 2021 20:31:34 -0400
-Received: from mail-ed1-x530.google.com (mail-ed1-x530.google.com [IPv6:2a00:1450:4864:20::530])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3BC7C061768
+Received: from mail-ed1-x52e.google.com (mail-ed1-x52e.google.com [IPv6:2a00:1450:4864:20::52e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E278C061765
         for <io-uring@vger.kernel.org>; Sun, 17 Oct 2021 17:29:23 -0700 (PDT)
-Received: by mail-ed1-x530.google.com with SMTP id d9so63643834edh.5
-        for <io-uring@vger.kernel.org>; Sun, 17 Oct 2021 17:29:23 -0700 (PDT)
+Received: by mail-ed1-x52e.google.com with SMTP id i20so62979009edj.10
+        for <io-uring@vger.kernel.org>; Sun, 17 Oct 2021 17:29:22 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=GevMDOJGYJbt58ceNDY8mEqvGAjyPqbT0MxyaYugBMU=;
-        b=K9wuLJN7wMad6hQ7GUJSth15am1FnnoxhVUPbW/Fnu2DwRRjUl4eRxy0NfP43tDrS5
-         MMkUUW8MGENPtO3gpmUv3euYBUMwJeM/RJdgeuGjJWkPuJDifMkKaZ2JYRh0hcY8AhAq
-         dPSkYrDPa364p6EQoflqX1iz/XJUPpHanRcCyePk5fA2KMlACsExou/6l/cw6KpkqJRl
-         bNZNMnA7WDp/X6U4+ivgdts2YszkgTAGKQpxdnxDtEFxjU/ITqhvP/kfPZ0axN/QRZ2u
-         GpnA9K4DGw1ZpfybBIkGc507BfTom5xBfQQ+YHC9fxCPuXt3UExwopBi82mPrqBuxWmV
-         o6MQ==
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=qRqYsSnWG8rW6IIPaCDgTUDcYJThYA3FEKeMfma/0uM=;
+        b=mahriUgv+6uyKS9KZg5UGGZswEncB/41/WZD97I3C3SaMPD0dvxAjckyDu4hvcFqpu
+         1gxgGdqU96OO9U9d24u0m37EZ/+OTMarRLESjGmwVVGjFRonl3P0SAyNjl8no48o6QF0
+         IpGOPDizbskiIDC+DPM0jksy/TGP+BUH4Y0zAwqqjGTRTwFzXTiMtBuDa8fGds/rqp4G
+         2P7mLWhMakpP92YjHAVNmubkXUu6xR888LL00j2+wnoqBvS4qBX8A5D3qgQXJoN6Rxdf
+         Pfre+nlO/+L1s3MstX1NhlD0z90AdmnVBLQ4m9ZNBMya+qZ8H1QFzuFTN6Y75MFvIn8q
+         v/6Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=GevMDOJGYJbt58ceNDY8mEqvGAjyPqbT0MxyaYugBMU=;
-        b=e2BegISOHQ3NeF3EUbjFNA9gI5VkKsxUC87Rs0jBEzxEnvsl8w/hZi/7RsRGdroTWI
-         DK+a7noPWTle05Y03Nv45TYH8DY+6A87Bzdy/8O+nAKv6GEnPmRwqlVNNpNhTcdy73Ae
-         96RyRcqwFVyLUXBC35fgFcVriQyJeXRmnwt/rhhpCYWznLt9N+P45i793/hzXM/rI90v
-         GHpXSzh8Tz64qLVIvPwXP5c5Zfm576MSMlxwju1pyFevpntM/uBwRlIG99ic+MW/PmAA
-         yf8x4y6jwnLVODzaMhNdsZoInaMxdXikTKsnKfPs7ZaWdrIujRZmv2W+cTSiyv515/0j
-         DdZA==
-X-Gm-Message-State: AOAM533wBOh7lSiBxg0tnOJqIKlodkOZh216GU8zLu3z7ShTQbOmurWw
-        8jYbcsX1eCrpi3h5ZrtDtjL/pzwowzO+tA==
-X-Google-Smtp-Source: ABdhPJyMS7UNGSy3Rqx/ydCDboudOE/f/nWGHb4Nf+NhWvcOSD0aZStyXHJmgL4mz9auRwvik3kwfw==
-X-Received: by 2002:a50:da0a:: with SMTP id z10mr38519029edj.298.1634516962138;
-        Sun, 17 Oct 2021 17:29:22 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=qRqYsSnWG8rW6IIPaCDgTUDcYJThYA3FEKeMfma/0uM=;
+        b=GWSMv5jcdB7sasCb7Wk0dbNUcPq+WVc7k+TS0CU1dEqvfwuupnSz6N5zWafj6aJ5HU
+         w6RVxSXZ1I0fto4ajHSwIiDUg01DONy3TxOoH30RhXUjNER5vI4JGvxRC49ee/H9puvd
+         KRuj8kqI4YgVQAv7taf0dOHm0GPzQkOGGvKR0r5wTfWypoRC2vgbHICsgkNOmFOi1N0W
+         wCdTp2qW25mMvQN6VwnJZpor7R6JSjke4YvZAGEBpogTBNHhbUuUomoYOxSQYDIHYBZB
+         YahZ2VN17oHevNSV4c+71x3uvKtm/A28DKOlReY96JPlJD09U9mDMe5yPL/1vVYuSMBX
+         4dXg==
+X-Gm-Message-State: AOAM532U1VcL4FbUMeXN1ucSEcMQ8QV9xHiSl0mX/5pwYCBwNLOVtA/4
+        x/oiS1Qjc4UEiv47ZyO1CyFK4/hhxbPl0w==
+X-Google-Smtp-Source: ABdhPJy0rVLY8Bz9pJoGjSht5VTM2iLELlpzuzCUVuj79ABi3TdXhDqKXHyaCLh+qhGzyIUHyqCikw==
+X-Received: by 2002:aa7:ccc1:: with SMTP id y1mr40469198edt.177.1634516960829;
+        Sun, 17 Oct 2021 17:29:20 -0700 (PDT)
 Received: from 127.0.0.1localhost ([185.69.145.195])
-        by smtp.gmail.com with ESMTPSA id q11sm8881489edv.80.2021.10.17.17.29.21
+        by smtp.gmail.com with ESMTPSA id q11sm8881489edv.80.2021.10.17.17.29.19
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 17 Oct 2021 17:29:21 -0700 (PDT)
+        Sun, 17 Oct 2021 17:29:20 -0700 (PDT)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     io-uring@vger.kernel.org
 Cc:     Jens Axboe <axboe@kernel.dk>,
         Pavel Begunkov <asml.silence@gmail.com>
-Subject: [PATCH 2/4] io_uring: kill unused param from io_file_supports_nowait
-Date:   Mon, 18 Oct 2021 00:29:34 +0000
-Message-Id: <823d5d0b507ee19aebabb6871791a931d408117b.1634516914.git.asml.silence@gmail.com>
+Subject: [PATCH 0/4] for-next cleanups
+Date:   Mon, 18 Oct 2021 00:29:32 +0000
+Message-Id: <cover.1634516914.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <cover.1634516914.git.asml.silence@gmail.com>
-References: <cover.1634516914.git.asml.silence@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-io_file_supports_nowait() doesn't use rw argument anymore, remove it.
+1-3 are simple and easy. There is more to dicuss with 4/4, but
+I think it's cleaner
 
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
----
- fs/io_uring.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+note: base on for-5.16/io_uring + two recently sent fixes
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index acda36166a9a..d7f38074211b 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -2814,8 +2814,7 @@ static inline bool io_file_supports_nowait(struct io_kiocb *req)
- 	return req->flags & REQ_F_SUPPORT_NOWAIT;
- }
- 
--static int io_prep_rw(struct io_kiocb *req, const struct io_uring_sqe *sqe,
--		      int rw)
-+static int io_prep_rw(struct io_kiocb *req, const struct io_uring_sqe *sqe)
- {
- 	struct io_ring_ctx *ctx = req->ctx;
- 	struct kiocb *kiocb = &req->rw.kiocb;
-@@ -3357,7 +3356,7 @@ static int io_read_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
- {
- 	if (unlikely(!(req->file->f_mode & FMODE_READ)))
- 		return -EBADF;
--	return io_prep_rw(req, sqe, READ);
-+	return io_prep_rw(req, sqe);
- }
- 
- /*
-@@ -3573,7 +3572,7 @@ static int io_write_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
- {
- 	if (unlikely(!(req->file->f_mode & FMODE_WRITE)))
- 		return -EBADF;
--	return io_prep_rw(req, sqe, WRITE);
-+	return io_prep_rw(req, sqe);
- }
- 
- static int io_write(struct io_kiocb *req, unsigned int issue_flags)
+Pavel Begunkov (4):
+  io_uring: clean up timeout async_data allocation
+  io_uring: kill unused param from io_file_supports_nowait
+  io_uring: clusterise ki_flags access in rw_prep
+  io_uring: typed ->async_data
+
+ fs/io_uring.c | 127 ++++++++++++++++++++++++--------------------------
+ 1 file changed, 61 insertions(+), 66 deletions(-)
+
 -- 
 2.33.1
 

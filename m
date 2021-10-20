@@ -2,89 +2,110 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C18F7C433EF
-	for <io-uring@archiver.kernel.org>; Wed, 20 Oct 2021 00:23:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5AA25C433F5
+	for <io-uring@archiver.kernel.org>; Wed, 20 Oct 2021 01:26:35 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9C3CF6109F
-	for <io-uring@archiver.kernel.org>; Wed, 20 Oct 2021 00:23:18 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2F758610EA
+	for <io-uring@archiver.kernel.org>; Wed, 20 Oct 2021 01:26:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229790AbhJTAZb (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Tue, 19 Oct 2021 20:25:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59068 "EHLO
+        id S229603AbhJTB2r (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Tue, 19 Oct 2021 21:28:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44692 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229610AbhJTAZ3 (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Tue, 19 Oct 2021 20:25:29 -0400
-Received: from mail-il1-x12e.google.com (mail-il1-x12e.google.com [IPv6:2607:f8b0:4864:20::12e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2DF0C06161C
-        for <io-uring@vger.kernel.org>; Tue, 19 Oct 2021 17:23:15 -0700 (PDT)
-Received: by mail-il1-x12e.google.com with SMTP id j8so20234987ila.11
-        for <io-uring@vger.kernel.org>; Tue, 19 Oct 2021 17:23:15 -0700 (PDT)
+        with ESMTP id S229555AbhJTB2r (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Tue, 19 Oct 2021 21:28:47 -0400
+Received: from mail-wm1-x32f.google.com (mail-wm1-x32f.google.com [IPv6:2a00:1450:4864:20::32f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6DDFC06161C
+        for <io-uring@vger.kernel.org>; Tue, 19 Oct 2021 18:26:33 -0700 (PDT)
+Received: by mail-wm1-x32f.google.com with SMTP id 67-20020a1c1946000000b0030d4c90fa87so6520781wmz.2
+        for <io-uring@vger.kernel.org>; Tue, 19 Oct 2021 18:26:33 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20210112.gappssmtp.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=eNZv+0QpUa+7Sjswtms6FXEEYB4ypSe6RF/TIep8D10=;
-        b=5AyhzjTmf8Sss42L2vOLwc5lPumO4lGA3sBKB1AGccaKn5S30Ll9azv2eRCsKV/9O5
-         wmdRzkOXdCVH5Bklv2jKcJ3DI8K1btUljOAv3coz+vgwAWsrpFfqhvzhh6UmCsaH+xnQ
-         1cyTXfZHxfXPUfqIBwZpE70ztsGFrSXWHbYcAjK+jN58Xr0iU6Jp/3mPbs5oM0mZBeal
-         2V+i7CaxVFwpndBMmZB0vwxP7yVZ4BIzDNNZQ8U6nX3l/Q0JYWItB7cuQZY2a2RBAzUh
-         jRHI5n5CRz41yQ3WNWe571p7xfym+qamLr3rKzOfLppdSpR5szSMvJ1SB9sneDUg4PGC
-         gSjA==
+        d=gmail.com; s=20210112;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=WRD3jVmAaQp3SToC1iCNztj2R09JR8kwaLTZOk+xd0c=;
+        b=D6kzFBNI3MoHz/rh7+3xHG6uX0DSW0U3bjDVmPWNWv725hDfqthriOzrYoyMjenEU1
+         o+LujsKKda3Fd4FN1N3ul5aeAzz6hvX/AKFg0xHJ8Bak6TQ2VCkZB4E8cs5OYhxV9+UZ
+         BJSvi3OgVZHlpqvKaTBL/VMcQgiSlF8cWWIAMF41a/WbfSP5rgK/VNf9TdOwZwUGod9o
+         EOT2R5Edaj33l3NLSRr20CBEB6CMBXirv4JS5gMH2V1oxvP4QhAihLBv3+4aaJ0ADzf9
+         lz8NMaj8j9JWEMB03zXWi7OxrpZwOd1SzC0uhOBe8FFYKYZNIdPEzDhkbdQEgZSIXPmA
+         UUaw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=eNZv+0QpUa+7Sjswtms6FXEEYB4ypSe6RF/TIep8D10=;
-        b=quXeZsx75We1b7QLmOFOdb9GIdz77dsk7IemlbFWO8r/fy+LuqGe+v/ethbkcp4qax
-         hcWMzI5javg39n1PTddQo9PtDhsPhdQ/3StO6d3c/SvJBvCF3ilsuCnUcNF/V8rrGQ/H
-         iihqIu13ad+hluQfrgydXrqMyoyGcYprAjEoe5QmkAG2xFgrsfnAL9rwOre9NpSjh1zX
-         oVj908t5uwBtrzDcuOfuxTEclQkNw0LbwJjlbHgUoCk2yZdX52H/YEpWFUJ3i6uu1qd/
-         /3rY8BzkUu7UhI6FNUSFiAoPFsoj0CAbcyov6GqetPEBRdb5Yl8poPDplEzE0Xs4rYEA
-         swHg==
-X-Gm-Message-State: AOAM530q5QeZO8hqfgdi5+mV4Du9Q8vkRSK8hGdkYWYEGR7UVm4rQB32
-        kUqTsM01ut4tV3gFQ1UgnXRvOQ6JDLJE+w==
-X-Google-Smtp-Source: ABdhPJw24i80AbjNEHBWRRxXxFWccluwaJ2TgcihapYgQpyBRZco47vljNsVmm/kUM9WPL3LTj1hag==
-X-Received: by 2002:a05:6e02:1d8b:: with SMTP id h11mr21944614ila.51.1634689395115;
-        Tue, 19 Oct 2021 17:23:15 -0700 (PDT)
-Received: from localhost.localdomain ([66.219.217.159])
-        by smtp.gmail.com with ESMTPSA id m10sm314553ilh.73.2021.10.19.17.23.14
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=WRD3jVmAaQp3SToC1iCNztj2R09JR8kwaLTZOk+xd0c=;
+        b=z7cWHEcQrUCL/7HO5VN1aTAL7Og+3LnZxbt1a+ZTsaLA3jsYD7IQA5PClxNOK9KbpV
+         eLzGvp7M9/nQsOJAXV1uEpGz0h8Qub/aV0nJb2lH9c39Q+TnNN3+U3mjv3Sl9VOksv+r
+         gd01WDCrxbFo8D7dbka+7ITUqpK1ufCgk2YyutZk5uvvbEIXsSVfRTHHen+W9Rjxx9xX
+         pD0v03nVixR97efqeN1orC7C9VSe2LqSUcic2BT8NEodbye7pq6Jx8EZzxMLzsXWAEk/
+         /wMEt/Rx3QcFkQiwmQLFobdBlCK4ATJNZ/ZyD/sRKnCljdUsLQmSaytZElbNTK84c6PZ
+         qhmw==
+X-Gm-Message-State: AOAM533VCSvlpB/1qYMeG0CWh1zWtwS9HoZMrnionbi2ha9/bwz+PSmj
+        QAx3wdUUmmYUMZMpJdTQblnKItj85fMiCw==
+X-Google-Smtp-Source: ABdhPJySfcTB+8Rg4kQ02Rtpiv60XxytDY66VCgDBdTrnrHWAlCrGQ6mwudfAJeN/lrVLq7TIWLEGQ==
+X-Received: by 2002:a1c:5417:: with SMTP id i23mr9959111wmb.17.1634693192141;
+        Tue, 19 Oct 2021 18:26:32 -0700 (PDT)
+Received: from 127.0.0.1localhost ([185.69.145.194])
+        by smtp.gmail.com with ESMTPSA id t12sm606979wmq.44.2021.10.19.18.26.31
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 19 Oct 2021 17:23:14 -0700 (PDT)
-From:   Jens Axboe <axboe@kernel.dk>
-To:     io-uring@vger.kernel.org, Pavel Begunkov <asml.silence@gmail.com>
-Cc:     Jens Axboe <axboe@kernel.dk>
-Subject: Re: [PATCH 5.15] io_uring: apply max_workers limit to all future users
-Date:   Tue, 19 Oct 2021 18:23:10 -0600
-Message-Id: <163468938922.717790.13688906551452218930.b4-ty@kernel.dk>
+        Tue, 19 Oct 2021 18:26:31 -0700 (PDT)
+From:   Pavel Begunkov <asml.silence@gmail.com>
+To:     io-uring@vger.kernel.org
+Cc:     Jens Axboe <axboe@kernel.dk>,
+        Pavel Begunkov <asml.silence@gmail.com>,
+        Beld Zhang <beldzhang@gmail.com>
+Subject: [PATCH 5.15] io_uring: fix ltimeout unprep
+Date:   Wed, 20 Oct 2021 02:26:23 +0100
+Message-Id: <902042fd54ccefaa79e6e9ebf7d4bba9a6d5bfaa.1634692926.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <51d0bae97180e08ab722c0d5c93e7439cfb6f697.1634683237.git.asml.silence@gmail.com>
-References: <51d0bae97180e08ab722c0d5c93e7439cfb6f697.1634683237.git.asml.silence@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On Tue, 19 Oct 2021 23:43:46 +0100, Pavel Begunkov wrote:
-> Currently, IORING_REGISTER_IOWQ_MAX_WORKERS applies only to the task
-> that issued it, it's unexpected for users. If one task creates a ring,
-> limits workers and then passes it to another task the limit won't be
-> applied to the other task.
-> 
-> Another pitfall is that a task should either create a ring or submit at
-> least one request for IORING_REGISTER_IOWQ_MAX_WORKERS to work at all,
-> furher complicating the picture.
-> 
-> [...]
+io_unprep_linked_timeout() is broken, first it needs to return back
+REQ_F_ARM_LTIMEOUT, so the linked timeout is enqueued and disarmed. But
+now we refcounted it, and linked timeouts may get not executed at all,
+leaking a request.
 
-Applied, thanks!
+Just kill the unprep optimisation.
 
-[1/1] io_uring: apply max_workers limit to all future users
-      (no commit info)
+Fixes: 906c6caaf5861 ("io_uring: optimise io_prep_linked_timeout()")
+Reported-by: Beld Zhang <beldzhang@gmail.com>
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+---
+ fs/io_uring.c | 9 ---------
+ 1 file changed, 9 deletions(-)
 
-Best regards,
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index c87931d8b503..18de14a9e7a4 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -1406,11 +1406,6 @@ static inline void io_req_track_inflight(struct io_kiocb *req)
+ 	}
+ }
+ 
+-static inline void io_unprep_linked_timeout(struct io_kiocb *req)
+-{
+-	req->flags &= ~REQ_F_LINK_TIMEOUT;
+-}
+-
+ static struct io_kiocb *__io_prep_linked_timeout(struct io_kiocb *req)
+ {
+ 	if (WARN_ON_ONCE(!req->link))
+@@ -6892,10 +6887,6 @@ static void io_queue_sqe_arm_apoll(struct io_kiocb *req)
+ 
+ 	switch (io_arm_poll_handler(req)) {
+ 	case IO_APOLL_READY:
+-		if (linked_timeout) {
+-			io_unprep_linked_timeout(req);
+-			linked_timeout = NULL;
+-		}
+ 		io_req_task_queue(req);
+ 		break;
+ 	case IO_APOLL_ABORTED:
 -- 
-Jens Axboe
-
+2.33.1
 

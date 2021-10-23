@@ -2,61 +2,61 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BAC83C433EF
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E3E22C43217
 	for <io-uring@archiver.kernel.org>; Sat, 23 Oct 2021 11:14:31 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A39B760FC3
+	by mail.kernel.org (Postfix) with ESMTP id CD62360FC3
 	for <io-uring@archiver.kernel.org>; Sat, 23 Oct 2021 11:14:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230230AbhJWLQs (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sat, 23 Oct 2021 07:16:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45010 "EHLO
+        id S230253AbhJWLQt (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sat, 23 Oct 2021 07:16:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45020 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230357AbhJWLQo (ORCPT
+        with ESMTP id S230361AbhJWLQo (ORCPT
         <rfc822;io-uring@vger.kernel.org>); Sat, 23 Oct 2021 07:16:44 -0400
-Received: from mail-wr1-x432.google.com (mail-wr1-x432.google.com [IPv6:2a00:1450:4864:20::432])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C5BF6C061766
-        for <io-uring@vger.kernel.org>; Sat, 23 Oct 2021 04:14:14 -0700 (PDT)
-Received: by mail-wr1-x432.google.com with SMTP id v17so1522093wrv.9
-        for <io-uring@vger.kernel.org>; Sat, 23 Oct 2021 04:14:14 -0700 (PDT)
+Received: from mail-wr1-x42b.google.com (mail-wr1-x42b.google.com [IPv6:2a00:1450:4864:20::42b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A48FBC061243
+        for <io-uring@vger.kernel.org>; Sat, 23 Oct 2021 04:14:17 -0700 (PDT)
+Received: by mail-wr1-x42b.google.com with SMTP id a16so1557626wrh.12
+        for <io-uring@vger.kernel.org>; Sat, 23 Oct 2021 04:14:17 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=eOS1bTTj2ZLiw3pv6GR+o6pAYIZcmdGGuuWYyy5iD3M=;
-        b=S/2ITJyY3d4INkQGERmLJunDWpPbHMQzxoUQqbroMa82TzriYaHq2En7euPjLDNbrF
-         P8u3r36LqqY8NHXpGs3SDHR7TMefuO53QbsFBRR9faYNQ4gB4KHdvSVwrD0qd7FFv2OJ
-         o3/W4QJ5v+Xu2iscUQ8ZbntDKQCQr1yjqFliGzPFZ3aQX+7WLdPupZF7PDJ8iD0t+ToV
-         FJEcSMClIwrC9XqT41dVvvJjPeUWogvL2S6hLA2HLHWxi/JoScag2YC6jUCZC4nIWM3U
-         hPhtmGgz0pEy6aqHiBtXQa5PBms2qUwwEOwLu+rmkfD+xzvaq/BJXBDDfT3UOeDPy4d/
-         m+9A==
+        bh=ohgXO3Kj73bW/wW7RYWHZyV9r60832cbaj48hlWfLXg=;
+        b=ky4hkqoKX8N3kx0UBKAv1Nze60bMoQKYf1PRGi29BfM8ge9kscps0aI3qWCeDWsK9D
+         edznz6+HR/KcN9Lnl1icjbWXRp/hDjLI2JoYTScuKVMH1tYUsZaRX5VyxmsvRyUD9bKc
+         fLKT5C5ivCF9vZniBSqFjNW3vjmppu9lDXgtrqESwSNx736qs8E8GV+9f9mTeqaQ57o5
+         ZUEx6/7JfMYncD3+7dO5796jXmlZ1GWUdffyFhcPStgXVwGI2DJ/OmbKskpjAFT0zfd9
+         TtnTthznbPS3C3bxHKEF0+BVj9I7Vh6Q/UymK6mkC0zBLijfAm4rDeUir122EjVnNQxR
+         C8Fw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=eOS1bTTj2ZLiw3pv6GR+o6pAYIZcmdGGuuWYyy5iD3M=;
-        b=hltvlLIU/Qi1gqWbGYf1ciFEzTfMkJNHVHcuh6iQG9tOBdYYSutHbp2IF3x/GJBDRF
-         OzOBaDqQIDQix8Ku29LXdL+DFe9+rvFnEEfBF0ufShjf0zV1+WuVjwGUoVp6WUmicYZY
-         EGmHsPBOKxurUHEixKbGH7v4+S3tsk93ywNkgCRmN0ovA3s40CDfe9JGW4qz0eVVcxsK
-         5YD0NpFV4ih/Ug9YuXlFzvxXkqJcqdWlqAYctTeDaWgvDM5hZe1lfRkJjl9n199TtWFq
-         Zz1qtJO+/tcQOfXoVzsfzjmisAi43bW0jy0iBwDV7Z4xqte/G3ZOKTvkkFu605SIWdgT
-         Akhw==
-X-Gm-Message-State: AOAM5333nFY7kLj6BNhMe7J390hmrBauGKbeXsZpoPb7wubjlldfLpJI
-        MnCfd+LkKA0b/1WXekjI3CBZqoovGEc=
-X-Google-Smtp-Source: ABdhPJybrJumyb33BIVlMdHJUvUMFUeo/qawZRYZBj5Xjwxw459zQos/0Poyu0yxAl22iuZLwVeWqA==
-X-Received: by 2002:adf:e310:: with SMTP id b16mr7156793wrj.309.1634987653269;
-        Sat, 23 Oct 2021 04:14:13 -0700 (PDT)
+        bh=ohgXO3Kj73bW/wW7RYWHZyV9r60832cbaj48hlWfLXg=;
+        b=RvnVKbqLK00esYrt/overDWVLUIIScUBEgfm3fI5B07RMOoP2D3tH0G7WIUjgBZwnN
+         +6HXE85UhAGfF8mAvq97zGZEBsbF4nrfnR47R5XdaFzBCp+vkCU0Z8FeY6YIRNG9nOUS
+         wMpm7K6RWycpA1fysz7iywfUjI95r54LqwMAjMSl5EVO63ncU+FGUOTjjZrl987F+G5L
+         goAIXFz1TRC8UHrolW3b3F8cUcS4ezomNxZbs7UBtgy8cnffQRynBUpcPU4Qc9YWaIC6
+         H8qGmJxTl31LayneNtIbfohzOsefL5j+ZiMcCyII3ETrsNnzZwT0fC5ch6HJ3eXgWuwB
+         f64g==
+X-Gm-Message-State: AOAM533udI0WyCEzM3iYiFPlPY2+uNnnczoOMCQzCAH2URn4twl0aI+K
+        r9s3UbhRwqnq+D1DvHpBm/sSHfhz9F0=
+X-Google-Smtp-Source: ABdhPJzJNPbIxr+PPEzVSYPc/RSwJUSyYe8BOZ/vbTloW3ThbBjJMmgztckHzoV9VA7l0XPEjs+gyA==
+X-Received: by 2002:adf:c70f:: with SMTP id k15mr7206663wrg.98.1634987656040;
+        Sat, 23 Oct 2021 04:14:16 -0700 (PDT)
 Received: from 127.0.0.1localhost ([148.252.133.195])
-        by smtp.gmail.com with ESMTPSA id w2sm10416316wrt.31.2021.10.23.04.14.12
+        by smtp.gmail.com with ESMTPSA id w2sm10416316wrt.31.2021.10.23.04.14.15
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 23 Oct 2021 04:14:13 -0700 (PDT)
+        Sat, 23 Oct 2021 04:14:15 -0700 (PDT)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     io-uring@vger.kernel.org
 Cc:     Jens Axboe <axboe@kernel.dk>, Hao Xu <haoxu@linux.alibaba.com>,
         Pavel Begunkov <asml.silence@gmail.com>
-Subject: [PATCH 5/8] io_uring: don't try io-wq polling if not supported
-Date:   Sat, 23 Oct 2021 12:13:59 +0100
-Message-Id: <6401256db01b88f448f15fcd241439cb76f5b940.1634987320.git.asml.silence@gmail.com>
+Subject: [PATCH 8/8] io_uring: clusterise ki_flags access in rw_prep
+Date:   Sat, 23 Oct 2021 12:14:02 +0100
+Message-Id: <8ee98779c06f1b59f6039b1e292db4332efd664b.1634987320.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <cover.1634987320.git.asml.silence@gmail.com>
 References: <cover.1634987320.git.asml.silence@gmail.com>
@@ -66,35 +66,56 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-If an opcode doesn't support polling, just let it be executed
-synchronously in iowq, otherwise it will do a nonblock attempt just to
-fail in io_arm_poll_handler() and return back to blocking execution.
+ioprio setup doesn't depend on other fields that are modified in
+io_prep_rw() and we can move it down in the function without worrying
+about performance. It's useful as it makes iocb->ki_flags
+accesses/modifications closer together, so it's more likely the compiler
+will cache it in a register and avoid extra reloads.
 
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
- fs/io_uring.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ fs/io_uring.c | 21 +++++++++++----------
+ 1 file changed, 11 insertions(+), 10 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index bff911f951ed..c6f32fcf387b 100644
+index 7042ed870b52..bba2f77ae7e7 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -6741,9 +6741,13 @@ static void io_wq_submit_work(struct io_wq_work *work)
+@@ -2840,16 +2840,6 @@ static int io_prep_rw(struct io_kiocb *req, const struct io_uring_sqe *sqe)
+ 	    ((file->f_flags & O_NONBLOCK) && !io_file_supports_nowait(req)))
+ 		req->flags |= REQ_F_NOWAIT;
+ 
+-	ioprio = READ_ONCE(sqe->ioprio);
+-	if (ioprio) {
+-		ret = ioprio_check_cap(ioprio);
+-		if (ret)
+-			return ret;
+-
+-		kiocb->ki_ioprio = ioprio;
+-	} else
+-		kiocb->ki_ioprio = get_current_ioprio();
+-
+ 	if (ctx->flags & IORING_SETUP_IOPOLL) {
+ 		if (!(kiocb->ki_flags & IOCB_DIRECT) || !file->f_op->iopoll)
+ 			return -EOPNOTSUPP;
+@@ -2863,6 +2853,17 @@ static int io_prep_rw(struct io_kiocb *req, const struct io_uring_sqe *sqe)
+ 		kiocb->ki_complete = io_complete_rw;
  	}
  
- 	if (req->flags & REQ_F_FORCE_ASYNC) {
--		needs_poll = req->file && file_can_poll(req->file);
--		if (needs_poll)
-+		const struct io_op_def *def = &io_op_defs[req->opcode];
-+		bool opcode_poll = def->pollin || def->pollout;
++	ioprio = READ_ONCE(sqe->ioprio);
++	if (ioprio) {
++		ret = ioprio_check_cap(ioprio);
++		if (ret)
++			return ret;
 +
-+		if (opcode_poll && file_can_poll(req->file)) {
-+			needs_poll = true;
- 			issue_flags |= IO_URING_F_NONBLOCK;
-+		}
- 	}
- 
- 	do {
++		kiocb->ki_ioprio = ioprio;
++	} else {
++		kiocb->ki_ioprio = get_current_ioprio();
++	}
++
+ 	req->imu = NULL;
+ 	req->rw.addr = READ_ONCE(sqe->addr);
+ 	req->rw.len = READ_ONCE(sqe->len);
 -- 
 2.33.1
 

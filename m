@@ -2,196 +2,108 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 57ED5C4332F
-	for <io-uring@archiver.kernel.org>; Mon, 25 Oct 2021 05:38:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 315CFC433EF
+	for <io-uring@archiver.kernel.org>; Mon, 25 Oct 2021 08:53:30 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3D17360F92
-	for <io-uring@archiver.kernel.org>; Mon, 25 Oct 2021 05:38:54 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0E2536054E
+	for <io-uring@archiver.kernel.org>; Mon, 25 Oct 2021 08:53:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230102AbhJYFlP (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Mon, 25 Oct 2021 01:41:15 -0400
-Received: from out30-131.freemail.mail.aliyun.com ([115.124.30.131]:57404 "EHLO
-        out30-131.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230085AbhJYFlO (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Mon, 25 Oct 2021 01:41:14 -0400
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R141e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04400;MF=xiaoguang.wang@linux.alibaba.com;NM=1;PH=DS;RN=3;SR=0;TI=SMTPD_---0UtW3ddi_1635140330;
-Received: from localhost(mailfrom:xiaoguang.wang@linux.alibaba.com fp:SMTPD_---0UtW3ddi_1635140330)
+        id S231463AbhJYIzv (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Mon, 25 Oct 2021 04:55:51 -0400
+Received: from out30-57.freemail.mail.aliyun.com ([115.124.30.57]:46618 "EHLO
+        out30-57.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S232217AbhJYIzu (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Mon, 25 Oct 2021 04:55:50 -0400
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R481e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e01424;MF=haoxu@linux.alibaba.com;NM=1;PH=DS;RN=3;SR=0;TI=SMTPD_---0UtYSKbF_1635152006;
+Received: from B-25KNML85-0107.local(mailfrom:haoxu@linux.alibaba.com fp:SMTPD_---0UtYSKbF_1635152006)
           by smtp.aliyun-inc.com(127.0.0.1);
-          Mon, 25 Oct 2021 13:38:51 +0800
-From:   Xiaoguang Wang <xiaoguang.wang@linux.alibaba.com>
-To:     io-uring@vger.kernel.org
-Cc:     axboe@kernel.dk, asml.silence@gmail.com
-Subject: [PATCH v3 2/3] io_uring: reduce frequent add_wait_queue() overhead for multi-shot poll request
-Date:   Mon, 25 Oct 2021 13:38:48 +0800
-Message-Id: <20211025053849.3139-3-xiaoguang.wang@linux.alibaba.com>
-X-Mailer: git-send-email 2.17.2
-In-Reply-To: <20211025053849.3139-1-xiaoguang.wang@linux.alibaba.com>
-References: <20211025053849.3139-1-xiaoguang.wang@linux.alibaba.com>
+          Mon, 25 Oct 2021 16:53:27 +0800
+Subject: Re: [PATCH 2/8] io_uring: clean io_wq_submit_work()'s main loop
+To:     Pavel Begunkov <asml.silence@gmail.com>, io-uring@vger.kernel.org
+Cc:     Jens Axboe <axboe@kernel.dk>
+References: <cover.1634987320.git.asml.silence@gmail.com>
+ <ed12ce0c64e051f9a6b8a37a24f8ea554d299c29.1634987320.git.asml.silence@gmail.com>
+From:   Hao Xu <haoxu@linux.alibaba.com>
+Message-ID: <4b0b81ce-0b39-c8b9-5dbe-130b14b0baab@linux.alibaba.com>
+Date:   Mon, 25 Oct 2021 16:53:26 +0800
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0)
+ Gecko/20100101 Thunderbird/78.13.0
+MIME-Version: 1.0
+In-Reply-To: <ed12ce0c64e051f9a6b8a37a24f8ea554d299c29.1634987320.git.asml.silence@gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Run echo_server to evaluate io_uring's multi-shot poll performance, perf
-shows that add_wait_queue() has obvious overhead. Intruduce a new state
-'active' in io_poll_iocb to indicate whether io_poll_wake() should queue
-a task_work. This new state will be set to true initially, be set to false
-when starting to queue a task work, and be set to true again when a poll
-cqe has been committed. One concern is that this method may lost waken-up
-event, but seems it's ok.
-
-  io_poll_wake                io_poll_task_func
-t1                       |
-t2                       |    WRITE_ONCE(req->poll.active, true);
-t3                       |
-t4                       |    io_commit_cqring(ctx);
-t5                       |
-t6                       |
-
-If waken-up events happens before or at t4, it's ok, user app will always
-see a cqe. If waken-up events happens after t4 and IIUC, io_poll_wake()
-will see the new req->poll.active value by using READ_ONCE().
-
-Echo_server codes can be cloned from:
-https://codeup.openanolis.cn/codeup/storage/io_uring-echo-server.git,
-branch is xiaoguangwang/io_uring_multishot.
-
-Without this patch, the tps in our test environment is 284116, with
-this patch, the tps is 287832, about 1.3% reqs improvement, which
-is indeed in accord with the saved add_wait_queue() cost.
-
-Signed-off-by: Xiaoguang Wang <xiaoguang.wang@linux.alibaba.com>
----
- fs/io_uring.c | 57 +++++++++++++++++++++++++++++++++------------------------
- 1 file changed, 33 insertions(+), 24 deletions(-)
-
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 18af9bb9a4bc..e4c779dac953 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -481,6 +481,7 @@ struct io_poll_iocb {
- 	__poll_t			events;
- 	bool				done;
- 	bool				canceled;
-+	bool				active;
- 	struct wait_queue_entry		wait;
- };
- 
-@@ -5233,8 +5234,6 @@ static inline int __io_async_wake(struct io_kiocb *req, struct io_poll_iocb *pol
- {
- 	trace_io_uring_task_add(req->ctx, req->opcode, req->user_data, mask);
- 
--	list_del_init(&poll->wait.entry);
--
- 	req->result = mask;
- 	req->io_task_work.func = func;
- 
-@@ -5265,7 +5264,10 @@ static bool io_poll_rewait(struct io_kiocb *req, struct io_poll_iocb *poll)
- 
- 	spin_lock(&ctx->completion_lock);
- 	if (!req->result && !READ_ONCE(poll->canceled)) {
--		add_wait_queue(poll->head, &poll->wait);
-+		if (req->opcode == IORING_OP_POLL_ADD)
-+			WRITE_ONCE(poll->active, true);
-+		else
-+			add_wait_queue(poll->head, &poll->wait);
- 		return true;
- 	}
- 
-@@ -5331,6 +5333,26 @@ static bool __io_poll_complete(struct io_kiocb *req, __poll_t mask)
- 	return !(flags & IORING_CQE_F_MORE);
- }
- 
-+static bool __io_poll_remove_one(struct io_kiocb *req,
-+				 struct io_poll_iocb *poll, bool do_cancel)
-+	__must_hold(&req->ctx->completion_lock)
-+{
-+	bool do_complete = false;
-+
-+	if (!poll->head)
-+		return false;
-+	spin_lock_irq(&poll->head->lock);
-+	if (do_cancel)
-+		WRITE_ONCE(poll->canceled, true);
-+	if (!list_empty(&poll->wait.entry)) {
-+		list_del_init(&poll->wait.entry);
-+		do_complete = true;
-+	}
-+	spin_unlock_irq(&poll->head->lock);
-+	hash_del(&req->hash_node);
-+	return do_complete;
-+}
-+
- static void io_poll_task_func(struct io_kiocb *req, bool *locked)
- {
- 	struct io_ring_ctx *ctx = req->ctx;
-@@ -5348,11 +5370,12 @@ static void io_poll_task_func(struct io_kiocb *req, bool *locked)
- 		done = __io_poll_complete(req, req->result);
- 		if (done) {
- 			io_poll_remove_double(req);
-+			__io_poll_remove_one(req, io_poll_get_single(req), true);
- 			hash_del(&req->hash_node);
- 			req->poll.done = true;
- 		} else {
- 			req->result = 0;
--			add_wait_queue(req->poll.head, &req->poll.wait);
-+			WRITE_ONCE(req->poll.active, true);
- 		}
- 		io_commit_cqring(ctx);
- 		spin_unlock(&ctx->completion_lock);
-@@ -5407,6 +5430,7 @@ static void io_init_poll_iocb(struct io_poll_iocb *poll, __poll_t events,
- 	poll->head = NULL;
- 	poll->done = false;
- 	poll->canceled = false;
-+	poll->active = true;
- #define IO_POLL_UNMASK	(EPOLLERR|EPOLLHUP|EPOLLNVAL|EPOLLRDHUP)
- 	/* mask in events that we always want/need */
- 	poll->events = events | IO_POLL_UNMASK;
-@@ -5513,6 +5537,7 @@ static int io_async_wake(struct wait_queue_entry *wait, unsigned mode, int sync,
- 	if (mask && !(mask & poll->events))
- 		return 0;
- 
-+	list_del_init(&poll->wait.entry);
- 	return __io_async_wake(req, poll, mask, io_async_task_func);
- }
- 
-@@ -5623,26 +5648,6 @@ static int io_arm_poll_handler(struct io_kiocb *req)
- 	return IO_APOLL_OK;
- }
- 
--static bool __io_poll_remove_one(struct io_kiocb *req,
--				 struct io_poll_iocb *poll, bool do_cancel)
--	__must_hold(&req->ctx->completion_lock)
--{
--	bool do_complete = false;
--
--	if (!poll->head)
--		return false;
--	spin_lock_irq(&poll->head->lock);
--	if (do_cancel)
--		WRITE_ONCE(poll->canceled, true);
--	if (!list_empty(&poll->wait.entry)) {
--		list_del_init(&poll->wait.entry);
--		do_complete = true;
--	}
--	spin_unlock_irq(&poll->head->lock);
--	hash_del(&req->hash_node);
--	return do_complete;
--}
--
- static bool io_poll_remove_one(struct io_kiocb *req)
- 	__must_hold(&req->ctx->completion_lock)
- {
-@@ -5779,6 +5784,10 @@ static int io_poll_wake(struct wait_queue_entry *wait, unsigned mode, int sync,
- 	if (mask && !(mask & poll->events))
- 		return 0;
- 
-+	if (!READ_ONCE(poll->active))
-+		return 0;
-+	WRITE_ONCE(poll->active, false);
-+
- 	return __io_async_wake(req, poll, mask, io_poll_task_func);
- }
- 
--- 
-2.14.4.44.g2045bb6
+在 2021/10/23 下午7:13, Pavel Begunkov 写道:
+> Do a bit of cleaning for the main loop of io_wq_submit_work(). Get rid
+> of switch, just replace it with a single if as we're retrying in both
+> other cases. Kill issue_sqe label, Get rid of needs_poll nesting and
+> disambiguate a bit the comment.
+> 
+> Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+> ---
+Reviewed-by: Hao Xu <haoxu@linux.alibaba.com>
+>   fs/io_uring.c | 40 ++++++++++++----------------------------
+>   1 file changed, 12 insertions(+), 28 deletions(-)
+> 
+> diff --git a/fs/io_uring.c b/fs/io_uring.c
+> index 736d456e7913..7f92523c1282 100644
+> --- a/fs/io_uring.c
+> +++ b/fs/io_uring.c
+> @@ -6749,40 +6749,24 @@ static void io_wq_submit_work(struct io_wq_work *work)
+>   		}
+>   
+>   		do {
+> -issue_sqe:
+>   			ret = io_issue_sqe(req, issue_flags);
+> +			if (ret != -EAGAIN)
+> +				break;
+>   			/*
+> -			 * We can get EAGAIN for polled IO even though we're
+> +			 * We can get EAGAIN for iopolled IO even though we're
+>   			 * forcing a sync submission from here, since we can't
+>   			 * wait for request slots on the block side.
+>   			 */
+> -			if (ret != -EAGAIN)
+> -				break;
+> -			if (needs_poll) {
+> -				bool armed = false;
+> -
+> -				ret = 0;
+> -				needs_poll = false;
+> -				issue_flags &= ~IO_URING_F_NONBLOCK;
+> -
+> -				switch (io_arm_poll_handler(req)) {
+> -				case IO_APOLL_READY:
+> -					goto issue_sqe;
+> -				case IO_APOLL_ABORTED:
+> -					/*
+> -					 * somehow we failed to arm the poll infra,
+> -					 * fallback it to a normal async worker try.
+> -					 */
+> -					break;
+> -				case IO_APOLL_OK:
+> -					armed = true;
+> -					break;
+> -				}
+> -
+> -				if (armed)
+> -					break;
+> +			if (!needs_poll) {
+> +				cond_resched();
+> +				continue;
+>   			}
+> -			cond_resched();
+> +
+> +			if (io_arm_poll_handler(req) == IO_APOLL_OK)
+> +				return;
+> +			/* aborted or ready, in either case retry blocking */
+> +			needs_poll = false;
+> +			issue_flags &= ~IO_URING_F_NONBLOCK;
+>   		} while (1);
+>   	}
+>   
+> 
 

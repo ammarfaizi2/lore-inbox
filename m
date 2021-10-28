@@ -2,614 +2,125 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7F4E9C433F5
-	for <io-uring@archiver.kernel.org>; Thu, 28 Oct 2021 12:28:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 77039C433F5
+	for <io-uring@archiver.kernel.org>; Thu, 28 Oct 2021 18:19:29 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5F9D6610FC
-	for <io-uring@archiver.kernel.org>; Thu, 28 Oct 2021 12:28:54 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 643AB610E7
+	for <io-uring@archiver.kernel.org>; Thu, 28 Oct 2021 18:19:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230335AbhJ1MbU (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Thu, 28 Oct 2021 08:31:20 -0400
-Received: from out30-131.freemail.mail.aliyun.com ([115.124.30.131]:42311 "EHLO
-        out30-131.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230285AbhJ1MbT (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Thu, 28 Oct 2021 08:31:19 -0400
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R301e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04357;MF=xiaoguang.wang@linux.alibaba.com;NM=1;PH=DS;RN=3;SR=0;TI=SMTPD_---0Uu.zzU6_1635424130;
-Received: from localhost(mailfrom:xiaoguang.wang@linux.alibaba.com fp:SMTPD_---0Uu.zzU6_1635424130)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Thu, 28 Oct 2021 20:28:50 +0800
-From:   Xiaoguang Wang <xiaoguang.wang@linux.alibaba.com>
-To:     io-uring@vger.kernel.org
-Cc:     axboe@kernel.dk, asml.silence@gmail.com
-Subject: [RFC v2 2/3] io_uring: add fixed poll support
-Date:   Thu, 28 Oct 2021 20:28:49 +0800
-Message-Id: <20211028122850.13025-2-xiaoguang.wang@linux.alibaba.com>
-X-Mailer: git-send-email 2.17.2
-In-Reply-To: <20211028122850.13025-1-xiaoguang.wang@linux.alibaba.com>
-References: <20211028122850.13025-1-xiaoguang.wang@linux.alibaba.com>
+        id S230366AbhJ1SVz (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Thu, 28 Oct 2021 14:21:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56604 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231175AbhJ1SVu (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Thu, 28 Oct 2021 14:21:50 -0400
+Received: from mail-io1-xd2d.google.com (mail-io1-xd2d.google.com [IPv6:2607:f8b0:4864:20::d2d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EAB92C061570
+        for <io-uring@vger.kernel.org>; Thu, 28 Oct 2021 11:19:22 -0700 (PDT)
+Received: by mail-io1-xd2d.google.com with SMTP id r194so9338172iod.7
+        for <io-uring@vger.kernel.org>; Thu, 28 Oct 2021 11:19:22 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernel-dk.20210112.gappssmtp.com; s=20210112;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=dBEp2bY5XgbQx+AlPLriHdh7rYkxDGtgG0m0TlyKu1A=;
+        b=7ZjCk8hPK1+yi2Ct3lbNf3uPqmpiaYLAAff15RR2gxv+pmTrS/mYdwKZbL/49UWahv
+         fC4yBeBVXdARLaiQy1pSTTU1tXoYdzxYVMTH4q01qxaKWsniSpWyosnw++4byf4hf7V1
+         10SMafIsaHtBBpJ4IhZbzebFKzTdyrRMaA8APPZfSS+rFW4uKTmWdY7H9v23xVe51Vo5
+         k8e2UsRPYeDwF6Ev0hAFKmjzGL1bJ0bkCrWKQUukPwv6cpTH2J2HdAi7NcLnXSC9knN3
+         /e5vs8cu5j1SleRcBNnV24pE3VByA9IWbU0xLxWS16AnEjoJCY+yvBm+fPyOaoECkc4t
+         4o3g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=dBEp2bY5XgbQx+AlPLriHdh7rYkxDGtgG0m0TlyKu1A=;
+        b=qf/fU7wTwdtec1vt2LY28lTf1qGg/wfyXOXez+jRdiG6V69oo2inyj2DNmFDDD7Po3
+         O98XuDjosXC4VhIde5yHUIZz1ICfgCbKC624V+gueX0j/FEoWmI+rAxnhGcIpVRCZHHQ
+         sjnwZ3mYrmqQoRDISi4zHvklcSjJtlQpLZe3oCnfoZWX+PrfuSMof+QF9wNGs77Lpp2Q
+         Ukakl5GtB1BaOIGgZCx1Hu5+5sZkFt1Buht9NSQvyTDefKIIjdxqIi90xWQwFrSNPv/y
+         d1+O2qmssvC6iCMLkAHHbKorwElqpf82M6j2nDR574CwbNFKNjQJOe108UfNLBwP+HeI
+         u18A==
+X-Gm-Message-State: AOAM531rEZO+jtHYjfrHviqeQmDiuF1wT8wAocbJRl5D+2LBtz3TgvOi
+        YbPCB0yaz8otw18FKIMboBaIWEymDhtJYw==
+X-Google-Smtp-Source: ABdhPJw8GG8od0kOp4pXJQkLf7v2cAb0xFRRqPNgOSd2dhbOoei9VYzBML8gz9WyhX263/uPMexLtg==
+X-Received: by 2002:a05:6638:dc6:: with SMTP id m6mr4454308jaj.48.1635445162153;
+        Thu, 28 Oct 2021 11:19:22 -0700 (PDT)
+Received: from [192.168.1.30] ([207.135.234.126])
+        by smtp.gmail.com with ESMTPSA id v4sm1884099ilq.57.2021.10.28.11.19.21
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 28 Oct 2021 11:19:21 -0700 (PDT)
+Subject: Re: [PATCH v3 0/3] improvements for multi-shot poll requests
+To:     Xiaoguang Wang <xiaoguang.wang@linux.alibaba.com>,
+        io-uring@vger.kernel.org
+Cc:     asml.silence@gmail.com
+References: <20211025053849.3139-1-xiaoguang.wang@linux.alibaba.com>
+From:   Jens Axboe <axboe@kernel.dk>
+Message-ID: <924b097b-144a-d4ff-0b46-0dded1daa824@kernel.dk>
+Date:   Thu, 28 Oct 2021 12:19:21 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
+MIME-Version: 1.0
+In-Reply-To: <20211025053849.3139-1-xiaoguang.wang@linux.alibaba.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Recently I spend time to research io_uring's fast-poll and multi-shot's
-performance using network echo-server model. Previously I always thought
-fast-poll is better than multi-shot and will give better performance,
-but indeed multi-shot is almost always better than fast-poll in real
-test, which is very interesting. I use ebpf to have some measurements,
-it shows that whether fast-poll is excellent or not depends entirely on
-that the first nowait try in io_issue_sqe() succeeds or fails. Take
-io_recv operation as example(recv buffer is 16 bytes):
-  1) the first nowait succeeds, a simple io_recv() is enough.
-In my test machine, successful io_recv() consumes 1110ns averagely.
+On 10/24/21 11:38 PM, Xiaoguang Wang wrote:
+> Echo_server codes can be clone from:
+> https://codeup.openanolis.cn/codeup/storage/io_uring-echo-server.git
+> branch is xiaoguangwang/io_uring_multishot. There is a simple HOWTO
+> in this repository.
+> 
+> Usage:
+> In server: port 10016, 1000 connections, packet size 16 bytes, and
+> enable fixed files.
+>   taskset -c 10 io_uring_echo_server_multi_shot  -f -p 10016 -n 1000 -l 16
+> 
+> In client:
+>   taskset -c 13,14,15,16 ./echo -addr 11.238.147.21:10016 -n 1000 -size 16
+> 
+> Before this patchset, the tps is like below:
+> 1:15:53 req: 1430425, req/s: 286084.693
+> 11:15:58 req: 1426021, req/s: 285204.079
+> 11:16:03 req: 1416761, req/s: 283352.146
+> 11:16:08 req: 1417969, req/s: 283165.637
+> 11:16:13 req: 1424591, req/s: 285349.915
+> 11:16:18 req: 1418706, req/s: 283738.725
+> 11:16:23 req: 1411988, req/s: 282399.052
+> 11:16:28 req: 1419097, req/s: 283820.477
+> 11:16:33 req: 1417816, req/s: 283563.262
+> 11:16:38 req: 1422461, req/s: 284491.702
+> 11:16:43 req: 1418176, req/s: 283635.327
+> 11:16:48 req: 1414525, req/s: 282905.276
+> 11:16:53 req: 1415624, req/s: 283124.140
+> 11:16:58 req: 1426435, req/s: 284970.486
+> 
+> with this patchset:
+> 2021/09/24 11:10:01 start to do client
+> 11:10:06 req: 1444979, req/s: 288995.300
+> 11:10:11 req: 1442559, req/s: 288511.689
+> 11:10:16 req: 1427253, req/s: 285450.390
+> 11:10:21 req: 1445236, req/s: 288349.853
+> 11:10:26 req: 1423949, req/s: 285480.941
+> 11:10:31 req: 1445304, req/s: 289060.815
+> 11:10:36 req: 1441036, req/s: 288207.119
+> 11:10:41 req: 1441117, req/s: 288220.695
+> 11:10:46 req: 1441451, req/s: 288292.731
+> 11:10:51 req: 1438801, req/s: 287759.157
+> 11:10:56 req: 1433227, req/s: 286646.338
+> 11:11:01 req: 1438307, req/s: 287661.577> 
+> about 1.3% tps improvements.
 
-  2) the first nowait fails, then we'll have some expensive work, which
-contains failed io_revc(), apoll allocations, vfs_poll(), miscellaneous
-initializations anc check in __io_arm_poll_handler() and a final
-successful io_recv(). Among then:
-    failed io_revc() consumes 620ns averagely.
-    vfs_poll() consumes 550ns averagely.
-I don't measure other overhead yet, but we can see if the first nowait
-try fails, we'll need at least 2290ns(620 + 550 + 1110) to complete it.
-In my echo server tests, 40% of first nowait io_recv() operations fails.
+In the spirit of moving this one along, I've applied this series. Still a few
+things we can do on top, but I don't think that should hold it back. If you
+planned on sending an update to inline that check again just do it on top
+of the current tree.
 
-From above measurements, it can explain why mulit-shot is better than
-multi-shot, mulit-shot can ensure the first nowait try succeed.
-
-Based on above measurements, I try to improve fast-poll a bit:
-Introduce fix poll support, currently it only works in file registered
-mode. With this feature, we can get rid of various repeated operations
-in io_arm_poll_handler(), contains apoll allocations, and miscellaneous
-initializations anc check.
-
-Signed-off-by: Xiaoguang Wang <xiaoguang.wang@linux.alibaba.com>
----
- fs/io_uring.c | 325 +++++++++++++++++++++++++++++++++++++++++++++++++++++-----
- 1 file changed, 300 insertions(+), 25 deletions(-)
-
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 7361ae53cad3..6f63aea3e0c0 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -219,9 +219,19 @@ struct io_overflow_cqe {
- 	struct list_head list;
- };
- 
-+struct io_fixed_poll {
-+	struct wait_queue_head		*head;
-+	struct list_head		list;
-+	struct wait_queue_entry		wait;
-+	__poll_t			events;
-+};
-+
-+
- struct io_fixed_file {
- 	/* file * with additional FFS_* flags */
- 	unsigned long file_ptr;
-+	struct io_fixed_poll *rpoll;
-+	struct io_fixed_poll *wpoll;
- };
- 
- struct io_rsrc_put {
-@@ -229,7 +239,7 @@ struct io_rsrc_put {
- 	u64 tag;
- 	union {
- 		void *rsrc;
--		struct file *file;
-+		struct io_fixed_file *file_slot;
- 		struct io_mapped_ubuf *buf;
- 	};
- };
-@@ -736,6 +746,7 @@ enum {
- 	/* keep async read/write and isreg together and in order */
- 	REQ_F_SUPPORT_NOWAIT_BIT,
- 	REQ_F_ISREG_BIT,
-+	REQ_F_FIXED_POLL_BIT,
- 
- 	/* not a real bit, just to check we're not overflowing the space */
- 	__REQ_F_LAST_BIT,
-@@ -787,6 +798,8 @@ enum {
- 	REQ_F_ARM_LTIMEOUT	= BIT(REQ_F_ARM_LTIMEOUT_BIT),
- 	/* ->async_data allocated */
- 	REQ_F_ASYNC_DATA	= BIT(REQ_F_ASYNC_DATA_BIT),
-+	/* already went through fixed poll handler */
-+	REQ_F_FIXED_POLL	= BIT(REQ_F_FIXED_POLL_BIT),
- };
- 
- struct async_poll {
-@@ -873,6 +886,9 @@ struct io_kiocb {
- 	struct async_poll		*apoll;
- 	/* opcode allocated if it needs to store data for async defer */
- 	void				*async_data;
-+	struct io_fixed_poll		*fixed_poll;
-+	struct list_head		fixed_poll_node;
-+
- 	struct io_wq_work		work;
- 	/* custom credentials, valid IFF REQ_F_CREDS is set */
- 	const struct cred		*creds;
-@@ -5281,7 +5297,10 @@ static struct io_poll_iocb *io_poll_get_double(struct io_kiocb *req)
- 	/* pure poll stashes this in ->async_data, poll driven retry elsewhere */
- 	if (req->opcode == IORING_OP_POLL_ADD)
- 		return req->async_data;
--	return req->apoll->double_poll;
-+	else if (req->flags & REQ_F_FIXED_POLL)
-+		return NULL;
-+	else
-+		return req->apoll->double_poll;
- }
- 
- static struct io_poll_iocb *io_poll_get_single(struct io_kiocb *req)
-@@ -5642,13 +5661,32 @@ static bool __io_poll_remove_one(struct io_kiocb *req,
- 	return do_complete;
- }
- 
-+static bool io_fixed_poll_remove_one(struct io_kiocb *req)
-+	__must_hold(&req->ctx->completion_lock)
-+{
-+	struct io_fixed_poll *fixed_poll = req->fixed_poll;
-+	bool do_complete = false;
-+
-+	spin_lock_irq(&fixed_poll->head->lock);
-+	if (!list_empty(&req->fixed_poll_node)) {
-+		list_del_init(&req->fixed_poll_node);
-+		do_complete = true;
-+	}
-+	spin_unlock_irq(&fixed_poll->head->lock);
-+	hash_del(&req->hash_node);
-+	return do_complete;
-+}
-+
- static bool io_poll_remove_one(struct io_kiocb *req)
- 	__must_hold(&req->ctx->completion_lock)
- {
- 	bool do_complete;
- 
- 	io_poll_remove_double(req);
--	do_complete = __io_poll_remove_one(req, io_poll_get_single(req), true);
-+	if (req->flags & REQ_F_FIXED_POLL)
-+		do_complete = io_fixed_poll_remove_one(req);
-+	else
-+		do_complete = __io_poll_remove_one(req, io_poll_get_single(req), true);
- 
- 	if (do_complete) {
- 		io_cqring_fill_event(req->ctx, req->user_data, -ECANCELED, 0);
-@@ -6816,18 +6854,29 @@ static void io_fixed_file_set(struct io_fixed_file *file_slot, struct file *file
- static inline struct file *io_file_get_fixed(struct io_ring_ctx *ctx,
- 					     struct io_kiocb *req, int fd)
- {
-+	struct io_fixed_file *file_slot;
- 	struct file *file;
- 	unsigned long file_ptr;
-+	const struct io_op_def *def = &io_op_defs[req->opcode];
- 
- 	if (unlikely((unsigned int)fd >= ctx->nr_user_files))
- 		return NULL;
- 	fd = array_index_nospec(fd, ctx->nr_user_files);
--	file_ptr = io_fixed_file_slot(&ctx->file_table, fd)->file_ptr;
-+	file_slot = io_fixed_file_slot(&ctx->file_table, fd);
-+	file_ptr = file_slot->file_ptr;
- 	file = (struct file *) (file_ptr & FFS_MASK);
- 	file_ptr &= ~FFS_MASK;
- 	/* mask in overlapping REQ_F and FFS bits */
- 	req->flags |= (file_ptr << REQ_F_SUPPORT_NOWAIT_BIT);
- 	io_req_set_rsrc_node(req, ctx);
-+
-+	if (def->pollin)
-+		req->fixed_poll = file_slot->rpoll;
-+	else if (def->pollout)
-+		req->fixed_poll = file_slot->wpoll;
-+	else
-+		req->fixed_poll = NULL;
-+
- 	return file;
- }
- 
-@@ -6919,12 +6968,47 @@ static void io_queue_linked_timeout(struct io_kiocb *req)
- 	io_put_req(req);
- }
- 
-+static inline int io_arm_fixed_poll_handler(struct io_kiocb *req,
-+					    struct io_fixed_poll *fixed_poll)
-+{
-+	struct io_ring_ctx *ctx = req->ctx;
-+	struct poll_table_struct pt = { ._key = fixed_poll->events };
-+	__poll_t result;
-+
-+	if (req->flags & REQ_F_FIXED_POLL)
-+		return IO_APOLL_ABORTED;
-+
-+	req->flags |= REQ_F_FIXED_POLL;
-+	result = vfs_poll(req->file, &pt) & fixed_poll->events;
-+	if (result)
-+		return IO_APOLL_READY;
-+
-+	spin_lock(&ctx->completion_lock);
-+	spin_lock_irq(&fixed_poll->head->lock);
-+	INIT_LIST_HEAD(&req->fixed_poll_node);
-+	list_add_tail(&req->fixed_poll_node, &fixed_poll->list);
-+	io_poll_req_insert(req);
-+	spin_unlock_irq(&fixed_poll->head->lock);
-+	spin_unlock(&ctx->completion_lock);
-+	return IO_APOLL_OK;
-+}
-+
- static void io_queue_sqe_arm_apoll(struct io_kiocb *req)
- 	__must_hold(&req->ctx->uring_lock)
- {
- 	struct io_kiocb *linked_timeout = io_prep_linked_timeout(req);
-+	struct io_fixed_poll *fixed_poll = NULL;
-+	int ret;
- 
--	switch (io_arm_poll_handler(req)) {
-+	if (req->flags & REQ_F_FIXED_FILE)
-+		fixed_poll = req->fixed_poll;
-+
-+	if (fixed_poll)
-+		ret = io_arm_fixed_poll_handler(req, fixed_poll);
-+	else
-+		ret = io_arm_poll_handler(req);
-+
-+	switch (ret) {
- 	case IO_APOLL_READY:
- 		if (linked_timeout) {
- 			io_unprep_linked_timeout(req);
-@@ -7846,8 +7930,22 @@ static void io_free_file_tables(struct io_file_table *table)
- 	table->files = NULL;
- }
- 
-+static inline void io_remove_fixed_poll(struct io_fixed_poll *poll)
-+{
-+	if (!poll)
-+		return;
-+
-+	spin_lock_irq(&poll->head->lock);
-+	if (!list_empty(&poll->wait.entry))
-+		list_del_init(&poll->wait.entry);
-+	spin_unlock_irq(&poll->head->lock);
-+	kfree(poll);
-+}
-+
- static void __io_sqe_files_unregister(struct io_ring_ctx *ctx)
- {
-+	int i;
-+
- #if defined(CONFIG_UNIX)
- 	if (ctx->ring_sock) {
- 		struct sock *sock = ctx->ring_sock->sk;
-@@ -7856,17 +7954,24 @@ static void __io_sqe_files_unregister(struct io_ring_ctx *ctx)
- 		while ((skb = skb_dequeue(&sock->sk_receive_queue)) != NULL)
- 			kfree_skb(skb);
- 	}
--#else
--	int i;
-+
-+#endif
- 
- 	for (i = 0; i < ctx->nr_user_files; i++) {
--		struct file *file;
-+		struct io_fixed_file *file_slot = io_fixed_file_slot(&ctx->file_table, i);
-+		struct file *file = (struct file *)(file_slot->file_ptr & FFS_MASK);
-+		struct io_fixed_poll *rpoll = file_slot->rpoll;
-+		struct io_fixed_poll *wpoll = file_slot->wpoll;
- 
- 		file = io_file_from_index(ctx, i);
--		if (file)
-+		if (file) {
-+			io_remove_fixed_poll(rpoll);
-+			io_remove_fixed_poll(wpoll);
-+#if !defined(CONFIG_UNIX)
- 			fput(file);
--	}
- #endif
-+		}
-+	}
- 	io_free_file_tables(&ctx->file_table);
- 	io_rsrc_data_free(ctx->file_data);
- 	ctx->file_data = NULL;
-@@ -8109,7 +8214,12 @@ static int io_sqe_files_scm(struct io_ring_ctx *ctx)
- 
- static void io_rsrc_file_put(struct io_ring_ctx *ctx, struct io_rsrc_put *prsrc)
- {
--	struct file *file = prsrc->file;
-+	struct io_fixed_file *file_slot = prsrc->file_slot;
-+	struct file *file = (struct file *)(file_slot->file_ptr & FFS_MASK);
-+	struct io_fixed_poll *rpoll = file_slot->rpoll;
-+	struct io_fixed_poll *wpoll = file_slot->wpoll;
-+
-+
- #if defined(CONFIG_UNIX)
- 	struct sock *sock = ctx->ring_sock->sk;
- 	struct sk_buff_head list, *head = &sock->sk_receive_queue;
-@@ -8146,6 +8256,8 @@ static void io_rsrc_file_put(struct io_ring_ctx *ctx, struct io_rsrc_put *prsrc)
- 			} else {
- 				__skb_queue_tail(&list, skb);
- 			}
-+			io_remove_fixed_poll(rpoll);
-+			io_remove_fixed_poll(wpoll);
- 			fput(file);
- 			file = NULL;
- 			break;
-@@ -8166,8 +8278,13 @@ static void io_rsrc_file_put(struct io_ring_ctx *ctx, struct io_rsrc_put *prsrc)
- 		spin_unlock_irq(&head->lock);
- 	}
- #else
-+	io_remove_fixed_poll(rpoll);
-+	io_remove_fixed_poll(wpoll);
- 	fput(file);
- #endif
-+
-+	/* free_slot is allocated in io_queue_remove_fixed_file(), free it here. */
-+	kfree(file_slot);
- }
- 
- static void __io_rsrc_put_work(struct io_rsrc_node *ref_node)
-@@ -8219,10 +8336,140 @@ static void io_rsrc_put_work(struct work_struct *work)
- 	}
- }
- 
-+struct io_fixed_poll_table {
-+	struct poll_table_struct pt;
-+	struct io_fixed_poll *poll;
-+	int  nr_entries;
-+	int error;
-+};
-+
-+static void io_fixed_poll_task_func(struct io_kiocb *req, bool *locked)
-+{
-+	struct io_ring_ctx *ctx = req->ctx;
-+	struct io_fixed_poll *poll = req->fixed_poll;
-+	bool canceled = false;
-+
-+	trace_io_uring_task_run(req->ctx, req, req->opcode, req->user_data);
-+
-+	/* req->task == current here, checking PF_EXITING is safe */
-+	if (unlikely(req->task->flags & PF_EXITING))
-+		canceled = true;
-+
-+	if (!req->result && !canceled) {
-+		struct poll_table_struct pt = { ._key = poll->events };
-+
-+		req->result = vfs_poll(req->file, &pt) & poll->events;
-+	}
-+	if (!req->result)
-+		return;
-+
-+	spin_lock(&ctx->completion_lock);
-+	hash_del(&req->hash_node);
-+	spin_unlock(&ctx->completion_lock);
-+
-+	if (!canceled)
-+		io_req_task_submit(req, locked);
-+	else
-+		io_req_complete_failed(req, -ECANCELED);
-+}
-+
-+static int io_fixed_poll_wake(struct wait_queue_entry *wait,
-+			unsigned int mode, int sync, void *key)
-+{
-+	struct io_fixed_poll *poll = wait->private;
-+	struct io_kiocb *req, *nxt;
-+	__poll_t mask = key_to_poll(key);
-+
-+	/* for instances that support it check for an event match first: */
-+	if (mask && !(mask & poll->events))
-+		return 0;
-+
-+	list_for_each_entry_safe(req, nxt, &poll->list, fixed_poll_node) {
-+		req->result = mask;
-+		req->io_task_work.func = io_fixed_poll_task_func;
-+		io_req_task_work_add(req);
-+		list_del_init(&req->fixed_poll_node);
-+	}
-+
-+	return 1;
-+}
-+
-+static void io_fixed_poll_queue_proc(struct file *file, struct wait_queue_head *head,
-+				     struct poll_table_struct *p)
-+{
-+	struct io_fixed_poll_table *ipt;
-+
-+	ipt = container_of(p, struct io_fixed_poll_table, pt);
-+	if (unlikely(ipt->nr_entries)) {
-+		ipt->error = -EOPNOTSUPP;
-+		return;
-+	}
-+	ipt->poll->head = head;
-+	ipt->nr_entries++;
-+	if (ipt->poll->events & EPOLLEXCLUSIVE)
-+		add_wait_queue_exclusive(head, &ipt->poll->wait);
-+	else
-+		add_wait_queue(head, &ipt->poll->wait);
-+}
-+
-+static inline struct io_fixed_poll *io_init_fixed_poll(struct file *file, bool pollin)
-+{
-+	struct io_fixed_poll *poll;
-+	struct io_fixed_poll_table ipt;
-+	umode_t mode = file_inode(file)->i_mode;
-+	__poll_t mask;
-+
-+	if (!file_can_poll(file) || !__io_file_supports_nowait(file, mode))
-+		return NULL;
-+
-+	poll = kzalloc(sizeof(struct io_fixed_poll), GFP_KERNEL);
-+	if (!poll)
-+		return ERR_PTR(-ENOMEM);
-+
-+	ipt.pt._qproc = io_fixed_poll_queue_proc;
-+	ipt.poll = poll;
-+	ipt.error = 0;
-+	ipt.nr_entries = 0;
-+	if (pollin)
-+		ipt.pt._key = POLLERR | POLLPRI | POLLIN | POLLRDNORM;
-+	else
-+		ipt.pt._key = POLLERR | POLLPRI | POLLOUT | POLLWRNORM;
-+	INIT_LIST_HEAD(&poll->wait.entry);
-+	INIT_LIST_HEAD(&poll->list);
-+	init_waitqueue_func_entry(&poll->wait, io_fixed_poll_wake);
-+	poll->wait.private = poll;
-+	poll->events = ipt.pt._key;
-+	mask = vfs_poll(file, &ipt.pt);
-+	if (ipt.error && poll->head) {
-+		io_remove_fixed_poll(poll);
-+		return NULL;
-+	}
-+	return poll;
-+}
-+
-+static void io_register_fixed_poll(struct io_fixed_file *file_slot, struct file *file)
-+{
-+	struct io_fixed_poll *rpoll, *wpoll;
-+
-+	rpoll = io_init_fixed_poll(file, true);
-+	if (IS_ERR(rpoll))
-+		return;
-+
-+	wpoll = io_init_fixed_poll(file, false);
-+	if (IS_ERR(wpoll)) {
-+		io_remove_fixed_poll(rpoll);
-+		return;
-+	}
-+
-+	file_slot->rpoll = rpoll;
-+	file_slot->wpoll = wpoll;
-+}
-+
- static int io_sqe_files_register(struct io_ring_ctx *ctx, void __user *arg,
- 				 unsigned nr_args, u64 __user *tags)
- {
- 	__s32 __user *fds = (__s32 __user *) arg;
-+	struct io_fixed_file *file_slot;
- 	struct file *file;
- 	int fd, ret;
- 	unsigned i;
-@@ -8276,7 +8523,10 @@ static int io_sqe_files_register(struct io_ring_ctx *ctx, void __user *arg,
- 			fput(file);
- 			goto out_fput;
- 		}
--		io_fixed_file_set(io_fixed_file_slot(&ctx->file_table, i), file);
-+
-+		file_slot = io_fixed_file_slot(&ctx->file_table, i);
-+		io_fixed_file_set(file_slot, file);
-+		io_register_fixed_poll(file_slot, file);
- 	}
- 
- 	ret = io_sqe_files_scm(ctx);
-@@ -8289,9 +8539,17 @@ static int io_sqe_files_register(struct io_ring_ctx *ctx, void __user *arg,
- 	return ret;
- out_fput:
- 	for (i = 0; i < ctx->nr_user_files; i++) {
--		file = io_file_from_index(ctx, i);
--		if (file)
-+		file_slot = io_fixed_file_slot(&ctx->file_table, i);
-+		file = (struct file *)(file_slot->file_ptr & FFS_MASK);
-+
-+		if (file) {
-+			struct io_fixed_poll *rpoll = file_slot->rpoll;
-+			struct io_fixed_poll *wpoll = file_slot->wpoll;
-+
-+			io_remove_fixed_poll(rpoll);
-+			io_remove_fixed_poll(wpoll);
- 			fput(file);
-+		}
- 	}
- 	io_free_file_tables(&ctx->file_table);
- 	ctx->nr_user_files = 0;
-@@ -8359,6 +8617,25 @@ static int io_queue_rsrc_removal(struct io_rsrc_data *data, unsigned idx,
- 	return 0;
- }
- 
-+static inline int io_queue_remove_fixed_file(struct io_rsrc_data *data, unsigned idx,
-+				struct io_rsrc_node *node, struct io_fixed_file *file_slot)
-+{
-+	struct io_fixed_file *slot;
-+	int ret;
-+
-+	slot = kzalloc(sizeof(struct io_fixed_file), GFP_KERNEL);
-+	if (!slot)
-+		return -ENOMEM;
-+
-+	slot->file_ptr = file_slot->file_ptr;
-+	slot->rpoll = file_slot->rpoll;
-+	slot->wpoll = file_slot->wpoll;
-+	ret = io_queue_rsrc_removal(data, idx, node, slot);
-+	if (ret < 0)
-+		kfree(slot);
-+	return ret;
-+}
-+
- static int io_install_fixed_file(struct io_kiocb *req, struct file *file,
- 				 unsigned int issue_flags, u32 slot_index)
- {
-@@ -8382,15 +8659,12 @@ static int io_install_fixed_file(struct io_kiocb *req, struct file *file,
- 	file_slot = io_fixed_file_slot(&ctx->file_table, slot_index);
- 
- 	if (file_slot->file_ptr) {
--		struct file *old_file;
--
- 		ret = io_rsrc_node_switch_start(ctx);
- 		if (ret)
- 			goto err;
- 
--		old_file = (struct file *)(file_slot->file_ptr & FFS_MASK);
--		ret = io_queue_rsrc_removal(ctx->file_data, slot_index,
--					    ctx->rsrc_node, old_file);
-+		ret = io_queue_remove_fixed_file(ctx->file_data, slot_index,
-+						 ctx->rsrc_node, file_slot);
- 		if (ret)
- 			goto err;
- 		file_slot->file_ptr = 0;
-@@ -8399,6 +8673,7 @@ static int io_install_fixed_file(struct io_kiocb *req, struct file *file,
- 
- 	*io_get_tag_slot(ctx->file_data, slot_index) = 0;
- 	io_fixed_file_set(file_slot, file);
-+	io_register_fixed_poll(file_slot, file);
- 	ret = io_sqe_file_register(ctx, file, slot_index);
- 	if (ret) {
- 		file_slot->file_ptr = 0;
-@@ -8421,7 +8696,6 @@ static int io_close_fixed(struct io_kiocb *req, unsigned int issue_flags)
- 	struct io_ring_ctx *ctx = req->ctx;
- 	bool needs_lock = issue_flags & IO_URING_F_UNLOCKED;
- 	struct io_fixed_file *file_slot;
--	struct file *file;
- 	int ret, i;
- 
- 	io_ring_submit_lock(ctx, needs_lock);
-@@ -8441,8 +8715,7 @@ static int io_close_fixed(struct io_kiocb *req, unsigned int issue_flags)
- 	if (!file_slot->file_ptr)
- 		goto out;
- 
--	file = (struct file *)(file_slot->file_ptr & FFS_MASK);
--	ret = io_queue_rsrc_removal(ctx->file_data, offset, ctx->rsrc_node, file);
-+	ret = io_queue_remove_fixed_file(ctx->file_data, offset, ctx->rsrc_node, file_slot);
- 	if (ret)
- 		goto out;
- 
-@@ -8491,12 +8764,13 @@ static int __io_sqe_files_update(struct io_ring_ctx *ctx,
- 		file_slot = io_fixed_file_slot(&ctx->file_table, i);
- 
- 		if (file_slot->file_ptr) {
--			file = (struct file *)(file_slot->file_ptr & FFS_MASK);
--			err = io_queue_rsrc_removal(data, up->offset + done,
--						    ctx->rsrc_node, file);
-+			err = io_queue_remove_fixed_file(data, up->offset + done,
-+							 ctx->rsrc_node, file_slot);
- 			if (err)
- 				break;
- 			file_slot->file_ptr = 0;
-+			file_slot->rpoll = NULL;
-+			file_slot->wpoll = NULL;
- 			needs_switch = true;
- 		}
- 		if (fd != -1) {
-@@ -8526,6 +8800,7 @@ static int __io_sqe_files_update(struct io_ring_ctx *ctx,
- 				fput(file);
- 				break;
- 			}
-+			io_register_fixed_poll(file_slot, file);
- 		}
- 	}
- 
 -- 
-2.14.4.44.g2045bb6
+Jens Axboe
 

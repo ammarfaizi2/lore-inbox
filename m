@@ -2,164 +2,696 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2A372C433EF
-	for <io-uring@archiver.kernel.org>; Mon,  1 Nov 2021 07:28:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AC44BC433F5
+	for <io-uring@archiver.kernel.org>; Mon,  1 Nov 2021 15:06:18 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0534C61078
-	for <io-uring@archiver.kernel.org>; Mon,  1 Nov 2021 07:28:43 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8F833610F7
+	for <io-uring@archiver.kernel.org>; Mon,  1 Nov 2021 15:06:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229984AbhKAHbQ (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Mon, 1 Nov 2021 03:31:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45530 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231299AbhKAHbN (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Mon, 1 Nov 2021 03:31:13 -0400
-Received: from mail-ed1-x52f.google.com (mail-ed1-x52f.google.com [IPv6:2a00:1450:4864:20::52f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48D67C0613B9
-        for <io-uring@vger.kernel.org>; Mon,  1 Nov 2021 00:28:33 -0700 (PDT)
-Received: by mail-ed1-x52f.google.com with SMTP id r12so61574988edt.6
-        for <io-uring@vger.kernel.org>; Mon, 01 Nov 2021 00:28:33 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=mariadb.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=4R9B/sJ3SkTmwgevgezogVNj0pw+/Ioeg5KdJ4MvjgQ=;
-        b=gZR+2VGt9qWwrm0WE2K4p5YrT7DEJAgqzpUnAK4wT2EH+9ztMw7pGswfd2pJZh/Vx/
-         Yhjbgv9A0yupny49Yus6xKvrbcsLFh5NKXN2WntiFu0A4wk2U9bnlL8RNO87J7dYN5dU
-         vf4xH0lVB88odXLa0KYlOF70htkDxZ0k513ZUFWHerlBA5j0quNN5rl8ZzN8ymRSWZC/
-         j2e2pjHu3HGnMDMbgZumo+BcDaCAu3wkuWu6BC12EF2Dad7Xgs8iz1+AGHJYdc+RNY89
-         XzsLi5/9ygwZX3crTqm//iM40n3UfZith8hdsbbzzSmMiUoHbVCvjUIQxLE8d32/xR3Z
-         e6HQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=4R9B/sJ3SkTmwgevgezogVNj0pw+/Ioeg5KdJ4MvjgQ=;
-        b=5xSBozH6TqXyn1AMEyaPf4Sn3XMC0s1XIQye2N2AlhEX3Oh6r3VmCEHs+x8ZAPv9RS
-         YgEo6RsNvgMrE69p+IfIIWTow06saJARwuKGD0byJNM1zicNHw9d0VJjrTs9sDuxK1s6
-         ht/d7ohpYUAXZFtbCO3FXz7/KjG2FYzOYBpjEsRHV6wBHkUFBG0rQZK4CPsm8vJg1mm+
-         4whL9rZ+0jtHDqMRLTY1Hsht6vgsldRI8dmtx+lca1c/xrMhpoKvzsnkiwUD9VYHj9ay
-         7IZCUrREP1jsWyW9rZzdaZ+W/4ML9sDbXk9yZs95IuCqQh7rItCI5/mcGzs5NllcoyeF
-         vedQ==
-X-Gm-Message-State: AOAM531zwtmWhI+t0eRFxgKex9ZyDLKmGBo+uh1tp4lKXQmnx3Wwif7F
-        /mFDO4uxZBJxep5J8X7iFgZfkRcSm4rk+jPuCCyRpg==
-X-Google-Smtp-Source: ABdhPJx4TkhqePAQREHt6jMQNaImJqUkrdYWmhMNAyhCDD4C0bFqSidFL4tq20PRQ8u2UOjMVGv9FfNeo1c4Je+fSr0=
-X-Received: by 2002:a50:da48:: with SMTP id a8mr38843227edk.146.1635751711791;
- Mon, 01 Nov 2021 00:28:31 -0700 (PDT)
+        id S232223AbhKAPIv (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Mon, 1 Nov 2021 11:08:51 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:58558 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231304AbhKAPIu (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Mon, 1 Nov 2021 11:08:50 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1635779177;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=lyKri3xC3u9ME6e+9TrJ2mJzbxZPCBfkfwWxbZinaB4=;
+        b=WNm4ieR2+QS20X1zL9JneyxxkPeyFOwxecogyBp841zeFw+SxFBVk2zbzLIC4m2KApSzpG
+        hCGxp7qILeGZ+0xwFg0DjPKquIMNXcKMl0++QlwLai+FHlYFL+hLa+fbPF7wK+ljGKOxqD
+        /KUUEDZu6abYqmF6FESRmOhzn/yp6EE=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-225-Hjm7KUFIMKaE-cCXRhKmdw-1; Mon, 01 Nov 2021 11:06:14 -0400
+X-MC-Unique: Hjm7KUFIMKaE-cCXRhKmdw-1
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id BD32980A5C0
+        for <io-uring@vger.kernel.org>; Mon,  1 Nov 2021 15:06:13 +0000 (UTC)
+Received: from madcap2.tricolour.ca (unknown [10.3.128.2])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 3BCF35D9D3;
+        Mon,  1 Nov 2021 15:05:52 +0000 (UTC)
+Date:   Mon, 1 Nov 2021 11:05:49 -0400
+From:   Richard Guy Briggs <rgb@redhat.com>
+To:     Steve Grubb <sgrubb@redhat.com>
+Cc:     Linux-Audit Mailing List <linux-audit@redhat.com>,
+        io-uring@vger.kernel.org
+Subject: Re: [PATCH v3 2/7] add support for the uring filter list
+Message-ID: <20211101150549.GG1550715@madcap2.tricolour.ca>
+References: <20211028195939.3102767-1-rgb@redhat.com>
+ <20211028195939.3102767-3-rgb@redhat.com>
+ <2523658.Lt9SDvczpP@x2>
 MIME-Version: 1.0
-References: <CABVffENnJ8JkP7EtuUTqi+VkJDBFU37w1UXe4Q3cB7-ixxh0VA@mail.gmail.com>
- <77f9feaa-2d65-c0f5-8e55-5f8210d6a4c6@gmail.com> <8cd3d258-91b8-c9b2-106c-01b577cc44d4@gmail.com>
- <CABVffEOMVbQ+MynbcNfD7KEA5Mwqdwm1YuOKgRWnpySboQSkSg@mail.gmail.com>
- <23555381-2bea-f63a-1715-a80edd3ee27f@gmail.com> <YXz0roPH+stjFygk@eldamar.lan>
-In-Reply-To: <YXz0roPH+stjFygk@eldamar.lan>
-From:   Daniel Black <daniel@mariadb.org>
-Date:   Mon, 1 Nov 2021 18:28:19 +1100
-Message-ID: <CABVffEO4mBTuiLzvny1G1ocO7PvTpKYTCS5TO2fbaevu2TqdGQ@mail.gmail.com>
-Subject: Re: uring regression - lost write request
-To:     Salvatore Bonaccorso <carnil@debian.org>
-Cc:     Pavel Begunkov <asml.silence@gmail.com>,
-        linux-block@vger.kernel.org, io-uring@vger.kernel.org
-Content-Type: multipart/mixed; boundary="000000000000b9096305cfb51f27"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <2523658.Lt9SDvczpP@x2>
+User-Agent: Mutt/1.10.1 (2018-07-13)
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
---000000000000b9096305cfb51f27
-Content-Type: text/plain; charset="UTF-8"
+On 2021-10-29 14:39, Steve Grubb wrote:
+> On Thursday, October 28, 2021 3:59:34 PM EDT Richard Guy Briggs wrote:
+> > Kernel support to audit io_uring operations filtering was added with
+> > commit 67daf270cebc ("audit: add filtering for io_uring records").  Add
+> > support for the "uring" filter list to auditctl.
+> 
+> Might have been good to show what the resulting auditctl command looks like. 
+> I think it would be:
+> 
+> auditctl -a always,io_ring  -U  open -F uid!=0 -F key=io_ring
+> 
+> But I wonder, why the choice of  -U rather than -S? That would make 
+> remembering the syntax easier.
+> 
+> auditctl -a always,io_ring  -S  open -F uid!=0 -F key=io_ring
 
-On Sat, Oct 30, 2021 at 6:30 PM Salvatore Bonaccorso <carnil@debian.org> wrote:
+Well, I keep seeing the same what I assume is a typo in your
+communications about io_uring where the "u" is missing, which might help
+trigger your memory about the syntax.
 
-> > > I'm retesting https://kernel.ubuntu.com/~kernel-ppa/mainline/v5.14.14/
-> > > in earnest. I did get some assertions, but they may have been
-> > > unrelated. The testing continues...
-> >
-> > Thanks for the work on pinpointing it. I'll wait for your conclusion
-> > then, it'll give us an idea what we should look for.
->
-> Were you able to pinpoint the issue?
+The io_uring operations name list is different than the syscall list, so
+it needs to use a different lookup table.
 
-Retesting on the ubuntu mainline 5.14.14 and 5.14.15 was unable to
-reproduce the issue in a VM.
+Have I misunderstood something?
 
-Using Fedora (34) 5.14.14 and 5.14.15 kernel I am reasonably able to
-reproduce this, and it is now reported as
-https://bugzilla.redhat.com/show_bug.cgi?id=2018882.
+> > Signed-off-by: Richard Guy Briggs <rgb@redhat.com>
+> > ---
+> >  docs/audit.rules.7         |  19 ++++--
+> >  docs/audit_add_rule_data.3 |   4 ++
+> >  docs/auditctl.8            |  10 ++-
+> >  lib/flagtab.h              |  11 ++--
+> >  lib/libaudit.c             |  50 ++++++++++++---
+> >  lib/libaudit.h             |   7 +++
+> >  lib/lookup_table.c         |  20 ++++++
+> >  lib/private.h              |   1 +
+> >  src/auditctl-listing.c     |  52 ++++++++++------
+> >  src/auditctl.c             | 121 ++++++++++++++++++++++++++++++++-----
+> >  10 files changed, 240 insertions(+), 55 deletions(-)
+> 
+> 
+> <snip a whole lot of documentation> 
+> 
+> 
+> > diff --git a/lib/libaudit.c b/lib/libaudit.c
+> > index 54e276156ef0..3790444f4497 100644
+> > --- a/lib/libaudit.c
+> > +++ b/lib/libaudit.c
+> > @@ -86,6 +86,7 @@ static const struct nv_list failure_actions[] =
+> >  int _audit_permadded = 0;
+> >  int _audit_archadded = 0;
+> >  int _audit_syscalladded = 0;
+> > +int _audit_uringopadded = 0;
+> >  int _audit_exeadded = 0;
+> >  int _audit_filterfsadded = 0;
+> >  unsigned int _audit_elf = 0U;
+> > @@ -999,6 +1000,26 @@ int audit_rule_syscallbyname_data(struct
+> > audit_rule_data *rule, return -1;
+> >  }
+> > 
+> > +int audit_rule_uringopbyname_data(struct audit_rule_data *rule,
+> > +                                  const char *uringop)
+> > +{
+> > +	int nr, i;
+> > +
+> > +	if (!strcmp(uringop, "all")) {
+> > +		for (i = 0; i < AUDIT_BITMASK_SIZE; i++)
+> > +			rule->mask[i] = ~0;
+> > +		return 0;
+> > +	}
+> > +	nr = audit_name_to_uringop(uringop);
+> > +	if (nr < 0) {
+> > +		if (isdigit(uringop[0]))
+> > +			nr = strtol(uringop, NULL, 0);
+> > +	}
+> > +	if (nr >= 0)
+> > +		return audit_rule_syscall_data(rule, nr);
+> > +	return -1;
+> > +}
+> > +
+> >  int audit_rule_interfield_comp_data(struct audit_rule_data **rulep,
+> >  					 const char *pair,
+> >  					 int flags)
+> > @@ -1044,7 +1065,7 @@ int audit_rule_interfield_comp_data(struct
+> > audit_rule_data **rulep, return -EAU_COMPVALUNKNOWN;
+> > 
+> >  	/* Interfield comparison can only be in exit filter */
+> > -	if (flags != AUDIT_FILTER_EXIT)
+> > +	if (flags != AUDIT_FILTER_EXIT && flags != AUDIT_FILTER_URING_EXIT)
+> >  		return -EAU_EXITONLY;
+> > 
+> >  	// It should always be AUDIT_FIELD_COMPARE
+> > @@ -1557,7 +1578,8 @@ int audit_rule_fieldpair_data(struct audit_rule_data
+> > **rulep, const char *pair, }
+> >  			break;
+> >  		case AUDIT_EXIT:
+> > -			if (flags != AUDIT_FILTER_EXIT)
+> > +			if (flags != AUDIT_FILTER_EXIT &&
+> > +			    flags != AUDIT_FILTER_URING_EXIT)
+> >  				return -EAU_EXITONLY;
+> >  			vlen = strlen(v);
+> >  			if (isdigit((char)*(v)))
+> > @@ -1599,7 +1621,8 @@ int audit_rule_fieldpair_data(struct audit_rule_data
+> > **rulep, const char *pair, case AUDIT_DIR:
+> >  			/* Watch & object filtering is invalid on anything
+> >  			 * but exit */
+> > -			if (flags != AUDIT_FILTER_EXIT)
+> > +			if (flags != AUDIT_FILTER_EXIT &&
+> > +			    flags != AUDIT_FILTER_URING_EXIT)
+> >  				return -EAU_EXITONLY;
+> >  			if (field == AUDIT_WATCH || field == AUDIT_DIR)
+> >  				_audit_permadded = 1;
+> > @@ -1621,9 +1644,11 @@ int audit_rule_fieldpair_data(struct audit_rule_data
+> > **rulep, const char *pair, _audit_exeadded = 1;
+> >  			}
+> >  			if (field == AUDIT_FILTERKEY &&
+> > -				!(_audit_syscalladded || _audit_permadded ||
+> > -				_audit_exeadded ||
+> > -				_audit_filterfsadded))
+> > +				!(_audit_syscalladded ||
+> > +				  _audit_uringopadded ||
+> > +				  _audit_permadded ||
+> > +				  _audit_exeadded ||
+> > +				  _audit_filterfsadded))
+> >                                  return -EAU_KEYDEP;
+> >  			vlen = strlen(v);
+> >  			if (field == AUDIT_FILTERKEY &&
+> > @@ -1712,7 +1737,8 @@ int audit_rule_fieldpair_data(struct audit_rule_data
+> > **rulep, const char *pair, }
+> >  			break;
+> >  		case AUDIT_FILETYPE:
+> > -			if (!(flags == AUDIT_FILTER_EXIT))
+> > +			if (!(flags == AUDIT_FILTER_EXIT ||
+> > +			      flags == AUDIT_FILTER_URING_EXIT))
+> >  				return -EAU_EXITONLY;
+> >  			rule->values[rule->field_count] =
+> >  				audit_name_to_ftype(v);
+> > @@ -1754,7 +1780,8 @@ int audit_rule_fieldpair_data(struct audit_rule_data
+> > **rulep, const char *pair, return -EAU_FIELDNOSUPPORT;
+> >  			if (flags != AUDIT_FILTER_EXCLUDE &&
+> >  			    flags != AUDIT_FILTER_USER &&
+> > -			    flags != AUDIT_FILTER_EXIT)
+> > +			    flags != AUDIT_FILTER_EXIT &&
+> > +			    flags != AUDIT_FILTER_URING_EXIT)
+> 
+> This is in the session_id code. Looking at the example audit event:
+> 
+> https://listman.redhat.com/archives/linux-audit/2021-September/msg00058.html
+> 
+> session_id is not in the record.
 
-I've so far been unable to reproduce this issue on 5.15.0-rc7 inside a
-(Ubuntu-21.10) VM.
+Fair enough.  It can be re-added if we are able to reliably report it.
 
-Marko did using a other heavy flushing sysbench script (modified
-version attached - slightly lower specs, and can be used on distro
-install) was able to see the fault (qps goes to 0) using Debian sid
-userspace and 5.15-rc6/5.15-rc7 Ubuntu mainline kernels.
-https://jira.mariadb.org/browse/MDEV-26674?focusedCommentId=203645&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-203645
+> >  				return -EAU_FIELDNOFILTER;
+> >  			// Do positive & negative separate for 32 bit systems
+> >  			vlen = strlen(v);
+> > @@ -1775,7 +1802,8 @@ int audit_rule_fieldpair_data(struct audit_rule_data
+> > **rulep, const char *pair, break;
+> >  		case AUDIT_DEVMAJOR...AUDIT_INODE:
+> 
+> ^^^ Can you audit by devmajor, devminor, or inode in io_ring?
 
-Note if using a mariadb-10.6.5 (not quite released), there's a change
-of defaults to avoid this bug, mtr options
---mysqld=--innodb_use_native_aio=1 --nowarnings  will test this
-however.
+Should be able to monitor files.  The old "-w" syntax is not supported
+but path= and dir= should be.
 
---000000000000b9096305cfb51f27
-Content-Type: application/x-shellscript; name="Mariarebench-MDEV-23855.sh"
-Content-Disposition: attachment; filename="Mariarebench-MDEV-23855.sh"
-Content-Transfer-Encoding: base64
-Content-ID: <f_kvgbyqjq0>
-X-Attachment-Id: f_kvgbyqjq0
+> >  		case AUDIT_SUCCESS:
+> > -			if (flags != AUDIT_FILTER_EXIT)
+> > +			if (flags != AUDIT_FILTER_EXIT &&
+> > +			    flags != AUDIT_FILTER_URING_EXIT)
+> >  				return -EAU_EXITONLY;
+> >  			/* fallthrough */
+> >  		default:
+> > @@ -1785,7 +1813,9 @@ int audit_rule_fieldpair_data(struct audit_rule_data
+> > **rulep, const char *pair, return -EAU_OPEQNOTEQ;
+> >  			}
+> > 
+> > -			if (field == AUDIT_PPID && !(flags==AUDIT_FILTER_EXIT))
+> > +			if (field == AUDIT_PPID &&
+> > +			    !(flags == AUDIT_FILTER_EXIT ||
+> > +			      flags == AUDIT_FILTER_URING_EXIT))
+> >  				return -EAU_EXITONLY;
+> > 
+> >  			if (!isdigit((char)*(v)))
+> > diff --git a/lib/libaudit.h b/lib/libaudit.h
+> > index 08b7d22678aa..a73edc677df0 100644
+> > --- a/lib/libaudit.h
+> > +++ b/lib/libaudit.h
+> > @@ -341,6 +341,9 @@ extern "C" {
+> >  #ifndef AUDIT_FILTER_EXCLUDE
+> >  #define AUDIT_FILTER_EXCLUDE	AUDIT_FILTER_TYPE
+> >  #endif
+> > +#ifndef AUDIT_FILTER_URING_EXIT
+> > +#define AUDIT_FILTER_URING_EXIT	0x07 /* filter on exit from io_uring op 
+> */
+> > +#endif
+> >  #define AUDIT_FILTER_MASK	0x07	/* Mask to get actual filter */
+> >  #define AUDIT_FILTER_UNSET	0x80	/* This value means filter is unset */
+> > 
+> > @@ -612,6 +615,8 @@ extern int        audit_name_to_field(const char
+> > *field); extern const char *audit_field_to_name(int field);
+> >  extern int        audit_name_to_syscall(const char *sc, int machine);
+> >  extern const char *audit_syscall_to_name(int sc, int machine);
+> > +extern int        audit_name_to_uringop(const char *uringopop);
+> > +extern const char *audit_uringop_to_name(int uringop);
+> >  extern int        audit_name_to_flag(const char *flag);
+> >  extern const char *audit_flag_to_name(int flag);
+> >  extern int        audit_name_to_action(const char *action);
+> > @@ -706,6 +711,8 @@ extern struct audit_rule_data
+> > *audit_rule_create_data(void); extern void audit_rule_init_data(struct
+> > audit_rule_data *rule);
+> >  extern int audit_rule_syscallbyname_data(struct audit_rule_data *rule,
+> >                                            const char *scall);
+> > +extern int audit_rule_uringopbyname_data(struct audit_rule_data *rule,
+> > +                                          const char *uringop);
+> >  /* Note that the following function takes a **, where
+> > audit_rule_fieldpair() * takes just a *.  That structure may need to be
+> > reallocated as a result of * adding new fields */
+> > diff --git a/lib/lookup_table.c b/lib/lookup_table.c
+> > index 23678a4d142e..ca619fba930d 100644
+> > --- a/lib/lookup_table.c
+> > +++ b/lib/lookup_table.c
+> > @@ -142,6 +142,18 @@ int audit_name_to_syscall(const char *sc, int machine)
+> > return -1;
+> >  }
+> > 
+> > +int audit_name_to_uringop(const char *uringop)
+> > +{
+> > +	int res = -1, found = 0;
+> > +
+> > +#ifndef NO_TABLES
+> > +	//found = uringop_s2i(uringop, &res);
+> 
+> Why are we creating commented out function calls? It seems like this belongs 
+> in another patch and not here. But let's save everyone some iterations and 
+> overlook that.
 
-IyEvYmluL2Jhc2gKc2V0IC14IC12CjogJHtTUkNUUkVFPS9tYXJpYWRiLzEwLjVtfQo6ICR7TURJ
-Uj0vZGV2L3NobS8xMC41bX0KSURJUj0kQkxEVFJFRS9pbmNsdWRlCjogJHtURElSPS90bXAvc2J0
-ZXN0fQpMRF9MSUJSQVJZX1BBVEg9IiRNRElSL2xpYm15c3FsIgpNWVNRTF9TT0NLPSRURElSL215
-c3FsZC5zb2NrCk1ZU1FMX1VTRVI9cm9vdApCRU5DSF9USU1FPTEyMDAKQkVOQ0hfVEhSRUFEUz0i
-OCIKIyBGcmVxdWVudGx5IHVzZWQgdGVzdHM6IG9sdHBfdXBkYXRlX2luZGV4LCBvbHRwX3VwZGF0
-ZV9ub25faW5kZXgsIG9sdHBfcmVhZF93cml0ZSwgY29ubmVjdCwgb2x0cF9yZWFkX29ubHksIG9s
-dHBfcG9pbnRfc2VsZWN0ClNZU0JFTkNIPSJzeXNiZW5jaCAvdXNyL3NoYXJlL3N5c2JlbmNoL29s
-dHBfdXBkYXRlX2luZGV4Lmx1YSBcCiAgLS1teXNxbC1zb2NrZXQ9JE1ZU1FMX1NPQ0sgXAogIC0t
-bXlzcWwtdXNlcj0kTVlTUUxfVVNFUiBcCiAgLS1teXNxbC1kYj10ZXN0IFwKICAtLXBlcmNlbnRp
-bGU9OTkgXAogIC0tdGFibGVzPTggXAogIC0tdGFibGVfc2l6ZT0yMDAwMDAiClBGUz1vZmYKICAj
-LS1teXNxbF9zdG9yYWdlX2VuZ2luZT1hcmlhIC0tcG9pbnRfc2VsZWN0cz0xMDAwIC0tc2ltcGxl
-X3Jhbmdlcz0wIC0tc3VtX3Jhbmdlcz0wIC0tb3JkZXJfcmFuZ2VzPTAgLS1kaXN0aW5jdF9yYW5n
-ZXM9MCBcCiAgIy0tYXJpYS1wYWdlY2FjaGUtYnVmZmVyLXNpemU9MjA0OE0gXAojcm0gLXJmICIk
-VERJUiIKI2NkICRNRElSCm15c3FsX2luc3RhbGxfZGIgLS11c2VyPSIkVVNFUk5BTUUiIC0tZGF0
-YWRpcj0iJFRESVIiIC0tYXV0aC1yb290LWF1dGhlbnRpY2F0aW9uLW1ldGhvZD1ub3JtYWwKI2Nk
-IC4uLwpudW1hY3RsIC0tY3B1bm9kZWJpbmQgMCAtLWxvY2FsYWxsb2MgXApteXNxbGQgLS1uby1k
-ZWZhdWx0cyAtLWdkYiAtLWNvcmUtZmlsZSAtLWxvb3NlLWRlYnVnLXN5bmMtdGltZW91dD0zMDAg
-LS1pbm5vZGIgXAogIC0tZGF0YWRpcj0iJFRESVIiICAtLXNvY2tldD0kTVlTUUxfU09DSyBcCiAg
-LS1pbm5vZGJfbG9nX2ZpbGVfc2l6ZT0yNTZNXAogIC0taW5ub2RiX2J1ZmZlcl9wb29sX3NpemU9
-OEcgXAogIC0taW5ub2RiX2lvX2NhcGFjaXR5PTcwMDAwXAogIC0taW5ub2RiX2lvX2NhcGFjaXR5
-X21heD05MDAwMCBcCiAgLS1pbm5vZGJfZmx1c2hfbG9nX2F0X3RyeF9jb21taXQ9MCBcCiAgLS1p
-bm5vZGJfYWRhcHRpdmVfZmx1c2hpbmdfbHdtPTAgXAogIC0taW5ub2RiX2ZpbGUtcGVyLXRhYmxl
-PTEgXAogIC0taW5ub2RiLWZhc3Qtc2h1dGRvd249MCBcCiAgLS1pbm5vZGItZmx1c2gtbWV0aG9k
-PU9fRElSRUNUIFwKICAtLWlubm9kYl9mbHVzaF9zeW5jPTEgXAogIC0taW5ub2RiX2xydV9zY2Fu
-X2RlcHRoPTEwMjQgXAogIC0taW5ub2RiX2xydV9mbHVzaF9zaXplPTI1NiBcClwKICAtLW1heC1j
-b25uZWN0aW9ucz0yMDQ4IFwKICAtLXRhYmxlX29wZW5fY2FjaGU9NDA5NiBcCiAgLS1tYXhfcHJl
-cGFyZWRfc3RtdF9jb3VudD0xMDQ4NTc2IFwKICAtLWFyaWEtY2hlY2twb2ludC1pbnRlcnZhbD0w
-IFwKXAogIC0tbG9vc2UtcGVyZm9ybWFuY2Utc2NoZW1hLWNvbnN1bWVyLWV2ZW50c193YWl0c19j
-dXJyZW50PW9uIFwKICAtLWxvb3NlLXBlcmZvcm1hbmNlLXNjaGVtYS1jb25zdW1lci1ldmVudHNf
-c3RhdGVtZW50c19jdXJyZW50PW9mZiBcCiAgLS1sb29zZS1wZXJmb3JtYW5jZS1zY2hlbWEtY29u
-c3VtZXItc3RhdGVtZW50c19kaWdlc3Q9b2ZmIFwKICAtLWxvb3NlLXBlcmZvcm1hbmNlLXNjaGVt
-YS1pbnN0cnVtZW50PSclPW9mZicgXAogIC0tbG9vc2UtcGVyZm9ybWFuY2Utc2NoZW1hLWluc3Ry
-dW1lbnQ9J3dhaXQvc3luY2gvbXV0ZXgvJT1vbicgXAogIC0tbG9vc2UtcGVyZm9ybWFuY2Utc2No
-ZW1hLWluc3RydW1lbnQ9J3dhaXQvc3luY2gvcndsb2NrLyU9b24nIFwKICAtLWxvb3NlLXBlcmZv
-cm1hbmNlLXNjaGVtYT0kUEZTID4gIiRURElSIi9teXNxbGQuZXJyIDI+JjEgJgp0aW1lbz02MDAK
-ZWNobyAtbiAid2FpdGluZyBmb3Igc2VydmVyIHRvIGNvbWUgdXAgIgp3aGlsZSBbICR0aW1lbyAt
-Z3QgMCBdCmRvCiAgbXlzcWxhZG1pbiAtUyAkTVlTUUxfU09DSyAtdSAkTVlTUUxfVVNFUiAtYiAt
-cyBwaW5nICYmIGJyZWFrCiAgZWNobyAtbiAiLiIKICB0aW1lbz0kKCgkdGltZW8gLSAxKSkKICBz
-bGVlcCAxCmRvbmUKCmlmIFsgJHRpbWVvIC1lcSAwIF0KdGhlbgogIGVjaG8gIiBzZXJ2ZXIgbm90
-IHN0YXJ0aW5nISBBYm9ydCEiCiAgYnJlYWsKZmkKCm51bWFjdGwgLS1jcHVub2RlYmluZCAwIC0t
-bG9jYWxhbGxvYyAkU1lTQkVOQ0ggLS10aHJlYWRzPSRCRU5DSF9USFJFQURTIGNsZWFudXAgfHwg
-ZWNobyBhbHJlYWR5IGNsZWFuCm51bWFjdGwgLS1jcHVub2RlYmluZCAwIC0tbG9jYWxhbGxvYyAk
-U1lTQkVOQ0ggLS10aHJlYWRzPSRCRU5DSF9USFJFQURTIHByZXBhcmUKCmZvciBpIGluICRCRU5D
-SF9USFJFQURTCmRvCiAgbXlzcWwgLS1uby1kZWZhdWx0cyAtdSAkTVlTUUxfVVNFUiAtUyAkTVlT
-UUxfU09DSyAtZSAidHJ1bmNhdGUgdGFibGUgZXZlbnRzX3dhaXRzX3N1bW1hcnlfZ2xvYmFsX2J5
-X2V2ZW50X25hbWUiIHBlcmZvcm1hbmNlX3NjaGVtYQogIG51bWFjdGwgLS1jcHVub2RlYmluZCAw
-IC0tbG9jYWxhbGxvYyAkU1lTQkVOQ0ggLS1yYW5kLXNlZWQ9NDIgLS1yYW5kLXR5cGU9dW5pZm9y
-bSAtLW1heC1yZXF1ZXN0cz0wIC0tdGltZT0kQkVOQ0hfVElNRSAtLXJlcG9ydC1pbnRlcnZhbD01
-IC0tdGhyZWFkcz0kaSBydW4KICBbICIkUEZTIiA9ICJvZmYiIF0gfHwKICBteXNxbCAtdSAkTVlT
-UUxfVVNFUiAtUyAkTVlTUUxfU09DSyAtZQogICJzZWxlY3QgRVZFTlRfTkFNRSxDT1VOVF9TVEFS
-LFJPVU5EKFNVTV9USU1FUl9XQUlULzEwMDAwMDAwMDAwMDAsMikgQVMgU0VDT05EUyxTVU1fVElN
-RVJfV0FJVCxNSU5fVElNRVJfV0FJVCxBVkdfVElNRVJfV0FJVCxNQVhfVElNRVJfV0FJVCBcCiAg
-ZnJvbSBwZXJmb3JtYW5jZV9zY2hlbWEuZXZlbnRzX3dhaXRzX3N1bW1hcnlfZ2xvYmFsX2J5X2V2
-ZW50X25hbWUgb3JkZXIgYnkgc3VtX3RpbWVyX3dhaXQgZGVzYyBsaW1pdCAyMCIgcGVyZm9ybWFu
-Y2Vfc2NoZW1hCmRvbmUKCiMkU1lTQkVOQ0ggY2xlYW51cApteXNxbGFkbWluIC11ICRNWVNRTF9V
-U0VSIC1TICRNWVNRTF9TT0NLIHNodXRkb3duCg==
---000000000000b9096305cfb51f27--
+That's a placeholder for the following patch that could be squashed in
+with this one, or it might belong in another if things are re-ordered.
+
+> Review complete...
+> 
+> -Steve
+> 
+> > +#endif
+> > +	if (found)
+> > +		return res;
+> > +	return -1;
+> > +}
+> > +
+> >  const char *audit_syscall_to_name(int sc, int machine)
+> >  {
+> >  #ifndef NO_TABLES
+> > @@ -172,6 +184,14 @@ const char *audit_syscall_to_name(int sc, int machine)
+> > return NULL;
+> >  }
+> > 
+> > +const char *audit_uringop_to_name(int uringop)
+> > +{
+> > +#ifndef NO_TABLES
+> > +	//return uringop_i2s(uringop);
+> > +#endif
+> > +	return NULL;
+> > +}
+> > +
+> >  int audit_name_to_flag(const char *flag)
+> >  {
+> >  	int res;
+> > diff --git a/lib/private.h b/lib/private.h
+> > index c3a7364fcfb8..b0d3fa4109c5 100644
+> > --- a/lib/private.h
+> > +++ b/lib/private.h
+> > @@ -135,6 +135,7 @@ AUDIT_HIDDEN_END
+> >  extern int _audit_permadded;
+> >  extern int _audit_archadded;
+> >  extern int _audit_syscalladded;
+> > +extern int _audit_uringopadded;
+> >  extern int _audit_exeadded;
+> >  extern int _audit_filterfsadded;
+> >  extern unsigned int _audit_elf;
+> > diff --git a/src/auditctl-listing.c b/src/auditctl-listing.c
+> > index a5d6bc2b046f..3d80906ffd24 100644
+> > --- a/src/auditctl-listing.c
+> > +++ b/src/auditctl-listing.c
+> > @@ -137,15 +137,22 @@ static int print_syscall(const struct audit_rule_data
+> > *r, unsigned int *sc) int all = 1;
+> >  	unsigned int i;
+> >  	int machine = audit_detect_machine();
+> > -
+> > -	/* Rules on the following filters do not take a syscall */
+> > -	if (((r->flags & AUDIT_FILTER_MASK) == AUDIT_FILTER_USER) ||
+> > -	    ((r->flags & AUDIT_FILTER_MASK) == AUDIT_FILTER_TASK) ||
+> > -	    ((r->flags &AUDIT_FILTER_MASK) == AUDIT_FILTER_EXCLUDE) ||
+> > -	    ((r->flags &AUDIT_FILTER_MASK) == AUDIT_FILTER_FS))
+> > +	int uring = 0;
+> > +
+> > +	/* Rules on the following filters do not take a syscall (or uringop) 
+> */
+> > +	switch (r->flags & AUDIT_FILTER_MASK) {
+> > +	case AUDIT_FILTER_USER:
+> > +	case AUDIT_FILTER_TASK:
+> > +	case AUDIT_FILTER_EXCLUDE:
+> > +	case AUDIT_FILTER_FS:
+> >  		return 0;
+> > +		break;
+> > +	case AUDIT_FILTER_URING_EXIT:
+> > +		uring = 1;
+> > +		break;
+> > +	}
+> > 
+> > -	/* See if its all or specific syscalls */
+> > +	/* See if its all or specific syscalls/uringops */
+> >  	for (i = 0; i < (AUDIT_BITMASK_SIZE-1); i++) {
+> >  		if (r->mask[i] != (uint32_t)~0) {
+> >  			all = 0;
+> > @@ -154,21 +161,32 @@ static int print_syscall(const struct audit_rule_data
+> > *r, unsigned int *sc) }
+> > 
+> >  	if (all) {
+> > -		printf(" -S all");
+> > +		if (uring)
+> > +			printf(" -U all");
+> > +		else
+> > +			printf(" -S all");
+> >  		count = i;
+> >  	} else for (i = 0; i < AUDIT_BITMASK_SIZE * 32; i++) {
+> >  		int word = AUDIT_WORD(i);
+> >  		int bit  = AUDIT_BIT(i);
+> >  		if (r->mask[word] & bit) {
+> >  			const char *ptr;
+> > -			if (_audit_elf)
+> > -				machine = audit_elf_to_machine(_audit_elf);
+> > -			if (machine < 0)
+> > -				ptr = NULL;
+> > -			else
+> > -				ptr = audit_syscall_to_name(i, machine);
+> > +
+> > +			if (uring)
+> > +				ptr = audit_uringop_to_name(i);
+> > +			else {
+> > +				if (_audit_elf)
+> > +					machine = 
+> audit_elf_to_machine(_audit_elf);
+> > +				if (machine < 0)
+> > +					ptr = NULL;
+> > +				else
+> > +					ptr = audit_syscall_to_name(i, machine);
+> > +			}
+> >  			if (!count)
+> > -				printf(" -S ");
+> > +				if (uring)
+> > +					printf(" -U ");
+> > +				else
+> > +					printf(" -S ");
+> >  			if (ptr)
+> >  				printf("%s%s", !count ? "" : ",", ptr);
+> >  			else
+> > @@ -297,7 +315,7 @@ static void print_rule(const struct audit_rule_data *r)
+> > int mach = -1, watch = is_watch(r);
+> >  	unsigned long long a0 = 0, a1 = 0;
+> > 
+> > -	if (!watch) { /* This is syscall auditing */
+> > +	if (!watch) { /* This is syscall or uring auditing */
+> >  		printf("-a %s,%s",
+> >  			audit_action_to_name((int)r->action),
+> >  				audit_flag_to_name(r->flags));
+> > @@ -310,7 +328,7 @@ static void print_rule(const struct audit_rule_data *r)
+> > mach = print_arch(r->values[i], op);
+> >  			}
+> >  		}
+> > -		// And last do the syscalls
+> > +		// And last do the syscalls/uringops
+> >  		count = print_syscall(r, &sc);
+> >  	}
+> > 
+> > diff --git a/src/auditctl.c b/src/auditctl.c
+> > index f9bfc2a247d2..74df4f17f887 100644
+> > --- a/src/auditctl.c
+> > +++ b/src/auditctl.c
+> > @@ -76,6 +76,7 @@ static int reset_vars(void)
+> >  {
+> >  	list_requested = 0;
+> >  	_audit_syscalladded = 0;
+> > +	_audit_uringopadded = 0;
+> >  	_audit_permadded = 0;
+> >  	_audit_archadded = 0;
+> >  	_audit_exeadded = 0;
+> > @@ -110,7 +111,7 @@ static void usage(void)
+> >       "    -C f=f                            Compare collected fields if
+> > available:\n" "                                      Field name,
+> > operator(=,!=), field name\n" "    -d <l,a>                         
+> > Delete rule from <l>ist with <a>ction\n" -     "                          
+> >            l=task,exit,user,exclude,filesystem\n" +     "                 
+> >                     l=task,exit,user,exclude,filesystem,uring\n" "        
+> >                              a=never,always\n"
+> >       "    -D                                Delete all rules and
+> > watches\n" "    -e [0..2]                         Set enabled flag\n"
+> > @@ -132,6 +133,7 @@ static void usage(void)
+> >       "    -S syscall                        Build rule: syscall name or
+> > number\n" "    --signal <signal>                 Send the specified signal
+> > to the daemon\n" "    -t                                Trim directory
+> > watches\n" +     "    -U uringop                        Build rule: uring
+> > op name or number\n" "    -v                                Version\n"
+> >       "    -w <path>                         Insert watch at <path>\n"
+> >       "    -W <path>                         Remove watch at <path>\n"
+> > @@ -164,6 +166,8 @@ static int lookup_filter(const char *str, int *filter)
+> >  		exclude = 1;
+> >  	} else if (strcmp(str, "filesystem") == 0)
+> >  		*filter = AUDIT_FILTER_FS;
+> > +	else if (strcmp(str, "uring") == 0)
+> > +		*filter = AUDIT_FILTER_URING_EXIT;
+> >  	else
+> >  		return 2;
+> >  	return 0;
+> > @@ -541,6 +545,36 @@ static int parse_syscall(const char *optarg)
+> >  	return audit_rule_syscallbyname_data(rule_new, optarg);
+> >  }
+> > 
+> > +static int parse_uringop(const char *optarg)
+> > +{
+> > +	int retval = 0;
+> > +	char *saved;
+> > +
+> > +	if (strchr(optarg, ',')) {
+> > +		char *ptr, *tmp = strdup(optarg);
+> > +		if (tmp == NULL)
+> > +			return -1;
+> > +		ptr = strtok_r(tmp, ",", &saved);
+> > +		while (ptr) {
+> > +			retval = audit_rule_uringopbyname_data(rule_new, ptr);
+> > +			if (retval != 0) {
+> > +				if (retval == -1) {
+> > +					audit_msg(LOG_ERR,
+> > +						"Uring op name unknown: %s",
+> > +						ptr);
+> > +					retval = -3; // error reported
+> > +				}
+> > +				break;
+> > +			}
+> > +			ptr = strtok_r(NULL, ",", &saved);
+> > +		}
+> > +		free(tmp);
+> > +		return retval;
+> > +	}
+> > +
+> > +	return audit_rule_uringopbyname_data(rule_new, optarg);
+> > +}
+> > +
+> >  static struct option long_opts[] =
+> >  {
+> >  #if HAVE_DECL_AUDIT_FEATURE_VERSION == 1
+> > @@ -576,7 +610,7 @@ static int setopt(int count, int lineno, char *vars[])
+> >      keylen = AUDIT_MAX_KEY_LEN;
+> > 
+> >      while ((retval >= 0) && (c = getopt_long(count, vars,
+> > -			"hicslDvtC:e:f:r:b:a:A:d:S:F:m:R:w:W:k:p:q:",
+> > +			"hicslDvtC:e:f:r:b:a:A:d:S:U:F:m:R:w:W:k:p:q:",
+> >  			long_opts, &lidx)) != EOF) {
+> >  	int flags = AUDIT_FILTER_UNSET;
+> >  	rc = 10;	// Init to something impossible to see if unused.
+> > @@ -715,9 +749,10 @@ static int setopt(int count, int lineno, char *vars[])
+> > retval = -1;
+> >  		break;
+> >          case 'a':
+> > -		if (strstr(optarg, "task") && _audit_syscalladded) {
+> > +		if (strstr(optarg, "task") && (_audit_syscalladded ||
+> > +					       _audit_uringopadded)) {
+> >  			audit_msg(LOG_ERR,
+> > -				"Syscall auditing requested for task list");
+> > +				"Syscall or uring op auditing requested for task 
+> list");
+> >  			retval = -1;
+> >  		} else {
+> >  			rc = audit_rule_setup(optarg, &add, &action);
+> > @@ -739,9 +774,10 @@ static int setopt(int count, int lineno, char *vars[])
+> > }
+> >  		break;
+> >          case 'A':
+> > -		if (strstr(optarg, "task") && _audit_syscalladded) {
+> > -			audit_msg(LOG_ERR,
+> > -			   "Error: syscall auditing requested for task list");
+> > +		if (strstr(optarg, "task") && (_audit_syscalladded ||
+> > +					       _audit_uringopadded)) {
+> > +			audit_msg(LOG_ERR,
+> > +				"Syscall or uring op auditing requested for task 
+> list");
+> >  			retval = -1;
+> >  		} else {
+> >  			rc = audit_rule_setup(optarg, &add, &action);
+> > @@ -809,6 +845,10 @@ static int setopt(int count, int lineno, char *vars[])
+> > audit_msg(LOG_ERR,
+> >  		    "Error: syscall auditing cannot be put on exclude list");
+> >  			return -1;
+> > +		} else if (((add | del) & AUDIT_FILTER_MASK) == 
+> AUDIT_FILTER_URING_EXIT)
+> > { +			audit_msg(LOG_ERR,
+> > +		    "Error: syscall auditing cannot be put on uringop list");
+> > +			return -1;
+> >  		} else {
+> >  			if (unknown_arch) {
+> >  				int machine;
+> > @@ -853,14 +893,63 @@ static int setopt(int count, int lineno, char
+> > *vars[]) break;
+> >  		}}
+> >  		break;
+> > +        case 'U':
+> > +		/* Do some checking to make sure that we are not adding a
+> > +		 * uring op rule to a list that does not make sense. */
+> > +		if (((add & (AUDIT_FILTER_MASK|AUDIT_FILTER_UNSET)) ==
+> > +				AUDIT_FILTER_TASK || (del &
+> > +				(AUDIT_FILTER_MASK|AUDIT_FILTER_UNSET)) ==
+> > +				AUDIT_FILTER_TASK)) {
+> > +			audit_msg(LOG_ERR,
+> > +			  "Error: uring op auditing being added to task list");
+> > +			return -1;
+> > +		} else if (((add & (AUDIT_FILTER_MASK|AUDIT_FILTER_UNSET)) ==
+> > +				AUDIT_FILTER_USER || (del &
+> > +				(AUDIT_FILTER_MASK|AUDIT_FILTER_UNSET)) ==
+> > +				AUDIT_FILTER_USER)) {
+> > +			audit_msg(LOG_ERR,
+> > +			  "Error: uring op auditing being added to user list");
+> > +			return -1;
+> > +		} else if (((add & (AUDIT_FILTER_MASK|AUDIT_FILTER_UNSET)) ==
+> > +				AUDIT_FILTER_FS || (del &
+> > +				(AUDIT_FILTER_MASK|AUDIT_FILTER_UNSET)) ==
+> > +				AUDIT_FILTER_FS)) {
+> > +			audit_msg(LOG_ERR,
+> > +			  "Error: uring op auditing being added to filesystem 
+> list");
+> > +			return -1;
+> > +		} else if (exclude) {
+> > +			audit_msg(LOG_ERR,
+> > +		    "Error: uring op auditing cannot be put on exclude list");
+> > +			return -1;
+> > +		} else if (((add | del) & AUDIT_FILTER_MASK) == 
+> AUDIT_FILTER_EXIT) {
+> > +			audit_msg(LOG_ERR,
+> > +		    "Error: uringop auditing cannot be put on syscall list");
+> > +			return -1;
+> > +		}
+> > +		rc = parse_uringop(optarg);
+> > +		switch (rc)
+> > +		{
+> > +			case 0:
+> > +				_audit_uringopadded = 1;
+> > +				break;
+> > +			case -1:
+> > +				audit_msg(LOG_ERR, "Uring op name unknown: %s",
+> > +							optarg);
+> > +				retval = -1;
+> > +				break;
+> > +			case -3: // Error reported - do nothing here
+> > +				retval = -1;
+> > +				break;
+> > +		}
+> > +		break;
+> >          case 'F':
+> >  		if (add != AUDIT_FILTER_UNSET)
+> >  			flags = add & AUDIT_FILTER_MASK;
+> >  		else if (del != AUDIT_FILTER_UNSET)
+> >  			flags = del & AUDIT_FILTER_MASK;
+> > -		// if the field is arch & there is a -t option...we
+> > +		// if the field is arch & there is a -t option...we
+> >  		// can allow it
+> > -		else if ((optind >= count) || (strstr(optarg, "arch=") == 
+> NULL)
+> > +		else if ((optind >= count) || (strstr(optarg, "arch=") == NULL 
+> &&
+> > _audit_uringopadded != 1)
+> >  				 || (strcmp(vars[optind], "-t") != 0)) {
+> > 
+> >  			audit_msg(LOG_ERR, "List must be given before field");
+> >  			retval = -1;
+> > @@ -989,12 +1078,12 @@ static int setopt(int count, int lineno, char
+> > *vars[]) }
+> >  		break;
+> >  	case 'k':
+> > -		if (!(_audit_syscalladded || _audit_permadded ||
+> > -		      _audit_exeadded ||
+> > +		if (!(_audit_syscalladded || _audit_uringopadded ||
+> > +		      _audit_permadded || _audit_exeadded ||
+> >  		      _audit_filterfsadded) ||
+> >  		    (add==AUDIT_FILTER_UNSET && del==AUDIT_FILTER_UNSET)) {
+> >  			audit_msg(LOG_ERR,
+> > -		    "key option needs a watch or syscall given prior to it");
+> > +		    "key option needs a watch, syscall or uring op given prior 
+> to it");
+> >  			retval = -1;
+> >  			break;
+> >  		} else if (!optarg) {
+> > @@ -1031,7 +1120,7 @@ process_keys:
+> >  			retval = audit_setup_perms(rule_new, optarg);
+> >  		break;
+> >          case 'q':
+> > -		if (_audit_syscalladded) {
+> > +		if (_audit_syscalladded || _audit_uringopadded) {
+> >  			audit_msg(LOG_ERR,
+> >  			   "Syscall auditing requested for make equivalent");
+> >  			retval = -1;
+> > @@ -1466,7 +1555,7 @@ int main(int argc, char *argv[])
+> >  static int handle_request(int status)
+> >  {
+> >  	if (status == 0) {
+> > -		if (_audit_syscalladded) {
+> > +		if (_audit_syscalladded || _audit_uringopadded) {
+> >  			audit_msg(LOG_ERR, "Error - no list specified");
+> >  			return -1;
+> >  		}
+> > @@ -1478,7 +1567,7 @@ static int handle_request(int status)
+> >  		if (add != AUDIT_FILTER_UNSET) {
+> >  			// if !task add syscall any if not specified
+> >  			if ((add & AUDIT_FILTER_MASK) != AUDIT_FILTER_TASK &&
+> > -					_audit_syscalladded != 1) {
+> > +					(_audit_syscalladded != 1 && 
+> _audit_uringopadded != 1)) {
+> >  					audit_rule_syscallbyname_data(
+> >  							rule_new, "all");
+> >  			}
+> > @@ -1502,7 +1591,7 @@ static int handle_request(int status)
+> >  		}
+> >  		else if (del != AUDIT_FILTER_UNSET) {
+> >  			if ((del & AUDIT_FILTER_MASK) != AUDIT_FILTER_TASK &&
+> > -					_audit_syscalladded != 1) {
+> > +					(_audit_syscalladded != 1 && 
+> _audit_uringopadded != 1)) {
+> >  					audit_rule_syscallbyname_data(
+> >  							rule_new, "all");
+> >  			}
+> 
+> 
+> 
+> 
+
+- RGB
+
+--
+Richard Guy Briggs <rgb@redhat.com>
+Sr. S/W Engineer, Kernel Security, Base Operating Systems
+Remote, Ottawa, Red Hat Canada
+IRC: rgb, SunRaycer
+Voice: +1.647.777.2635, Internal: (81) 32635
+

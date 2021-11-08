@@ -2,531 +2,212 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4A267C433F5
-	for <io-uring@archiver.kernel.org>; Sat,  6 Nov 2021 11:49:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6149DC433F5
+	for <io-uring@archiver.kernel.org>; Mon,  8 Nov 2021 13:49:53 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3138260E05
-	for <io-uring@archiver.kernel.org>; Sat,  6 Nov 2021 11:49:57 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3D10C61178
+	for <io-uring@archiver.kernel.org>; Mon,  8 Nov 2021 13:49:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234083AbhKFLwh (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sat, 6 Nov 2021 07:52:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54648 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234085AbhKFLwg (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Sat, 6 Nov 2021 07:52:36 -0400
-Received: from mail-pg1-x52a.google.com (mail-pg1-x52a.google.com [IPv6:2607:f8b0:4864:20::52a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B197AC061570
-        for <io-uring@vger.kernel.org>; Sat,  6 Nov 2021 04:49:55 -0700 (PDT)
-Received: by mail-pg1-x52a.google.com with SMTP id g184so10633712pgc.6
-        for <io-uring@vger.kernel.org>; Sat, 06 Nov 2021 04:49:55 -0700 (PDT)
+        id S240097AbhKHNwg (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Mon, 8 Nov 2021 08:52:36 -0500
+Received: from mx0a-00069f02.pphosted.com ([205.220.165.32]:52390 "EHLO
+        mx0a-00069f02.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S238814AbhKHNwg (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Mon, 8 Nov 2021 08:52:36 -0500
+Received: from pps.filterd (m0246617.ppops.net [127.0.0.1])
+        by mx0b-00069f02.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1A8D0d8w008796;
+        Mon, 8 Nov 2021 13:49:51 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=date : from : to : cc
+ : subject : message-id : content-type : mime-version; s=corp-2021-07-09;
+ bh=i3pi22l8iJePjFaFknTDtVJ9TRx97g6w/18uN/tdHiI=;
+ b=0uYyg2njJVD8W7oMlN/ndB9PibGCLX7Lbu+LTs4M8J4mxlPBxRgjgcT5RNULUKlrMed4
+ fuPGP3AtJw3N5gglt6H8BTAhPR4J5M2Rpjnn/KR56rgOEtUXkXdO3l7lN1gPb+iniXzn
+ kgH0jwSnU7eu5uYQZSYyKrVOB9VhcrGtywHzZqs7tBAVsF5Ug5S870kEHuG5ZBMkDX54
+ ZW8xwNkkjwYYKZqMjaN2/C36WWG6kLfLfLMHQNJcHkSBtoHW2yqYHsq4sR8xhUgeTNl/
+ RXLnDhg1587Hah+CYswScFbnE1fhYoOT/9MVCBwMs+JWWqFBWLDR9HfSbAA8AAEjosye ww== 
+Received: from aserp3030.oracle.com (aserp3030.oracle.com [141.146.126.71])
+        by mx0b-00069f02.pphosted.com with ESMTP id 3c6vkqtyf1-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 08 Nov 2021 13:49:50 +0000
+Received: from pps.filterd (aserp3030.oracle.com [127.0.0.1])
+        by aserp3030.oracle.com (8.16.1.2/8.16.1.2) with SMTP id 1A8DjvcV001745;
+        Mon, 8 Nov 2021 13:49:49 GMT
+Received: from nam11-dm6-obe.outbound.protection.outlook.com (mail-dm6nam11lp2171.outbound.protection.outlook.com [104.47.57.171])
+        by aserp3030.oracle.com with ESMTP id 3c5frcamnq-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 08 Nov 2021 13:49:49 +0000
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=CEsUMG2pqug58H7r5AFplI10sXKjC7LMyghTEXaKIQBOxp4Mm6x2xRWKCY+dX3vVySZQU7x6MbPsUqoWz7jSmcltixT2dtxz3+G3VIKHaQ88EgrTHHJ57/2wJY4D9u+0V+pEdvLBhonoDpWogQTsCXvi3Kb42GtUL7Cc0rLRqPm86wgAeGJK5/wsYM6qtM9EXsXKC38eamsTUHPFWkDjanVwvKLN8bcq0OXMSr7H3Pzy/BYHESF/Mel6gtCR8LM+79jwGA0Q1rjBdSpOB/rVa7uF96F4CZEbdER5A5W2hA4NTU3ldUilpC3ys5UFiGUKbFEGEOA1n0em/ietKMbWBw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=i3pi22l8iJePjFaFknTDtVJ9TRx97g6w/18uN/tdHiI=;
+ b=LadcszNIwKZmCnZncmCEypZV2wI3g1oVDn1gRuQ+2aBnU6yuaqQ5EOFSiGaPj+f01AFMPIcs0QxRXINQ4WZrVti0BOdbv4CoHr4/SWkbt5aPcotaDyntKapmPv2ZKxmdKLrFDlrmtd7Pu/6/MhSnjVV3bi/WW1Wp1QeW0ynw3V1uBi1Xw+O4AklUOcpxSaJfN0xwcaGJJXoIhARufPkjtHbqlLiQLt9udAieJNuMbnwSOLuWAWR9tc/eucW/nCRd7a69CK/Pa2jkf7Ov4g1RuiQiwSszn2lqMQ5K795aUpRgYSbu9DjuFFq+AwI244Fnl365+gV02IBGQ84bO3ikjg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
+ dkim=pass header.d=oracle.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=amikom.ac.id; s=google;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=FM3wtvaG2XrblgYUFyvsUSoOMlh848KfMYjleJ2jHvQ=;
-        b=VMHzsFJyNyI9OIy8FSfAAW5qxnOTJcHDFgdzZijFS3prqe2PECH86tcaU8O9W9pmB3
-         W6cMa6bgSm3ynSuOL4zqFdbGgeCcnY6av/oLbyqMTjXZEQkWLAe3OI3ywP8FZkMFJIho
-         TdOA8Xf1mR11l4MfAq+9jhZojIqljwljZFX9pijpJ5uvQiovDDKe15g+6UYlCTu9iFnm
-         TN2si1fY0LiBCR+Q0paduL593avpxt+bgDyq767bg/pnUUdQRchkunD0LY34sfDvXCtp
-         wuk50ncy+NJD1F3JQ0Q7C9cQt+aF0fs9pcuciJvVhnAiLPQqxs2GpGmEO3gyJxu0Lb+4
-         znLw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=FM3wtvaG2XrblgYUFyvsUSoOMlh848KfMYjleJ2jHvQ=;
-        b=D+X/xFb7JowBwkOjG6GpmNnlqxeVaF42yU9fpB8uGCB/QYtLm32IwPxzgC54Rczp3t
-         w5UgvkDGo7SJDAtLMGeL4948v5UbKSPDLsKNwvr45ZhCwstPZG6yAQqUobuFyMbhm9bT
-         NWr+L882zu/2j3P5t0fNQ3d0kdnkksqXGJ0voIWeGOd3DGZJxHqHq3bo4agUbgX9Vadj
-         Hz7v1c78ZuvS21p/gT+CBYiVMygTEamuWQJI6wDzt56W6ujTImx+ks3OWdTdluiBT7NM
-         O5kl5dbibbc2Aj1CtMZ4bzuiYmmqW+OKvBox+ASWRcrhWwJw2N+nVKwYuNPhZlF0qlvv
-         uO1w==
-X-Gm-Message-State: AOAM533BO+4tFkn65F7oMToncSOTnDksvOJdHlOawd5VmBoivR4/S6NS
-        wcX4fdMLeowVXSlDoC4ud+TsXA==
-X-Google-Smtp-Source: ABdhPJzrOEfFRS/QUA2tLQpvGlpBEgUoK/CQLTHedTUqY6wju9htQRC8dYb6JBsOfP2pMNyrQLAN5w==
-X-Received: by 2002:a63:2c4f:: with SMTP id s76mr49499939pgs.155.1636199395022;
-        Sat, 06 Nov 2021 04:49:55 -0700 (PDT)
-Received: from integral.. ([182.2.38.101])
-        by smtp.gmail.com with ESMTPSA id g6sm2993141pfv.162.2021.11.06.04.49.52
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 06 Nov 2021 04:49:54 -0700 (PDT)
-From:   Ammar Faizi <ammar.faizi@students.amikom.ac.id>
-To:     Jens Axboe <axboe@kernel.dk>
-Cc:     Ammar Faizi <ammar.faizi@students.amikom.ac.id>,
-        Pavel Begunkov <asml.silence@gmail.com>,
-        io-uring Mailing List <io-uring@vger.kernel.org>,
-        Bedirhan KURT <windowz414@gnuweeb.org>
-Subject: [PATCH v6 liburing] test: Add kworker-hang test
-Date:   Sat,  6 Nov 2021 18:49:42 +0700
-Message-Id: <20211106114758.458535-1-ammar.faizi@intel.com>
-X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20211106113506.457208-1-ammar.faizi@intel.com>
-References: <20211106113506.457208-1-ammar.faizi@intel.com>
+ d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=i3pi22l8iJePjFaFknTDtVJ9TRx97g6w/18uN/tdHiI=;
+ b=iTYfnq3AW7hesF7Rrh0BA1Wv2NFBjNfb8C61WDzmfjJfW9fda0RhBUsJxew39/NMv53XnpQW2nXWfwzLuGFNYDcHyu6isJKX5OsRQDsTL3VxXHSsFM2E1IKtDXcwrXDU+NlwBhardKQCDVjZdqckOACdEeS8WVj8+Zk1msT2Zeo=
+Authentication-Results: gmail.com; dkim=none (message not signed)
+ header.d=none;gmail.com; dmarc=none action=none header.from=oracle.com;
+Received: from MWHPR1001MB2365.namprd10.prod.outlook.com
+ (2603:10b6:301:2d::28) by MWHPR10MB1615.namprd10.prod.outlook.com
+ (2603:10b6:301:7::21) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4669.15; Mon, 8 Nov
+ 2021 13:49:47 +0000
+Received: from MWHPR1001MB2365.namprd10.prod.outlook.com
+ ([fe80::d409:11b5:5eb2:6be9]) by MWHPR1001MB2365.namprd10.prod.outlook.com
+ ([fe80::d409:11b5:5eb2:6be9%5]) with mapi id 15.20.4669.016; Mon, 8 Nov 2021
+ 13:49:47 +0000
+Date:   Mon, 8 Nov 2021 16:49:37 +0300
+From:   Dan Carpenter <dan.carpenter@oracle.com>
+To:     asml.silence@gmail.com
+Cc:     io-uring@vger.kernel.org
+Subject: [bug report] io_uring: return iovec from __io_import_iovec
+Message-ID: <20211108134937.GA2863@kili>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.10.1 (2018-07-13)
+X-ClientProxiedBy: AM5PR0701CA0072.eurprd07.prod.outlook.com
+ (2603:10a6:203:2::34) To MWHPR1001MB2365.namprd10.prod.outlook.com
+ (2603:10b6:301:2d::28)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Received: from kili (102.222.70.114) by AM5PR0701CA0072.eurprd07.prod.outlook.com (2603:10a6:203:2::34) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4690.5 via Frontend Transport; Mon, 8 Nov 2021 13:49:45 +0000
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: a4302ec2-fff6-4475-c4a8-08d9a2bea084
+X-MS-TrafficTypeDiagnostic: MWHPR10MB1615:
+X-Microsoft-Antispam-PRVS: <MWHPR10MB16155E92A0B1D1DF0C00EDCF8E919@MWHPR10MB1615.namprd10.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:118;
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: XIetaOc13MmLz2U6gp4xanyh8rxtbAMjShd1gZYAv1pL4VcU+3/2zjVCkLGwB4he1JI0/IDzVmMx3o9fb0bmgvtcr5nT2225XqKPn84kz4mSpEac4pmNpE4LdwVdF07/BTn8DO2QXLBRspYpNd/Hdu/YUhxyewSRbK/WDfS7tudxqNSxDRVyGmSGxoDxLbReOIYzBtvDK2gD86Fyeln7NTn2ndWaJymqvkngHzT4GIKwGOBH56VfVIqK4/eUSefqRzpoZXbPW/nSwXxhXjjX/1cJFBQoybxE468rIpnxQrF0CGcLc4T2sRGbmEopacg99jz3d2dVISeujbuoagWjxqM4odBwjCeWzpk2Sl/fY7UwUmaLt9ZY9RfuQkr/jSzQrGJ6t2L6Pta3TIiG7/XjXqTig5Fa+D9aWD/Fj0A03hiR2Hp06xuDFVyOnNckCxk5FIwDalYS038oWYJfehWcnPH7mwdgSnmpSmXnSO1ehHbWijEBzgoI2TKO+ZH9fbxYCZ5gJy7ssy6L3ljaI8N2pRONpJFIVSREJ/KLgOOdXFGlBHhc2p1D5rXD3iIxjeuVY1Q7uygP4r5SFeEcDP+uFmKGBwuzsTPjvuJQbgjSrfa0vgQeXlCFQOvAY9wAQw8uifYY7PjJNekXetmVW7P4ZISKPmK0E7cuNi8zfpTtNodE8kZLzlejA1PUQBZ0DPv1C/ZtU/JVJtkZIxYvKMd81A==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MWHPR1001MB2365.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(366004)(6496006)(8676002)(8936002)(6666004)(5660300002)(9576002)(52116002)(55016002)(508600001)(6916009)(66476007)(66946007)(1076003)(66556008)(26005)(186003)(44832011)(4326008)(9686003)(86362001)(956004)(38100700002)(2906002)(316002)(38350700002)(33716001)(33656002)(83380400001);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?pp7enLIZKjvZBTOfY5iH6nwAU+mGDJn50y2MhTyVepEWjYGUWiQnBUrGb4cY?=
+ =?us-ascii?Q?64vahuy6xKbfo0htAoIASaGLGEdmhO6llEjTbNSfY45oLB3T68/RuAUufhJE?=
+ =?us-ascii?Q?+9isToEGR0oJYnauyGpAkhg6RwPjhgntav6cieIg9WOLBQr8qCnNA4scIzbH?=
+ =?us-ascii?Q?P/nxBB+eobzq0kTvbI/AB/Ak8u5fRguz6xGpepDrcy1aJyLt6ZPnIpzv/Wn4?=
+ =?us-ascii?Q?70Q+4te+Lx9j4xp6Kh7j76ivUnsVh/ebUl5CIq0cnElkK2VEJaNnLSBM2PAc?=
+ =?us-ascii?Q?lXpIAGUb+ZVyCAiJ50Bp1V145GdPzHm09QrKk6vO/+kDOpkdeARO6YLuTH8M?=
+ =?us-ascii?Q?6Fh5tmnUaLsXRNiHQnoQkjnk8UEPDTltwhbXUOJ5DadSPSzqMTIX9EXBB7d/?=
+ =?us-ascii?Q?ou03Cj8hd+RwwhlBXvUVs7PslIV9j2BXwQ6gcy13iJTUu0S53Po8/m3CUSvz?=
+ =?us-ascii?Q?Ui68sbzHb+xin5hlXU9Z16ilpQ96umz0cRwOBOR0vRUzmwnS65l69Qdowxv5?=
+ =?us-ascii?Q?hFehdTTc0rPbWh/lKocrqYEH3d3kzkwz9cXJ2focy9e3ZOdhahvLFFOIT4uU?=
+ =?us-ascii?Q?X+J0Lry+HI6hIPxEhgCZZLTWxtoHLGgBVzx/SCEXA/8k6HEpxXBtYpGEivVP?=
+ =?us-ascii?Q?RA0boL1PpKE5ztGgdUAL0EwHmh67PStiL+29+JnSP4V4J0idGM7lvamZAt+7?=
+ =?us-ascii?Q?RUgDj3pP4nCvxk42K6rl5ZXakwIkv41VAtca3RJvfP8ZKfTqmoKksDITnOFC?=
+ =?us-ascii?Q?Z/OXsl3KgcLmPdr6cMTaVFRvOlVOVD06cIsVhAh51Mn9wd4ZmaZ1xOottu47?=
+ =?us-ascii?Q?a727Pv26s5hkDlIiedoiMJlrikT9VmWXdzHTtqitFyP6B7s0XSsOGaUBvGkJ?=
+ =?us-ascii?Q?t4viCXMkk8EhgnWbra5lB7H9yFqCTwIgBy/o5qg+wLpEGQgHTOGh3FUyz6aj?=
+ =?us-ascii?Q?WnTX1yvDCmFEDnNhldg78n88DWCnhIL2JMnFr7g52SCFLIST81WF+sFZvGF2?=
+ =?us-ascii?Q?AOQetvVYYr/TOonJVBFW0qNCpp1HU6SEp1tUNIw0mLFOu6mb7pOYIKhEFcva?=
+ =?us-ascii?Q?4QVxxHf36sCYpcOZ6pv/WLA5k7sWaCeEcTwDnTGMgLRDEkMnFv3YpjASBk+1?=
+ =?us-ascii?Q?RFb/e4lYl+USPA1X0WTjhnPf1A9w1ABm6J6cea9tC3+BxIRQn7rLF7mOtcZE?=
+ =?us-ascii?Q?u/yxeGZzoCtIzMPGsbx/ethSNVyP+hjIGbktcEw3lY88/BHivMTPYrrOP7FW?=
+ =?us-ascii?Q?SyI33fITuYfaQ5CT6jh1ipNRJYDqVyVYkt4JnIO+7rHcHoVcDL3nqxjj6C+Q?=
+ =?us-ascii?Q?aENJ0M/jZnx7Jz7cUy837n2fH5s4sOaFZmUcBrzyzABEgkxMAlMxNrNC8mm+?=
+ =?us-ascii?Q?Li45K0jDvE+YlGh9WmErT2IOEidIRlppbQGsEwrTnEZSfrC4G2h89DulAngi?=
+ =?us-ascii?Q?3odXJ8AnAQC9p3pzvXkiUgrwn28fQn8Sx966iY+ZDdqlOw2gFGioXAF74Cyi?=
+ =?us-ascii?Q?ewSKWOzYl95UWm3KISKZStpbAuRxL2gkU9J1Z2xdFAU6hflAGaaoISr5QS/u?=
+ =?us-ascii?Q?RIvISMW+MKFaO8CfS4KLOpNnCwxAKmIRstkjtCevXQ7JdVBvwSKIErBMedAO?=
+ =?us-ascii?Q?nsQIea3mLdNt+fpNRQwEpa7dAm3qbkHq6RZEShIwA0IVR68z5WOrgUVEeW9h?=
+ =?us-ascii?Q?+Glu3Z1i1FRZ69uzbZRo+O9/x1I=3D?=
+X-OriginatorOrg: oracle.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: a4302ec2-fff6-4475-c4a8-08d9a2bea084
+X-MS-Exchange-CrossTenant-AuthSource: MWHPR1001MB2365.namprd10.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 08 Nov 2021 13:49:47.3875
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: oUeq/zPTIOUmNTM4Wg5AUi1HHzFp1Q8bwouDOCmzyoFquuMWWzCDRo8B7+HXBXRaDdWFmnUSIVsyqylcGaJJJ6c6Rn2WRbrTCLfRrFuCCGw=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MWHPR10MB1615
+X-Proofpoint-Virus-Version: vendor=nai engine=6300 definitions=10161 signatures=668683
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxlogscore=804 mlxscore=0
+ suspectscore=0 bulkscore=0 spamscore=0 phishscore=0 malwarescore=0
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2110150000 definitions=main-2111080085
+X-Proofpoint-GUID: p7gIaHQkfUwD_f29y8YOaTlT2bRhIBHQ
+X-Proofpoint-ORIG-GUID: p7gIaHQkfUwD_f29y8YOaTlT2bRhIBHQ
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-This is the reproducer for the kworker hang bug.
+Hello Pavel Begunkov,
 
-Reproduction Steps:
-  1) A user task calls io_uring_queue_exit().
+The patch caa8fe6e86fd: "io_uring: return iovec from
+__io_import_iovec" from Oct 15, 2021, leads to the following Smatch
+static checker warning:
 
-  2) Suspend the task with SIGSTOP / SIGTRAP before the ring exit is
-     finished (do it as soon as step (1) is done).
+	fs/io_uring.c:3218 __io_import_iovec()
+	warn: passing zero to 'ERR_PTR'
 
-  3) Wait for `/proc/sys/kernel/hung_task_timeout_secs` seconds
-     elapsed.
+fs/io_uring.c
+    3178 static struct iovec *__io_import_iovec(int rw, struct io_kiocb *req,
+    3179                                        struct io_rw_state *s,
+    3180                                        unsigned int issue_flags)
+    3181 {
+    3182         struct iov_iter *iter = &s->iter;
+    3183         u8 opcode = req->opcode;
+    3184         struct iovec *iovec;
+    3185         void __user *buf;
+    3186         size_t sqe_len;
+    3187         ssize_t ret;
+    3188 
+    3189         BUILD_BUG_ON(ERR_PTR(0) != NULL);
 
-  4) We get a complaint from the khungtaskd because the kworker is
-     stuck in an uninterruptible state (D).
+This is super paranoid.  :P
 
-The kworkers waiting on ring exit are not progressing as the task
-cannot proceed. When the user task is continued (e.g. get SIGCONT
-after SIGSTOP, or continue after SIGTRAP breakpoint), the kworkers
-then can finish the ring exit.
+    3190 
+    3191         if (opcode == IORING_OP_READ_FIXED || opcode == IORING_OP_WRITE_FIXED)
+    3192                 return ERR_PTR(io_import_fixed(req, rw, iter));
+    3193 
+    3194         /* buffer index only valid with fixed read/write, or buffer select  */
+    3195         if (unlikely(req->buf_index && !(req->flags & REQ_F_BUFFER_SELECT)))
+    3196                 return ERR_PTR(-EINVAL);
+    3197 
+    3198         buf = u64_to_user_ptr(req->rw.addr);
+    3199         sqe_len = req->rw.len;
+    3200 
+    3201         if (opcode == IORING_OP_READ || opcode == IORING_OP_WRITE) {
+    3202                 if (req->flags & REQ_F_BUFFER_SELECT) {
+    3203                         buf = io_rw_buffer_select(req, &sqe_len, issue_flags);
+    3204                         if (IS_ERR(buf))
+    3205                                 return ERR_CAST(buf);
+    3206                         req->rw.len = sqe_len;
+    3207                 }
+    3208 
+    3209                 ret = import_single_range(rw, buf, sqe_len, s->fast_iov, iter);
+    3210                 return ERR_PTR(ret);
 
-We need a special handling for this case to avoid khungtaskd
-complaint. Currently we don't have the fix for this.
+This return and
 
-The dmesg says:
+    3211         }
+    3212 
+    3213         iovec = s->fast_iov;
+    3214         if (req->flags & REQ_F_BUFFER_SELECT) {
+    3215                 ret = io_iov_buffer_select(req, iovec, issue_flags);
+    3216                 if (!ret)
+    3217                         iov_iter_init(iter, rw, iovec, 1, iovec->iov_len);
+--> 3218                 return ERR_PTR(ret);
 
-  [247390.432294] INFO: task kworker/u8:2:358488 blocked for more than 10 seconds.
-  [247390.432314]       Tainted: G           OE     5.15.0-stable #5
-  [247390.432322] "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
-  [247390.432329] task:kworker/u8:2    state:D stack:    0 pid:358488 ppid:     2 flags:0x00004000
-  [247390.432341] Workqueue: events_unbound io_ring_exit_work
-  [247390.432354] Call Trace:
-  [247390.432368]  __schedule+0x453/0x1850
-  [247390.432388]  ? lock_acquire+0xc8/0x2d0
-  [247390.432404]  ? usleep_range+0x90/0x90
-  [247390.432412]  schedule+0x59/0xc0
-  [247390.432420]  schedule_timeout+0x1aa/0x1f0
-  [247390.432429]  ? mark_held_locks+0x49/0x70
-  [247390.432439]  ? lockdep_hardirqs_on_prepare+0xff/0x180
-  [247390.432445]  ? _raw_spin_unlock_irq+0x24/0x40
-  [247390.432456]  __wait_for_common+0xc2/0x170
-  [247390.432473]  io_ring_exit_work+0x1d9/0x750
-  [247390.432486]  ? io_uring_del_tctx_node+0xe0/0xe0
-  [247390.432502]  ? verify_cpu+0xf0/0x100
-  [247390.432520]  process_one_work+0x23b/0x550
-  [247390.432540]  worker_thread+0x55/0x3c0
-  [247390.432546]  ? process_one_work+0x550/0x550
-  [247390.432556]  kthread+0x140/0x160
-  [247390.432564]  ? set_kthread_struct+0x40/0x40
-  [247390.432574]  ret_from_fork+0x1f/0x30
-  [247390.432605] INFO: task kworker/u8:0:359615 blocked for more than 10 seconds.
-  [247390.432613]       Tainted: G           OE     5.15.0-stable #5
-  [247390.432620] "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
-  [247390.432626] task:kworker/u8:0    state:D stack:    0 pid:359615 ppid:     2 flags:0x00004000
-  [247390.432635] Workqueue: events_unbound io_ring_exit_work
-  [247390.432643] Call Trace:
-  [247390.432653]  __schedule+0x453/0x1850
-  [247390.432676]  ? usleep_range+0x90/0x90
-  [247390.432684]  schedule+0x59/0xc0
-  [247390.432691]  schedule_timeout+0x1aa/0x1f0
-  [247390.432700]  ? mark_held_locks+0x49/0x70
-  [247390.432710]  ? lockdep_hardirqs_on_prepare+0xff/0x180
-  [247390.432717]  ? _raw_spin_unlock_irq+0x24/0x40
-  [247390.432728]  __wait_for_common+0xc2/0x170
-  [247390.432744]  io_ring_exit_work+0x1d9/0x750
-  [247390.432758]  ? io_uring_del_tctx_node+0xe0/0xe0
-  [247390.432772]  ? verify_cpu+0xf0/0x100
-  [247390.432788]  process_one_work+0x23b/0x550
-  [247390.432807]  worker_thread+0x55/0x3c0
-  [247390.432813]  ? process_one_work+0x550/0x550
-  [247390.432824]  kthread+0x140/0x160
-  [247390.432830]  ? set_kthread_struct+0x40/0x40
-  [247390.432839]  ret_from_fork+0x1f/0x30
-  [247390.432870]
-                  Showing all locks held in the system:
-  [247390.432877] 1 lock held by khungtaskd/40:
-  [247390.432880]  #0: ffffffff82976700 (rcu_read_lock){....}-{1:2}, at: debug_show_all_locks+0x15/0x174
-  [247390.432911] 1 lock held by in:imklog/922:
-  [247390.432915]  #0: ffff8881041cfcf0 (&f->f_pos_lock){+.+.}-{3:3}, at: __fdget_pos+0x4a/0x60
-  [247390.432977] 2 locks held by pager/318088:
-  [247390.432981]  #0: ffff8881208d4898 (&tty->ldisc_sem){++++}-{0:0}, at: tty_ldisc_ref_wait+0x24/0x50
-  [247390.433001]  #1: ffffc900010fd2e8 (&ldata->atomic_read_lock){+.+.}-{3:3}, at: n_tty_read+0x49e/0x660
-  [247390.433024] 1 lock held by htop/341462:
-  [247390.433032] 2 locks held by kworker/u8:2/358488:
-  [247390.433035]  #0: ffff888100106938 ((wq_completion)events_unbound){+.+.}-{0:0}, at: process_one_work+0x1c1/0x550
-  [247390.433053]  #1: ffffc90003797e70 ((work_completion)(&ctx->exit_work)){+.+.}-{0:0}, at: process_one_work+0x1c1/0x550
-  [247390.433071] 2 locks held by kworker/u8:0/359615:
-  [247390.433075]  #0: ffff888100106938 ((wq_completion)events_unbound){+.+.}-{0:0}, at: process_one_work+0x1c1/0x550
-  [247390.433092]  #1: ffffc90003597e70 ((work_completion)(&ctx->exit_work)){+.+.}-{0:0}, at: process_one_work+0x1c1/0x550
-  [247390.433110] 1 lock held by dmesg/361178:
-  [247390.433113]  #0: ffff88810b5300d0 (&user->lock){+.+.}-{3:3}, at: devkmsg_read+0x4b/0x230
+this return return NULL on success and it's intentional, but there is
+no documentation so you have to fall back to `git log -p` to understand
+what's going on...  :/
 
-  [247390.433134] =============================================
+    3219         }
+    3220 
+    3221         ret = __import_iovec(rw, buf, sqe_len, UIO_FASTIOV, &iovec, iter,
+    3222                               req->ctx->compat);
+    3223         if (unlikely(ret < 0))
+    3224                 return ERR_PTR(ret);
+    3225         return iovec;
+    3226 }
 
-Cc: Pavel Begunkov <asml.silence@gmail.com>
-Link: https://github.com/axboe/liburing/issues/448
-Signed-off-by: Ammar Faizi <ammar.faizi@students.amikom.ac.id>
----
- 
- v6:
-   - Fix missing call to restore_hung_entries() when fork() fails.
-
- .gitignore          |   1 +
- test/Makefile       |   1 +
- test/kworker-hang.c | 323 ++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 325 insertions(+)
- create mode 100644 test/kworker-hang.c
-
-diff --git a/.gitignore b/.gitignore
-index fb3a859..b0f5edf 100644
---- a/.gitignore
-+++ b/.gitignore
-@@ -65,6 +65,7 @@
- /test/io_uring_register
- /test/io_uring_setup
- /test/iopoll
-+/test/kworker-hang
- /test/lfs-openat
- /test/lfs-openat-write
- /test/link
-diff --git a/test/Makefile b/test/Makefile
-index f7eafad..2af684a 100644
---- a/test/Makefile
-+++ b/test/Makefile
-@@ -83,6 +83,7 @@ test_srcs := \
- 	io_uring_enter.c \
- 	io_uring_register.c \
- 	io_uring_setup.c \
-+	kworker-hang.c \
- 	lfs-openat.c \
- 	lfs-openat-write.c \
- 	link.c \
-diff --git a/test/kworker-hang.c b/test/kworker-hang.c
-new file mode 100644
-index 0000000..15147c6
---- /dev/null
-+++ b/test/kworker-hang.c
-@@ -0,0 +1,323 @@
-+/* SPDX-License-Identifier: MIT */
-+
-+/*
-+ * kworker-hang
-+ *
-+ * Link: https://github.com/axboe/liburing/issues/448
-+ */
-+
-+#include <dirent.h>
-+#include <errno.h>
-+#include <stdio.h>
-+#include <unistd.h>
-+#include <stdlib.h>
-+#include <string.h>
-+#include <fcntl.h>
-+#include <sys/types.h>
-+#include <sys/poll.h>
-+#include <sys/eventfd.h>
-+#include <sys/resource.h>
-+#include <sys/wait.h>
-+
-+#include "helpers.h"
-+#include "liburing.h"
-+
-+#define NR_RINGS			2
-+
-+/*
-+ * WAIT_FOR_KWORKER_SECS can be any longer, but to make
-+ * the test short, 10 seconds should be enough.
-+ */
-+#define WAIT_FOR_KWORKER_SECS		10
-+#define WAIT_FOR_KWORKER_SECS_STR	"10"
-+
-+static bool is_all_numeric(const char *pid)
-+{
-+	size_t i, l;
-+	char c;
-+
-+	l = strnlen(pid, 32);
-+	if (l == 0)
-+		return false;
-+
-+	for (i = 0; i < l; i++) {
-+		c = pid[i];
-+		if (!('0' <= c && c <= '9'))
-+			return false;
-+	}
-+
-+	return true;
-+}
-+
-+static bool is_kworker_event_unbound(const char *pid)
-+{
-+	int fd;
-+	bool ret = false;
-+	char fpath[256];
-+	char read_buf[256] = { };
-+	ssize_t read_size;
-+
-+	snprintf(fpath, sizeof(fpath), "/proc/%s/comm", pid);
-+
-+	fd = open(fpath, O_RDONLY);
-+	if (fd < 0)
-+		return false;
-+
-+	read_size = read(fd, read_buf, sizeof(read_buf) - 1);
-+	if (read_size < 0)
-+		goto out;
-+
-+	if (!strncmp(read_buf, "kworker", 7) && strstr(read_buf, "events_unbound"))
-+		ret = true;
-+out:
-+	close(fd);
-+	return ret;
-+}
-+
-+static bool is_on_io_ring_exit_work(const char *pid)
-+{
-+	int fd;
-+	bool ret = false;
-+	char fpath[256];
-+	char read_buf[4096] = { };
-+	ssize_t read_size;
-+
-+	snprintf(fpath, sizeof(fpath), "/proc/%s/stack", pid);
-+
-+	fd = open(fpath, O_RDONLY);
-+	if (fd < 0)
-+		return false;
-+
-+	read_size = read(fd, read_buf, sizeof(read_buf) - 1);
-+	if (read_size < 0)
-+		goto out;
-+
-+	if (strstr(read_buf, "io_ring_exit_work"))
-+		ret = true;
-+out:
-+	close(fd);
-+	return ret;
-+}
-+
-+static bool is_in_d_state(const char *pid)
-+{
-+	int fd;
-+	bool ret = false;
-+	char fpath[256];
-+	char read_buf[4096] = { };
-+	ssize_t read_size;
-+	const char *p = read_buf;
-+
-+	snprintf(fpath, sizeof(fpath), "/proc/%s/stat", pid);
-+
-+	fd = open(fpath, O_RDONLY);
-+	if (fd < 0)
-+		return false;
-+
-+	read_size = read(fd, read_buf, sizeof(read_buf) - 1);
-+	if (read_size < 0)
-+		goto out;
-+
-+	/*
-+	 * It looks like this:
-+	 * 9384 (kworker/u8:8+events_unbound) D 2 0 0 0 -1 69238880 0 0 0 0 0 0 0 0 20 0 1 0
-+	 *
-+	 * Catch the 'D'!
-+	 */
-+	while (*p != ')') {
-+		p++;
-+		if (&p[2] >= &read_buf[sizeof(read_buf) - 1])
-+			/*
-+			 * /proc/$pid/stack shows the wrong output?
-+			 */
-+			goto out;
-+	}
-+
-+	ret = (p[2] == 'D');
-+out:
-+	close(fd);
-+	return ret;
-+}
-+
-+/*
-+ * Return 1 if we have kworkers hang or fail to open `/proc`.
-+ */
-+static int scan_kworker_hang(void)
-+{
-+	DIR *dr;
-+	int ret = 0;
-+	struct dirent *de;
-+
-+	dr = opendir("/proc");
-+	if (dr == NULL) {
-+		perror("opendir");
-+		return 1;
-+	}
-+
-+	while (1) {
-+		const char *pid;
-+
-+		de = readdir(dr);
-+		if (!de)
-+			break;
-+
-+		pid = de->d_name;
-+		if (!is_all_numeric(pid))
-+			continue;
-+
-+		if (!is_kworker_event_unbound(pid))
-+			continue;
-+
-+		if (!is_on_io_ring_exit_work(pid))
-+			continue;
-+
-+		if (is_in_d_state(pid)) {
-+			/* kworker hang */
-+			fprintf(stderr, "Bug: found hang kworker on "
-+				"io_ring_exit_work /proc/%s\n", pid);
-+			ret = 1;
-+		}
-+	}
-+
-+	closedir(dr);
-+	return ret;
-+}
-+
-+static void set_hung_entries(void)
-+{
-+	const char *cmds[] = {
-+		/* Backup current values. */
-+		"cat /proc/sys/kernel/hung_task_all_cpu_backtrace > hung_task_all_cpu_backtrace.bak",
-+		"cat /proc/sys/kernel/hung_task_check_count > hung_task_check_count.bak",
-+		"cat /proc/sys/kernel/hung_task_panic > hung_task_panic.bak",
-+		"cat /proc/sys/kernel/hung_task_check_interval_secs > hung_task_check_interval_secs.bak",
-+		"cat /proc/sys/kernel/hung_task_timeout_secs > hung_task_timeout_secs.bak",
-+		"cat /proc/sys/kernel/hung_task_warnings > hung_task_warnings.bak",
-+
-+		/* Set to do the test. */
-+		"echo 1 > /proc/sys/kernel/hung_task_all_cpu_backtrace",
-+		"echo 99999999 > /proc/sys/kernel/hung_task_check_count",
-+		"echo 0 > /proc/sys/kernel/hung_task_panic",
-+		"echo 1 > /proc/sys/kernel/hung_task_check_interval_secs",
-+		"echo " WAIT_FOR_KWORKER_SECS_STR " > /proc/sys/kernel/hung_task_timeout_secs",
-+		"echo -1 > /proc/sys/kernel/hung_task_warnings",
-+	};
-+	int p;
-+	size_t i;
-+
-+	for (i = 0; i < ARRAY_SIZE(cmds); i++)
-+		p = system(cmds[i]);
-+
-+	(void)p;
-+}
-+
-+static void restore_hung_entries(void)
-+{
-+	const char *cmds[] = {
-+		/* Restore old values. */
-+		"cat hung_task_all_cpu_backtrace.bak > /proc/sys/kernel/hung_task_all_cpu_backtrace",
-+		"cat hung_task_check_count.bak > /proc/sys/kernel/hung_task_check_count",
-+		"cat hung_task_panic.bak > /proc/sys/kernel/hung_task_panic",
-+		"cat hung_task_check_interval_secs.bak > /proc/sys/kernel/hung_task_check_interval_secs",
-+		"cat hung_task_timeout_secs.bak > /proc/sys/kernel/hung_task_timeout_secs",
-+		"cat hung_task_warnings.bak > /proc/sys/kernel/hung_task_warnings",
-+
-+		/* Clean up! */
-+		"rm -f " \
-+			"hung_task_all_cpu_backtrace.bak " \
-+			"hung_task_check_count.bak " \
-+			"hung_task_panic.bak " \
-+			"hung_task_check_interval_secs.bak " \
-+			"hung_task_timeout_secs.bak " \
-+			"hung_task_warnings.bak"
-+	};
-+	int p;
-+	size_t i;
-+
-+	for (i = 0; i < ARRAY_SIZE(cmds); i++)
-+		p = system(cmds[i]);
-+
-+	(void)p;
-+}
-+
-+
-+static int run_child(void)
-+{
-+	int ret, i;
-+	struct io_uring rings[NR_RINGS];
-+
-+	for (i = 0; i < NR_RINGS; i++) {
-+		struct io_uring_params p = { };
-+
-+		ret = io_uring_queue_init_params(64, &rings[i], &p);
-+		if (ret) {
-+			fprintf(stderr, "io_uring_queue_init_params(): (%d) %s\n",
-+			        ret, strerror(-ret));
-+			return 1;
-+		}
-+	}
-+
-+	for (i = 0; i < NR_RINGS; i++)
-+		io_uring_queue_exit(&rings[i]);
-+
-+	kill(getpid(), SIGSTOP);
-+	/*
-+	 * kworkers hang right after this task sends SIGSTOP to itself.
-+	 * The parent process will check it. We are suspended here!
-+	 */
-+	return 0;
-+}
-+
-+int main(void)
-+{
-+	pid_t child_pid;
-+	int ret, wstatus = 0;
-+
-+	/*
-+	 * We need root to check /proc/$pid/stack and set /proc/sys/kernel/hung*
-+	 */
-+	if (getuid() != 0 && geteuid() != 0) {
-+		fprintf(stderr, "Skipping kworker-hang: not root\n");
-+		return 0;
-+	}
-+
-+	set_hung_entries();
-+	child_pid = fork();
-+	if (child_pid < 0) {
-+		ret = errno;
-+		fprintf(stderr, "fork(): (%d) %s\n", ret, strerror(ret));
-+		restore_hung_entries();
-+		return 1;
-+	}
-+
-+	if (!child_pid)
-+		return run_child();
-+
-+	atexit(restore_hung_entries);
-+
-+	/*
-+	 * +2 just to add small extra time for
-+	 * fork(), io_uring_setup(), close(), etc.
-+	 */
-+	sleep(WAIT_FOR_KWORKER_SECS + 2);
-+	ret = scan_kworker_hang();
-+
-+	/*
-+	 * Continue the suspended task.
-+	 */
-+	kill(child_pid, SIGCONT);
-+
-+	if (waitpid(child_pid, &wstatus, 0) < 0) {
-+		ret = errno;
-+		fprintf(stderr, "waitpid(): (%d) %s\n", ret, strerror(ret));
-+		return 1;
-+	}
-+
-+	if (!WIFEXITED(wstatus)) {
-+		fprintf(stderr, "Child process won't exit\n");
-+		return 1;
-+	}
-+
-+	/* Make sure child process exited properly as well. */
-+	return ret | WEXITSTATUS(wstatus);
-+}
--- 
-2.30.2
-
+regards,
+dan carpenter

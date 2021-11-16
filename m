@@ -2,73 +2,71 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5E461C4321E
-	for <io-uring@archiver.kernel.org>; Tue, 16 Nov 2021 06:42:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D5925C433EF
+	for <io-uring@archiver.kernel.org>; Tue, 16 Nov 2021 17:55:38 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5418E632AA
-	for <io-uring@archiver.kernel.org>; Tue, 16 Nov 2021 06:42:00 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id BB11E613A3
+	for <io-uring@archiver.kernel.org>; Tue, 16 Nov 2021 17:55:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234553AbhKPGlG (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Tue, 16 Nov 2021 01:41:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43954 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234463AbhKPGkl (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Tue, 16 Nov 2021 01:40:41 -0500
-Received: from out1.migadu.com (out1.migadu.com [IPv6:2001:41d0:2:863f::])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7097C061746;
-        Mon, 15 Nov 2021 22:32:37 -0800 (PST)
-MIME-Version: 1.0
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=cmpwn.com; s=key1;
-        t=1637044355;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=grpzxEghztc5Qa8gVHDO4iWZ6E6Q47JzcLyl8tfJjZw=;
-        b=RODkIUUmmlH8V+ixcJqD/r8M5N4EE/o9UdaursBlFlxIkiBAi7Gzx6ZWvKSnxZ/ZaN3owQ
-        kcOQpYdgwdRiSs3KpUv2oA/965DQjtuRQ3OeNRgEnKfzZ02xyVlJlC1uwHYA3JDVxuR2/u
-        zw5VQQxveqVcXQpyGLiDhI3fTSInjbK8naIgrpOkc9mn2bxuQeu8+Osa39MbnIdHV/QAhS
-        1yd7SfQ50nEuSzLENCuOEQKKfFZ4nY6BRCGN1eQ+wLN66Mv5ceeloX1AT5Sw3Zys0lyTv0
-        0Y2fWNi65rcr8OQHL2cH98ZPUNiNi77MQUCwwnEJWGS1sjSDKGyE5Pd/5x5KRg==
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset=UTF-8
-Date:   Tue, 16 Nov 2021 07:32:33 +0100
-Message-Id: <CFQZSHV700KV.18Y62SACP8KOO@taiga>
-Cc:     <linux-kernel@vger.kernel.org>, <linux-api@vger.kernel.org>,
-        "io_uring Mailing List" <io-uring@vger.kernel.org>,
-        "Jens Axboe" <axboe@kernel.dk>,
-        "Pavel Begunkov" <asml.silence@gmail.com>, <linux-mm@kvack.org>
-Subject: Re: [PATCH] Increase default MLOCK_LIMIT to 8 MiB
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-From:   "Drew DeVault" <sir@cmpwn.com>
-To:     "Andrew Morton" <akpm@linux-foundation.org>,
-        "Ammar Faizi" <ammarfaizi2@gnuweeb.org>
-References: <20211028080813.15966-1-sir@cmpwn.com>
- <CAFBCWQ+=2T4U7iNQz_vsBsGVQ72s+QiECndy_3AMFV98bMOLow@mail.gmail.com>
- <CFII8LNSW5XH.3OTIVFYX8P65Y@taiga>
- <593aea3b-e4a4-65ce-0eda-cb3885ff81cd@gnuweeb.org>
- <20211115203530.62ff33fdae14927b48ef6e5f@linux-foundation.org>
-In-Reply-To: <20211115203530.62ff33fdae14927b48ef6e5f@linux-foundation.org>
-X-Migadu-Flow: FLOW_OUT
-X-Migadu-Auth-User: sir@cmpwn.com
+        id S239214AbhKPR6e (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Tue, 16 Nov 2021 12:58:34 -0500
+Received: from smtp-relay-canonical-0.canonical.com ([185.125.188.120]:59064
+        "EHLO smtp-relay-canonical-0.canonical.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S239188AbhKPR6d (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Tue, 16 Nov 2021 12:58:33 -0500
+Received: from ascalon (unknown [192.188.8.63])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by smtp-relay-canonical-0.canonical.com (Postfix) with ESMTPSA id 45B0F3F1BA;
+        Tue, 16 Nov 2021 17:55:34 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
+        s=20210705; t=1637085334;
+        bh=m8b9gnevWtiIUOy82hPVgZJ2g/XYbyastJRt0yGRV4c=;
+        h=From:To:Cc:Subject:Date:Message-Id;
+        b=mAQFaTxm4McWkqEatHV946SPTqP4sDiF0Nmoh4yVZEel5ok0Qig6ejMPfCaA+xUK8
+         Y4yjgtguHiyN/LRfcPua6BlG9+yhj+yQUMtm8dI1FSminbQUHrJALok6tUErR+z7vV
+         dBBTW0pY0BZKaqBisY6Xp19VyWu2xW1eaugjoC/N1/9iTvqCrOpiD+ya2sySvhBQow
+         ELXba1YpV11GQ/JrpmHOghs4nIu5dXwwR02Mb1MaeH6L7G609s6h18JRsNrWi/Q0yw
+         7FZZjWnY4ZVf5seNS4ehnF6eXGSkL2IqxeBvr/5MfUdxzhwpZz9i8k9K7aKVki2osX
+         PNqNxF0BFyH+Q==
+Received: from kamal by ascalon with local (Exim 4.90_1)
+        (envelope-from <kamal@ascalon>)
+        id 1mn2g8-0008K2-Mh; Tue, 16 Nov 2021 09:55:32 -0800
+From:   Kamal Mostafa <kamal@canonical.com>
+To:     io-uring@vger.kernel.org
+Cc:     Kamal Mostafa <kamal@canonical.com>, Jens Axboe <axboe@kernel.dk>,
+        Pavel Begunkov <asml.silence@gmail.com>,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH] io_uring: fix missed comment from *task_file rename
+Date:   Tue, 16 Nov 2021 09:55:30 -0800
+Message-Id: <20211116175530.31608-1-kamal@canonical.com>
+X-Mailer: git-send-email 2.17.1
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On Tue Nov 16, 2021 at 5:35 AM CET, Andrew Morton wrote:
-> Unfortunately I didn't know about this until Nov 4, which was formally
-> too late for 5.16. I guess I could try to sneak it past Linus if
-> someone were to send me some sufficiently convincing words explaining
-> the urgency.
+Fix comment referring to function "io_uring_del_task_file()", now called
+"io_uring_del_tctx_node()".
 
-I don't think it's that urgent, but I also wouldn't protest if someone
-wants to usher it in sooner rather than later.
+Fixes: eef51daa72f7 ("io_uring: rename function *task_file")
+Signed-off-by: Kamal Mostafa <kamal@canonical.com>
+---
+ fs/io_uring.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-> And a question: rather than messing around with a constant which will
-> need to be increased again in a couple of years, can we solve this one
-> and for all? For example, permit root to set the system-wide
-> per-process max mlock size and depend upon initscripts to do this
-> appropriately.
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index b07196b4511c..e98e7ce3dc39 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -9764,7 +9764,7 @@ static __cold void io_uring_clean_tctx(struct io_uring_task *tctx)
+ 	}
+ 	if (wq) {
+ 		/*
+-		 * Must be after io_uring_del_task_file() (removes nodes under
++		 * Must be after io_uring_del_tctx_node() (removes nodes under
+ 		 * uring_lock) to avoid race with io_uring_try_cancel_iowq().
+ 		 */
+ 		io_wq_put_and_exit(wq);
+-- 
+2.17.1
 
-Not sure I understand. Root and init scripts can already manage this
-number - the goal of this patch is just to provide a saner default.

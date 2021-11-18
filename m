@@ -2,69 +2,65 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 112D3C433FE
-	for <io-uring@archiver.kernel.org>; Thu, 18 Nov 2021 03:11:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C2A2BC433F5
+	for <io-uring@archiver.kernel.org>; Thu, 18 Nov 2021 03:14:24 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E8D8861B3F
-	for <io-uring@archiver.kernel.org>; Thu, 18 Nov 2021 03:11:04 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A9A3061882
+	for <io-uring@archiver.kernel.org>; Thu, 18 Nov 2021 03:14:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242687AbhKRDN6 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Wed, 17 Nov 2021 22:13:58 -0500
-Received: from dcvr.yhbt.net ([64.71.152.64]:41378 "EHLO dcvr.yhbt.net"
+        id S242110AbhKRDRW (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 17 Nov 2021 22:17:22 -0500
+Received: from dcvr.yhbt.net ([64.71.152.64]:45360 "EHLO dcvr.yhbt.net"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242676AbhKRDN5 (ORCPT <rfc822;io-uring@vger.kernel.org>);
-        Wed, 17 Nov 2021 22:13:57 -0500
+        id S241907AbhKRDRU (ORCPT <rfc822;io-uring@vger.kernel.org>);
+        Wed, 17 Nov 2021 22:17:20 -0500
 Received: from localhost (dcvr.yhbt.net [127.0.0.1])
-        by dcvr.yhbt.net (Postfix) with ESMTP id 3AB891FA1A;
-        Thu, 18 Nov 2021 03:10:17 +0000 (UTC)
+        by dcvr.yhbt.net (Postfix) with ESMTP id 3DB3D1F9F4;
+        Thu, 18 Nov 2021 03:14:21 +0000 (UTC)
+Date:   Thu, 18 Nov 2021 03:14:21 +0000
 From:   Eric Wong <e@80x24.org>
-To:     io-uring@vger.kernel.org
-Cc:     Liu Changcheng <changcheng.liu@aliyun.com>,
-        Stefan Metzmacher <metze@samba.org>
-Subject: [PATCH v2 7/7] make-debs: remove dependency on git
-Date:   Thu, 18 Nov 2021 03:10:16 +0000
-Message-Id: <20211118031016.354105-8-e@80x24.org>
-In-Reply-To: <20211118031016.354105-1-e@80x24.org>
-References: <20211118031016.354105-1-e@80x24.org>
+To:     Stefan Metzmacher <metze@samba.org>
+Cc:     io-uring@vger.kernel.org,
+        Liu Changcheng <changcheng.liu@aliyun.com>
+Subject: Re: [PATCH 2/4] debian: avoid prompting package builder for signature
+Message-ID: <20211118031421.M150205@dcvr>
+References: <20211116224456.244746-1-e@80x24.org>
+ <20211116224456.244746-3-e@80x24.org>
+ <8882014a-fab9-2afa-abd4-05f6941c2aa2@samba.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <8882014a-fab9-2afa-abd4-05f6941c2aa2@samba.org>
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-This allows building Debian packages from future release
-tarballs which lack a .git directory.  Also, fix a spelling
-error while we're at it.
+Stefan Metzmacher <metze@samba.org> wrote:
+> Hi Eric,
+> 
+> > diff --git a/make-debs.sh b/make-debs.sh
+> > index 136b79e..aea05f0 100755
+> > --- a/make-debs.sh
+> > +++ b/make-debs.sh
+> > @@ -20,7 +20,10 @@ set -o pipefail
+> >  
+> >  # Create dir for build
+> >  base=${1:-/tmp/release}
+> > -codename=$(lsb_release -sc)
+> > +
+> > +# UNRELEASED here means debuild won't prompt for signing
+> > +codename=UNRELEASED
+> > +
+> >  releasedir=$base/$(lsb_release -si)/liburing
+> >  rm -rf $releasedir
+> >  mkdir -p $releasedir
+> 
+> You can use DEBUILD_DPKG_BUILDPACKAGE_OPTS="--no-sign" in ~/.devscripts
+> 
+> Or we could make it possible to pass arguments down to 'debuild',
+> e.g. '-us -uc'. I'm also fine with doing that by default.
 
-Signed-off-by: Eric Wong <e@80x24.org>
----
- make-debs.sh | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
-
-diff --git a/make-debs.sh b/make-debs.sh
-index 0913c47..867612b 100755
---- a/make-debs.sh
-+++ b/make-debs.sh
-@@ -39,7 +39,12 @@ orgfile=$(echo $outfile | tr '-' '_')
- # Prepare source code
- cp -arf ${dirname}/${basename} ${releasedir}/${outfile}
- cd ${releasedir}/${outfile}
--git clean -dxf
-+if git clean -dxf
-+then
-+	rm -rf .git
-+else # building from unpacked tarball
-+	make clean
-+fi
- 
- # Change changelog if it's needed
- cur_ver=$(sed -n -e '1s/.* (\(.*\)) .*/\1/p' debian/changelog)
-@@ -47,7 +52,7 @@ if [ "$cur_ver" != "$version-1" ]; then
- 	dch -D $codename --force-distribution -b -v "$version-1" "new version"
- fi
- 
--# Create tar archieve
-+# Create tar archive
- cd ../
- tar cvzf ${outfile}.tar.gz ${outfile}
- ln -s ${outfile}.tar.gz ${orgfile}.orig.tar.gz
+Yes, I extended the commit message in v2 to note "UNRELEASED"
+is also helpful in communicating the package is an unofficial
+Debian package.  This is helpful tidbit since an official Debian
+package now exists.

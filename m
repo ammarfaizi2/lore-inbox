@@ -1,70 +1,135 @@
 Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CD2FCC433FE
-	for <io-uring@archiver.kernel.org>; Fri, 19 Nov 2021 07:42:08 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B07B461B31
-	for <io-uring@archiver.kernel.org>; Fri, 19 Nov 2021 07:42:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9E0BEC433F5
+	for <io-uring@archiver.kernel.org>; Mon, 22 Nov 2021 02:35:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231146AbhKSHpJ (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Fri, 19 Nov 2021 02:45:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51438 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230477AbhKSHpI (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Fri, 19 Nov 2021 02:45:08 -0500
-Received: from out2.migadu.com (out2.migadu.com [IPv6:2001:41d0:2:aacc::])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5314FC061574;
-        Thu, 18 Nov 2021 23:42:03 -0800 (PST)
+        id S229870AbhKVCi1 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sun, 21 Nov 2021 21:38:27 -0500
+Received: from szxga08-in.huawei.com ([45.249.212.255]:27155 "EHLO
+        szxga08-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229775AbhKVCi1 (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Sun, 21 Nov 2021 21:38:27 -0500
+Received: from canpemm500010.china.huawei.com (unknown [172.30.72.55])
+        by szxga08-in.huawei.com (SkyGuard) with ESMTP id 4HyBBp4N1Zz1DDfZ;
+        Mon, 22 Nov 2021 10:32:50 +0800 (CST)
+Received: from huawei.com (10.175.127.227) by canpemm500010.china.huawei.com
+ (7.192.105.118) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2308.20; Mon, 22 Nov
+ 2021 10:35:19 +0800
+From:   Ye Bin <yebin10@huawei.com>
+To:     <axboe@kernel.dk>, <asml.silence@gmail.com>,
+        <io-uring@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+CC:     Ye Bin <yebin10@huawei.com>
+Subject: [PATCH -next] io_uring: fix soft lockup when call __io_remove_buffers
+Date:   Mon, 22 Nov 2021 10:47:37 +0800
+Message-ID: <20211122024737.2198530-1-yebin10@huawei.com>
+X-Mailer: git-send-email 2.31.1
 MIME-Version: 1.0
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=cmpwn.com; s=key1;
-        t=1637307720;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=oBuVVC/kgOFHq2yevaI0CpADpfOSmZZoX+AnGukEpF8=;
-        b=uity+CJUCct1Lwq62Wamd1z1OodLsIo/ZRbgo0K59Ny+AUG/j2zgw7g3fKEV1GuGIaqhAT
-        W5lIXaJ63mNCp34bPiaztZ2GZTE/GM9GFUnQ2Tf3E1Pfy8PKx3j29o978w7kYkP4B+p9xk
-        5jdofR73whVGcZ9CNMwDN6wnJrWFWCKYeNBfjNl/MqZZ428/aMuAnWkGcMaXNDGQ4MeDn4
-        FfnGuzT8dNQl2pHGa0opar+68OJfAVzoX8jruEdx+HRPXrrGSGAfYMIuAIqGet2oKIVLsf
-        Yf7OzNT7J8eklU60lMw9FqmnGONC+CDYSoSn/y/74f7qW2oXOWU9e4jc76csNw==
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset=UTF-8
-Date:   Fri, 19 Nov 2021 08:41:58 +0100
-Message-Id: <CFTL5A99FTIY.38WS1HS59BT2D@taiga>
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-From:   "Drew DeVault" <sir@cmpwn.com>
-To:     "Andrew Morton" <akpm@linux-foundation.org>,
-        "Jens Axboe" <axboe@kernel.dk>
-Cc:     "Johannes Weiner" <hannes@cmpxchg.org>,
-        "Ammar Faizi" <ammarfaizi2@gnuweeb.org>,
-        <linux-kernel@vger.kernel.org>, <linux-api@vger.kernel.org>,
-        "io_uring Mailing List" <io-uring@vger.kernel.org>,
-        "Pavel Begunkov" <asml.silence@gmail.com>, <linux-mm@kvack.org>
-Subject: Re: [PATCH] Increase default MLOCK_LIMIT to 8 MiB
-References: <20211028080813.15966-1-sir@cmpwn.com>
- <CAFBCWQ+=2T4U7iNQz_vsBsGVQ72s+QiECndy_3AMFV98bMOLow@mail.gmail.com>
- <CFII8LNSW5XH.3OTIVFYX8P65Y@taiga>
- <593aea3b-e4a4-65ce-0eda-cb3885ff81cd@gnuweeb.org>
- <20211115203530.62ff33fdae14927b48ef6e5f@linux-foundation.org>
- <YZWBkZHdsh5LtWSG@cmpxchg.org>
- <ec24ff4e-8413-914c-7cdf-203a7a5f0586@kernel.dk>
- <20211118135846.26da93737a70d486e68462bf@linux-foundation.org>
-In-Reply-To: <20211118135846.26da93737a70d486e68462bf@linux-foundation.org>
+Content-Transfer-Encoding: 7BIT
+Content-Type:   text/plain; charset=US-ASCII
+X-Originating-IP: [10.175.127.227]
+X-ClientProxiedBy: dggems701-chm.china.huawei.com (10.3.19.178) To
+ canpemm500010.china.huawei.com (7.192.105.118)
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On Thu Nov 18, 2021 at 10:58 PM CET, Andrew Morton wrote:
-> Nobody's aiming for perfection. We're discussing aiming for "better".
->
-> What we should have done on day one was to set the default MLOCK_LIMIT
-> to zero bytes. Then everyone would have infrastructure to tune it from
-> userspace and we wouldn't ever have this discussion.
+I got issue as follows:
+[ 567.094140] __io_remove_buffers: [1]start ctx=0xffff8881067bf000 bgid=65533 buf=0xffff8881fefe1680
+[  594.360799] watchdog: BUG: soft lockup - CPU#2 stuck for 26s! [kworker/u32:5:108]
+[  594.364987] Modules linked in:
+[  594.365405] irq event stamp: 604180238
+[  594.365906] hardirqs last  enabled at (604180237): [<ffffffff93fec9bd>] _raw_spin_unlock_irqrestore+0x2d/0x50
+[  594.367181] hardirqs last disabled at (604180238): [<ffffffff93fbbadb>] sysvec_apic_timer_interrupt+0xb/0xc0
+[  594.368420] softirqs last  enabled at (569080666): [<ffffffff94200654>] __do_softirq+0x654/0xa9e
+[  594.369551] softirqs last disabled at (569080575): [<ffffffff913e1d6a>] irq_exit_rcu+0x1ca/0x250
+[  594.370692] CPU: 2 PID: 108 Comm: kworker/u32:5 Tainted: G            L    5.15.0-next-20211112+ #88
+[  594.371891] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS ?-20190727_073836-buildvm-ppc64le-16.ppc.fedoraproject.org-3.fc31 04/01/2014
+[  594.373604] Workqueue: events_unbound io_ring_exit_work
+[  594.374303] RIP: 0010:_raw_spin_unlock_irqrestore+0x33/0x50
+[  594.375037] Code: 48 83 c7 18 53 48 89 f3 48 8b 74 24 10 e8 55 f5 55 fd 48 89 ef e8 ed a7 56 fd 80 e7 02 74 06 e8 43 13 7b fd fb bf 01 00 00 00 <e8> f8 78 474
+[  594.377433] RSP: 0018:ffff888101587a70 EFLAGS: 00000202
+[  594.378120] RAX: 0000000024030f0d RBX: 0000000000000246 RCX: 1ffffffff2f09106
+[  594.379053] RDX: 0000000000000000 RSI: ffffffff9449f0e0 RDI: 0000000000000001
+[  594.379991] RBP: ffffffff9586cdc0 R08: 0000000000000001 R09: fffffbfff2effcab
+[  594.380923] R10: ffffffff977fe557 R11: fffffbfff2effcaa R12: ffff8881b8f3def0
+[  594.381858] R13: 0000000000000246 R14: ffff888153a8b070 R15: 0000000000000000
+[  594.382787] FS:  0000000000000000(0000) GS:ffff888399c00000(0000) knlGS:0000000000000000
+[  594.383851] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[  594.384602] CR2: 00007fcbe71d2000 CR3: 00000000b4216000 CR4: 00000000000006e0
+[  594.385540] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[  594.386474] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[  594.387403] Call Trace:
+[  594.387738]  <TASK>
+[  594.388042]  find_and_remove_object+0x118/0x160
+[  594.389321]  delete_object_full+0xc/0x20
+[  594.389852]  kfree+0x193/0x470
+[  594.390275]  __io_remove_buffers.part.0+0xed/0x147
+[  594.390931]  io_ring_ctx_free+0x342/0x6a2
+[  594.392159]  io_ring_exit_work+0x41e/0x486
+[  594.396419]  process_one_work+0x906/0x15a0
+[  594.399185]  worker_thread+0x8b/0xd80
+[  594.400259]  kthread+0x3bf/0x4a0
+[  594.401847]  ret_from_fork+0x22/0x30
+[  594.402343]  </TASK>
 
-Setting aside perfection or not, what you're aiming for is about 1000=C3=97
-more work. I'm not prepared to do that work. I'm not going to paint this
-same bikeshed 100 times for each Linux distro we have to convince to
-adopt a more sophisticated solution.
+Message from syslogd@localhost at Nov 13 09:09:54 ...
+kernel:watchdog: BUG: soft lockup - CPU#2 stuck for 26s! [kworker/u32:5:108]
+[  596.793660] __io_remove_buffers: [2099199]start ctx=0xffff8881067bf000 bgid=65533 buf=0xffff8881fefe1680
+
+We can reproduce this issue by follow syzkaller log:
+r0 = syz_io_uring_setup(0x401, &(0x7f0000000300), &(0x7f0000003000/0x2000)=nil, &(0x7f0000ff8000/0x4000)=nil, &(0x7f0000000280)=<r1=>0x0, &(0x7f0000000380)=<r2=>0x0)
+sendmsg$ETHTOOL_MSG_FEATURES_SET(0xffffffffffffffff, &(0x7f0000003080)={0x0, 0x0, &(0x7f0000003040)={&(0x7f0000000040)=ANY=[], 0x18}}, 0x0)
+syz_io_uring_submit(r1, r2, &(0x7f0000000240)=@IORING_OP_PROVIDE_BUFFERS={0x1f, 0x5, 0x0, 0x401, 0x1, 0x0, 0x100, 0x0, 0x1, {0xfffd}}, 0x0)
+io_uring_enter(r0, 0x3a2d, 0x0, 0x0, 0x0, 0x0)
+
+The reason above issue  is 'buf->list' has 2,100,000 nodes, occupied cpu lead
+to soft lockup.
+To solve this issue, we need add schedule point when do while loop in
+'__io_remove_buffers'.
+After add  schedule point we do regression, get follow data.
+[  240.141864] __io_remove_buffers: [1]start ctx=0xffff888170603000 bgid=65533 buf=0xffff8881116fcb00
+[  268.408260] __io_remove_buffers: [1]start ctx=0xffff8881b92d2000 bgid=65533 buf=0xffff888130c83180
+[  275.899234] __io_remove_buffers: [2099199]start ctx=0xffff888170603000 bgid=65533 buf=0xffff8881116fcb00
+[  296.741404] __io_remove_buffers: [1]start ctx=0xffff8881b659c000 bgid=65533 buf=0xffff8881010fe380
+[  305.090059] __io_remove_buffers: [2099199]start ctx=0xffff8881b92d2000 bgid=65533 buf=0xffff888130c83180
+[  325.415746] __io_remove_buffers: [1]start ctx=0xffff8881b92d1000 bgid=65533 buf=0xffff8881a17d8f00
+[  333.160318] __io_remove_buffers: [2099199]start ctx=0xffff8881b659c000 bgid=65533 buf=0xffff8881010fe380
+...
+
+Fixes:8bab4c09f24e("io_uring: allow conditional reschedule for intensive iterators")
+Signed-off-by: Ye Bin <yebin10@huawei.com>
+---
+ fs/io_uring.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
+
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 76871e3807fd..d8a6446a7921 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -4327,6 +4327,7 @@ static int __io_remove_buffers(struct io_ring_ctx *ctx, struct io_buffer *buf,
+ 		kfree(nxt);
+ 		if (++i == nbufs)
+ 			return i;
++		cond_resched();
+ 	}
+ 	i++;
+ 	kfree(buf);
+@@ -9258,10 +9259,8 @@ static void io_destroy_buffers(struct io_ring_ctx *ctx)
+ 	struct io_buffer *buf;
+ 	unsigned long index;
+ 
+-	xa_for_each(&ctx->io_buffers, index, buf) {
++	xa_for_each(&ctx->io_buffers, index, buf)
+ 		__io_remove_buffers(ctx, buf, index, -1U);
+-		cond_resched();
+-	}
+ }
+ 
+ static void io_req_caches_free(struct io_ring_ctx *ctx)
+-- 
+2.31.1
+

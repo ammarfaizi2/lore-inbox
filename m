@@ -2,26 +2,26 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 71CFFC43217
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CCACDC4332F
 	for <io-uring@archiver.kernel.org>; Wed, 24 Nov 2021 04:47:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229840AbhKXEuI (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Tue, 23 Nov 2021 23:50:08 -0500
-Received: from out30-130.freemail.mail.aliyun.com ([115.124.30.130]:39236 "EHLO
-        out30-130.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229623AbhKXEuH (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Tue, 23 Nov 2021 23:50:07 -0500
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R711e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04394;MF=haoxu@linux.alibaba.com;NM=1;PH=DS;RN=4;SR=0;TI=SMTPD_---0Uy45oE2_1637729208;
+        id S230132AbhKXEuJ (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Tue, 23 Nov 2021 23:50:09 -0500
+Received: from out30-131.freemail.mail.aliyun.com ([115.124.30.131]:43486 "EHLO
+        out30-131.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229714AbhKXEuI (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Tue, 23 Nov 2021 23:50:08 -0500
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R161e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04395;MF=haoxu@linux.alibaba.com;NM=1;PH=DS;RN=4;SR=0;TI=SMTPD_---0Uy45oE2_1637729208;
 Received: from e18g09479.et15sqa.tbsite.net(mailfrom:haoxu@linux.alibaba.com fp:SMTPD_---0Uy45oE2_1637729208)
           by smtp.aliyun-inc.com(127.0.0.1);
-          Wed, 24 Nov 2021 12:46:57 +0800
+          Wed, 24 Nov 2021 12:46:58 +0800
 From:   Hao Xu <haoxu@linux.alibaba.com>
 To:     Jens Axboe <axboe@kernel.dk>
 Cc:     io-uring@vger.kernel.org, Pavel Begunkov <asml.silence@gmail.com>,
         Joseph Qi <joseph.qi@linux.alibaba.com>
-Subject: [PATCH 6/9] io-wq: add infra data structure for fixed workers
-Date:   Wed, 24 Nov 2021 12:46:45 +0800
-Message-Id: <20211124044648.142416-7-haoxu@linux.alibaba.com>
+Subject: [PATCH 8/9] io-wq: batch the handling of fixed worker private works
+Date:   Wed, 24 Nov 2021 12:46:47 +0800
+Message-Id: <20211124044648.142416-9-haoxu@linux.alibaba.com>
 X-Mailer: git-send-email 2.24.4
 In-Reply-To: <20211124044648.142416-1-haoxu@linux.alibaba.com>
 References: <20211124044648.142416-1-haoxu@linux.alibaba.com>
@@ -31,139 +31,152 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Add data sttructure and basic initialization for fixed worker.
+Let's reduce acct->lock contension by batching the handling of private
+work list for fixed_workers.
 
 Signed-off-by: Hao Xu <haoxu@linux.alibaba.com>
 ---
- fs/io-wq.c | 63 ++++++++++++++++++++++++++++++++++++++----------------
- 1 file changed, 45 insertions(+), 18 deletions(-)
+ fs/io-wq.c | 42 ++++++++++++++++++++++++++++++++----------
+ fs/io-wq.h |  5 +++++
+ 2 files changed, 37 insertions(+), 10 deletions(-)
 
 diff --git a/fs/io-wq.c b/fs/io-wq.c
-index 44c3e344c5d6..fcdfbb904cdf 100644
+index b53019d4691d..097ea598bfe5 100644
 --- a/fs/io-wq.c
 +++ b/fs/io-wq.c
-@@ -25,6 +25,7 @@ enum {
- 	IO_WORKER_F_RUNNING	= 2,	/* account as running */
- 	IO_WORKER_F_FREE	= 4,	/* worker on free list */
- 	IO_WORKER_F_BOUND	= 8,	/* is doing bounded work */
-+	IO_WORKER_F_FIXED	= 16,	/* is a fixed worker */
- };
- 
- enum {
-@@ -33,6 +34,35 @@ enum {
- 
- enum {
- 	IO_ACCT_STALLED_BIT	= 0,	/* stalled on hash */
-+	IO_ACCT_IN_WORKER_BIT,
-+};
-+
-+struct io_wqe_acct {
-+	union {
-+		unsigned int nr_workers;
-+		unsigned int nr_works;
-+	};
-+	union {
-+		unsigned int max_workers;
-+		unsigned int max_works;
-+	};
-+	int index;
-+	atomic_t nr_running;
-+	raw_spinlock_t lock;
-+	struct io_wq_work_list work_list;
-+	unsigned long flags;
-+
-+	struct wait_queue_entry wait;
-+	union {
-+		struct io_wqe *wqe;
-+		struct io_worker *worker;
-+	};
-+};
-+
-+enum {
-+	IO_WQ_ACCT_BOUND,
-+	IO_WQ_ACCT_UNBOUND,
-+	IO_WQ_ACCT_NR,
- };
- 
- /*
-@@ -59,6 +89,9 @@ struct io_worker {
- 		struct rcu_head rcu;
- 		struct work_struct work;
- 	};
-+	bool fixed;
-+	unsigned int index;
-+	struct io_wqe_acct acct;
- };
- 
- #if BITS_PER_LONG == 64
-@@ -69,24 +102,6 @@ struct io_worker {
- 
- #define IO_WQ_NR_HASH_BUCKETS	(1u << IO_WQ_HASH_ORDER)
- 
--struct io_wqe_acct {
--	unsigned nr_workers;
--	unsigned max_workers;
--	int index;
--	atomic_t nr_running;
--	raw_spinlock_t lock;
--	struct io_wq_work_list work_list;
--	unsigned long flags;
--	struct wait_queue_entry wait;
--	struct io_wqe *wqe;
--};
--
--enum {
--	IO_WQ_ACCT_BOUND,
--	IO_WQ_ACCT_UNBOUND,
--	IO_WQ_ACCT_NR,
--};
--
- /*
-  * Per-node worker thread pool
-  */
-@@ -103,6 +118,12 @@ struct io_wqe {
- 	struct io_wq_work *hash_tail[IO_WQ_NR_HASH_BUCKETS];
- 
- 	cpumask_var_t cpu_mask;
-+
-+	raw_spinlock_t fixed_lock;
-+	unsigned int max_fixed[IO_WQ_ACCT_NR];
-+	unsigned int nr_fixed[IO_WQ_ACCT_NR];
-+	unsigned int default_max_works[IO_WQ_ACCT_NR];
-+	struct io_worker **fixed_workers[IO_WQ_ACCT_NR];
- };
- 
- /*
-@@ -1090,6 +1111,8 @@ static int io_wqe_hash_wake(struct wait_queue_entry *wait, unsigned mode,
- 	return 1;
+@@ -479,7 +479,7 @@ static void io_wait_on_hash(struct io_wqe_acct *acct, unsigned int hash)
  }
  
-+#define DEFAULT_MAX_FIXED_WORKERS 0
-+#define DEFAULT_MAX_FIXED_WORKS 0
- struct io_wq *io_wq_create(unsigned bounded, struct io_wq_data *data)
+ static struct io_wq_work *io_get_next_work(struct io_wqe_acct *acct,
+-					   struct io_worker *worker)
++					   struct io_worker *worker, bool needs_lock)
+ 	__must_hold(acct->lock)
  {
- 	int ret, node, i;
-@@ -1141,9 +1164,12 @@ struct io_wq *io_wq_create(unsigned bounded, struct io_wq_data *data)
- 			INIT_LIST_HEAD(&acct->wait.entry);
- 			acct->wait.func = io_wqe_hash_wake;
- 			acct->wqe = wqe;
-+			wqe->max_fixed[i] = DEFAULT_MAX_FIXED_WORKERS;
-+			wqe->default_max_works[i] = DEFAULT_MAX_FIXED_WORKS;
+ 	struct io_wq_work_node *node, *prev;
+@@ -487,14 +487,23 @@ static struct io_wq_work *io_get_next_work(struct io_wqe_acct *acct,
+ 	unsigned int stall_hash = -1U;
+ 	struct io_wqe *wqe = worker->wqe;
+ 
++	if (needs_lock)
++		raw_spin_lock(&acct->lock);
+ 	wq_list_for_each(node, prev, &acct->work_list) {
+ 		unsigned int hash;
+ 
+ 		work = container_of(node, struct io_wq_work, list);
+ 
++		/* hash optimization doesn't work for fixed_workers for now */
++		if (!needs_lock) {
++			wq_list_del(&acct->work_list, node, prev);
++			return work;
++		}
++
+ 		/* not hashed, can run anytime */
+ 		if (!io_wq_is_hashed(work)) {
+ 			wq_list_del(&acct->work_list, node, prev);
++			raw_spin_unlock(&acct->lock);
+ 			return work;
  		}
- 		wqe->wq = wq;
- 		raw_spin_lock_init(&wqe->lock);
-+		raw_spin_lock_init(&wqe->fixed_lock);
- 		INIT_HLIST_NULLS_HEAD(&wqe->free_list, 0);
- 		INIT_LIST_HEAD(&wqe->all_list);
+ 
+@@ -506,6 +515,7 @@ static struct io_wq_work *io_get_next_work(struct io_wqe_acct *acct,
+ 		if (!test_and_set_bit(hash, &wqe->wq->hash->map)) {
+ 			wqe->hash_tail[hash] = NULL;
+ 			wq_list_cut(&acct->work_list, &tail->list, prev);
++			raw_spin_unlock(&acct->lock);
+ 			return work;
+ 		}
+ 		if (stall_hash == -1U)
+@@ -515,15 +525,21 @@ static struct io_wq_work *io_get_next_work(struct io_wqe_acct *acct,
  	}
-@@ -1232,6 +1258,7 @@ static void io_wq_destroy(struct io_wq *wq)
- 		};
- 		io_wqe_cancel_pending_work(wqe, &match);
- 		free_cpumask_var(wqe->cpu_mask);
-+		kfree(wqe->fixed_workers);
- 		kfree(wqe);
+ 
+ 	if (stall_hash != -1U) {
++		if (!needs_lock)
++			acct = &worker->acct;
+ 		/*
+ 		 * Set this before dropping the lock to avoid racing with new
+ 		 * work being added and clearing the stalled bit.
+ 		 */
+ 		set_bit(IO_ACCT_STALLED_BIT, &acct->flags);
+-		raw_spin_unlock(&acct->lock);
++		if (needs_lock)
++			raw_spin_unlock(&acct->lock);
+ 		io_wait_on_hash(acct, stall_hash);
+-		raw_spin_lock(&acct->lock);
++		if (needs_lock)
++			raw_spin_lock(&acct->lock);
  	}
- 	io_wq_put_hash(wq->hash);
++	if (needs_lock)
++		raw_spin_unlock(&acct->lock);
+ 
+ 	return NULL;
+ }
+@@ -553,7 +569,8 @@ static void io_assign_current_work(struct io_worker *worker,
+ 
+ static void io_wqe_enqueue(struct io_wqe *wqe, struct io_wq_work *work);
+ 
+-static void io_worker_handle_work(struct io_worker *worker, struct io_wqe_acct *acct)
++static void io_worker_handle_work(struct io_worker *worker, struct io_wqe_acct *acct,
++				  bool needs_lock)
+ {
+ 	struct io_wqe *wqe = worker->wqe;
+ 	struct io_wq *wq = wqe->wq;
+@@ -569,9 +586,7 @@ static void io_worker_handle_work(struct io_worker *worker, struct io_wqe_acct *
+ 		 * can't make progress, any work completion or insertion will
+ 		 * clear the stalled flag.
+ 		 */
+-		raw_spin_lock(&acct->lock);
+-		work = io_get_next_work(acct, worker);
+-		raw_spin_unlock(&acct->lock);
++		work = io_get_next_work(acct, worker, needs_lock);
+ 		if (work) {
+ 			raw_spin_lock(&wqe->lock);
+ 			__io_worker_busy(wqe, worker, work);
+@@ -604,7 +619,7 @@ static void io_worker_handle_work(struct io_worker *worker, struct io_wqe_acct *
+ 			if (linked)
+ 				io_wqe_enqueue(wqe, linked);
+ 
+-			if (hash != -1U && !next_hashed) {
++			if (needs_lock && hash != -1U && !next_hashed) {
+ 				clear_bit(hash, &wq->hash->map);
+ 				clear_bit(IO_ACCT_STALLED_BIT, &acct->flags);
+ 				if (wq_has_sleeper(&wq->hash->wait))
+@@ -618,12 +633,19 @@ static void io_worker_handle_work(struct io_worker *worker, struct io_wqe_acct *
+ 
+ static inline void io_worker_handle_private_work(struct io_worker *worker)
+ {
+-	io_worker_handle_work(worker, &worker->acct);
++	struct io_wqe_acct acct;
++
++	raw_spin_lock(&worker->acct.lock);
++	acct = worker->acct;
++	wq_list_clean(&worker->acct.work_list);
++	worker->acct.nr_works = 0;
++	raw_spin_unlock(&worker->acct.lock);
++	io_worker_handle_work(worker, &acct, false);
+ }
+ 
+ static inline void io_worker_handle_public_work(struct io_worker *worker)
+ {
+-	io_worker_handle_work(worker, io_wqe_get_acct(worker));
++	io_worker_handle_work(worker, io_wqe_get_acct(worker), true);
+ }
+ 
+ static int io_wqe_worker(void *data)
+diff --git a/fs/io-wq.h b/fs/io-wq.h
+index 41bf37674a49..7c330264172b 100644
+--- a/fs/io-wq.h
++++ b/fs/io-wq.h
+@@ -40,6 +40,11 @@ struct io_wq_work_list {
+ 	(list)->first = NULL;					\
+ } while (0)
+ 
++static inline void wq_list_clean(struct io_wq_work_list *list)
++{
++	list->first = list->last = NULL;
++}
++
+ static inline void wq_list_add_after(struct io_wq_work_node *node,
+ 				     struct io_wq_work_node *pos,
+ 				     struct io_wq_work_list *list)
 -- 
 2.24.4
 

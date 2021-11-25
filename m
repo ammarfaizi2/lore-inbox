@@ -2,154 +2,109 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C4CF0C43217
-	for <io-uring@archiver.kernel.org>; Wed, 24 Nov 2021 23:17:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7A966C433FE
+	for <io-uring@archiver.kernel.org>; Thu, 25 Nov 2021 01:48:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245001AbhKXXUa (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Wed, 24 Nov 2021 18:20:30 -0500
-Received: from mx0b-00082601.pphosted.com ([67.231.153.30]:21110 "EHLO
-        mx0b-00082601.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S245582AbhKXXU0 (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Wed, 24 Nov 2021 18:20:26 -0500
-Received: from pps.filterd (m0148460.ppops.net [127.0.0.1])
-        by mx0a-00082601.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1AOKFBOv006437
-        for <io-uring@vger.kernel.org>; Wed, 24 Nov 2021 15:17:15 -0800
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=fb.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding : content-type; s=facebook;
- bh=q+vs1ZFstyVPwgQFZJnnJGbeqh53/HLmnSS5U5UL+Sc=;
- b=AZPEom5asWAX9c/EmWZT3Pen//lN+7xduWkM9DHHrnuUBfLjMVgm4XV3HYReTcQTBALu
- /8Y9skq/X4w9vL5AqKWklQscjuvtBfNPf4UqzhElRVdTn9elH/r5jyq58ztoEA4Smozw
- iV7kSYkk/ohXMFc9RWKqfEUiR7KCnjE+p+0= 
-Received: from maileast.thefacebook.com ([163.114.130.16])
-        by mx0a-00082601.pphosted.com with ESMTP id 3chje5vwxb-4
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NOT)
-        for <io-uring@vger.kernel.org>; Wed, 24 Nov 2021 15:17:15 -0800
-Received: from intmgw006.03.ash8.facebook.com (2620:10d:c0a8:1b::d) by
- mail.thefacebook.com (2620:10d:c0a8:83::6) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2308.20; Wed, 24 Nov 2021 15:17:15 -0800
-Received: by devvm225.atn0.facebook.com (Postfix, from userid 425415)
-        id A2BBF6DDBB7A; Wed, 24 Nov 2021 15:17:10 -0800 (PST)
-From:   Stefan Roesch <shr@fb.com>
-To:     <io-uring@vger.kernel.org>, <linux-fsdevel@vger.kernel.org>
-CC:     <shr@fb.com>
-Subject: [PATCH v2 2/3] fs: split off vfs_getdents function of getdents64 syscall
-Date:   Wed, 24 Nov 2021 15:16:59 -0800
-Message-ID: <20211124231700.1158521-3-shr@fb.com>
-X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20211124231700.1158521-1-shr@fb.com>
-References: <20211124231700.1158521-1-shr@fb.com>
+        id S1353301AbhKYBvu (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 24 Nov 2021 20:51:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33190 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1346532AbhKYBtu (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Wed, 24 Nov 2021 20:49:50 -0500
+Received: from mail-io1-xd29.google.com (mail-io1-xd29.google.com [IPv6:2607:f8b0:4864:20::d29])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 815DEC07E5E2
+        for <io-uring@vger.kernel.org>; Wed, 24 Nov 2021 16:58:23 -0800 (PST)
+Received: by mail-io1-xd29.google.com with SMTP id f9so5442499ioo.11
+        for <io-uring@vger.kernel.org>; Wed, 24 Nov 2021 16:58:23 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernel-dk.20210112.gappssmtp.com; s=20210112;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=RLrd8YvXFk/NH6B4UNPf4BvxkmXNi5tB4hYOVCt3QC8=;
+        b=xEYNVeKKngvVNXvxCecrhrF+dhCpI3JNYai0l9KnKgihJ0I01EUyn6342gfDHpPJIF
+         /7q6wV2REhOJuHIb/lYLaWYERAKShYlGUyeC58Z4EhKW5k35o1PRcvba04e+kRFBUZLR
+         GYYaVnPqgy0bVSbkIpRJx93kpqiqNwhtywyejvwyJ51PLSjA/jqcNOxItHGNkoaxuuqN
+         5/TC5bAM75Yn0/SKiua018lB0Bbqxr2ffGz09uLiOkS2BEkaMIXtM3JiG9VfyLrL0Tc2
+         eI1FDQifw26dYMM24XJlT0vZCnRwvcbdevwhW6CKZXtGH2W0fwWIaiauk7CVXbzaMuy+
+         7Xfw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=RLrd8YvXFk/NH6B4UNPf4BvxkmXNi5tB4hYOVCt3QC8=;
+        b=rShq2RtoyaSgGeJn/Du84cHqViYmfLzOPNn//VgfKEUn4arG4a8SZ2ZeDKNbyLq4qK
+         MbtIDM7A1qBrRmd2bf/FdNSzpq3+fIsDOmIQL89dUxBt+zDSsqaFJN5YO4ldly1Laqtw
+         AALHpePHC9FlgcmQVqSod/MfD8ip/SsYmsYzXXm8KXb5eGkodtjF+8JXhgoqeLPRN6Fi
+         tIOJISbVoxl15gC/f80WKNeuLhjQ7njtbv+d+ZbN2/yGtVUZlCcf+ndyzXAEKPYLxUyo
+         ctWDhcOneIh5V0avhxZOLEjBXkuclMS3XibkgmLXgSkllrnRegXPDwUGcgGdHInR5Hbq
+         /PPw==
+X-Gm-Message-State: AOAM533/XNO0RbbnZGR6qnzHIB+oyJUYjqPNFrfYLMNlsInhbr41Pf4h
+        u2u4LbSOAWInV+cTdKMwf8+UvQ==
+X-Google-Smtp-Source: ABdhPJz5Il1xVb0xmrNpKE0GpQPqF5TiX+oAopQgozeU43W9y6HIqvacoAyp9oBIWo5k1qKNrwcjWg==
+X-Received: by 2002:a05:6602:493:: with SMTP id y19mr20188734iov.126.1637801902921;
+        Wed, 24 Nov 2021 16:58:22 -0800 (PST)
+Received: from [192.168.1.116] ([66.219.217.159])
+        by smtp.gmail.com with ESMTPSA id s3sm859302ilv.61.2021.11.24.16.58.22
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 24 Nov 2021 16:58:22 -0800 (PST)
+Subject: Re: uring regression - lost write request
+To:     Stefan Metzmacher <metze@samba.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Daniel Black <daniel@mariadb.org>,
+        Salvatore Bonaccorso <carnil@debian.org>,
+        Pavel Begunkov <asml.silence@gmail.com>,
+        linux-block@vger.kernel.org, io-uring@vger.kernel.org,
+        stable@vger.kernel.org
+References: <c6d6bffe-1770-c51d-11c6-c5483bde1766@kernel.dk>
+ <bd7289c8-0b01-4fcf-e584-273d372f8343@kernel.dk>
+ <6d0ca779-3111-bc5e-88c0-22a98a6974b8@kernel.dk>
+ <281147cc-7da4-8e45-2d6f-3f7c2a2ca229@kernel.dk>
+ <c92f97e5-1a38-e23f-f371-c00261cacb6d@kernel.dk>
+ <CABVffEN0LzLyrHifysGNJKpc_Szn7qPO4xy7aKvg7LTNc-Fpng@mail.gmail.com>
+ <00d6e7ad-5430-4fca-7e26-0774c302be57@kernel.dk>
+ <CABVffEM79CZ+4SW0+yP0+NioMX=sHhooBCEfbhqs6G6hex2YwQ@mail.gmail.com>
+ <3aaac8b2-e2f6-6a84-1321-67409b2a3dce@kernel.dk>
+ <98f8a00f-c634-4a1a-4eba-f97be5b2e801@kernel.dk> <YZ5lvtfqsZEllUJq@kroah.com>
+ <c0a7ac89-2a8c-b1e3-00c2-96ee259582b4@kernel.dk>
+ <96d6241f-7bf0-cefe-947e-ee03d83fb828@samba.org>
+From:   Jens Axboe <axboe@kernel.dk>
+Message-ID: <6d6fc76f-880a-938d-64dd-527e6be3009e@kernel.dk>
+Date:   Wed, 24 Nov 2021 17:58:20 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-FB-Internal: Safe
-Content-Type: text/plain
-X-FB-Source: Intern
-X-Proofpoint-ORIG-GUID: j09igjQAo3_D7Ef4OgM4w-UPE5TeExmD
-X-Proofpoint-GUID: j09igjQAo3_D7Ef4OgM4w-UPE5TeExmD
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.0.607.475
- definitions=2021-11-24_06,2021-11-24_01,2020-04-07_01
-X-Proofpoint-Spam-Details: rule=fb_default_notspam policy=fb_default score=0 phishscore=0
- malwarescore=0 adultscore=0 lowpriorityscore=0 bulkscore=0 suspectscore=0
- priorityscore=1501 spamscore=0 impostorscore=0 clxscore=1015 mlxscore=0
- mlxlogscore=854 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2110150000 definitions=main-2111240114
-X-FB-Internal: deliver
+In-Reply-To: <96d6241f-7bf0-cefe-947e-ee03d83fb828@samba.org>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-This splits off the vfs_getdents function from the getdents64 system
-call. This allows io_uring to call the function.
+On 11/24/21 3:52 PM, Stefan Metzmacher wrote:
+> Hi Jens,
+> 
+>>>> Looks good to me - Greg, would you mind queueing this up for
+>>>> 5.14-stable?
+>>>
+>>> 5.14 is end-of-life and not getting any more releases (the front page of
+>>> kernel.org should show that.)
+>>
+>> Oh, well I guess that settles that...
+>>
+>>> If this needs to go anywhere else, please let me know.
+>>
+>> Should be fine, previous 5.10 isn't affected and 5.15 is fine too as it
+>> already has the patch.
+> 
+> Are 5.11 and 5.13 are affected, these are hwe kernels for ubuntu,
+> I may need to open a bug for them...
 
-Signed-off-by: Stefan Roesch <shr@fb.com>
----
- fs/internal.h |  8 ++++++++
- fs/readdir.c  | 36 ++++++++++++++++++++++++++++--------
- 2 files changed, 36 insertions(+), 8 deletions(-)
+Please do, then we can help get the appropriate patches lined up for
+5.11/13. They should need the same set, basically what ended up in 5.14
+plus the one I posted today.
 
-diff --git a/fs/internal.h b/fs/internal.h
-index 7979ff8d168c..355be993b9f1 100644
---- a/fs/internal.h
-+++ b/fs/internal.h
-@@ -194,3 +194,11 @@ long splice_file_to_pipe(struct file *in,
- 			 struct pipe_inode_info *opipe,
- 			 loff_t *offset,
- 			 size_t len, unsigned int flags);
-+
-+/*
-+ * fs/readdir.c
-+ */
-+struct linux_dirent64;
-+
-+int vfs_getdents(struct file *file, struct linux_dirent64 __user *dirent=
-,
-+		 unsigned int count, s64 pos);
-diff --git a/fs/readdir.c b/fs/readdir.c
-index 8ea5b5f45a78..fc5b50fb160b 100644
---- a/fs/readdir.c
-+++ b/fs/readdir.c
-@@ -363,22 +363,26 @@ static int filldir64(struct dir_context *ctx, const=
- char *name, int namlen,
- 	return -EFAULT;
- }
-=20
--SYSCALL_DEFINE3(getdents64, unsigned int, fd,
--		struct linux_dirent64 __user *, dirent, unsigned int, count)
-+/**
-+ * vfs_getdents - getdents without fdget
-+ * @file    : pointer to file struct of directory
-+ * @dirent  : pointer to user directory structure
-+ * @count   : size of buffer
-+ * @ctx_pos : if file pos is used, pass -1,
-+ *            if ctx pos is used, pass ctx pos
-+ */
-+int vfs_getdents(struct file *file, struct linux_dirent64 __user *dirent=
-,
-+		 unsigned int count, s64 ctx_pos)
- {
--	struct fd f;
- 	struct getdents_callback64 buf =3D {
- 		.ctx.actor =3D filldir64,
-+		.ctx.pos =3D ctx_pos,
- 		.count =3D count,
- 		.current_dir =3D dirent
- 	};
- 	int error;
-=20
--	f =3D fdget_pos(fd);
--	if (!f.file)
--		return -EBADF;
--
--	error =3D iterate_dir(f.file, &buf.ctx);
-+	error =3D iterate_dir(file, &buf.ctx, ctx_pos < 0);
- 	if (error >=3D 0)
- 		error =3D buf.error;
- 	if (buf.prev_reclen) {
-@@ -391,6 +395,22 @@ SYSCALL_DEFINE3(getdents64, unsigned int, fd,
- 		else
- 			error =3D count - buf.count;
- 	}
-+
-+	return error;
-+}
-+
-+SYSCALL_DEFINE3(getdents64, unsigned int, fd,
-+		struct linux_dirent64 __user *, dirent, unsigned int, count)
-+{
-+	struct fd f;
-+	int error;
-+
-+	f =3D fdget_pos(fd);
-+	if (!f.file)
-+		return -EBADF;
-+
-+	error =3D vfs_getdents(f.file, dirent, count, -1);
-+
- 	fdput_pos(f);
- 	return error;
- }
---=20
-2.30.2
+-- 
+Jens Axboe
 

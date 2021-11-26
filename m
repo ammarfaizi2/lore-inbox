@@ -2,55 +2,97 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 680F1C433F5
-	for <io-uring@archiver.kernel.org>; Fri, 26 Nov 2021 10:09:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 747BFC43217
+	for <io-uring@archiver.kernel.org>; Fri, 26 Nov 2021 10:09:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233187AbhKZKNA (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Fri, 26 Nov 2021 05:13:00 -0500
-Received: from out30-43.freemail.mail.aliyun.com ([115.124.30.43]:35372 "EHLO
-        out30-43.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1376602AbhKZKLA (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Fri, 26 Nov 2021 05:11:00 -0500
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R121e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04395;MF=haoxu@linux.alibaba.com;NM=1;PH=DS;RN=4;SR=0;TI=SMTPD_---0UyM4V-6_1637921260;
+        id S238689AbhKZKNC (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Fri, 26 Nov 2021 05:13:02 -0500
+Received: from out30-130.freemail.mail.aliyun.com ([115.124.30.130]:53922 "EHLO
+        out30-130.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1376612AbhKZKLB (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Fri, 26 Nov 2021 05:11:01 -0500
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R831e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04394;MF=haoxu@linux.alibaba.com;NM=1;PH=DS;RN=4;SR=0;TI=SMTPD_---0UyM4V-6_1637921260;
 Received: from e18g09479.et15sqa.tbsite.net(mailfrom:haoxu@linux.alibaba.com fp:SMTPD_---0UyM4V-6_1637921260)
           by smtp.aliyun-inc.com(127.0.0.1);
-          Fri, 26 Nov 2021 18:07:46 +0800
+          Fri, 26 Nov 2021 18:07:47 +0800
 From:   Hao Xu <haoxu@linux.alibaba.com>
 To:     Jens Axboe <axboe@kernel.dk>
 Cc:     io-uring@vger.kernel.org, Pavel Begunkov <asml.silence@gmail.com>,
         Joseph Qi <joseph.qi@linux.alibaba.com>
-Subject: [PATCH v6 0/6] task work optimization
-Date:   Fri, 26 Nov 2021 18:07:34 +0800
-Message-Id: <20211126100740.196550-1-haoxu@linux.alibaba.com>
+Subject: [PATCH 3/6] io_uring: add helper for task work execution code
+Date:   Fri, 26 Nov 2021 18:07:37 +0800
+Message-Id: <20211126100740.196550-4-haoxu@linux.alibaba.com>
 X-Mailer: git-send-email 2.24.4
+In-Reply-To: <20211126100740.196550-1-haoxu@linux.alibaba.com>
+References: <20211126100740.196550-1-haoxu@linux.alibaba.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-v4->v5
-- change the implementation of merge_wq_list
+Add a helper for task work execution code. We will use it later.
 
-v5->v6
-- change the logic of handling prior task list to:
-  1) grabbed uring_lock: leverage the inline completion infra
-  2) otherwise: batch __req_complete_post() calls to save
-     completion_lock operations.
+Reviewed-by: Pavel Begunkov <asml.silence@gmail.com>
+Signed-off-by: Hao Xu <haoxu@linux.alibaba.com>
+---
+ fs/io_uring.c | 36 ++++++++++++++++++++----------------
+ 1 file changed, 20 insertions(+), 16 deletions(-)
 
-
-Hao Xu (6):
-  io-wq: add helper to merge two wq_lists
-  io_uring: add a priority tw list for irq completion work
-  io_uring: add helper for task work execution code
-  io_uring: split io_req_complete_post() and add a helper
-  io_uring: move up io_put_kbuf() and io_put_rw_kbuf()
-  io_uring: batch completion in prior_task_list
-
- fs/io-wq.h    |  22 +++++++
- fs/io_uring.c | 168 ++++++++++++++++++++++++++++++++++----------------
- 2 files changed, 136 insertions(+), 54 deletions(-)
-
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 821aa0f8c643..c00363d761f4 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -2197,6 +2197,25 @@ static void ctx_flush_and_put(struct io_ring_ctx *ctx, bool *locked)
+ 	percpu_ref_put(&ctx->refs);
+ }
+ 
++static void handle_tw_list(struct io_wq_work_node *node, struct io_ring_ctx **ctx, bool *locked)
++{
++	do {
++		struct io_wq_work_node *next = node->next;
++		struct io_kiocb *req = container_of(node, struct io_kiocb,
++						    io_task_work.node);
++
++		if (req->ctx != *ctx) {
++			ctx_flush_and_put(*ctx, locked);
++			*ctx = req->ctx;
++			/* if not contended, grab and improve batching */
++			*locked = mutex_trylock(&(*ctx)->uring_lock);
++			percpu_ref_get(&(*ctx)->refs);
++		}
++		req->io_task_work.func(req, locked);
++		node = next;
++	} while (node);
++}
++
+ static void tctx_task_work(struct callback_head *cb)
+ {
+ 	bool locked = false;
+@@ -2219,22 +2238,7 @@ static void tctx_task_work(struct callback_head *cb)
+ 		if (!node)
+ 			break;
+ 
+-		do {
+-			struct io_wq_work_node *next = node->next;
+-			struct io_kiocb *req = container_of(node, struct io_kiocb,
+-							    io_task_work.node);
+-
+-			if (req->ctx != ctx) {
+-				ctx_flush_and_put(ctx, &locked);
+-				ctx = req->ctx;
+-				/* if not contended, grab and improve batching */
+-				locked = mutex_trylock(&ctx->uring_lock);
+-				percpu_ref_get(&ctx->refs);
+-			}
+-			req->io_task_work.func(req, &locked);
+-			node = next;
+-		} while (node);
+-
++		handle_tw_list(node, &ctx, &locked);
+ 		cond_resched();
+ 	}
+ 
 -- 
 2.24.4
 

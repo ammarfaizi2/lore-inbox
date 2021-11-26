@@ -2,98 +2,40 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 072F9C4321E
-	for <io-uring@archiver.kernel.org>; Fri, 26 Nov 2021 10:09:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2A022C433EF
+	for <io-uring@archiver.kernel.org>; Fri, 26 Nov 2021 10:55:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376422AbhKZKNC (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Fri, 26 Nov 2021 05:13:02 -0500
-Received: from out30-54.freemail.mail.aliyun.com ([115.124.30.54]:36853 "EHLO
-        out30-54.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1376631AbhKZKLC (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Fri, 26 Nov 2021 05:11:02 -0500
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R141e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04395;MF=haoxu@linux.alibaba.com;NM=1;PH=DS;RN=4;SR=0;TI=SMTPD_---0UyM4V-6_1637921260;
-Received: from e18g09479.et15sqa.tbsite.net(mailfrom:haoxu@linux.alibaba.com fp:SMTPD_---0UyM4V-6_1637921260)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Fri, 26 Nov 2021 18:07:48 +0800
-From:   Hao Xu <haoxu@linux.alibaba.com>
-To:     Jens Axboe <axboe@kernel.dk>
-Cc:     io-uring@vger.kernel.org, Pavel Begunkov <asml.silence@gmail.com>,
-        Joseph Qi <joseph.qi@linux.alibaba.com>
-Subject: [PATCH 5/6] io_uring: move up io_put_kbuf() and io_put_rw_kbuf()
-Date:   Fri, 26 Nov 2021 18:07:39 +0800
-Message-Id: <20211126100740.196550-6-haoxu@linux.alibaba.com>
-X-Mailer: git-send-email 2.24.4
-In-Reply-To: <20211126100740.196550-1-haoxu@linux.alibaba.com>
-References: <20211126100740.196550-1-haoxu@linux.alibaba.com>
+        id S232276AbhKZK6Y (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Fri, 26 Nov 2021 05:58:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41236 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S230057AbhKZK4X (ORCPT <rfc822;io-uring@vger.kernel.org>);
+        Fri, 26 Nov 2021 05:56:23 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C07B561052;
+        Fri, 26 Nov 2021 10:53:09 +0000 (UTC)
+Date:   Fri, 26 Nov 2021 11:53:05 +0100
+From:   Christian Brauner <christian.brauner@ubuntu.com>
+To:     Stefan Roesch <shr@fb.com>
+Cc:     io-uring@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH v1 2/3] fs: split off vfs_getdents function of getdents64
+ syscall
+Message-ID: <20211126105305.pmgmkae6pnxx62me@wittgenstein>
+References: <20211123181010.1607630-1-shr@fb.com>
+ <20211123181010.1607630-3-shr@fb.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20211123181010.1607630-3-shr@fb.com>
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Move them up to avoid explicit declaration. We will use them in later
-patches.
+On Tue, Nov 23, 2021 at 10:10:09AM -0800, Stefan Roesch wrote:
+> This splits off the vfs_getdents function from the getdents64 system
+> call. This allows io_uring to call the function.
+> 
+> Signed-off-by: Stefan Roesch <shr@fb.com>
+> ---
 
-Reviewed-by: Pavel Begunkov <asml.silence@gmail.com>
-Signed-off-by: Hao Xu <haoxu@linux.alibaba.com>
----
- fs/io_uring.c | 36 ++++++++++++++++++------------------
- 1 file changed, 18 insertions(+), 18 deletions(-)
-
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index e7508ea4cd68..e9c67f19d585 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -2205,6 +2205,24 @@ static void ctx_flush_and_put(struct io_ring_ctx *ctx, bool *locked)
- 	percpu_ref_put(&ctx->refs);
- }
- 
-+static unsigned int io_put_kbuf(struct io_kiocb *req, struct io_buffer *kbuf)
-+{
-+	unsigned int cflags;
-+
-+	cflags = kbuf->bid << IORING_CQE_BUFFER_SHIFT;
-+	cflags |= IORING_CQE_F_BUFFER;
-+	req->flags &= ~REQ_F_BUFFER_SELECTED;
-+	kfree(kbuf);
-+	return cflags;
-+}
-+
-+static inline unsigned int io_put_rw_kbuf(struct io_kiocb *req)
-+{
-+	if (likely(!(req->flags & REQ_F_BUFFER_SELECTED)))
-+		return 0;
-+	return io_put_kbuf(req, req->kbuf);
-+}
-+
- static void handle_tw_list(struct io_wq_work_node *node, struct io_ring_ctx **ctx, bool *locked)
- {
- 	do {
-@@ -2471,24 +2489,6 @@ static inline unsigned int io_sqring_entries(struct io_ring_ctx *ctx)
- 	return smp_load_acquire(&rings->sq.tail) - ctx->cached_sq_head;
- }
- 
--static unsigned int io_put_kbuf(struct io_kiocb *req, struct io_buffer *kbuf)
--{
--	unsigned int cflags;
--
--	cflags = kbuf->bid << IORING_CQE_BUFFER_SHIFT;
--	cflags |= IORING_CQE_F_BUFFER;
--	req->flags &= ~REQ_F_BUFFER_SELECTED;
--	kfree(kbuf);
--	return cflags;
--}
--
--static inline unsigned int io_put_rw_kbuf(struct io_kiocb *req)
--{
--	if (likely(!(req->flags & REQ_F_BUFFER_SELECTED)))
--		return 0;
--	return io_put_kbuf(req, req->kbuf);
--}
--
- static inline bool io_run_task_work(void)
- {
- 	if (test_thread_flag(TIF_NOTIFY_SIGNAL) || current->task_works) {
--- 
-2.24.4
-
+Looks good.
+Acked-by: Christian Brauner <christian.brauner@ubuntu.com>

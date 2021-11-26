@@ -2,111 +2,94 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D2EF7C4332F
-	for <io-uring@archiver.kernel.org>; Thu, 25 Nov 2021 23:28:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 540BAC433EF
+	for <io-uring@archiver.kernel.org>; Fri, 26 Nov 2021 02:29:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347042AbhKYXbV (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Thu, 25 Nov 2021 18:31:21 -0500
-Received: from mx0a-00082601.pphosted.com ([67.231.145.42]:37580 "EHLO
-        mx0a-00082601.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1347146AbhKYX3U (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Thu, 25 Nov 2021 18:29:20 -0500
-Received: from pps.filterd (m0044012.ppops.net [127.0.0.1])
-        by mx0a-00082601.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1APNOas0009593
-        for <io-uring@vger.kernel.org>; Thu, 25 Nov 2021 15:26:09 -0800
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=fb.com; h=from : to : cc : subject
- : date : message-id : mime-version : content-transfer-encoding :
- content-type; s=facebook; bh=po7vsb2OFd4Fjv8/wzwN5YcyiczkFQWUYpJ6qU/gW+Y=;
- b=Jpf349dWxrc3Mdb4EeKAjuWtIY34HffvPZfOyqdUcTvuYgB6GEGirHaT+nTn4OPB5iaI
- 3BGfEq8O9f6OBTP9nPfbTzdoRxFnr30J7xNGdTPJ4jT0wRhrl5bACU6J5u+zqdyPsbBb
- 9iqDp5xIpSZSdwKN08lSPO0oYqR2M+fdQKE= 
-Received: from mail.thefacebook.com ([163.114.132.120])
-        by mx0a-00082601.pphosted.com with ESMTP id 3cj6y0v4y1-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NOT)
-        for <io-uring@vger.kernel.org>; Thu, 25 Nov 2021 15:26:08 -0800
-Received: from intmgw001.37.frc1.facebook.com (2620:10d:c085:108::4) by
- mail.thefacebook.com (2620:10d:c085:11d::4) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2308.20; Thu, 25 Nov 2021 15:26:07 -0800
-Received: by devvm225.atn0.facebook.com (Postfix, from userid 425415)
-        id 34BF96E85F85; Thu, 25 Nov 2021 15:25:56 -0800 (PST)
-From:   Stefan Roesch <shr@fb.com>
-To:     <io-uring@vger.kernel.org>, <linux-fsdevel@vger.kernel.org>
-CC:     <shr@fb.com>
-Subject: [PATCH v3 0/3] io_uring: add getdents64 support
-Date:   Thu, 25 Nov 2021 15:25:46 -0800
-Message-ID: <20211125232549.3333746-1-shr@fb.com>
-X-Mailer: git-send-email 2.30.2
+        id S1357546AbhKZCcc (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Thu, 25 Nov 2021 21:32:32 -0500
+Received: from mail-il1-f198.google.com ([209.85.166.198]:49026 "EHLO
+        mail-il1-f198.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1357544AbhKZCab (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Thu, 25 Nov 2021 21:30:31 -0500
+Received: by mail-il1-f198.google.com with SMTP id k9-20020a056e02156900b002a1acf9a52dso517498ilu.15
+        for <io-uring@vger.kernel.org>; Thu, 25 Nov 2021 18:27:18 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:date:message-id:subject:from:to;
+        bh=45uPTSsSeC7INwogeODFyAWYEWL4QFRc6aK09OveqRo=;
+        b=OK+lev4f3aUEFb1IFF3GT0qoEbbzG8EVYHgb3iAUexKMa9pqXavVHZCbRyyW593m+F
+         J6Fb5Jb4X84RWdWU7E2caPo5+twH73GjWjwvumjod4uSt8qZsvuEhzBdJCV5UgXJ+S6w
+         35tgqIi5EyhTgoEV4lVPFqIqAwwEKZiD3A4bXKz+v1YAWMMVP/sVIzihJwI9kDohNH8Z
+         DCr7zMe8zLEX16YXxIuTh2LOp97//r+4Ssn5dyrsYU5vjy2/N0AuXc5299my6tMnhstf
+         nmxL5OY8GOaj2FR3801pGqtR58nBo/Eb95zBbvSvJ2z61FpaYsqzdlyKwviQcjGJ4gyM
+         cKMA==
+X-Gm-Message-State: AOAM530G816h3wMVXHZkmQkYOjjA3EMW1XK2ARP2QG8iuQj16tKnkjvb
+        bQLJkfBc51tQav8uOvPWoWbVjz9yY1TswpZ/Fkar75u7YeST
+X-Google-Smtp-Source: ABdhPJzu4CskSLXpwGLUySyPVA2Fh/pD4B7YAugYKeAx2wkrOxQMHMfsUFQcLgZNeUgH6LKNHcCgiR7rU4tgQTz+DcHc1sSBoNWY
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-FB-Internal: Safe
-Content-Type: text/plain
-X-FB-Source: Intern
-X-Proofpoint-ORIG-GUID: mbFWjK1nSZRXtlTMy5kBw-Xznhvc7eqC
-X-Proofpoint-GUID: mbFWjK1nSZRXtlTMy5kBw-Xznhvc7eqC
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.0.607.475
- definitions=2021-11-25_07,2021-11-25_02,2020-04-07_01
-X-Proofpoint-Spam-Details: rule=fb_default_notspam policy=fb_default score=0 suspectscore=0
- clxscore=1015 bulkscore=0 adultscore=0 lowpriorityscore=0 mlxlogscore=663
- mlxscore=0 priorityscore=1501 phishscore=0 malwarescore=0 spamscore=0
- impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2110150000 definitions=main-2111250132
-X-FB-Internal: deliver
+X-Received: by 2002:a05:6638:2484:: with SMTP id x4mr37970229jat.51.1637893638504;
+ Thu, 25 Nov 2021 18:27:18 -0800 (PST)
+Date:   Thu, 25 Nov 2021 18:27:18 -0800
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <00000000000080c60105d1a7d4b5@google.com>
+Subject: [syzbot] WARNING in io_try_cancel_userdata (2)
+From:   syzbot <syzbot+ab0cfe96c2b3cd1c1153@syzkaller.appspotmail.com>
+To:     asml.silence@gmail.com, axboe@kernel.dk, io-uring@vger.kernel.org,
+        linux-kernel@vger.kernel.org, syzkaller-bugs@googlegroups.com
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-This series adds support for getdents64 in liburing. The intent is to
-provide a more complete I/O interface for io_uring.
+Hello,
 
-Patch 1: fs: add parameter use_fpos to iterate_dir()
-  This adds a new parameter to the function iterate_dir() so the
-  caller can specify if the position is the file position or the
-  position stored in the buffer context.
+syzbot found the following issue on:
 
-Patch 2: fs: split off vfs_getdents function from getdents64 system call
-  This splits of the iterate_dir part of the syscall in its own
-  dedicated function. This allows to call the function directly from
-  liburing.
+HEAD commit:    40c93d7fff6f Merge tag 'x86-urgent-2021-11-21' of git://gi..
+git tree:       upstream
+console output: https://syzkaller.appspot.com/x/log.txt?x=13cac4deb00000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=152798d01fe6adcd
+dashboard link: https://syzkaller.appspot.com/bug?extid=ab0cfe96c2b3cd1c1153
+compiler:       gcc (Debian 10.2.1-6) 10.2.1 20210110, GNU ld (GNU Binutils for Debian) 2.35.2
 
-Patch 3: io_uring: add support for getdents64
-  Adds the functions to io_uring to support getdents64.
+Unfortunately, I don't have any reproducer for this issue yet.
 
-There is also a patch series for the changes to liburing. This includes
-a new test. The patch series is called "liburing: add getdents support."
+IMPORTANT: if you fix the issue, please add the following tag to the commit:
+Reported-by: syzbot+ab0cfe96c2b3cd1c1153@syzkaller.appspotmail.com
 
-The following tests have been performed:
-- new liburing getdents test program has been run
-- xfstests have been run
-- both tests have been repeated with the kernel memory leak checker
-  and no leaks have been reported.
+------------[ cut here ]------------
+WARNING: CPU: 1 PID: 20 at fs/io_uring.c:6269 io_try_cancel_userdata+0x3c5/0x640 fs/io_uring.c:6269
+Modules linked in:
+CPU: 1 PID: 20 Comm: kworker/1:0 Not tainted 5.16.0-rc1-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Workqueue: events io_fallback_req_func
+RIP: 0010:io_try_cancel_userdata+0x3c5/0x640 fs/io_uring.c:6269
+Code: 44 89 f0 5b 5d 41 5c 41 5d 41 5e 41 5f c3 e8 92 db 95 ff 65 48 8b 04 25 40 70 02 00 49 39 c6 0f 84 a0 fd ff ff e8 7b db 95 ff <0f> 0b 48 b8 00 00 00 00 00 fc ff df 4c 89 fa 48 c1 ea 03 80 3c 02
+RSP: 0018:ffffc90000da7bc8 EFLAGS: 00010293
+RAX: 0000000000000000 RBX: ffff88803a80d3c0 RCX: 0000000000000000
+RDX: ffff888011a38000 RSI: ffffffff81e1bde5 RDI: 0000000000000003
+RBP: 1ffff920001b4f7a R08: 0000000000000000 R09: 0000000000000000
+R10: ffffffff81e1bb37 R11: 0000000000000000 R12: 0000000000000000
+R13: ffff88807eaf7000 R14: ffff88803b203a00 R15: ffff88803a80d420
+FS:  0000000000000000(0000) GS:ffff8880b9d00000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007f2d3db37718 CR3: 000000001c339000 CR4: 0000000000350ee0
+Call Trace:
+ <TASK>
+ io_req_task_link_timeout+0x6b/0x1e0 fs/io_uring.c:6886
+ io_fallback_req_func+0xf9/0x1ae fs/io_uring.c:1334
+ process_one_work+0x9b2/0x1690 kernel/workqueue.c:2298
+ worker_thread+0x658/0x11f0 kernel/workqueue.c:2445
+ kthread+0x405/0x4f0 kernel/kthread.c:327
+ ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:295
+ </TASK>
 
-Signed-off-by: Stefan Roesch <shr@fb.com>
+
 ---
-V3: - add do_iterate_dir() function to Patch 1
-    - make iterate_dir() function call do_iterate_dir()
-      This has the advantage that the function signature of iterate_dir
-      does not change
+This report is generated by a bot. It may contain errors.
+See https://goo.gl/tpsmEJ for more information about syzbot.
+syzbot engineers can be reached at syzkaller@googlegroups.com.
 
-V2: Updated the iterate_dir calls in fs/ksmbd, fs/ecryptfs and arch/alpha=
- with
-    the additional parameter.
-
-
-Stefan Roesch (3):
-  fs: add parameter use_fpos to iterate_dir function
-  fs: split off vfs_getdents function of getdents64 syscall
-  io_uring: add support for getdents64
-
- fs/internal.h                 |  8 +++++
- fs/io_uring.c                 | 52 +++++++++++++++++++++++++++++
- fs/readdir.c                  | 61 ++++++++++++++++++++++++++++-------
- include/uapi/linux/io_uring.h |  1 +
- 4 files changed, 110 insertions(+), 12 deletions(-)
-
-
-base-commit: de5de0813b7dbbb71fb5d677ed823505a0e685c5
---=20
-2.30.2
-
+syzbot will keep track of this issue. See:
+https://goo.gl/tpsmEJ#status for how to communicate with syzbot.

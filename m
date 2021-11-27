@@ -2,118 +2,138 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E915EC4332F
-	for <io-uring@archiver.kernel.org>; Sat, 27 Nov 2021 06:05:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3B727C433EF
+	for <io-uring@archiver.kernel.org>; Sat, 27 Nov 2021 06:15:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345479AbhK0GJB (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sat, 27 Nov 2021 01:09:01 -0500
-Received: from mx0b-00082601.pphosted.com ([67.231.153.30]:39582 "EHLO
-        mx0a-00082601.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1345286AbhK0GG7 (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Sat, 27 Nov 2021 01:06:59 -0500
-Received: from pps.filterd (m0001303.ppops.net [127.0.0.1])
-        by m0001303.ppops.net (8.16.1.2/8.16.1.2) with SMTP id 1AR2xWii019445
-        for <io-uring@vger.kernel.org>; Fri, 26 Nov 2021 22:03:45 -0800
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=fb.com; h=from : to : cc : subject
- : date : message-id : mime-version : content-transfer-encoding :
- content-type; s=facebook; bh=7CGJdCgR/z7c7B4bd6YyCl03mU3QwXtFqs0xV6G6teA=;
- b=glbLWnS07W9k50LZ2xSDwhuLODUM/Y/9wkH9TnyWTUr47DHcVlr2TIQXabzRYcX9ztsM
- 386CeHKYZtNWjMVZJI/ZYoGv28T9iibzCKlR8cWKXLpT0G5NoMubIX9XifJhjYbZ8tZW
- V1qdVjC+/7IiyAPoQ9rG6ng0/O8U8aaRFrU= 
-Received: from mail.thefacebook.com ([163.114.132.120])
-        by m0001303.ppops.net with ESMTP id 3ckcc48ggx-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NOT)
-        for <io-uring@vger.kernel.org>; Fri, 26 Nov 2021 22:03:45 -0800
-Received: from intmgw001.37.frc1.facebook.com (2620:10d:c085:108::4) by
- mail.thefacebook.com (2620:10d:c085:21d::7) with Microsoft SMTP Server
+        id S237831AbhK0GSZ (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sat, 27 Nov 2021 01:18:25 -0500
+Received: from szxga02-in.huawei.com ([45.249.212.188]:16309 "EHLO
+        szxga02-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S236558AbhK0GQZ (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Sat, 27 Nov 2021 01:16:25 -0500
+Received: from canpemm500010.china.huawei.com (unknown [172.30.72.53])
+        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4J1Lr80406z90wH;
+        Sat, 27 Nov 2021 14:12:40 +0800 (CST)
+Received: from [10.174.178.185] (10.174.178.185) by
+ canpemm500010.china.huawei.com (7.192.105.118) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2308.20; Fri, 26 Nov 2021 22:03:43 -0800
-Received: by devvm225.atn0.facebook.com (Postfix, from userid 425415)
-        id 102616F679A4; Fri, 26 Nov 2021 22:03:35 -0800 (PST)
-From:   Stefan Roesch <shr@fb.com>
-To:     <io-uring@vger.kernel.org>, <linux-fsdevel@vger.kernel.org>
-CC:     <shr@fb.com>
-Subject: [PATCH v5 0/3] io_uring: add getdents64 support
-Date:   Fri, 26 Nov 2021 22:03:23 -0800
-Message-ID: <20211127060326.3018505-1-shr@fb.com>
-X-Mailer: git-send-email 2.30.2
+ 15.1.2308.20; Sat, 27 Nov 2021 14:13:08 +0800
+Subject: Re: [PATCH -next] io_uring: fix soft lockup when call
+ __io_remove_buffers
+To:     <axboe@kernel.dk>, <asml.silence@gmail.com>,
+        <io-uring@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+References: <20211122024737.2198530-1-yebin10@huawei.com>
+From:   yebin <yebin10@huawei.com>
+Message-ID: <61A1CC74.5010007@huawei.com>
+Date:   Sat, 27 Nov 2021 14:13:08 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:38.0) Gecko/20100101
+ Thunderbird/38.1.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-FB-Internal: Safe
-Content-Type: text/plain
-X-FB-Source: Intern
-X-Proofpoint-GUID: fC5DMmYKBy-dMQuCe8NhmtMHqCylniDa
-X-Proofpoint-ORIG-GUID: fC5DMmYKBy-dMQuCe8NhmtMHqCylniDa
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.0.607.475
- definitions=2021-11-27_02,2021-11-25_02,2020-04-07_01
-X-Proofpoint-Spam-Details: rule=fb_default_notspam policy=fb_default score=0 clxscore=1015 mlxscore=0
- priorityscore=1501 adultscore=0 suspectscore=0 phishscore=0 bulkscore=0
- malwarescore=0 lowpriorityscore=0 spamscore=0 mlxlogscore=599
- impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2110150000 definitions=main-2111270032
-X-FB-Internal: deliver
+In-Reply-To: <20211122024737.2198530-1-yebin10@huawei.com>
+Content-Type: text/plain; charset="windows-1252"; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.174.178.185]
+X-ClientProxiedBy: dggems705-chm.china.huawei.com (10.3.19.182) To
+ canpemm500010.china.huawei.com (7.192.105.118)
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-This series adds support for getdents64 in liburing. The intent is to
-provide a more complete I/O interface for io_uring.
-
-Patch 1: fs: split off do_iterate_dir from iterate_dir function
-  This splits of the function do_iterate_dir() from the iterate_dir()
-  function and adds a new parameter. The new parameter allows the
-  caller to specify if the position is the file position or the
-  position stored in the buffer context.
-
-  The function iterate_dir() calls do_iterate_dir().
-
-Patch 2: fs: split off vfs_getdents function from getdents64 system call
-  This splits of the iterate_dir part of the syscall in its own
-  dedicated function. This allows to call the function directly from
-  liburing.
-
-Patch 3: io_uring: add support for getdents64
-  Adds the functions to io_uring to support getdents64.
-
-There is also a patch series for the changes to liburing. This includes
-a new test. The patch series is called "liburing: add getdents support."
-
-The following tests have been performed:
-- new liburing getdents test program has been run
-- xfstests have been run
-- both tests have been repeated with the kernel memory leak checker
-  and no leaks have been reported.
-
-Signed-off-by: Stefan Roesch <shr@fb.com>
----
-v5: - remove old patch (v4 contained a patch file from v3)
-
-V4: - silence compiler warnings
-
-V3: - add do_iterate_dir() function to Patch 1
-    - make iterate_dir() function call do_iterate_dir()
-      This has the advantage that the function signature of iterate_dir
-      does not change
-
-V2: Updated the iterate_dir calls in fs/ksmbd, fs/ecryptfs and arch/alpha=
- with
-    the additional parameter.
 
 
-Stefan Roesch (3):
-  fs: split off do_iterate_dir from iterate_dir function
-  fs: split off vfs_getdents function of getdents64 syscall
-  io_uring: add support for getdents64
-
- fs/internal.h                 |  8 +++++
- fs/io_uring.c                 | 52 +++++++++++++++++++++++++++++
- fs/readdir.c                  | 62 ++++++++++++++++++++++++++++-------
- include/uapi/linux/io_uring.h |  1 +
- 4 files changed, 111 insertions(+), 12 deletions(-)
-
-
-base-commit: 4d162e24e9979dcb3d7825229982c172ca4bde54
---=20
-2.30.2
-
+On 2021/11/22 10:47, Ye Bin wrote:
+> I got issue as follows:
+> [ 567.094140] __io_remove_buffers: [1]start ctx=0xffff8881067bf000 bgid=65533 buf=0xffff8881fefe1680
+> [  594.360799] watchdog: BUG: soft lockup - CPU#2 stuck for 26s! [kworker/u32:5:108]
+> [  594.364987] Modules linked in:
+> [  594.365405] irq event stamp: 604180238
+> [  594.365906] hardirqs last  enabled at (604180237): [<ffffffff93fec9bd>] _raw_spin_unlock_irqrestore+0x2d/0x50
+> [  594.367181] hardirqs last disabled at (604180238): [<ffffffff93fbbadb>] sysvec_apic_timer_interrupt+0xb/0xc0
+> [  594.368420] softirqs last  enabled at (569080666): [<ffffffff94200654>] __do_softirq+0x654/0xa9e
+> [  594.369551] softirqs last disabled at (569080575): [<ffffffff913e1d6a>] irq_exit_rcu+0x1ca/0x250
+> [  594.370692] CPU: 2 PID: 108 Comm: kworker/u32:5 Tainted: G            L    5.15.0-next-20211112+ #88
+> [  594.371891] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS ?-20190727_073836-buildvm-ppc64le-16.ppc.fedoraproject.org-3.fc31 04/01/2014
+> [  594.373604] Workqueue: events_unbound io_ring_exit_work
+> [  594.374303] RIP: 0010:_raw_spin_unlock_irqrestore+0x33/0x50
+> [  594.375037] Code: 48 83 c7 18 53 48 89 f3 48 8b 74 24 10 e8 55 f5 55 fd 48 89 ef e8 ed a7 56 fd 80 e7 02 74 06 e8 43 13 7b fd fb bf 01 00 00 00 <e8> f8 78 474
+> [  594.377433] RSP: 0018:ffff888101587a70 EFLAGS: 00000202
+> [  594.378120] RAX: 0000000024030f0d RBX: 0000000000000246 RCX: 1ffffffff2f09106
+> [  594.379053] RDX: 0000000000000000 RSI: ffffffff9449f0e0 RDI: 0000000000000001
+> [  594.379991] RBP: ffffffff9586cdc0 R08: 0000000000000001 R09: fffffbfff2effcab
+> [  594.380923] R10: ffffffff977fe557 R11: fffffbfff2effcaa R12: ffff8881b8f3def0
+> [  594.381858] R13: 0000000000000246 R14: ffff888153a8b070 R15: 0000000000000000
+> [  594.382787] FS:  0000000000000000(0000) GS:ffff888399c00000(0000) knlGS:0000000000000000
+> [  594.383851] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+> [  594.384602] CR2: 00007fcbe71d2000 CR3: 00000000b4216000 CR4: 00000000000006e0
+> [  594.385540] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+> [  594.386474] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+> [  594.387403] Call Trace:
+> [  594.387738]  <TASK>
+> [  594.388042]  find_and_remove_object+0x118/0x160
+> [  594.389321]  delete_object_full+0xc/0x20
+> [  594.389852]  kfree+0x193/0x470
+> [  594.390275]  __io_remove_buffers.part.0+0xed/0x147
+> [  594.390931]  io_ring_ctx_free+0x342/0x6a2
+> [  594.392159]  io_ring_exit_work+0x41e/0x486
+> [  594.396419]  process_one_work+0x906/0x15a0
+> [  594.399185]  worker_thread+0x8b/0xd80
+> [  594.400259]  kthread+0x3bf/0x4a0
+> [  594.401847]  ret_from_fork+0x22/0x30
+> [  594.402343]  </TASK>
+>
+> Message from syslogd@localhost at Nov 13 09:09:54 ...
+> kernel:watchdog: BUG: soft lockup - CPU#2 stuck for 26s! [kworker/u32:5:108]
+> [  596.793660] __io_remove_buffers: [2099199]start ctx=0xffff8881067bf000 bgid=65533 buf=0xffff8881fefe1680
+>
+> We can reproduce this issue by follow syzkaller log:
+> r0 = syz_io_uring_setup(0x401, &(0x7f0000000300), &(0x7f0000003000/0x2000)=nil, &(0x7f0000ff8000/0x4000)=nil, &(0x7f0000000280)=<r1=>0x0, &(0x7f0000000380)=<r2=>0x0)
+> sendmsg$ETHTOOL_MSG_FEATURES_SET(0xffffffffffffffff, &(0x7f0000003080)={0x0, 0x0, &(0x7f0000003040)={&(0x7f0000000040)=ANY=[], 0x18}}, 0x0)
+> syz_io_uring_submit(r1, r2, &(0x7f0000000240)=@IORING_OP_PROVIDE_BUFFERS={0x1f, 0x5, 0x0, 0x401, 0x1, 0x0, 0x100, 0x0, 0x1, {0xfffd}}, 0x0)
+> io_uring_enter(r0, 0x3a2d, 0x0, 0x0, 0x0, 0x0)
+>
+> The reason above issue  is 'buf->list' has 2,100,000 nodes, occupied cpu lead
+> to soft lockup.
+> To solve this issue, we need add schedule point when do while loop in
+> '__io_remove_buffers'.
+> After add  schedule point we do regression, get follow data.
+> [  240.141864] __io_remove_buffers: [1]start ctx=0xffff888170603000 bgid=65533 buf=0xffff8881116fcb00
+> [  268.408260] __io_remove_buffers: [1]start ctx=0xffff8881b92d2000 bgid=65533 buf=0xffff888130c83180
+> [  275.899234] __io_remove_buffers: [2099199]start ctx=0xffff888170603000 bgid=65533 buf=0xffff8881116fcb00
+> [  296.741404] __io_remove_buffers: [1]start ctx=0xffff8881b659c000 bgid=65533 buf=0xffff8881010fe380
+> [  305.090059] __io_remove_buffers: [2099199]start ctx=0xffff8881b92d2000 bgid=65533 buf=0xffff888130c83180
+> [  325.415746] __io_remove_buffers: [1]start ctx=0xffff8881b92d1000 bgid=65533 buf=0xffff8881a17d8f00
+> [  333.160318] __io_remove_buffers: [2099199]start ctx=0xffff8881b659c000 bgid=65533 buf=0xffff8881010fe380
+> ...
+>
+> Fixes:8bab4c09f24e("io_uring: allow conditional reschedule for intensive iterators")
+> Signed-off-by: Ye Bin <yebin10@huawei.com>
+> ---
+>   fs/io_uring.c | 5 ++---
+>   1 file changed, 2 insertions(+), 3 deletions(-)
+>
+> diff --git a/fs/io_uring.c b/fs/io_uring.c
+> index 76871e3807fd..d8a6446a7921 100644
+> --- a/fs/io_uring.c
+> +++ b/fs/io_uring.c
+> @@ -4327,6 +4327,7 @@ static int __io_remove_buffers(struct io_ring_ctx *ctx, struct io_buffer *buf,
+>   		kfree(nxt);
+>   		if (++i == nbufs)
+>   			return i;
+> +		cond_resched();
+>   	}
+>   	i++;
+>   	kfree(buf);
+> @@ -9258,10 +9259,8 @@ static void io_destroy_buffers(struct io_ring_ctx *ctx)
+>   	struct io_buffer *buf;
+>   	unsigned long index;
+>   
+> -	xa_for_each(&ctx->io_buffers, index, buf) {
+> +	xa_for_each(&ctx->io_buffers, index, buf)
+>   		__io_remove_buffers(ctx, buf, index, -1U);
+> -		cond_resched();
+> -	}
+>   }
+>   
+>   static void io_req_caches_free(struct io_ring_ctx *ctx)
+ping...

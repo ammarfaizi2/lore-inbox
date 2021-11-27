@@ -2,107 +2,134 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 00836C433EF
-	for <io-uring@archiver.kernel.org>; Sat, 27 Nov 2021 02:55:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7D808C433EF
+	for <io-uring@archiver.kernel.org>; Sat, 27 Nov 2021 05:57:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236451AbhK0C6O (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Fri, 26 Nov 2021 21:58:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55770 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240415AbhK0C4O (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Fri, 26 Nov 2021 21:56:14 -0500
-Received: from mail-ed1-x536.google.com (mail-ed1-x536.google.com [IPv6:2a00:1450:4864:20::536])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD4D2C07E5F6
-        for <io-uring@vger.kernel.org>; Fri, 26 Nov 2021 17:51:06 -0800 (PST)
-Received: by mail-ed1-x536.google.com with SMTP id x15so45569590edv.1
-        for <io-uring@vger.kernel.org>; Fri, 26 Nov 2021 17:51:06 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=KY3v76vJAGWXxYiiVuMw8B/ERRQFpA6uxH7HrE6j2qI=;
-        b=VARv6h72XPdwFC+sI7sYBmYBQLg2uGdJqqftxoT5rw8ad75UhV3Ibb/y85o1b4EXfH
-         G1L1DhTMtVXwajrDW+QAJkvLV6xE34mpISf+7pQB6n8zZNbXWy6Kz1MD2w+sAs+Q/pNQ
-         Bom7IQWdvpm8hhV+8JRqRYJgK7TRwKw0kzZhjL+c+RwVnu2H9rWGUg4L7n2mAXSpG2G6
-         cvS72/uFYeDswvjRV7ZT7Gv33wbeiZ/pO1TdZCtArsKHCoGa5x0dO6sDMtPjhQ13SijZ
-         VcaHdRq/T+DXHSzfZUsKn55grEfQPxkjIsd4ZE32542tAHhVzYOF/SxF4pOc1QbFTYAl
-         GA0w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=KY3v76vJAGWXxYiiVuMw8B/ERRQFpA6uxH7HrE6j2qI=;
-        b=y5mybrc53Ake8igUxSmWD0ArIZr0op2BHuR4ETHBq94ustK+7sWZXE1hifYuhBCTdv
-         la1hunxQDwD3269AbufHkt5aofKTUmScQIP+xGCqDfJBQmML5H7Rc1e2VGE4og80GPhl
-         PjL2Oo2dEY4G79vgfGfMCF36tcAE4gz7cqNR+uRXhCJQn6Tu7QURLA9X874p2RzdoPRB
-         IAbfWBPNZwppHYeyscCGUy5O++yzkb5VcVOvlyQ7sWPoPJfbn+bST+qQ2DyRHrRNBQKK
-         HNSTfh4kRbO91w1ULsG6FkpHUSospxqUt7bhpeAAwdCeWm+/nviknZVy3Tq0mVz52C14
-         OBpg==
-X-Gm-Message-State: AOAM531F/uzxsq+pfYkgiUW6TrMlMBAS0sF5FQZ4PQTyV8LiBtU/q353
-        1Hb8ow2lwfh7wq5sH9/+5wPnshAoCq8=
-X-Google-Smtp-Source: ABdhPJxrN3sdQZEzcMksMCSm7AsH8NuLFJ/jYCotBhdKdsqjJPLMjcPxk7zyhrxIWz/Gu02nwVXyCQ==
-X-Received: by 2002:a05:6402:4396:: with SMTP id o22mr50871576edc.263.1637977865079;
-        Fri, 26 Nov 2021 17:51:05 -0800 (PST)
-Received: from 127.0.0.1localhost ([85.255.237.101])
-        by smtp.gmail.com with ESMTPSA id u23sm4806644edi.88.2021.11.26.17.51.04
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 26 Nov 2021 17:51:04 -0800 (PST)
-From:   Pavel Begunkov <asml.silence@gmail.com>
-To:     io-uring@vger.kernel.org
-Cc:     asml.silence@gmail.com
-Subject: [PATCH liburing] man/io_uring_enter.2: document IOSQE_CQE_SKIP_SUCCESS
-Date:   Sat, 27 Nov 2021 01:50:25 +0000
-Message-Id: <381237725f0f09a2668ea7f38b804d5733595b1f.1637977800.git.asml.silence@gmail.com>
-X-Mailer: git-send-email 2.34.0
+        id S1347235AbhK0GBC (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sat, 27 Nov 2021 01:01:02 -0500
+Received: from mx0a-00082601.pphosted.com ([67.231.145.42]:10524 "EHLO
+        mx0a-00082601.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229788AbhK0F7C (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Sat, 27 Nov 2021 00:59:02 -0500
+Received: from pps.filterd (m0044012.ppops.net [127.0.0.1])
+        by mx0a-00082601.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1AQBslLD028944
+        for <io-uring@vger.kernel.org>; Fri, 26 Nov 2021 21:55:48 -0800
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=fb.com; h=from : to : cc : subject
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding : content-type; s=facebook;
+ bh=ksBHQidfEShKnwe7+1AkUOhHNpo3hluOCDtYZipjTtQ=;
+ b=UXEEOtXZa0Mw42tQPu2iU0F7BNfHohIiRK9aDBiL6ALrGixvJW2aHkTLbI9Gn7g/YByr
+ VeqG6ht3v5PUAPITZOPJBJx5yzBeM8WpDVU41qu0PzSQ+tFoCfFgVg1twj5S1RXc2oCQ
+ LMWMPemtDQpw7jTHSvigNAuroahLPM5xCo8= 
+Received: from mail.thefacebook.com ([163.114.132.120])
+        by mx0a-00082601.pphosted.com with ESMTP id 3cjy4emf4b-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NOT)
+        for <io-uring@vger.kernel.org>; Fri, 26 Nov 2021 21:55:47 -0800
+Received: from intmgw001.05.ash7.facebook.com (2620:10d:c085:208::f) by
+ mail.thefacebook.com (2620:10d:c085:11d::6) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2308.20; Fri, 26 Nov 2021 21:55:46 -0800
+Received: by devvm225.atn0.facebook.com (Postfix, from userid 425415)
+        id 51E896F661A6; Fri, 26 Nov 2021 21:55:41 -0800 (PST)
+From:   Stefan Roesch <shr@fb.com>
+To:     <io-uring@vger.kernel.org>, <linux-fsdevel@vger.kernel.org>
+CC:     <shr@fb.com>
+Subject: [PATCH v4 1/3] fs: split off do_iterate_dir from iterate_dir function
+Date:   Fri, 26 Nov 2021 21:55:33 -0800
+Message-ID: <20211127055535.2976876-3-shr@fb.com>
+X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20211127055535.2976876-1-shr@fb.com>
+References: <20211127055535.2976876-1-shr@fb.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-FB-Internal: Safe
+Content-Type: text/plain
+X-FB-Source: Intern
+X-Proofpoint-GUID: Ton7Q512YEM2dvFIhPEStnnBjqKUXU9f
+X-Proofpoint-ORIG-GUID: Ton7Q512YEM2dvFIhPEStnnBjqKUXU9f
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.0.607.475
+ definitions=2021-11-27_02,2021-11-25_02,2020-04-07_01
+X-Proofpoint-Spam-Details: rule=fb_default_notspam policy=fb_default score=0 lowpriorityscore=0
+ suspectscore=0 adultscore=0 impostorscore=0 clxscore=1015 mlxscore=0
+ mlxlogscore=999 phishscore=0 bulkscore=0 priorityscore=1501 malwarescore=0
+ spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2110150000 definitions=main-2111270031
+X-FB-Internal: deliver
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Add a section about IOSQE_CQE_SKIP_SUCCESS describing the behaviour and
-use cases.
+This splits of the function do_iterate_dir() from the iterate_dir()
+function and adds a new parameter. The new parameter allows the
+caller to specify if the position is the file position or the
+position stored in the buffer context.
 
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+The function iterate_dir is calling the new function do_iterate_dir().
+
+This change is required to support getdents in io_uring.
+
+Signed-off-by: Stefan Roesch <shr@fb.com>
 ---
- man/io_uring_enter.2 | 24 ++++++++++++++++++++++++
- 1 file changed, 24 insertions(+)
+ fs/readdir.c | 25 +++++++++++++++++++++----
+ 1 file changed, 21 insertions(+), 4 deletions(-)
 
-diff --git a/man/io_uring_enter.2 b/man/io_uring_enter.2
-index 93b97e6..710e84e 100644
---- a/man/io_uring_enter.2
-+++ b/man/io_uring_enter.2
-@@ -1094,6 +1094,30 @@ are available and this flag is set, then the request will fail with
- as the error code. Once a buffer has been used, it is no longer available in
- the kernel pool. The application must re-register the given buffer again when
- it is ready to recycle it (eg has completed using it). Available since 5.7.
-+.TP
-+.B IOSQE_CQE_SKIP_SUCCESS
-+Instruct to not generate a CQE if the request completes successfully. If the
-+request fails an appropriate CQE will be posted as usual and if there is no
-+.B IOSQE_IO_HARDLINK,
-+CQEs for all linked requests will be omitted. The notion
-+of failure/success is opcode specific and is the same as with breaking chains
-+of
-+.B IOSQE_IO_LINK.
-+One special case is when the request has a linked timeout, then the CQE
-+generation for the linked timeout is decided solely by whether it has
-+.B IOSQE_CQE_SKIP_SUCCESS
-+set, regardless whether it timed out or
-+was cancelled. In other words, if a linked timeout has the flag set, it's
-+guaranteed to not post a CQE.
+diff --git a/fs/readdir.c b/fs/readdir.c
+index 09e8ed7d4161..e9c197edf73a 100644
+--- a/fs/readdir.c
++++ b/fs/readdir.c
+@@ -36,8 +36,15 @@
+ 	unsafe_copy_to_user(dst, src, len, label);		\
+ } while (0)
+=20
+-
+-int iterate_dir(struct file *file, struct dir_context *ctx)
++/**
++ * do_iterate_dir - iterate over directory
++ * @file    : pointer to file struct of directory
++ * @ctx     : pointer to directory ctx structure
++ * @use_fpos: true : use file offset
++ *            false: use pos in ctx structure
++ */
++static int do_iterate_dir(struct file *file, struct dir_context *ctx,
++			  bool use_fpos)
+ {
+ 	struct inode *inode =3D file_inode(file);
+ 	bool shared =3D false;
+@@ -60,12 +67,17 @@ int iterate_dir(struct file *file, struct dir_context=
+ *ctx)
+=20
+ 	res =3D -ENOENT;
+ 	if (!IS_DEADDIR(inode)) {
+-		ctx->pos =3D file->f_pos;
++		if (use_fpos)
++			ctx->pos =3D file->f_pos;
 +
-+The semantics is chosen to accommodate several use cases. First, when all but
-+last requests of a normal link without linked timeouts are marked with the flag,
-+it guarantees to post only one CQE per link. Also, it makes possible to suppress
-+CQEs in cases where side effects of a successfully executed operation will be
-+enough for the userspace to know the state of the system, e.g. writing to
-+a synchronisation file.
+ 		if (shared)
+ 			res =3D file->f_op->iterate_shared(file, ctx);
+ 		else
+ 			res =3D file->f_op->iterate(file, ctx);
+-		file->f_pos =3D ctx->pos;
 +
-+Available since 5.17.
- 
- .PP
- .I ioprio
--- 
-2.34.0
++		if (use_fpos)
++			file->f_pos =3D ctx->pos;
++
+ 		fsnotify_access(file);
+ 		file_accessed(file);
+ 	}
+@@ -76,6 +88,11 @@ int iterate_dir(struct file *file, struct dir_context =
+*ctx)
+ out:
+ 	return res;
+ }
++
++int iterate_dir(struct file *file, struct dir_context *ctx)
++{
++	return do_iterate_dir(file, ctx, true);
++}
+ EXPORT_SYMBOL(iterate_dir);
+=20
+ /*
+--=20
+2.30.2
 

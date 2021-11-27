@@ -2,59 +2,59 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B5398C433EF
-	for <io-uring@archiver.kernel.org>; Sat, 27 Nov 2021 05:57:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8FCD3C433F5
+	for <io-uring@archiver.kernel.org>; Sat, 27 Nov 2021 06:05:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244426AbhK0GBJ (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sat, 27 Nov 2021 01:01:09 -0500
-Received: from mx0b-00082601.pphosted.com ([67.231.153.30]:17922 "EHLO
-        mx0b-00082601.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S243881AbhK0F7G (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Sat, 27 Nov 2021 00:59:06 -0500
-Received: from pps.filterd (m0148460.ppops.net [127.0.0.1])
-        by mx0a-00082601.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1AR2xkkb018917
-        for <io-uring@vger.kernel.org>; Fri, 26 Nov 2021 21:55:52 -0800
+        id S1351637AbhK0GIw (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Sat, 27 Nov 2021 01:08:52 -0500
+Received: from mx0a-00082601.pphosted.com ([67.231.145.42]:12100 "EHLO
+        mx0a-00082601.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S244807AbhK0GGv (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Sat, 27 Nov 2021 01:06:51 -0500
+Received: from pps.filterd (m0109333.ppops.net [127.0.0.1])
+        by mx0a-00082601.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1AR30Oig016260
+        for <io-uring@vger.kernel.org>; Fri, 26 Nov 2021 22:03:38 -0800
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=fb.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding : content-type; s=facebook;
  bh=quLcGe8M8WkNv4h+9Ale0u3mw4BzXj5UDLOKMkH4Z9I=;
- b=Rt9MbbXXTdy6bt6/J07vIMrXmD2f8hJmJzggcA4tdC3WfCE5pggXT/5nIxyqy7mWjxeI
- Jc4Se233an7jnSERXTKuBFQrPbl5K/VPWKuAtZsmgPbbQXCghiuZU2o3Tk+K8sQ8ssHo
- vAijYASbmM3nSWfA2+/YjBa2yjdu8gJlC78= 
+ b=MZDIM3sbMaWrp70ZYzlc9qvXvU0VAe6b1L4W5a7lfRtX2TSxq3nT8dg+ZMxknWpB8+DL
+ pNOCy6t4lkosaeaqbM2Omg1T12SkqknuSni6bx55bt4O+7VS2xR5LZK0ovgXrkTLoO1p
+ LEqDDdRVQl7t+bN2/f1Fq+S6POmmum7gbh0= 
 Received: from maileast.thefacebook.com ([163.114.130.16])
-        by mx0a-00082601.pphosted.com with ESMTP id 3ckcc3rg0n-2
+        by mx0a-00082601.pphosted.com with ESMTP id 3ck3f4jsn0-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NOT)
-        for <io-uring@vger.kernel.org>; Fri, 26 Nov 2021 21:55:52 -0800
-Received: from intmgw001.37.frc1.facebook.com (2620:10d:c0a8:1b::d) by
+        for <io-uring@vger.kernel.org>; Fri, 26 Nov 2021 22:03:37 -0800
+Received: from intmgw001.05.ash9.facebook.com (2620:10d:c0a8:1b::d) by
  mail.thefacebook.com (2620:10d:c0a8:83::4) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2308.20; Fri, 26 Nov 2021 21:55:51 -0800
+ 15.1.2308.20; Fri, 26 Nov 2021 22:03:36 -0800
 Received: by devvm225.atn0.facebook.com (Postfix, from userid 425415)
-        id 56A926F661A8; Fri, 26 Nov 2021 21:55:41 -0800 (PST)
+        id 1AFB36F679A8; Fri, 26 Nov 2021 22:03:35 -0800 (PST)
 From:   Stefan Roesch <shr@fb.com>
 To:     <io-uring@vger.kernel.org>, <linux-fsdevel@vger.kernel.org>
 CC:     <shr@fb.com>, Christian Brauner <christian.brauner@ubuntu.com>
-Subject: [PATCH v4 2/3] fs: split off vfs_getdents function of getdents64 syscall
-Date:   Fri, 26 Nov 2021 21:55:34 -0800
-Message-ID: <20211127055535.2976876-4-shr@fb.com>
+Subject: [PATCH v5 2/3] fs: split off vfs_getdents function of getdents64 syscall
+Date:   Fri, 26 Nov 2021 22:03:25 -0800
+Message-ID: <20211127060326.3018505-3-shr@fb.com>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20211127055535.2976876-1-shr@fb.com>
-References: <20211127055535.2976876-1-shr@fb.com>
+In-Reply-To: <20211127060326.3018505-1-shr@fb.com>
+References: <20211127060326.3018505-1-shr@fb.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
 X-FB-Internal: Safe
 Content-Type: text/plain
 X-FB-Source: Intern
-X-Proofpoint-GUID: T7F_AsWeQjYBHwDKvY-n34N1WoGOPX7W
-X-Proofpoint-ORIG-GUID: T7F_AsWeQjYBHwDKvY-n34N1WoGOPX7W
+X-Proofpoint-ORIG-GUID: 94J3-VDLXodr2na5nfXUyhdVeDu0AsIT
+X-Proofpoint-GUID: 94J3-VDLXodr2na5nfXUyhdVeDu0AsIT
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.0.607.475
  definitions=2021-11-27_02,2021-11-25_02,2020-04-07_01
-X-Proofpoint-Spam-Details: rule=fb_default_notspam policy=fb_default score=0 clxscore=1015
- impostorscore=0 malwarescore=0 mlxscore=0 mlxlogscore=827
- priorityscore=1501 adultscore=0 bulkscore=0 phishscore=0 spamscore=0
- suspectscore=0 lowpriorityscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2110150000 definitions=main-2111270031
+X-Proofpoint-Spam-Details: rule=fb_default_notspam policy=fb_default score=0 impostorscore=0
+ lowpriorityscore=0 mlxscore=0 spamscore=0 bulkscore=0 phishscore=0
+ malwarescore=0 suspectscore=0 adultscore=0 mlxlogscore=827
+ priorityscore=1501 clxscore=1015 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2110150000 definitions=main-2111270032
 X-FB-Internal: deliver
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>

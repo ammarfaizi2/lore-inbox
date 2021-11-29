@@ -2,161 +2,118 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 845E7C433EF
-	for <io-uring@archiver.kernel.org>; Mon, 29 Nov 2021 22:13:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 53A07C433EF
+	for <io-uring@archiver.kernel.org>; Mon, 29 Nov 2021 22:13:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231132AbhK2WQV (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Mon, 29 Nov 2021 17:16:21 -0500
-Received: from mx0a-00082601.pphosted.com ([67.231.145.42]:24388 "EHLO
+        id S231143AbhK2WQY (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Mon, 29 Nov 2021 17:16:24 -0500
+Received: from mx0a-00082601.pphosted.com ([67.231.145.42]:64216 "EHLO
         mx0a-00082601.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231131AbhK2WQV (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Mon, 29 Nov 2021 17:16:21 -0500
+        by vger.kernel.org with ESMTP id S231131AbhK2WQY (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Mon, 29 Nov 2021 17:16:24 -0500
 Received: from pps.filterd (m0148461.ppops.net [127.0.0.1])
-        by mx0a-00082601.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1ATIlAoe028212
-        for <io-uring@vger.kernel.org>; Mon, 29 Nov 2021 14:13:02 -0800
+        by mx0a-00082601.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1ATIlAHB028209
+        for <io-uring@vger.kernel.org>; Mon, 29 Nov 2021 14:13:06 -0800
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=fb.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding : content-type; s=facebook;
- bh=r8StrTaZD8bttQsZuBxeUQ8HxsyxBTGKeS63+8sOiQ4=;
- b=VdbVEgX29HZlLTY85o5AH0iIma2zlnCH8rCO4CAYV8cKNaqaegATk/exXgCiu9tDWcrz
- AuBAoVZiG3k2iMwr3bZPqFKI5IEI/91wvo64lgfrwvKZuMG/ZpLZsLt2MFnWtu7UXUkK
- mrp0Pf2tVztHW6oib5NGKocNsXE1jbw0GgA= 
+ : date : message-id : mime-version : content-transfer-encoding :
+ content-type; s=facebook; bh=pVviU5mxg2/Smsx8Rzj+SaCUpgPyEzC+zB0KIO4GyRQ=;
+ b=Y5qA+lW7Ss11N2tOxTmq0bDwtLqg1dtXjSPDLzL3LNs7ucNJ5ysyUi8k6WXGJLkKe+NZ
+ r0QfwikYV9eHDry1lDpgIsm939K5MpzmxI3/iSQD+0Wv/Sd9gYAk6Gw7lw14tTcT5IcR
+ 1bObXSwU6fjQRoms6KsPW60vJ1n0zgR0Gbc= 
 Received: from maileast.thefacebook.com ([163.114.130.16])
-        by mx0a-00082601.pphosted.com with ESMTP id 3cn1as32g9-1
+        by mx0a-00082601.pphosted.com with ESMTP id 3cn1as32gg-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NOT)
-        for <io-uring@vger.kernel.org>; Mon, 29 Nov 2021 14:13:02 -0800
-Received: from intmgw001.37.frc1.facebook.com (2620:10d:c0a8:1b::d) by
- mail.thefacebook.com (2620:10d:c0a8:83::5) with Microsoft SMTP Server
+        for <io-uring@vger.kernel.org>; Mon, 29 Nov 2021 14:13:05 -0800
+Received: from intmgw001.05.ash9.facebook.com (2620:10d:c0a8:1b::d) by
+ mail.thefacebook.com (2620:10d:c0a8:83::7) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2308.20; Mon, 29 Nov 2021 14:13:01 -0800
+ 15.1.2308.20; Mon, 29 Nov 2021 14:13:04 -0800
 Received: by devvm225.atn0.facebook.com (Postfix, from userid 425415)
-        id 9DB45710160A; Mon, 29 Nov 2021 14:12:59 -0800 (PST)
+        id 8DB7D7101604; Mon, 29 Nov 2021 14:12:59 -0800 (PST)
 From:   Stefan Roesch <shr@fb.com>
 To:     <io-uring@vger.kernel.org>, <linux-fsdevel@vger.kernel.org>
 CC:     <shr@fb.com>
-Subject: [PATCH v1 3/5] fs: split off the vfs_getxattr from getxattr
-Date:   Mon, 29 Nov 2021 14:12:55 -0800
-Message-ID: <20211129221257.2536146-4-shr@fb.com>
+Subject: [PATCH v1 0/5] io_uring: add xattr support
+Date:   Mon, 29 Nov 2021 14:12:52 -0800
+Message-ID: <20211129221257.2536146-1-shr@fb.com>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20211129221257.2536146-1-shr@fb.com>
-References: <20211129221257.2536146-1-shr@fb.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
 X-FB-Internal: Safe
 Content-Type: text/plain
 X-FB-Source: Intern
-X-Proofpoint-GUID: 22SsrEJ9WR1XiQ8x1-WuyFYBucorJ8LL
-X-Proofpoint-ORIG-GUID: 22SsrEJ9WR1XiQ8x1-WuyFYBucorJ8LL
+X-Proofpoint-GUID: ruc92T2Mj9t_GSR9AwtNSM9kw6J-X64N
+X-Proofpoint-ORIG-GUID: ruc92T2Mj9t_GSR9AwtNSM9kw6J-X64N
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.0.607.475
  definitions=2021-11-29_11,2021-11-28_01,2020-04-07_01
 X-Proofpoint-Spam-Details: rule=fb_default_notspam policy=fb_default score=0 priorityscore=1501
  impostorscore=0 suspectscore=0 malwarescore=0 adultscore=0 bulkscore=0
  spamscore=0 phishscore=0 clxscore=1015 mlxscore=0 lowpriorityscore=0
- mlxlogscore=896 classifier=spam adjust=0 reason=mlx scancount=1
+ mlxlogscore=978 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2110150000 definitions=main-2111290105
 X-FB-Internal: deliver
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Summary:
+This adds the xattr support to io_uring. The intent is to have a more
+complete support for file operations in io_uring.
 
-This splits off vfs_getxattr call from the getxattr
-function. This will allow io_uring to call it from
-its io worker.
+This change adds support for the following functions to io_uring:
+- fgetxattr
+- fsetxattr
+- getxattr
+- setxattr
+
+Patch 1: fs: make user_path_at_empty() take a struct filename
+  The user_path_at_empty filename parameter has been changed
+  from a const char user pointer to a filename struct. io_uring
+  operates on filenames.
+  In addition also the functions that call user_path_at_empty
+  in namei.c and stat.c have been modified for this change.
+
+Patch 2: fs: split off setxattr_setup function from setxattr
+  Split off the setup part of the setxattr function
+
+Patch 3: fs: split off the vfs_getxattr from getxattr
+  Split of the vfs_getxattr part from getxattr. This will
+  allow to invoke it from io_uring.
+
+Patch 4: io_uring: add fsetxattr and setxattr support
+  This adds new functions to support the fsetxattr and setxattr
+  functions.
+
+Patch 5: io_uring: add fgetxattr and getxattr support
+  This adds new functions to support the fgetxattr and getxattr
+  functions.
+
+
+There are two additional patches:
+  liburing: Add support for xattr api's.
+            This also includes the tests for the new code.
+  xfstests: Add support for io_uring xattr support.
+
+
+Stefan Roesch (5):
+  fs: make user_path_at_empty() take a struct filename
+  fs: split off setxattr_setup function from setxattr
+  fs: split off the vfs_getxattr from getxattr
+  io_uring: add fsetxattr and setxattr support
+  io_uring: add fgetxattr and getxattr support
+
+ fs/internal.h                 |  23 +++
+ fs/io_uring.c                 | 325 ++++++++++++++++++++++++++++++++++
+ fs/namei.c                    |   5 +-
+ fs/stat.c                     |   7 +-
+ fs/xattr.c                    | 114 +++++++-----
+ include/linux/namei.h         |   4 +-
+ include/uapi/linux/io_uring.h |   8 +-
+ 7 files changed, 439 insertions(+), 47 deletions(-)
+
 
 Signed-off-by: Stefan Roesch <shr@fb.com>
----
- fs/internal.h |  6 ++++++
- fs/xattr.c    | 37 +++++++++++++++++++++++--------------
- 2 files changed, 29 insertions(+), 14 deletions(-)
-
-diff --git a/fs/internal.h b/fs/internal.h
-index c5c82bfb5ecf..9805415b199c 100644
---- a/fs/internal.h
-+++ b/fs/internal.h
-@@ -208,6 +208,12 @@ struct xattr_ctx {
- 	int flags;
- };
-=20
-+ssize_t do_getxattr(struct user_namespace *mnt_userns,
-+		    struct dentry *d,
-+		    const char *kname,
-+		    void __user *value,
-+		    size_t size);
-+
- void *setxattr_setup(struct user_namespace *mnt_userns,
- 		     const char __user *name,
- 		     struct xattr_ctx *data);
-diff --git a/fs/xattr.c b/fs/xattr.c
-index 13963b914ac5..9e1dba601a03 100644
---- a/fs/xattr.c
-+++ b/fs/xattr.c
-@@ -666,19 +666,12 @@ SYSCALL_DEFINE5(fsetxattr, int, fd, const char __us=
-er *, name,
- /*
-  * Extended attribute GET operations
-  */
--static ssize_t
--getxattr(struct user_namespace *mnt_userns, struct dentry *d,
--	 const char __user *name, void __user *value, size_t size)
-+ssize_t
-+do_getxattr(struct user_namespace *mnt_userns, struct dentry *d,
-+	 const char *name, void __user *value, size_t size)
- {
--	ssize_t error;
- 	void *kvalue =3D NULL;
--	char kname[XATTR_NAME_MAX + 1];
--
--	error =3D strncpy_from_user(kname, name, sizeof(kname));
--	if (error =3D=3D 0 || error =3D=3D sizeof(kname))
--		error =3D -ERANGE;
--	if (error < 0)
--		return error;
-+	size_t error;
-=20
- 	if (size) {
- 		if (size > XATTR_SIZE_MAX)
-@@ -688,10 +681,10 @@ getxattr(struct user_namespace *mnt_userns, struct =
-dentry *d,
- 			return -ENOMEM;
- 	}
-=20
--	error =3D vfs_getxattr(mnt_userns, d, kname, kvalue, size);
-+	error =3D vfs_getxattr(mnt_userns, d, name, kvalue, size);
- 	if (error > 0) {
--		if ((strcmp(kname, XATTR_NAME_POSIX_ACL_ACCESS) =3D=3D 0) ||
--		    (strcmp(kname, XATTR_NAME_POSIX_ACL_DEFAULT) =3D=3D 0))
-+		if ((strcmp(name, XATTR_NAME_POSIX_ACL_ACCESS) =3D=3D 0) ||
-+		    (strcmp(name, XATTR_NAME_POSIX_ACL_DEFAULT) =3D=3D 0))
- 			posix_acl_fix_xattr_to_user(mnt_userns, kvalue, error);
- 		if (size && copy_to_user(value, kvalue, error))
- 			error =3D -EFAULT;
-@@ -706,6 +699,22 @@ getxattr(struct user_namespace *mnt_userns, struct d=
-entry *d,
- 	return error;
- }
-=20
-+static ssize_t
-+getxattr(struct user_namespace *mnt_userns, struct dentry *d,
-+	 const char __user *name, void __user *value, size_t size)
-+{
-+	ssize_t error;
-+	char kname[XATTR_NAME_MAX + 1];
-+
-+	error =3D strncpy_from_user(kname, name, sizeof(kname));
-+	if (error =3D=3D 0 || error =3D=3D sizeof(kname))
-+		error =3D -ERANGE;
-+	if (error < 0)
-+		return error;
-+
-+	return do_getxattr(mnt_userns, d, kname, value, size);
-+}
-+
- static ssize_t path_getxattr(const char __user *pathname,
- 			     const char __user *name, void __user *value,
- 			     size_t size, unsigned int lookup_flags)
+base-commit: c2626d30f312afc341158e07bf088f5a23b4eeeb
 --=20
 2.30.2
 

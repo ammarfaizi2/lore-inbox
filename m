@@ -2,51 +2,51 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AD69DC43217
-	for <io-uring@archiver.kernel.org>; Tue, 30 Nov 2021 15:20:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2C42CC433F5
+	for <io-uring@archiver.kernel.org>; Tue, 30 Nov 2021 15:20:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245193AbhK3PX7 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Tue, 30 Nov 2021 10:23:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38568 "EHLO
+        id S245310AbhK3PYA (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Tue, 30 Nov 2021 10:24:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38468 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245054AbhK3PX1 (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Tue, 30 Nov 2021 10:23:27 -0500
-Received: from mail-wr1-x42c.google.com (mail-wr1-x42c.google.com [IPv6:2a00:1450:4864:20::42c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A0D6C061375;
-        Tue, 30 Nov 2021 07:19:19 -0800 (PST)
-Received: by mail-wr1-x42c.google.com with SMTP id d24so45283310wra.0;
-        Tue, 30 Nov 2021 07:19:19 -0800 (PST)
+        with ESMTP id S245087AbhK3PX2 (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Tue, 30 Nov 2021 10:23:28 -0500
+Received: from mail-wm1-x32f.google.com (mail-wm1-x32f.google.com [IPv6:2a00:1450:4864:20::32f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 461B4C061D66;
+        Tue, 30 Nov 2021 07:19:29 -0800 (PST)
+Received: by mail-wm1-x32f.google.com with SMTP id p3-20020a05600c1d8300b003334fab53afso19808690wms.3;
+        Tue, 30 Nov 2021 07:19:29 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=xyNcpqxcIBBNZJQ9OcGvMY0NcQfvE16HAkocAw8GQTE=;
-        b=QTujXjit+MlFkHiJKOfEXVYlvgYo9CSoXvzuCein02qKaQavN+gvUUKj9uQc9ynAtT
-         eNR6xBUgKr7KbceD80X0jzawZO0a7RodXAm4VLfmDMen+4hlsORK4yIMoQXuNBHv9/HS
-         MVc3d4XXWfoHXI2D7K+8SywMgvSwT9jAdGnnx3YIGPygWKAgb3lnVscDlQcfjMpoDVIC
-         uAzMfUwoqReq7vm5YdLWUME4rP4yQJmFb1/VvVxnWxIi3n1A1pByRFNpHkCRu+Mjs8qz
-         gX7/YGwtRD3vGRBCB9ASkzo4nVTiTJy9wWxer7LYWfvDV+2PqbnQt/Z+kEygV+vvLVrr
-         7MqQ==
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=AHZdLicu5JTswxvmP1cJP+tnU4fdIGy/YGmaAwYSNng=;
+        b=JxJxAuiEXFOoi58byq6joGDTGf2JhnIfmxBFzRjTAYUXuWYv9rPisOm8L5vXXghWas
+         egruRQt39gsr8Nns+Y0X1ie2tdAEhxNrCPcB961bAjhCSmVdMZg1jzGXllKjT4aMQusL
+         dKz5WAVhequnihKy5xvcDRRcrP2A8ZX+QVJzBqNIHHzjiV0aVybbwe0ZutCk/3QawTHv
+         pRM7E7GCLNl6NUW+eDcH2YzkXpH1S5HzK8nLx4ip9LfRKf2LYsxTykbn8Ok+5s7xv975
+         I1veStJs2NObgfJyJfaIbzeVVk84rnZOAaUrQhpWHPdu1X5APXAsPiUyinn/+pznFSr5
+         HVXA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=xyNcpqxcIBBNZJQ9OcGvMY0NcQfvE16HAkocAw8GQTE=;
-        b=v5MK48f55CwRjg4NVIMDetzOnd0UjpR8mfXIKesneAe9apmmlOG9p91A6vLHfsAa8o
-         Zc4QJ8dxlWkoYE+PjHpPYuw0N6ThoZHw5Yn9jNerGQUNiHgKpwzr4FbNfbhdwgyaoCDo
-         S2zGB8jBzQIi76Mp9jcS45yjMSN6how0N/CcrfYcHjiq6Pjg98gvep4wxyQDAEPDLfcg
-         Ehc9hWzOFVdqYk5rNM36Pbzj3jg9A1j6bhRgmH3IibV1RYPMP0YVMgYLJroevezn5i4L
-         jqfuGDI2VBt9GHb8ZS9oWB8gyKWnYDt68UyVnCFgqCoyWXca6LTmNRRcvgoNrgBJ1/L8
-         JkLQ==
-X-Gm-Message-State: AOAM533AKrBPq0MHfVsGOLVLwdByozLODEa84/RTlXi90NTh3KanwZ7g
-        P8DEEbaHTD3ZPcPX1U3Pj3AxB5y3K5I=
-X-Google-Smtp-Source: ABdhPJw+r1T8O0TgAUQ4SiiUmL95Nc1MPH1cEBwNrha5H8w+EdjC644VghcD0gH58OlGyv559uR+eg==
-X-Received: by 2002:adf:a404:: with SMTP id d4mr42045080wra.556.1638285557933;
-        Tue, 30 Nov 2021 07:19:17 -0800 (PST)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=AHZdLicu5JTswxvmP1cJP+tnU4fdIGy/YGmaAwYSNng=;
+        b=BrYA4cYvdwPog2hfxJRGxh6kx6aC00fPjre4eYDobxwR8jU1qOdkjSlMjfRkKQHjGp
+         0oMmlIUGscARCe6IXfqa8mikguZpq26WW+SWxzcJjnS3FepNzDpetsDsBapRfp3IeUxA
+         gUOvOjIriUFuXCqArj0mDRamcysmMs7JpMqdCGdBPVwrfQNnT/AmHukDWrwFa6oR4X76
+         1ZSi0tpAOrYF3VHK6h5Oy607ZVulNXzV1y5bpGATIPOGkoHE9di1TvOukRUU4PephOHH
+         ILtEbuklXkbN05Gi8qcAGz6SY/hFeBAtlYfXuAKTnVBITSu8IhLB1ydl03qs57mJ6Ijh
+         64Ww==
+X-Gm-Message-State: AOAM532OI/Eh37uzNmnfL+MTMrhehCYhVUJj0GlNqzqzwx349m2Wk1qn
+        KZ7MglrZr2qKI7EzlyTbLrdvY+r8emY=
+X-Google-Smtp-Source: ABdhPJxiURr+gLV6BLitN1LZ2XVOPzmJ+4lLj+gBwpCBcbot95y/GHGwK/EY6/nogXD+enloBTpeiQ==
+X-Received: by 2002:a7b:c756:: with SMTP id w22mr107379wmk.34.1638285567620;
+        Tue, 30 Nov 2021 07:19:27 -0800 (PST)
 Received: from 127.0.0.1localhost ([85.255.232.109])
-        by smtp.gmail.com with ESMTPSA id d1sm16168483wrz.92.2021.11.30.07.19.16
+        by smtp.gmail.com with ESMTPSA id d1sm16168483wrz.92.2021.11.30.07.19.26
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 30 Nov 2021 07:19:17 -0800 (PST)
+        Tue, 30 Nov 2021 07:19:27 -0800 (PST)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     io-uring@vger.kernel.org, netdev@vger.kernel.org,
         linux-kernel@vger.kernel.org
@@ -58,169 +58,231 @@ Cc:     Jakub Kicinski <kuba@kernel.org>,
         Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>,
         David Ahern <dsahern@kernel.org>, Jens Axboe <axboe@kernel.dk>,
         Pavel Begunkov <asml.silence@gmail.com>
-Subject: [RFC 00/12] io_uring zerocopy send
-Date:   Tue, 30 Nov 2021 15:18:48 +0000
-Message-Id: <cover.1638282789.git.asml.silence@gmail.com>
+Subject: [RFC 08/12] io_uring: wire send zc request type
+Date:   Tue, 30 Nov 2021 15:18:56 +0000
+Message-Id: <e35fad0fdada4bb46397292c729663a337fcaf77.1638282789.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.34.0
+In-Reply-To: <cover.1638282789.git.asml.silence@gmail.com>
+References: <cover.1638282789.git.asml.silence@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Early proof of concept for zerocopy send via io_uring. This is just
-an RFC, there are details yet to be figured out, but hope to gather
-some feedback.
+Add a new io_uring opcode IORING_OP_SENDZC. The main distinction from
+other send requests is that the user should specify a tx context index,
+which will notifiy the userspace when the kernel doesn't need the
+buffers anymore and it's safe to reuse them. So, overwriting data
+buffers is racy before getting a separate notification even when the
+request is already completed.
 
-Benchmarking udp (65435 bytes) with a dummy net device (mtu=0xffff):
-The best case io_uring=116079 MB/s vs msg_zerocopy=47421 MB/s,
-or 2.44 times faster.
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+---
+ fs/io_uring.c                 | 120 +++++++++++++++++++++++++++++++++-
+ include/uapi/linux/io_uring.h |   2 +
+ 2 files changed, 121 insertions(+), 1 deletion(-)
 
-№ | test:                                | BW (MB/s)  | speedup
-1 | msg_zerocopy (non-zc)                |  18281     | 0.38
-2 | msg_zerocopy -z (baseline)           |  47421     | 1
-3 | io_uring (@flush=false, nr_reqs=1)   |  96534     | 2.03
-4 | io_uring (@flush=true,  nr_reqs=1)   |  89310     | 1.88
-5 | io_uring (@flush=false, nr_reqs=8)   | 116079     | 2.44
-6 | io_uring (@flush=true,  nr_reqs=8)   | 109722     | 2.31
-
-Based on selftests/.../msg_zerocopy but more limited. You can use
-msg_zerocopy -r as usual for receive side.
-
-@nr_reqs controls how many io_uring requests we submit per syscall, e.g.
-nr_reqs=1 avoids any io_uring batching, which is wasteful.
-@flush controls whether to generate "buffer not used" event per request
-or not at all. The API and implementation is more flexible, e.g. allows
-to have one notification per N requests, but not added to the benchmark.
-
-It's ipv4/udp only for now. The concept works well with tcp as well, but
-omitted patches for now.
-
-# design
-
-The userspace design is briefly outlined in the message to 06/12. In
-short, it allows to attach several io_uring send requests to one of
-pre-registered notification contexts, and the userspace can "flush"
-a notification from that context making it to post an event into
-the io_uring's completion queue when buffers are no more in use.
-
-From the net perspective, as ubuf_info's are controlled by io_uring, we
-need a way to pass it from outside, which is currently done through a
-new struct msghdr::msg_ubuf field.
-
-Note: one great aspect ubufs being controlled from outside is that
-it doesn't matter whether the net actually uses the ubuf or not, the
-userspace gets the same API in terms of events delivery: it'll get
-that additional event about buffers even it wasn't zerocopy.
-
-Another big part is 5/12, which allows to skip get/put_page() for
-io_uring's fixed buffers. io_uring ensures that the pages stay alive
-until the corresponding ubuf_info is released.
-
-# performance:
-
-The worst case for io_uring is (4), still 1.88 times faster than
-msg_zerocopy (2), and there are a couple of "easy" optimisations left
-out from the patchset. For 4096 bytes payload zc is only slightly
-outperforms non-zc version, the larger payload the wider gap.
-I'll get more numbers next time.
-
-Comparing (3) and (4), and (5) vs (6), @flush doesn't affect it too
-much. Notification posting is not a big problem for now, but need
-to compare the performance for when io_uring_tx_zerocopy_callback()
-is called from IRQ context, and possible rework it to use task_work.
-
-It supports both, regular buffers and fixed ones, but there is a bunch of
-optimisations exclusively for io_uring's fixed buffers. For comparison,
-normal vs fixed buffers (@nr_reqs=8, @flush=0): 75677 vs 116079 MB/s
-
-1) we pass a bvec, so no page table walks.
-2) zerocopy_sg_from_iter() is just slow, adding a bvec optimised version
-   still doing page get/put (see 4/12) slashed 4-5%.
-3) avoiding get_page/put_page in 5/12
-4) completion events are posted into io_uring's CQ, so no
-   extra recvmsg for getting events
-5) no poll(2) in the code because of io_uring
-6) lot of time is spent in sock_omalloc()/free allocating ubuf_info.
-   io_uring caches the structures reducing it to nearly zero-overhead.
-
-io_uring adds some overhead but there are also benefits of using it,
-e.g. fixed files and submission batching (@nr_reqs). We can look at
-@nr_reqs=1 test cases for more of a "net-only" optimisations.
-
-# discussion / questions
-
-I haven't got a grasp on many aspects of the net stack yet, so would
-appreciate feedback in general and there are a couple of questions
-thoughts.
-
-1) What are initialisation rules for adding a new field into
-struct mshdr? E.g. many users (mainly LLD) hand code initialisation not
-filling all the fields.
-
-2) I don't like too much ubuf_info propagation from udp_sendmsg() into
-__ip_append_data() (see 3/12). Ideas how to do it better?
-
-3) 5/12 is a quick'n'dirty patch for letting upper layer to manage page
-references but likely needs more work. One problem is to prevent mixing
-such pages managed by upper layer and normal referenced ones, that's
-what SKBFL_MANAGED_FRAGS is about and many chunk trying to make the
-accounting of it right. Any pitfalls I missed? Would really love some
-ideas and advice here, e.g. how to make it cleaner and/or remove
-overhead from non-zc path.
-
-# references
-
-Kernel git branch for convenience:
-https://github.com/isilence/linux.git zc_v1
-
-Benchmark:
-https://github.com/isilence/liburing.git zc_v1
-
-or this file in particular:
-https://github.com/isilence/liburing/blob/zc_v1/test/send-zc.c
-
-To run the benchmark:
-```
-cd <liburing_dir> && make && cd test
-# ./send-zc -4 [-p <port>] [-s <payload_size>] -D <destination> udp
-./send-zc -4 -D 127.0.0.1 udp
-```
-
-msg_zerocopy can be used for the server side, e.g.
-```
-cd <linux-kernel>/tools/testing/selftests/net && make
-./msg_zerocopy -4 -r [-p <port>] [-t <sec>] udp
-```
-
-Pavel Begunkov (12):
-  skbuff: add SKBFL_DONT_ORPHAN flag
-  skbuff: pass a struct ubuf_info in msghdr
-  net/udp: add support msgdr::msg_ubuf
-  net: add zerocopy_sg_from_iter for bvec
-  net: optimise page get/free for bvec zc
-  io_uring: add send notifiers registration
-  io_uring: infrastructure for send zc notifications
-  io_uring: wire send zc request type
-  io_uring: add an option to flush zc notifications
-  io_uring: opcode independent fixed buf import
-  io_uring: sendzc with fixed buffers
-  io_uring: cache struct ubuf_info
-
- fs/io_uring.c                 | 397 +++++++++++++++++++++++++++++++++-
- include/linux/skbuff.h        |  15 +-
- include/linux/socket.h        |   1 +
- include/net/ip.h              |   3 +-
- include/uapi/linux/io_uring.h |  14 ++
- net/compat.c                  |   1 +
- net/core/datagram.c           |  59 +++++
- net/core/skbuff.c             |  18 +-
- net/ipv4/ip_output.c          |  35 ++-
- net/ipv4/udp.c                |   2 +-
- net/socket.c                  |   3 +
- 11 files changed, 521 insertions(+), 27 deletions(-)
-
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 6ca02e60fa48..337eb91f0198 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -600,6 +600,16 @@ struct io_sr_msg {
+ 	size_t				len;
+ };
+ 
++struct io_sendzc {
++	struct file			*file;
++	void __user			*buf;
++	size_t				len;
++	struct io_tx_ctx 		*tx_ctx;
++	int				msg_flags;
++	int				addr_len;
++	void __user			*addr;
++};
++
+ struct io_open {
+ 	struct file			*file;
+ 	int				dfd;
+@@ -874,6 +884,7 @@ struct io_kiocb {
+ 		struct io_mkdir		mkdir;
+ 		struct io_symlink	symlink;
+ 		struct io_hardlink	hardlink;
++		struct io_sendzc	msgzc;
+ 	};
+ 
+ 	u8				opcode;
+@@ -1123,6 +1134,12 @@ static const struct io_op_def io_op_defs[] = {
+ 	[IORING_OP_MKDIRAT] = {},
+ 	[IORING_OP_SYMLINKAT] = {},
+ 	[IORING_OP_LINKAT] = {},
++	[IORING_OP_SENDZC] = {
++		.needs_file		= 1,
++		.unbound_nonreg_file	= 1,
++		.pollout		= 1,
++		.audit_skip		= 1,
++	},
+ };
+ 
+ /* requests with any of those set should undergo io_disarm_next() */
+@@ -1999,7 +2016,6 @@ static struct io_tx_notifier *io_alloc_tx_notifier(struct io_ring_ctx *ctx,
+ 	return notifier;
+ }
+ 
+-__attribute__((unused))
+ static inline struct io_tx_notifier *io_get_tx_notifier(struct io_ring_ctx *ctx,
+ 							struct io_tx_ctx *tx_ctx)
+ {
+@@ -5025,6 +5041,102 @@ static int io_send(struct io_kiocb *req, unsigned int issue_flags)
+ 	return 0;
+ }
+ 
++static int io_sendzc_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
++{
++	struct io_ring_ctx *ctx = req->ctx;
++	struct io_sendzc *sr = &req->msgzc;
++	unsigned int idx;
++
++	if (unlikely(req->ctx->flags & IORING_SETUP_IOPOLL))
++		return -EINVAL;
++	if (READ_ONCE(sqe->ioprio))
++		return -EINVAL;
++
++	sr->buf = u64_to_user_ptr(READ_ONCE(sqe->addr));
++	sr->len = READ_ONCE(sqe->len);
++	sr->msg_flags = READ_ONCE(sqe->msg_flags) | MSG_NOSIGNAL;
++	if (sr->msg_flags & MSG_DONTWAIT)
++		req->flags |= REQ_F_NOWAIT;
++
++	idx = READ_ONCE(sqe->tx_ctx_idx);
++	if (idx > ctx->nr_tx_ctxs)
++		return -EINVAL;
++	idx = array_index_nospec(idx, ctx->nr_tx_ctxs);
++	req->msgzc.tx_ctx = &ctx->tx_ctxs[idx];
++
++	sr->addr = u64_to_user_ptr(READ_ONCE(sqe->addr2));
++	sr->addr_len = READ_ONCE(sqe->__pad2[0]);
++
++#ifdef CONFIG_COMPAT
++	if (req->ctx->compat)
++		sr->msg_flags |= MSG_CMSG_COMPAT;
++#endif
++	return 0;
++}
++
++static int io_sendzc(struct io_kiocb *req, unsigned int issue_flags)
++{
++	struct sockaddr_storage address;
++	struct io_ring_ctx *ctx = req->ctx;
++	struct io_tx_notifier *notifier;
++	struct io_sendzc *sr = &req->msgzc;
++	struct msghdr msg;
++	struct iovec iov;
++	struct socket *sock;
++	unsigned flags;
++	int ret, min_ret = 0;
++
++	sock = sock_from_file(req->file);
++	if (unlikely(!sock))
++		return -ENOTSOCK;
++	ret = import_single_range(WRITE, sr->buf, sr->len, &iov, &msg.msg_iter);
++	if (unlikely(ret))
++		return ret;
++
++	msg.msg_name = NULL;
++	msg.msg_control = NULL;
++	msg.msg_controllen = 0;
++	msg.msg_namelen = 0;
++	if (sr->addr) {
++		ret = move_addr_to_kernel(sr->addr, sr->addr_len, &address);
++		if (ret < 0)
++			return ret;
++		msg.msg_name = (struct sockaddr *)&address;
++		msg.msg_namelen = sr->addr_len;
++	}
++
++	io_ring_submit_lock(ctx, issue_flags & IO_URING_F_UNLOCKED);
++	notifier = io_get_tx_notifier(ctx, req->msgzc.tx_ctx);
++	if (!notifier) {
++		req_set_fail(req);
++		ret = -ENOMEM;
++		goto out;
++	}
++	msg.msg_ubuf = &notifier->uarg;
++
++	flags = sr->msg_flags;
++	if (issue_flags & IO_URING_F_NONBLOCK)
++		flags |= MSG_DONTWAIT;
++	if (flags & MSG_WAITALL)
++		min_ret = iov_iter_count(&msg.msg_iter);
++	msg.msg_flags = flags;
++	ret = sock_sendmsg(sock, &msg);
++
++	if (ret < min_ret) {
++		if (ret == -EAGAIN && (issue_flags & IO_URING_F_NONBLOCK))
++			goto out;
++		if (ret == -ERESTARTSYS)
++			ret = -EINTR;
++		req_set_fail(req);
++	}
++	io_ring_submit_unlock(ctx, issue_flags & IO_URING_F_UNLOCKED);
++	__io_req_complete(req, issue_flags, ret, 0);
++	return 0;
++out:
++	io_ring_submit_unlock(ctx, issue_flags & IO_URING_F_UNLOCKED);
++	return ret;
++}
++
+ static int __io_recvmsg_copy_hdr(struct io_kiocb *req,
+ 				 struct io_async_msghdr *iomsg)
+ {
+@@ -5428,6 +5540,7 @@ IO_NETOP_PREP_ASYNC(sendmsg);
+ IO_NETOP_PREP_ASYNC(recvmsg);
+ IO_NETOP_PREP_ASYNC(connect);
+ IO_NETOP_PREP(accept);
++IO_NETOP_PREP(sendzc);
+ IO_NETOP_FN(send);
+ IO_NETOP_FN(recv);
+ #endif /* CONFIG_NET */
+@@ -6575,6 +6688,8 @@ static int io_req_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
+ 	case IORING_OP_SENDMSG:
+ 	case IORING_OP_SEND:
+ 		return io_sendmsg_prep(req, sqe);
++	case IORING_OP_SENDZC:
++		return io_sendzc_prep(req, sqe);
+ 	case IORING_OP_RECVMSG:
+ 	case IORING_OP_RECV:
+ 		return io_recvmsg_prep(req, sqe);
+@@ -6832,6 +6947,9 @@ static int io_issue_sqe(struct io_kiocb *req, unsigned int issue_flags)
+ 	case IORING_OP_SEND:
+ 		ret = io_send(req, issue_flags);
+ 		break;
++	case IORING_OP_SENDZC:
++		ret = io_sendzc(req, issue_flags);
++		break;
+ 	case IORING_OP_RECVMSG:
+ 		ret = io_recvmsg(req, issue_flags);
+ 		break;
+diff --git a/include/uapi/linux/io_uring.h b/include/uapi/linux/io_uring.h
+index f2e8d18e40e0..bbc78fe8ca77 100644
+--- a/include/uapi/linux/io_uring.h
++++ b/include/uapi/linux/io_uring.h
+@@ -59,6 +59,7 @@ struct io_uring_sqe {
+ 	union {
+ 		__s32	splice_fd_in;
+ 		__u32	file_index;
++		__u32	tx_ctx_idx;
+ 	};
+ 	__u64	__pad2[2];
+ };
+@@ -143,6 +144,7 @@ enum {
+ 	IORING_OP_MKDIRAT,
+ 	IORING_OP_SYMLINKAT,
+ 	IORING_OP_LINKAT,
++	IORING_OP_SENDZC,
+ 
+ 	/* this goes last, obviously */
+ 	IORING_OP_LAST,
 -- 
 2.34.0
 

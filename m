@@ -2,51 +2,51 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E9BB6C433EF
-	for <io-uring@archiver.kernel.org>; Tue, 30 Nov 2021 15:20:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 220EDC433F5
+	for <io-uring@archiver.kernel.org>; Tue, 30 Nov 2021 15:20:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245328AbhK3PYA (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Tue, 30 Nov 2021 10:24:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38592 "EHLO
+        id S245362AbhK3PYC (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Tue, 30 Nov 2021 10:24:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38848 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245057AbhK3PX1 (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Tue, 30 Nov 2021 10:23:27 -0500
-Received: from mail-wr1-x429.google.com (mail-wr1-x429.google.com [IPv6:2a00:1450:4864:20::429])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BEAE2C061377;
-        Tue, 30 Nov 2021 07:19:21 -0800 (PST)
-Received: by mail-wr1-x429.google.com with SMTP id a18so45274846wrn.6;
-        Tue, 30 Nov 2021 07:19:21 -0800 (PST)
+        with ESMTP id S245086AbhK3PX2 (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Tue, 30 Nov 2021 10:23:28 -0500
+Received: from mail-wr1-x42b.google.com (mail-wr1-x42b.google.com [IPv6:2a00:1450:4864:20::42b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E310BC061D65;
+        Tue, 30 Nov 2021 07:19:27 -0800 (PST)
+Received: by mail-wr1-x42b.google.com with SMTP id j3so45243400wrp.1;
+        Tue, 30 Nov 2021 07:19:27 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=fdsU4+l5aV4bfwBaRNCuzeM5yPixDPv1W50l5HuSAKc=;
-        b=OloQfj21d5fcemkHQqmCStGgD1ISw8htjoVPBnbhsDeL//2i/uZXlNTRV8Mo8F+oEj
-         ZMqLtHxgM7nqh8MdZSJOR6AI47qAoiNPMQOBnU6Ii5Jj/cng5hJwhW6S6vKUXbjn5FQI
-         H5ZUcRNMpjORrIHn2YQWuTpxdR8arcIEJGEYgccxbkIDoN2qZKw8jY+tMBsnGP6GTnnf
-         iyYW+z0t2A20E5XDxcNPqdUMz57fm5jEwnM8EtQjZ+rDV3MDD8rHKoJuB6fc15FNBtgY
-         SGDMOggu1v2NLZcZSdDAd+d+ziK4zQCEcjajJ57I13wmo1Q9Csq/wjET8jnUdPMxXGxy
-         YzOQ==
+        bh=aQQXoYWBH4jfdlEHv5tZol+01BrTrQ8qiQ0k4xRr9KQ=;
+        b=kZFiGfLzItRdZa2oClNtEIvfviPy1VJs24Iyd2nWiFaJHZ+SgMQhuf7eDNWDYCr1VQ
+         cERXF8xuyeQuizQYQOB+XJvm65nkPIgQNtEjS+CWZlIK96eHqFtZPT7GLYA1mbVpLJ1h
+         Vwqmjiayr+d1KZPTjA3Ms6UoSgN0qEhV5rnfXF7jERi7yoWIT9m1t/biLwff2wE/kEJW
+         cBU2gd/J+sW5LplFrewTbsFM4fv26c/NURjQUCRM3xd3in4bEKHAN9YjETZRY+3yZa02
+         iGg+04z36Gy1/JYjtk8Z0Hp5yJgSununM0rRh4rt1j/2U9G5f16brfRhjDpw0WvzB+xW
+         VVkw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=fdsU4+l5aV4bfwBaRNCuzeM5yPixDPv1W50l5HuSAKc=;
-        b=JSAdOGau8p+S0p4jsuNdVxe2sTNOh1C3uU1norgvz8CZzjvHGkxc8bnY+JfPTBboC4
-         qwUQuQTARDOKJHCSjTb51MbKrFQIBD445k3GwQTert9/Gfw1yPQTAehJrHsMVs8HVNYi
-         JpON8Kv7XA3Etf8eiCzujwkKYeS+7UaocMkgPVSxxshThLWjNz6vYrvjuioX3283QFMt
-         ZzdC22oqol5V1Fhzd469sAkLb/eoB2vAy2vX87wCJhO97zp2Knfst8Cyt6yfTRbSeYg7
-         GAf6GttF0TsBCtrlrHQr43wYYD54LRqAvWQUNHr9gGYSBIuzbWFQl2uL0/vpbmjB8Yv0
-         JQ+w==
-X-Gm-Message-State: AOAM530nhUHFWA0rpRNm06Ki5AIIb9R53ahF7ZzV34JI6oDXH1pEHtyS
-        ClGaV5WBGcoJJE7J1fp/mNwsZu+Rn2w=
-X-Google-Smtp-Source: ABdhPJzhc1IZ2bs05HmTBtQaH6UqcJmg3N4P5psLtX3rmAaT4Wt+VOypwhmBeKF9ev5gdZaFEhotYw==
-X-Received: by 2002:adf:dd0a:: with SMTP id a10mr41470262wrm.60.1638285560235;
-        Tue, 30 Nov 2021 07:19:20 -0800 (PST)
+        bh=aQQXoYWBH4jfdlEHv5tZol+01BrTrQ8qiQ0k4xRr9KQ=;
+        b=msO1odKb3z5k4wdxM77cEmPX7umpYAk/u7BOMxMuyJC8QOIKylkVyRiJh9UIz+jnk0
+         yTiljGnako146klI6EnnwMAWPubzaOmgEtmjzH2OR2tCyqalX3qkSW9Yqer2RnHML/9p
+         JROVO0pGILAbOXS0AgquNHT3Jht/4nmXoNHB59wU+xpJ+oCJcZFD6Q+Fz6K+Tnuv3J88
+         aXUZQf69haIuMgiIH5LbVytMR2ee18aBaKJWGq2n/tJWST2nA8kFeLJkn71UQYcHiMub
+         2DwohWwHk/urbpba62xW8YECC/foAuhQQ3v8/n3dSp7TfWBz4+D1EYvk8dEi9hss/3QV
+         8Axg==
+X-Gm-Message-State: AOAM533wVi41P7ubfa5zO8j//ljJkLC5DTWmagl9r82WXWRhHEQASxra
+        rnk/s9ACCek6uDmSq5IoNo9KWQ/9JlQ=
+X-Google-Smtp-Source: ABdhPJxD8BTtW6WL2an20PrK6Cfj0KFy5qepEeEebPK/e5whCwDaUOWQz28cjzL/U26WPjRbl8cXQA==
+X-Received: by 2002:a5d:5986:: with SMTP id n6mr43685533wri.297.1638285566354;
+        Tue, 30 Nov 2021 07:19:26 -0800 (PST)
 Received: from 127.0.0.1localhost ([85.255.232.109])
-        by smtp.gmail.com with ESMTPSA id d1sm16168483wrz.92.2021.11.30.07.19.19
+        by smtp.gmail.com with ESMTPSA id d1sm16168483wrz.92.2021.11.30.07.19.25
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 30 Nov 2021 07:19:19 -0800 (PST)
+        Tue, 30 Nov 2021 07:19:26 -0800 (PST)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     io-uring@vger.kernel.org, netdev@vger.kernel.org,
         linux-kernel@vger.kernel.org
@@ -58,9 +58,9 @@ Cc:     Jakub Kicinski <kuba@kernel.org>,
         Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>,
         David Ahern <dsahern@kernel.org>, Jens Axboe <axboe@kernel.dk>,
         Pavel Begunkov <asml.silence@gmail.com>
-Subject: [RFC 02/12] skbuff: pass a struct ubuf_info in msghdr
-Date:   Tue, 30 Nov 2021 15:18:50 +0000
-Message-Id: <07b21df727d9a3987d836e271946e73a629f4601.1638282789.git.asml.silence@gmail.com>
+Subject: [RFC 07/12] io_uring: infrastructure for send zc notifications
+Date:   Tue, 30 Nov 2021 15:18:55 +0000
+Message-Id: <5c2b751d6c29c02f1d0a3b0e0b220de321bc3e2d.1638282789.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.34.0
 In-Reply-To: <cover.1638282789.git.asml.silence@gmail.com>
 References: <cover.1638282789.git.asml.silence@gmail.com>
@@ -70,90 +70,176 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Instead of the net stack managing ubuf_info, allow to pass it in from
-outside in a struct msghdr (in-kernel structure), so io_uring can make
-use of it.
+Add a new ubuf_info callback io_uring_tx_zerocopy_callback(), which
+should post an CQE when it completes. Also, implement some
+infrastructuire for allocating and managing struct ubuf_info.
 
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
- fs/io_uring.c          | 2 ++
- include/linux/socket.h | 1 +
- net/compat.c           | 1 +
- net/socket.c           | 3 +++
- 4 files changed, 7 insertions(+)
+ fs/io_uring.c | 114 +++++++++++++++++++++++++++++++++++++++++++++++---
+ 1 file changed, 108 insertions(+), 6 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 72da3a75521a..59380e3454ad 100644
+index a01f91e70fa5..6ca02e60fa48 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -4911,6 +4911,7 @@ static int io_send(struct io_kiocb *req, unsigned int issue_flags)
- 	msg.msg_control = NULL;
- 	msg.msg_controllen = 0;
- 	msg.msg_namelen = 0;
-+	msg.msg_ubuf = NULL;
- 
- 	flags = req->sr_msg.msg_flags;
- 	if (issue_flags & IO_URING_F_NONBLOCK)
-@@ -5157,6 +5158,7 @@ static int io_recv(struct io_kiocb *req, unsigned int issue_flags)
- 	msg.msg_namelen = 0;
- 	msg.msg_iocb = NULL;
- 	msg.msg_flags = 0;
-+	msg.msg_ubuf = NULL;
- 
- 	flags = req->sr_msg.msg_flags;
- 	if (force_nonblock)
-diff --git a/include/linux/socket.h b/include/linux/socket.h
-index 8ef26d89ef49..6bd2c6b0c6f2 100644
---- a/include/linux/socket.h
-+++ b/include/linux/socket.h
-@@ -65,6 +65,7 @@ struct msghdr {
- 	__kernel_size_t	msg_controllen;	/* ancillary data buffer length */
- 	unsigned int	msg_flags;	/* flags on received message */
- 	struct kiocb	*msg_iocb;	/* ptr to iocb for async requests */
-+	struct ubuf_info *msg_ubuf;
+@@ -329,6 +329,11 @@ struct io_submit_state {
  };
  
- struct user_msghdr {
-diff --git a/net/compat.c b/net/compat.c
-index 210fc3b4d0d8..6cd2e7683dd0 100644
---- a/net/compat.c
-+++ b/net/compat.c
-@@ -80,6 +80,7 @@ int __get_compat_msghdr(struct msghdr *kmsg,
- 		return -EMSGSIZE;
+ struct io_tx_notifier {
++	struct ubuf_info	uarg;
++	struct work_struct	commit_work;
++	struct percpu_ref	*fixed_rsrc_refs;
++	u64			tag;
++	u32			seq;
+ };
  
- 	kmsg->msg_iocb = NULL;
-+	kmsg->msg_ubuf = NULL;
- 	*ptr = msg.msg_iov;
- 	*len = msg.msg_iovlen;
- 	return 0;
-diff --git a/net/socket.c b/net/socket.c
-index 7f64a6eccf63..0a29b616a38c 100644
---- a/net/socket.c
-+++ b/net/socket.c
-@@ -2023,6 +2023,7 @@ int __sys_sendto(int fd, void __user *buff, size_t len, unsigned int flags,
- 	msg.msg_control = NULL;
- 	msg.msg_controllen = 0;
- 	msg.msg_namelen = 0;
-+	msg.msg_ubuf = NULL;
- 	if (addr) {
- 		err = move_addr_to_kernel(addr, addr_len, &address);
- 		if (err < 0)
-@@ -2088,6 +2089,7 @@ int __sys_recvfrom(int fd, void __user *ubuf, size_t size, unsigned int flags,
- 	msg.msg_namelen = 0;
- 	msg.msg_iocb = NULL;
- 	msg.msg_flags = 0;
-+	msg.msg_ubuf = NULL;
- 	if (sock->file->f_flags & O_NONBLOCK)
- 		flags |= MSG_DONTWAIT;
- 	err = sock_recvmsg(sock, &msg, flags);
-@@ -2326,6 +2328,7 @@ int __copy_msghdr_from_user(struct msghdr *kmsg,
- 		return -EMSGSIZE;
+ struct io_tx_ctx {
+@@ -1275,15 +1280,20 @@ static void io_rsrc_refs_refill(struct io_ring_ctx *ctx)
+ 	percpu_ref_get_many(&ctx->rsrc_node->refs, IO_RSRC_REF_BATCH);
+ }
  
- 	kmsg->msg_iocb = NULL;
-+	kmsg->msg_ubuf = NULL;
- 	*uiov = msg.msg_iov;
- 	*nsegs = msg.msg_iovlen;
++static inline void io_set_rsrc_node(struct percpu_ref **rsrc_refs,
++				    struct io_ring_ctx *ctx)
++{
++	*rsrc_refs = &ctx->rsrc_node->refs;
++	ctx->rsrc_cached_refs--;
++	if (unlikely(ctx->rsrc_cached_refs < 0))
++		io_rsrc_refs_refill(ctx);
++}
++
+ static inline void io_req_set_rsrc_node(struct io_kiocb *req,
+ 					struct io_ring_ctx *ctx)
+ {
+-	if (!req->fixed_rsrc_refs) {
+-		req->fixed_rsrc_refs = &ctx->rsrc_node->refs;
+-		ctx->rsrc_cached_refs--;
+-		if (unlikely(ctx->rsrc_cached_refs < 0))
+-			io_rsrc_refs_refill(ctx);
+-	}
++	if (!req->fixed_rsrc_refs)
++		io_set_rsrc_node(&req->fixed_rsrc_refs, ctx);
+ }
+ 
+ static void io_refs_resurrect(struct percpu_ref *ref, struct completion *compl)
+@@ -1930,6 +1940,76 @@ static noinline bool io_fill_cqe_aux(struct io_ring_ctx *ctx, u64 user_data,
+ 	return __io_fill_cqe(ctx, user_data, res, cflags);
+ }
+ 
++static void io_zc_tx_work_callback(struct work_struct *work)
++{
++	struct io_tx_notifier *notifier = container_of(work, struct io_tx_notifier,
++						       commit_work);
++	struct io_ring_ctx *ctx = notifier->uarg.ctx;
++
++	spin_lock(&ctx->completion_lock);
++	io_fill_cqe_aux(ctx, notifier->tag, notifier->seq, 0);
++	io_commit_cqring(ctx);
++	spin_unlock(&ctx->completion_lock);
++	io_cqring_ev_posted(ctx);
++
++	percpu_ref_put(notifier->fixed_rsrc_refs);
++	percpu_ref_put(&ctx->refs);
++	kfree(notifier);
++}
++
++static void io_uring_tx_zerocopy_callback(struct sk_buff *skb,
++					  struct ubuf_info *uarg,
++					  bool success)
++{
++	struct io_tx_notifier *notifier;
++
++	notifier = container_of(uarg, struct io_tx_notifier, uarg);
++	if (!refcount_dec_and_test(&uarg->refcnt))
++		return;
++
++	if (in_interrupt()) {
++		INIT_WORK(&notifier->commit_work, io_zc_tx_work_callback);
++		queue_work(system_unbound_wq, &notifier->commit_work);
++	} else {
++		io_zc_tx_work_callback(&notifier->commit_work);
++	}
++}
++
++static struct io_tx_notifier *io_alloc_tx_notifier(struct io_ring_ctx *ctx,
++						   struct io_tx_ctx *tx_ctx)
++{
++	struct io_tx_notifier *notifier;
++	struct ubuf_info *uarg;
++
++	notifier = kmalloc(sizeof(*notifier), GFP_ATOMIC);
++	if (!notifier)
++		return NULL;
++
++	WARN_ON_ONCE(!current->io_uring);
++	notifier->seq = tx_ctx->seq++;
++	notifier->tag = tx_ctx->tag;
++	io_set_rsrc_node(&notifier->fixed_rsrc_refs, ctx);
++
++	uarg = &notifier->uarg;
++	uarg->ctx = ctx;
++	uarg->flags = SKBFL_ZEROCOPY_FRAG | SKBFL_DONT_ORPHAN;
++	uarg->callback = io_uring_tx_zerocopy_callback;
++	refcount_set(&uarg->refcnt, 1);
++	percpu_ref_get(&ctx->refs);
++	return notifier;
++}
++
++__attribute__((unused))
++static inline struct io_tx_notifier *io_get_tx_notifier(struct io_ring_ctx *ctx,
++							struct io_tx_ctx *tx_ctx)
++{
++	if (tx_ctx->notifier)
++		return tx_ctx->notifier;
++
++	tx_ctx->notifier = io_alloc_tx_notifier(ctx, tx_ctx);
++	return tx_ctx->notifier;
++}
++
+ static void io_req_complete_post(struct io_kiocb *req, s32 res,
+ 				 u32 cflags)
+ {
+@@ -9212,11 +9292,27 @@ static int io_buffer_validate(struct iovec *iov)
  	return 0;
+ }
+ 
++static void io_sqe_tx_ctx_kill_ubufs(struct io_ring_ctx *ctx)
++{
++	struct io_tx_ctx *tx_ctx;
++	int i;
++
++	for (i = 0; i < ctx->nr_tx_ctxs; i++) {
++		tx_ctx = &ctx->tx_ctxs[i];
++		if (!tx_ctx->notifier)
++			continue;
++		io_uring_tx_zerocopy_callback(NULL, &tx_ctx->notifier->uarg,
++					      true);
++		tx_ctx->notifier = NULL;
++	}
++}
++
+ static int io_sqe_tx_ctx_unregister(struct io_ring_ctx *ctx)
+ {
+ 	if (!ctx->nr_tx_ctxs)
+ 		return -ENXIO;
+ 
++	io_sqe_tx_ctx_kill_ubufs(ctx);
+ 	kvfree(ctx->tx_ctxs);
+ 	ctx->tx_ctxs = NULL;
+ 	ctx->nr_tx_ctxs = 0;
+@@ -9608,6 +9704,12 @@ static __cold void io_ring_exit_work(struct work_struct *work)
+ 			io_sq_thread_unpark(sqd);
+ 		}
+ 
++		if (READ_ONCE(ctx->nr_tx_ctxs)) {
++			mutex_lock(&ctx->uring_lock);
++			io_sqe_tx_ctx_kill_ubufs(ctx);
++			mutex_unlock(&ctx->uring_lock);
++		}
++
+ 		io_req_caches_free(ctx);
+ 
+ 		if (WARN_ON_ONCE(time_after(jiffies, timeout))) {
 -- 
 2.34.0
 

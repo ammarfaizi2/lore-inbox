@@ -2,422 +2,1236 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4DB2BC433EF
-	for <io-uring@archiver.kernel.org>; Wed,  1 Dec 2021 04:24:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 94C39C433FE
+	for <io-uring@archiver.kernel.org>; Wed,  1 Dec 2021 04:24:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346615AbhLAE16 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Tue, 30 Nov 2021 23:27:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49450 "EHLO
+        id S1346625AbhLAE2G (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Tue, 30 Nov 2021 23:28:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49566 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346574AbhLAE1L (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Tue, 30 Nov 2021 23:27:11 -0500
-Received: from mail-pg1-x542.google.com (mail-pg1-x542.google.com [IPv6:2607:f8b0:4864:20::542])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 09A3AC061746;
-        Tue, 30 Nov 2021 20:23:50 -0800 (PST)
-Received: by mail-pg1-x542.google.com with SMTP id 133so4068258pgc.12;
-        Tue, 30 Nov 2021 20:23:50 -0800 (PST)
+        with ESMTP id S1346610AbhLAE1i (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Tue, 30 Nov 2021 23:27:38 -0500
+Received: from mail-pl1-x644.google.com (mail-pl1-x644.google.com [IPv6:2607:f8b0:4864:20::644])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6760EC06175C;
+        Tue, 30 Nov 2021 20:24:08 -0800 (PST)
+Received: by mail-pl1-x644.google.com with SMTP id u17so16656138plg.9;
+        Tue, 30 Nov 2021 20:24:08 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=ZcDIyVgD0V4zxLYUzV02cdFgM6F9geNX6kVfcxOJQGc=;
-        b=J6kafzB86ed2SgDRMaCwfooMkatzrpQn93Z/8ri4MqxCmfp7k3oHRtwIx04U+C/NnV
-         x/0nemByOdVDex0nQKZcpfr7HjLlCWJwBF0J5rJ29bUwF0g+ONnroQnUQ/KHr5tkAXcU
-         tJiU2Q772Y8ylTCSiyPjcS1DKa3cSe++Zu6FkqmS1Gvgbp75kv5aGRwNU7Moar1/YcGv
-         0zZiXgFCtPE8Nc5TwgyDOyalCvHwYe9Y+93BdEE4jpC4N4gpZ9850rKdj2IiuFBg3pGx
-         iML+qS+xRQ3AEHZSLx9gBE1CarXilO9qxQBVBZas0F1H+JEv3GC+fOlrGmDOhAfT5NQv
-         PTxg==
+        bh=1lDChbfVnceuDgQ7cJNX6E8lOTvvhMw1Gu6MIe1nrOU=;
+        b=NHiLByohLdUF11afUMUCHNCn7WyVm/j8em+dDiurLHK1MKycadT2vGprXhyQsq+CvW
+         3EanLf6L/ygWHmNWEQ8myGME5p/RfZiNWEftJdCNN0fYNRXKw/7mypeplnxVepteYOHo
+         VlA8x2DlGT0YsYWIE45YHY3JX0rgK9lJywqyjBl6MYhiLLDtlNufP7acvKpfc/uynb3V
+         HAR3o7/bZfONBdCjXOmD7EzMYePftsWHoQzsAjuBypGQwNIZlrZm6JQnSefsNTN3+kv9
+         TWtC0sWhasKlx3TQYe1Zl3BydVRyIwVB+vLlFCwkmWfbRVqyD0W/2I2to+EDPu9rkPcx
+         McHA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=ZcDIyVgD0V4zxLYUzV02cdFgM6F9geNX6kVfcxOJQGc=;
-        b=xcHmv1wbgMAzi+W2j0tlLzjm1BIxtv/r4tsxWwqWJTwR45X2I/4fXrT/+egkFXQUOt
-         JZhSkyw+A+Xj+j/rlst5dH4nhBBSR0340aNB5wAnANfdKsvzU8hgBJsmpAhg6agxn0V2
-         pL6gDv49zu7G5VQIdD1vxiSdBiVIc7FSQDIe1LCN02bsZAALBrMbieKcx5YPtnSFdVG2
-         +M5XqA9Qa4HSBqaZnPhetbPlQw+oTcx4ioFtcdOkgM2LdEP8o4uebyPbArU1FFWwjYPk
-         ag3LV+NpKZzScrj84IVjrFnXeH2BS/3QbMSyyZ+wonQO86+zF4D7sLsxzRMFHrLwEjPC
-         rFrQ==
-X-Gm-Message-State: AOAM532q4h4mJ1usBHM/6WlQQfCU3SSppkN/D6HhaP53g4zui7L7c6kO
-        RnldFub5oTJOlCS/5k8g2pwb/qd9hhc=
-X-Google-Smtp-Source: ABdhPJx3GylUCsKJ8L4T333v7+S3a5KuALzB3z4C3uwUbINhSxuhR0WIsuJ/SVKlOJnrAIGzJJgUPQ==
-X-Received: by 2002:a63:dd10:: with SMTP id t16mr2906931pgg.318.1638332629147;
-        Tue, 30 Nov 2021 20:23:49 -0800 (PST)
+        bh=1lDChbfVnceuDgQ7cJNX6E8lOTvvhMw1Gu6MIe1nrOU=;
+        b=fLNeMJdgbFgjF3akR8qWvxSS4iNMUhJBEuO2uMc5p2rsRIocRwIVUt5Jy021Bwzgs3
+         HTahr0v294DCplLedlohKkcySWcLE5KfLdYZWDkYpvB4fJStP9y/K8xL0Rz1EYW7X0rK
+         LoisO3giQ4Jps++H2fYNZg2OIX9Yxq43E3ItJD+/4/6Gn07B0rnL/YVnA7a6oNXnZuIV
+         hcglfal4BFsuCTdKqO18HLOIXKjKHKJIICsJ0MPwJDxsHtx+l/cPJ2MWrjWUvojJCvLN
+         2bxMxDpMWIP3HL2QXvhs1sU40wjL8gn8lz5FfdiuTg3jCmJAdD5TKgyVEqfy8VxiWnW8
+         xsuw==
+X-Gm-Message-State: AOAM532kaK3lk0EXKEasxggrDbxYh6lTrzWYxbGZPiq7c2ejDuVkOvJP
+        Jb1Jkd07hJqG1kMQ4Po1eH6a1Le3YxI=
+X-Google-Smtp-Source: ABdhPJw5EJgVk2HRCX88RRZr84GNhhr5pqFSzCe/81C2ww8Im7NPC3xi/6au5pe0cCq0+fbEu0Hy9Q==
+X-Received: by 2002:a17:90b:1d09:: with SMTP id on9mr4323427pjb.191.1638332647162;
+        Tue, 30 Nov 2021 20:24:07 -0800 (PST)
 Received: from localhost ([2405:201:6014:d064:3d4e:6265:800c:dc84])
-        by smtp.gmail.com with ESMTPSA id j34sm16002062pgj.42.2021.11.30.20.23.48
+        by smtp.gmail.com with ESMTPSA id lt5sm3985662pjb.43.2021.11.30.20.24.06
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 30 Nov 2021 20:23:48 -0800 (PST)
+        Tue, 30 Nov 2021 20:24:06 -0800 (PST)
 From:   Kumar Kartikeya Dwivedi <memxor@gmail.com>
 To:     bpf@vger.kernel.org
-Cc:     Alexander Viro <viro@zeniv.linux.org.uk>,
-        linux-fsdevel@vger.kernel.org, Alexei Starovoitov <ast@kernel.org>,
+Cc:     Alexei Starovoitov <ast@kernel.org>,
         Daniel Borkmann <daniel@iogearbox.net>,
         Andrii Nakryiko <andrii@kernel.org>,
         Yonghong Song <yhs@fb.com>,
         Pavel Emelyanov <ovzxemul@gmail.com>,
         Alexander Mikhalitsyn <alexander@mihalicyn.com>,
         Andrei Vagin <avagin@gmail.com>, criu@openvz.org,
-        io-uring@vger.kernel.org
-Subject: [PATCH bpf-next v3 04/10] epoll: Implement eBPF iterator for registered items
-Date:   Wed,  1 Dec 2021 09:53:27 +0530
-Message-Id: <20211201042333.2035153-5-memxor@gmail.com>
+        io-uring@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: [PATCH RFC bpf-next v3 10/10] samples/bpf: Add example to checkpoint/restore io_uring
+Date:   Wed,  1 Dec 2021 09:53:33 +0530
+Message-Id: <20211201042333.2035153-11-memxor@gmail.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211201042333.2035153-1-memxor@gmail.com>
 References: <20211201042333.2035153-1-memxor@gmail.com>
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=10997; h=from:subject; bh=FF86W5j4+tn80bzEFwJZI9lmub+R7F6lxJCqnNdc8mM=; b=owEBbQKS/ZANAwAIAUzgyIZIvxHKAcsmYgBhpvYxgWU/izzAus4xi5Iq9iukKMItxsmiwJbWU635 dH1rzfqJAjMEAAEIAB0WIQRLvip+Buz51YI8YRFM4MiGSL8RygUCYab2MQAKCRBM4MiGSL8Ryo9kEA CEPsAVxFxoP7wTicF2bAEueVFN0PLkFi0DGkhlXaHvPxn4oX8hFI9gWAgRx4TcfwN50QWwzErR1wKz 4kd8HdYISWrqxNTLa70PK5fO8+TD1lPd/UisCzdLrrQ4+iQQuJql/FqMEcO7WRynqo9vtuaYkN4EW5 ut2TxtykFRWeay6t7CpBH8+0RxgqHvY4SttknN4ZWgZHqDBWFEYqYZ85mf2BYCc6vjHp+pMK7x0yoR QdWxmd1wbCxvZsYgu6ffRX3UhN2tId1pYT0n7ypt9DIP/0yX0VwziMCfmabsQxkJvoim7m32N2qs8G MeV+jQ/MgSIK9I+OqJ0BnawEFqST04eCKpVd61gMbDxlKBOfC3zQTV2XRCpIKEib8Ng2vqQNy+hYlX OA/8M7ZHqHeP6DnftMOQ7OMDZQrMO4s2gNgIrkk+nim3CQnrKthku4Hx4LCs/zWGSbfzhZosN2Mo0+ qMgC0ORlT+3vYrQAFfa3Y/BMHxl2+SlzBc09/bfkp0HnaMneIyOfeSWHpBrJ3lzQsXdL0U7ackl+H7 HEC1orUmnArQtTUua+ErijTQKih+mkWTL3gCoEPiM2fhPoikSsDu5+zJwsZhpqCsNuiwOQNCCt6mr6 LQ2hZyeeXlPz4MkCRmM4fzOwlTkvVBxMx7lCoglU2OIiJH6dsr5cvtwlsB8g==
+X-Developer-Signature: v=1; a=openpgp-sha256; l=35678; h=from:subject; bh=iNAt8VQjuJBYGUNqQ67EOuHYsc8ms6HOM1LXury7neo=; b=owEBbQKS/ZANAwAIAUzgyIZIvxHKAcsmYgBhpvYydW38QmNI2no2Qf/JXHCwEpIIyZqKtCLX+sbP qHmscZaJAjMEAAEIAB0WIQRLvip+Buz51YI8YRFM4MiGSL8RygUCYab2MgAKCRBM4MiGSL8RyqbUD/ 965Ad+jU/WtRUTN+XQzI5mVIDQ1/kCptBipLpb6oQEaslbUmM5tOmrCbuwf55TR9FT/1bXZ5D5f9sm YXPsm6Iu6/BpkJq9saxo/AV0QqHkgqZ6oT1uqWenD8/ZwDVESyefkKUd6nUlwRjo6Zx54UfclmAK8i gf2bD5S/EA6w9v3H8K08sFOgXIlN2nRKjWZyn0SPbKlVtvFWT9vuWKC6KOJGzyQynRwUBmkFinAwzj 3JVivsbATksNsS+qWiRwmxYwwCZFz5nPb4eWOXaVFkPfz0PnloP8aSQaOmWymOCXK0ZIF3b0Ur4mKf 35Hq7gY0QAyIDObtLPDWTKYz/FppkxA9Y7TOANiZDneqe1bmWgmsG6IKe4Ndaky0lnEZkB7cozvDHq 2tiIRfZ0AurCqAF3i8z2bA7xVC7vyNKYsmNgs20dJjZ+HHgYgt5dDmytmAk6Y0QDUwBc4mQVhv2wXv /iFYPSBvkp+HDVABBTsnprTV4P282jqibVVCtwk0al62DzDMERbAnSCyAlFNxZbM95BThBMTa4TR2Z 0/VmPfWd1dQEQOi/xJMhZTxJIfxyIv0y8mi/uJ9vEdmgEP4OW+hOjUxX6/8sfO33DL99JUXTIKyvZf eLdKrEqUtHdYYHv/DsJRUU+oDhKlYIBpZI9/VTyfkGidqBExSDE68HLDcs9g==
 X-Developer-Key: i=memxor@gmail.com; a=openpgp; fpr=4BBE2A7E06ECF9D5823C61114CE0C88648BF11CA
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-This patch adds eBPF iterator for epoll items (epitems) registered in an
-epoll instance. It gives access to the eventpoll ctx, and the registered
-epoll item (struct epitem). This allows the iterator to inspect the
-registered file and be able to use others iterators to associate it with
-a task's fdtable.
+The sample demonstrates how BPF iterators for task and io_uring can be
+used to checkpoint the state of an io_uring instance and then recreate
+it using that information, as a working example of how the iterator
+will be utilized for the same by userspace projects like CRIU.
 
-The primary usecase this is enabling is expediting existing eventpoll
-checkpoint/restore support in the CRIU project. This iterator allows us
-to switch from a worst case O(n^2) algorithm to a single O(n) pass over
-task and epoll registered descriptors.
+This is very similar to how CRIU actually works in principle, by writing
+all data on dump to protobuf images, which are then read during restore
+to reconstruct the task and its resources. Here we use a custom binary
+format and pipe the io_uring "image(s)" (in case of wq_fd there will be
+multiple images), to the restorer, which then consumes this information
+to form a total ordering of restore actions it has to execute to reach
+the same state.
 
-We also make sure we're iterating over a live file, one that is not
-going away. The case we're concerned about is a file that has its
-f_count as zero, but is waiting for iterator bpf_seq_read to release
-ep->mtx, so that it can remove its epitem. Since such a file will
-disappear once iteration is done, and it is being destructed, we use
-get_file_rcu to ensure it is alive when invoking the BPF program.
+The sample restores all features that currently cannot be restored
+without bpf iterators, hence is a good demonstration of what we would
+like to achieve using these new facilities. As is evident, we need a
+single iteration pass in each iterator to obtain all the information we
+require.
 
-Getting access to a file that is going to disappear after iteration
-is not useful anyway. This does have a performance overhead however
-(since file reference will be raised and dropped for each file).
+io_uring ring buffer restoration is orthogonal and not specific to
+iterators, so it has been left out.
 
-The rcu_read_lock around get_file_rcu isn't strictly required for
-lifetime management since fput path is serialized on ep->mtx to call
-ep_remove, hence the epi->ffd.file pointer remains stable during our
-seq_start/seq_stop bracketing.
+Our example app also shares the workqueue with parent io_uring, which is
+detected by our dumper tool and it moves to first dump the parent
+io_uring. io_uring doesn't allow creating cycles in this case, so the
+chain ends eventually in practice. For now only single parent is
+supported, but it easy to extend to arbitrary length chains (by
+recursing with limit in do_dump_parent after detecting presence of wq_fd > 0).
 
-To be able to continue back from the position we were iterating, we
-store the epi->ffi.fd and use ep_find_tfd to find the target file again.
-It would be more appropriate to use both struct file pointer and fd
-number to find the last file, but see below for why that cannot be done.
+The epoll iterator usecase is similar to what we do in dump_io_uring_file,
+and would significantly simplify current implementation [0].
 
-Taking reference to struct file and walking RB-Tree to find it again
-will lead to reference cycle issue if the iterator after partial read
-takes reference to socket which later is used in creating a descriptor
-cycle using SCM_RIGHTS. An example that was encountered when working on
-this is mentioned below.
+  [0]: https://github.com/checkpoint-restore/criu/blob/criu-dev/criu/eventpoll.c
 
-  Let there be Unix sockets SK1, SK2, epoll fd EP, and epoll iterator
-  ITER.
-  Let SK1 be registered in EP, then on a partial read it is possible
-  that ITER returns from read and takes reference to SK1 to be able to
-  find it later in RB-Tree and continue the iteration.  If SK1 sends
-  ITER over to SK2 using SCM_RIGHTS, and SK2 sends SK2 over to SK1 using
-  SCM_RIGHTS, and both fds are not consumed on the corresponding receive
-  ends, a cycle is created.  When all of SK1, SK2, EP, and ITER are
-  closed, SK1's receive queue holds reference to SK2, and SK2's receive
-  queue holds reference to ITER, which holds a reference to SK1.
-  All file descriptors except EP leak.
+The dry-run mode of bpf_cr tool prints the dump image:
 
-To resolve it, we would need to hook into the Unix Socket GC mechanism,
-but the alternative of using ep_find_tfd is much more simpler. The
-finding of the last position in face of concurrent modification of the
-epoll set is at best an approximation anyway. For the case of CRIU, the
-epoll set remains stable.
+$ ./bpf_cr app &
+PID: 318, Parent io_uring: 3, Dependent io_uring: 4
 
-Cc: Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: linux-fsdevel@vger.kernel.org
-Signed-off-by: Kumar Kartikeya Dwivedi <memxor@gmail.com>
+$ ./bpf_cr dump 318 4 | ./bpf_cr restore --dry-run
+DUMP_SETUP:
+	io_uring_fd: 3
+	end: true
+		flags: 14
+		sq_entries: 2
+		cq_entries: 4
+		sq_thread_cpu: 0
+		sq_thread_idle: 1500
+		wq_fd: 0
+DUMP_SETUP:
+	io_uring_fd: 4
+	end: false
+		flags: 46
+		sq_entries: 2
+		cq_entries: 4
+		sq_thread_cpu: 0
+		sq_thread_idle: 1500
+		wq_fd: 3
+DUMP_EVENTFD:
+	io_uring_fd: 4
+	end: false
+		eventfd: 5
+		async: true
+DUMP_REG_FD:
+	io_uring_fd: 4
+	end: false
+		reg_fd: 0
+		index: 0
+DUMP_REG_FD:
+	io_uring_fd: 4
+	end: false
+		reg_fd: 0
+		index: 2
+DUMP_REG_FD:
+	io_uring_fd: 4
+	end: false
+		reg_fd: 0
+		index: 4
+DUMP_REG_BUF:
+	io_uring_fd: 4
+	end: false
+		addr: 0
+		len: 0
+		index: 0
+DUMP_REG_BUF:
+	io_uring_fd: 4
+	end: true
+		addr: 140721288339216
+		len: 120
+		index: 1
+Nothing to do, exiting...
+
+======
+
+The trace is as follows:
+// We can shift fd number around randomly, it doesn't impact C/R
+$ exec 3<> /dev/urandom
+$ exec 4<> /dev/random
+$ exec 5<> /dev/null
+$ strace ./bpf_cr app &
+	...
+	io_uring_setup(2, {flags=IORING_SETUP_SQPOLL|IORING_SETUP_SQ_AFF|IORING_SETUP_CQSIZE, sq_thread_cpu=0, sq_thread_idle=1500, sq_entries=2, cq_entries=4, features=IORING_FEAT_SINGLE_MMAP|IORING_FEAT_NODROP|IORING_FEAT_SUBMIT_STABLE|IORING_FEAT_RW_CUR_POS|IORING_FEAT_CUR_PERSONALITY|IORING_FEAT_FAST_POLL|IORING_FEAT_POLL_32BITS|IORING_FEAT_SQPOLL_NONFIXED|IORING_FEAT_EXT_ARG|IORING_FEAT_NATIVE_WORKERS|IORING_FEAT_RSRC_TAGS, sq_off={head=0, tail=64, ring_mask=256, ring_entries=264, flags=276, dropped=272, array=384}, cq_off={head=128, tail=192, ring_mask=260, ring_entries=268, overflow=284, cqes=320, flags=0x118 /* IORING_CQ_??? */}}) = 6
+	getpid()                                = 324
+	...
+	io_uring_setup(2, {flags=IORING_SETUP_SQPOLL|IORING_SETUP_SQ_AFF|IORING_SETUP_CQSIZE|IORING_SETUP_ATTACH_WQ, sq_thread_cpu=0, sq_thread_idle=1500, wq_fd=6, sq_entries=2, cq_entries=4, features=IORING_FEAT_SINGLE_MMAP|IORING_FEAT_NODROP|IORING_FEAT_SUBMIT_STABLE|IORING_FEAT_RW_CUR_POS|IORING_FEAT_CUR_PERSONALITY|IORING_FEAT_FAST_POLL|IORING_FEAT_POLL_32BITS|IORING_FEAT_SQPOLL_NONFIXED|IORING_FEAT_EXT_ARG|IORING_FEAT_NATIVE_WORKERS|IORING_FEAT_RSRC_TAGS, sq_off={head=0, tail=64, ring_mask=256, ring_entries=264, flags=276, dropped=272, array=384}, cq_off={head=128, tail=192, ring_mask=260, ring_entries=268, overflow=284, cqes=320, flags=0x118 /* IORING_CQ_??? */}}) = 7
+	...
+	// PID: 324, Parent io_uring: 6, Dependent io_uring: 7
+	...
+	eventfd2(42, 0)                         = 8
+	io_uring_register(7, IORING_REGISTER_EVENTFD_ASYNC, [8], 1) = 0
+	io_uring_register(7, IORING_REGISTER_FILES, [0, -1, 1, -1, 2], 5) = 0
+	io_uring_register(7, IORING_REGISTER_BUFFERS, [{iov_base=NULL, iov_len=0}, {iov_base=0x7ffdf1a27680, iov_len=120}], 2) = 0
+
+The restore's trace is as follows (which detects the wq_fd on its own)
+and dumps and restores it as well, before restoring fd 7:
+
+$ ./bpf_cr dump 326 7 | strace ./bpf_cr restore
+	...
+	io_uring_setup(2, {flags=IORING_SETUP_SQPOLL|IORING_SETUP_SQ_AFF|IORING_SETUP_CQSIZE, sq_thread_cpu=0, sq_thread_idle=1500, sq_entries=2, cq_entries=4, features=IORING_FEAT_SINGLE_MMAP|IORING_FEAT_NODROP|IORING_FEAT_SUBMIT_STABLE|IORING_FEAT_RW_CUR_POS|IORING_FEAT_CUR_PERSONALITY|IORING_FEAT_FAST_POLL|IORING_FEAT_POLL_32BITS|IORING_FEAT_SQPOLL_NONFIXED|IORING_FEAT_EXT_ARG|IORING_FEAT_NATIVE_WORKERS|IORING_FEAT_RSRC_TAGS, sq_off={head=0, tail=64, ring_mask=256, ring_entries=264, flags=276, dropped=272, array=384}, cq_off={head=128, tail=192, ring_mask=260, ring_entries=268, overflow=284, cqes=320, flags=0x118 /* IORING_CQ_??? */}}) = 6
+	dup2(6, 6)                              = 6
+	...
+	io_uring_setup(2, {flags=IORING_SETUP_SQPOLL|IORING_SETUP_SQ_AFF|IORING_SETUP_CQSIZE|IORING_SETUP_ATTACH_WQ, sq_thread_cpu=0, sq_thread_idle=1500, wq_fd=6, sq_entries=2, cq_entries=4, features=IORING_FEAT_SINGLE_MMAP|IORING_FEAT_NODROP|IORING_FEAT_SUBMIT_STABLE|IORING_FEAT_RW_CUR_POS|IORING_FEAT_CUR_PERSONALITY|IORING_FEAT_FAST_POLL|IORING_FEAT_POLL_32BITS|IORING_FEAT_SQPOLL_NONFIXED|IORING_FEAT_EXT_ARG|IORING_FEAT_NATIVE_WORKERS|IORING_FEAT_RSRC_TAGS, sq_off={head=0, tail=64, ring_mask=256, ring_entries=264, flags=276, dropped=272, array=384}, cq_off={head=128, tail=192, ring_mask=260, ring_entries=268, overflow=284, cqes=320, flags=0x118 /* IORING_CQ_??? */}}) = 7
+	dup2(7, 7)                              = 7
+	...
+	eventfd2(42, 0)                         = 8
+	io_uring_register(7, IORING_REGISTER_EVENTFD_ASYNC, [8], 1) = 0
+	...
+	// fd number 0 is same as 1 and 2, hence the lowest one is used during restore,
+	// it doesn't matter as underlying struct file is same...
+	io_uring_register(7, IORING_REGISTER_FILES, [0, -1, 0, -1, 0], 5) = 0
+	// This step would happen after restoring mm, so it fails for now for second iovec
+	io_uring_register(7, IORING_REGISTER_BUFFERS, [{iov_base=NULL, iov_len=0}, {iov_base=0x7ffdf1a27680, iov_len=120}], 2) = -1 EFAULT (Bad address)
+	...
 ---
- fs/eventpoll.c                 | 201 ++++++++++++++++++++++++++++++++-
- include/linux/bpf.h            |  11 +-
- include/uapi/linux/bpf.h       |   3 +
- tools/include/uapi/linux/bpf.h |   3 +
- 4 files changed, 213 insertions(+), 5 deletions(-)
+ samples/bpf/.gitignore   |   1 +
+ samples/bpf/Makefile     |   8 +-
+ samples/bpf/bpf_cr.bpf.c | 185 +++++++++++
+ samples/bpf/bpf_cr.c     | 688 +++++++++++++++++++++++++++++++++++++++
+ samples/bpf/bpf_cr.h     |  48 +++
+ samples/bpf/hbm_kern.h   |   2 -
+ 6 files changed, 928 insertions(+), 4 deletions(-)
+ create mode 100644 samples/bpf/bpf_cr.bpf.c
+ create mode 100644 samples/bpf/bpf_cr.c
+ create mode 100644 samples/bpf/bpf_cr.h
 
-diff --git a/fs/eventpoll.c b/fs/eventpoll.c
-index 06f4c5ae1451..fb4e58857baa 100644
---- a/fs/eventpoll.c
-+++ b/fs/eventpoll.c
-@@ -37,6 +37,7 @@
- #include <linux/seq_file.h>
- #include <linux/compat.h>
- #include <linux/rculist.h>
-+#include <linux/btf_ids.h>
- #include <net/busy_poll.h>
- 
- /*
-@@ -985,7 +986,6 @@ static struct epitem *ep_find(struct eventpoll *ep, struct file *file, int fd)
- 	return epir;
- }
- 
--#ifdef CONFIG_KCMP
- static struct epitem *ep_find_tfd(struct eventpoll *ep, int tfd, unsigned long toff)
- {
- 	struct rb_node *rbp;
-@@ -1005,6 +1005,7 @@ static struct epitem *ep_find_tfd(struct eventpoll *ep, int tfd, unsigned long t
- 	return NULL;
- }
- 
-+#ifdef CONFIG_KCMP
- struct file *get_epoll_tfile_raw_ptr(struct file *file, int tfd,
- 				     unsigned long toff)
- {
-@@ -2385,3 +2386,201 @@ static int __init eventpoll_init(void)
- 	return 0;
- }
- fs_initcall(eventpoll_init);
+diff --git a/samples/bpf/.gitignore b/samples/bpf/.gitignore
+index 0e7bfdbff80a..9c542431ea45 100644
+--- a/samples/bpf/.gitignore
++++ b/samples/bpf/.gitignore
+@@ -1,4 +1,5 @@
+ # SPDX-License-Identifier: GPL-2.0-only
++bpf_cr
+ cpustat
+ fds_example
+ hbm
+diff --git a/samples/bpf/Makefile b/samples/bpf/Makefile
+index a886dff1ba89..a64f2e019bfc 100644
+--- a/samples/bpf/Makefile
++++ b/samples/bpf/Makefile
+@@ -53,6 +53,7 @@ tprogs-y += task_fd_query
+ tprogs-y += xdp_sample_pkts
+ tprogs-y += ibumad
+ tprogs-y += hbm
++tprogs-y += bpf_cr
+
+ tprogs-y += xdp_redirect_cpu
+ tprogs-y += xdp_redirect_map_multi
+@@ -118,6 +119,7 @@ task_fd_query-objs := task_fd_query_user.o $(TRACE_HELPERS)
+ xdp_sample_pkts-objs := xdp_sample_pkts_user.o
+ ibumad-objs := ibumad_user.o
+ hbm-objs := hbm.o $(CGROUP_HELPERS)
++bpf_cr-objs := bpf_cr.o
+
+ xdp_redirect_map_multi-objs := xdp_redirect_map_multi_user.o $(XDP_SAMPLE)
+ xdp_redirect_cpu-objs := xdp_redirect_cpu_user.o $(XDP_SAMPLE)
+@@ -198,7 +200,7 @@ BPF_EXTRA_CFLAGS += -I$(srctree)/arch/mips/include/asm/mach-generic
+ endif
+ endif
+
+-TPROGS_CFLAGS += -Wall -O2
++TPROGS_CFLAGS += -Wall -O2 -g
+ TPROGS_CFLAGS += -Wmissing-prototypes
+ TPROGS_CFLAGS += -Wstrict-prototypes
+
+@@ -337,6 +339,7 @@ $(obj)/xdp_redirect_map_multi_user.o: $(obj)/xdp_redirect_map_multi.skel.h
+ $(obj)/xdp_redirect_map_user.o: $(obj)/xdp_redirect_map.skel.h
+ $(obj)/xdp_redirect_user.o: $(obj)/xdp_redirect.skel.h
+ $(obj)/xdp_monitor_user.o: $(obj)/xdp_monitor.skel.h
++$(obj)/bpf_cr.o: $(obj)/bpf_cr.skel.h
+
+ $(obj)/tracex5_kern.o: $(obj)/syscall_nrs.h
+ $(obj)/hbm_out_kern.o: $(src)/hbm.h $(src)/hbm_kern.h
+@@ -392,7 +395,7 @@ $(obj)/%.bpf.o: $(src)/%.bpf.c $(obj)/vmlinux.h $(src)/xdp_sample.bpf.h $(src)/x
+ 		-I$(LIBBPF_INCLUDE) $(CLANG_SYS_INCLUDES) \
+ 		-c $(filter %.bpf.c,$^) -o $@
+
+-LINKED_SKELS := xdp_redirect_cpu.skel.h xdp_redirect_map_multi.skel.h \
++LINKED_SKELS := bpf_cr.skel.h xdp_redirect_cpu.skel.h xdp_redirect_map_multi.skel.h \
+ 		xdp_redirect_map.skel.h xdp_redirect.skel.h xdp_monitor.skel.h
+ clean-files += $(LINKED_SKELS)
+
+@@ -401,6 +404,7 @@ xdp_redirect_map_multi.skel.h-deps := xdp_redirect_map_multi.bpf.o xdp_sample.bp
+ xdp_redirect_map.skel.h-deps := xdp_redirect_map.bpf.o xdp_sample.bpf.o
+ xdp_redirect.skel.h-deps := xdp_redirect.bpf.o xdp_sample.bpf.o
+ xdp_monitor.skel.h-deps := xdp_monitor.bpf.o xdp_sample.bpf.o
++bpf_cr.skel.h-deps := bpf_cr.bpf.o
+
+ LINKED_BPF_SRCS := $(patsubst %.bpf.o,%.bpf.c,$(foreach skel,$(LINKED_SKELS),$($(skel)-deps)))
+
+diff --git a/samples/bpf/bpf_cr.bpf.c b/samples/bpf/bpf_cr.bpf.c
+new file mode 100644
+index 000000000000..6b0bb019f2be
+--- /dev/null
++++ b/samples/bpf/bpf_cr.bpf.c
+@@ -0,0 +1,185 @@
++// SPDX-License-Identifier: GPL-2.0-only
++#include "vmlinux.h"
++#include <bpf/bpf_tracing.h>
++#include <bpf/bpf_core_read.h>
++#include <bpf/bpf_helpers.h>
 +
-+#ifdef CONFIG_BPF_SYSCALL
++#include "bpf_cr.h"
 +
-+enum epoll_iter_state {
-+	EP_ITER_DONE = -2,
-+	EP_ITER_INIT = -1,
++/* struct file -> int fd */
++struct {
++	__uint(type, BPF_MAP_TYPE_HASH);
++	__type(key, __u64);
++	__type(value, int);
++	__uint(max_entries, 16);
++} fdtable_map SEC(".maps");
++
++struct ctx_map_val {
++	int fd;
++	bool init;
 +};
 +
-+BTF_ID_LIST(btf_epoll_ids)
-+BTF_ID(struct, eventpoll)
-+BTF_ID(struct, epitem)
++/* io_ring_ctx -> int fd */
++struct {
++	__uint(type, BPF_MAP_TYPE_HASH);
++	__type(key, __u64);
++	__type(value, struct ctx_map_val);
++	__uint(max_entries, 16);
++} io_ring_ctx_map SEC(".maps");
 +
-+struct bpf_epoll_iter_seq_info {
-+	struct eventpoll *ep;
-+	struct rb_node *rbp;
-+	int tfd;
-+};
++/* ctx->sq_data -> int fd */
++struct {
++	__uint(type, BPF_MAP_TYPE_HASH);
++	__type(key, __u64);
++	__type(value, int);
++	__uint(max_entries, 16);
++} sq_data_map SEC(".maps");
 +
-+static int bpf_epoll_init_seq(void *priv_data, struct bpf_iter_aux_info *aux)
++/* eventfd_ctx -> int fd */
++struct {
++	__uint(type, BPF_MAP_TYPE_HASH);
++	__type(key, __u64);
++	__type(value, int);
++	__uint(max_entries, 16);
++} eventfd_ctx_map SEC(".maps");
++
++const volatile pid_t tgid = 0;
++
++extern void eventfd_fops __ksym;
++extern void io_uring_fops __ksym;
++
++SEC("iter/task_file")
++int dump_task(struct bpf_iter__task_file *ctx)
 +{
-+	struct bpf_epoll_iter_seq_info *info = priv_data;
++	struct seq_file *seq = ctx->meta->seq;
++	struct task_struct *task = ctx->task;
++	struct file *file = ctx->file;
++	struct ctx_map_val val = {};
++	__u64 f_priv;
++	int fd;
 +
-+	info->ep = aux->ep->private_data;
-+	info->tfd = EP_ITER_INIT;
-+	return 0;
-+}
-+
-+static int bpf_epoll_iter_attach(struct bpf_prog *prog,
-+				 union bpf_iter_link_info *linfo,
-+				 struct bpf_iter_aux_info *aux)
-+{
-+	struct file *file;
-+	int ret;
-+
-+	file = fget(linfo->epoll.epoll_fd);
++	if (!task)
++		return 0;
++	if (task->tgid != tgid)
++		return 0;
 +	if (!file)
-+		return -EBADF;
-+
-+	ret = -EOPNOTSUPP;
-+	if (unlikely(!is_file_epoll(file)))
-+		goto out_fput;
-+
-+	aux->ep = file;
-+	return 0;
-+out_fput:
-+	fput(file);
-+	return ret;
-+}
-+
-+static void bpf_epoll_iter_detach(struct bpf_iter_aux_info *aux)
-+{
-+	fput(aux->ep);
-+}
-+
-+struct bpf_iter__epoll {
-+	__bpf_md_ptr(struct bpf_iter_meta *, meta);
-+	__bpf_md_ptr(struct eventpoll *, ep);
-+	__bpf_md_ptr(struct epitem *, epi);
-+};
-+
-+static void *bpf_epoll_seq_start(struct seq_file *seq, loff_t *pos)
-+{
-+	struct bpf_epoll_iter_seq_info *info = seq->private;
-+	struct epitem *epi;
-+
-+	mutex_lock(&info->ep->mtx);
-+	/* already iterated? */
-+	if (info->tfd == EP_ITER_DONE)
-+		return NULL;
-+	/* partially iterated? find position to restart */
-+	if (info->tfd >= 0) {
-+		epi = ep_find_tfd(info->ep, info->tfd, 0);
-+		if (!epi)
-+			return NULL;
-+		info->rbp = &epi->rbn;
-+		return epi;
-+	}
-+	WARN_ON(info->tfd != EP_ITER_INIT);
-+	/* first iteration */
-+	info->rbp = rb_first_cached(&info->ep->rbr);
-+	if (!info->rbp)
-+		return NULL;
-+	if (*pos == 0)
-+		++*pos;
-+	return rb_entry(info->rbp, struct epitem, rbn);
-+}
-+
-+static void *bpf_epoll_seq_next(struct seq_file *seq, void *v, loff_t *pos)
-+{
-+	struct bpf_epoll_iter_seq_info *info = seq->private;
-+
-+	++*pos;
-+	info->rbp = rb_next(info->rbp);
-+	return info->rbp ? rb_entry(info->rbp, struct epitem, rbn) : NULL;
-+}
-+
-+DEFINE_BPF_ITER_FUNC(epoll, struct bpf_iter_meta *meta, struct eventpoll *ep,
-+		     struct epitem *epi)
-+
-+static int __bpf_epoll_seq_show(struct seq_file *seq, void *v, bool in_stop)
-+{
-+	struct bpf_epoll_iter_seq_info *info = seq->private;
-+	struct bpf_iter__epoll ctx;
-+	struct bpf_iter_meta meta;
-+	struct bpf_prog *prog;
-+	int ret;
-+
-+	meta.seq = seq;
-+	prog = bpf_iter_get_info(&meta, in_stop);
-+	if (!prog)
 +		return 0;
 +
-+	ctx.meta = &meta;
-+	ctx.ep = info->ep;
-+	ctx.epi = v;
-+	if (ctx.epi) {
-+		/* The file we are going to pass to prog may already have its
-+		 * f_count as 0, hence before invoking the prog, we always try
-+		 * to get the reference if it isn't zero, failing which we skip
-+		 * the file. This is usually the case for files that are closed
-+		 * before calling EPOLL_CTL_DEL for them, which would wait for
-+		 * us to release ep->mtx before doing ep_remove.
-+		 */
-+		rcu_read_lock();
-+		ret = get_file_rcu(ctx.epi->ffd.file);
-+		rcu_read_unlock();
-+		if (!ret)
-+			return 0;
++	f_priv = (__u64)file->private_data;
++	fd = ctx->fd;
++	val.fd = fd;
++	if (file->f_op == &eventfd_fops) {
++		bpf_map_update_elem(&eventfd_ctx_map, &f_priv, &fd, 0);
++	} else if (file->f_op == &io_uring_fops) {
++		struct io_ring_ctx *ctx;
++		void *sq_data;
++		__u64 key;
++
++		bpf_map_update_elem(&io_ring_ctx_map, &f_priv, &val, 0);
++		ctx = file->private_data;
++		bpf_probe_read_kernel(&sq_data, sizeof(sq_data), &ctx->sq_data);
++		key = (__u64)sq_data;
++		bpf_map_update_elem(&sq_data_map, &key, &fd, BPF_NOEXIST);
 +	}
-+	ret = bpf_iter_run_prog(prog, &ctx);
-+	/* fput queues work asynchronously, so in our case, either task_work for
-+	 * non-exiting task, and otherwise delayed_fput, so holding ep->mtx and
-+	 * calling fput (which will take the same lock) in this context will not
-+	 * deadlock us, in case f_count is 1 at this point.
-+	 */
-+	if (ctx.epi)
-+		fput(ctx.epi->ffd.file);
++	f_priv = (__u64)file;
++	bpf_map_update_elem(&fdtable_map, &f_priv, &fd, BPF_NOEXIST);
++	return 0;
++}
++
++static void dump_io_ring_ctx(struct seq_file *seq, struct io_ring_ctx *ctx, int ring_fd)
++{
++	struct io_uring_dump dump;
++	struct ctx_map_val *val;
++	__u64 key;
++	int *fd;
++
++	key = (__u64)ctx;
++	val = bpf_map_lookup_elem(&io_ring_ctx_map, &key);
++	if (val && val->init)
++		return;
++	__builtin_memset(&dump, 0, sizeof(dump));
++	if (val)
++		val->init = true;
++	dump.type = DUMP_SETUP;
++	dump.io_uring_fd = ring_fd;
++	key = (__u64)ctx->sq_data;
++#define ATTACH_WQ_FLAG (1 << 5)
++	if (ctx->flags & ATTACH_WQ_FLAG) {
++		fd = bpf_map_lookup_elem(&sq_data_map, &key);
++		if (fd)
++			dump.desc.setup.wq_fd = *fd;
++	}
++	dump.desc.setup.flags = ctx->flags;
++	dump.desc.setup.sq_entries = ctx->sq_entries;
++	dump.desc.setup.cq_entries = ctx->cq_entries;
++	dump.desc.setup.sq_thread_cpu = ctx->sq_data->sq_cpu;
++	dump.desc.setup.sq_thread_idle = ctx->sq_data->sq_thread_idle;
++	bpf_seq_write(seq, &dump, sizeof(dump));
++	if (ctx->cq_ev_fd) {
++		dump.type = DUMP_EVENTFD;
++		key = (__u64)ctx->cq_ev_fd;
++		fd = bpf_map_lookup_elem(&eventfd_ctx_map, &key);
++		if (fd)
++			dump.desc.eventfd.eventfd = *fd;
++		dump.desc.eventfd.async = ctx->eventfd_async;
++		bpf_seq_write(seq, &dump, sizeof(dump));
++	}
++}
++
++SEC("iter/io_uring_buf")
++int dump_io_uring_buf(struct bpf_iter__io_uring_buf *ctx)
++{
++	struct io_mapped_ubuf *ubuf = ctx->ubuf;
++	struct seq_file *seq = ctx->meta->seq;
++	struct io_uring_dump dump;
++	__u64 key;
++	int *fd;
++
++	__builtin_memset(&dump, 0, sizeof(dump));
++	key = (__u64)ctx->ctx;
++	fd = bpf_map_lookup_elem(&io_ring_ctx_map, &key);
++	if (!ctx->meta->seq_num)
++		dump_io_ring_ctx(seq, ctx->ctx, fd ? *fd : 0);
++	if (!ubuf)
++		return 0;
++	dump.type = DUMP_REG_BUF;
++	if (fd)
++		dump.io_uring_fd = *fd;
++	dump.desc.reg_buf.index = ctx->index;
++	if (ubuf != ctx->ctx->dummy_ubuf) {
++		dump.desc.reg_buf.addr = ubuf->ubuf;
++		dump.desc.reg_buf.len = ubuf->ubuf_end - ubuf->ubuf;
++	}
++	bpf_seq_write(seq, &dump, sizeof(dump));
++	return 0;
++}
++
++SEC("iter/io_uring_file")
++int dump_io_uring_file(struct bpf_iter__io_uring_file *ctx)
++{
++	struct seq_file *seq = ctx->meta->seq;
++	struct file *file = ctx->file;
++	struct io_uring_dump dump;
++	__u64 key;
++	int *fd;
++
++	__builtin_memset(&dump, 0, sizeof(dump));
++	key = (__u64)ctx->ctx;
++	fd = bpf_map_lookup_elem(&io_ring_ctx_map, &key);
++	if (!ctx->meta->seq_num)
++		dump_io_ring_ctx(seq, ctx->ctx, fd ? *fd : 0);
++	if (!file)
++		return 0;
++	dump.type = DUMP_REG_FD;
++	if (fd)
++		dump.io_uring_fd = *fd;
++	dump.desc.reg_fd.index = ctx->index;
++	key = (__u64)file;
++	fd = bpf_map_lookup_elem(&fdtable_map, &key);
++	if (fd)
++		dump.desc.reg_fd.reg_fd = *fd;
++	bpf_seq_write(seq, &dump, sizeof(dump));
++	return 0;
++}
++
++char _license[] SEC("license") = "GPL";
+diff --git a/samples/bpf/bpf_cr.c b/samples/bpf/bpf_cr.c
+new file mode 100644
+index 000000000000..f5e0270af852
+--- /dev/null
++++ b/samples/bpf/bpf_cr.c
+@@ -0,0 +1,688 @@
++// SPDX-License-Identifier: GPL-2.0-only
++/*
++ * BPF C/R
++ *
++ * Tool to use BPF iterators to dump process state.  This currently supports
++ * dumping io_uring fd state, by taking process PID and fd number pair, then
++ * dumping to stdout the state as binary struct, which can be passed to the
++ * tool consuming it, to recreate io_uring.
++ */
++
++#include <errno.h>
++#include <stdio.h>
++#include <assert.h>
++#include <stdint.h>
++#include <stdlib.h>
++#include <string.h>
++#include <unistd.h>
++#include <bpf/bpf.h>
++#include <stdbool.h>
++#include <sys/uio.h>
++#include <bpf/libbpf.h>
++#include <sys/eventfd.h>
++#include <sys/syscall.h>
++#include <linux/io_uring.h>
++
++#include "bpf_cr.h"
++#include "bpf_cr.skel.h"
++
++/* Approx. 4096/40 */
++#define MAX_DESC 96
++size_t dump_desc_cnt;
++size_t reg_fd_cnt;
++size_t reg_buf_cnt;
++struct io_uring_dump *dump_desc[MAX_DESC];
++int fds[MAX_DESC];
++struct iovec bufs[MAX_DESC];
++
++static int sys_pidfd_open(pid_t pid, unsigned int flags)
++{
++	return syscall(__NR_pidfd_open, pid, flags);
++}
++
++static int sys_pidfd_getfd(int pidfd, int targetfd, unsigned int flags)
++{
++	return syscall(__NR_pidfd_getfd, pidfd, targetfd, flags);
++}
++
++static int sys_io_uring_setup(uint32_t entries, struct io_uring_params *p)
++{
++	return syscall(__NR_io_uring_setup, entries, p);
++}
++
++static int sys_io_uring_register(unsigned int fd, unsigned int opcode,
++				 void *arg, unsigned int nr_args)
++{
++	return syscall(__NR_io_uring_register, fd, opcode, arg, nr_args);
++}
++
++static const char *type2str[__DUMP_MAX] = {
++	[DUMP_SETUP]   = "DUMP_SETUP",
++	[DUMP_EVENTFD] = "DUMP_EVENTFD",
++	[DUMP_REG_FD]  = "DUMP_REG_FD",
++	[DUMP_REG_BUF] = "DUMP_REG_BUF",
++};
++
++static int do_dump_parent(struct bpf_cr *skel, int parent_fd)
++{
++	DECLARE_LIBBPF_OPTS(bpf_iter_attach_opts, opts);
++	union bpf_iter_link_info linfo = {};
++	int ret = 0, buf_it, file_it;
++	struct bpf_link *lb, *lf;
++	char buf[4096];
++
++	linfo.io_uring.io_uring_fd = parent_fd;
++	opts.link_info = &linfo;
++	opts.link_info_len = sizeof(linfo);
++
++	lb = bpf_program__attach_iter(skel->progs.dump_io_uring_buf, &opts);
++	if (!lb) {
++		ret = -errno;
++		fprintf(stderr, "Failed to attach to io_uring_buf: %m\n");
++		return ret;
++	}
++
++	lf = bpf_program__attach_iter(skel->progs.dump_io_uring_file, &opts);
++	if (!lf) {
++		ret = -errno;
++		fprintf(stderr, "Failed to attach io_uring_file: %m\n");
++		goto end;
++	}
++
++	buf_it = bpf_iter_create(bpf_link__fd(lb));
++	if (buf_it < 0) {
++		ret = -errno;
++		fprintf(stderr, "Failed to create io_uring_buf: %m\n");
++		goto end_lf;
++	}
++
++	file_it = bpf_iter_create(bpf_link__fd(lf));
++	if (file_it < 0) {
++		ret = -errno;
++		fprintf(stderr, "Failed to create io_uring_file: %m\n");
++		goto end_buf_it;
++	}
++
++	ret = read(file_it, buf, sizeof(buf));
++	if (ret < 0) {
++		ret = -errno;
++		fprintf(stderr, "Failed to read from io_uring_file iterator: %m\n");
++		goto end_file_it;
++	}
++
++	ret = write(STDOUT_FILENO, buf, ret);
++	if (ret < 0) {
++		ret = -errno;
++		fprintf(stderr, "Failed to write to stdout: %m\n");
++		goto end_file_it;
++	}
++
++	ret = read(buf_it, buf, sizeof(buf));
++	if (ret < 0) {
++		ret = -errno;
++		fprintf(stderr, "Failed to read from io_uring_buf iterator: %m\n");
++		goto end_file_it;
++	}
++
++	ret = write(STDOUT_FILENO, buf, ret);
++	if (ret < 0) {
++		ret = -errno;
++		fprintf(stderr, "Failed to write to stdout: %m\n");
++		goto end_file_it;
++	}
++
++end_file_it:
++	close(file_it);
++end_buf_it:
++	close(buf_it);
++end_lf:
++	bpf_link__destroy(lf);
++end:
++	bpf_link__destroy(lb);
 +	return ret;
 +}
 +
-+static int bpf_epoll_seq_show(struct seq_file *seq, void *v)
++static int do_dump(pid_t tpid, int tfd)
 +{
-+	return __bpf_epoll_seq_show(seq, v, false);
-+}
++	int pidfd, ret = 0, buf_it, file_it, task_it;
++	DECLARE_LIBBPF_OPTS(bpf_iter_attach_opts, opts);
++	union bpf_iter_link_info linfo = {};
++	const struct io_uring_dump *d;
++	struct bpf_cr *skel;
++	char buf[4096];
 +
-+static void bpf_epoll_seq_stop(struct seq_file *seq, void *v)
-+{
-+	struct bpf_epoll_iter_seq_info *info = seq->private;
-+	struct epitem *epi;
-+
-+	if (!v) {
-+		__bpf_epoll_seq_show(seq, v, true);
-+		/* done iterating */
-+		info->tfd = EP_ITER_DONE;
-+	} else {
-+		epi = rb_entry(info->rbp, struct epitem, rbn);
-+		info->tfd = epi->ffd.fd;
++	pidfd = sys_pidfd_open(tpid, 0);
++	if (pidfd < 0) {
++		fprintf(stderr, "Failed to open pidfd for PID %d: %m\n", tpid);
++		return 1;
 +	}
-+	mutex_unlock(&info->ep->mtx);
++
++	tfd = sys_pidfd_getfd(pidfd, tfd, 0);
++	if (tfd < 0) {
++		fprintf(stderr, "Failed to acquire io_uring fd from PID %d: %m\n", tpid);
++		ret = 1;
++		goto end;
++	}
++
++	skel = bpf_cr__open();
++	if (!skel) {
++		fprintf(stderr, "Failed to open BPF prog: %m\n");
++		ret = 1;
++		goto end_tfd;
++	}
++	skel->rodata->tgid = tpid;
++
++	ret = bpf_cr__load(skel);
++	if (ret < 0) {
++		fprintf(stderr, "Failed to load BPF prog: %m\n");
++		ret = 1;
++		goto end_skel;
++	}
++
++	skel->links.dump_task = bpf_program__attach_iter(skel->progs.dump_task, NULL);
++	if (!skel->links.dump_task) {
++		fprintf(stderr, "Failed to attach task_file iterator: %m\n");
++		ret = 1;
++		goto end_skel;
++	}
++
++	task_it = bpf_iter_create(bpf_link__fd(skel->links.dump_task));
++	if (task_it < 0) {
++		fprintf(stderr, "Failed to create task_file iterator: %m\n");
++		ret = 1;
++		goto end_skel;
++	}
++
++	/* Drive task iterator */
++	ret = read(task_it, buf, sizeof(buf));
++	close(task_it);
++	if (ret < 0) {
++		fprintf(stderr, "Failed to read from task_file iterator: %m\n");
++		ret = 1;
++		goto end_skel;
++	}
++
++	linfo.io_uring.io_uring_fd = tfd;
++	opts.link_info = &linfo;
++	opts.link_info_len = sizeof(linfo);
++	skel->links.dump_io_uring_buf = bpf_program__attach_iter(skel->progs.dump_io_uring_buf,
++								 &opts);
++	if (!skel->links.dump_io_uring_buf) {
++		fprintf(stderr, "Failed to attach io_uring_buf iterator: %m\n");
++		ret = 1;
++		goto end_skel;
++	}
++	skel->links.dump_io_uring_file = bpf_program__attach_iter(skel->progs.dump_io_uring_file,
++								  &opts);
++	if (!skel->links.dump_io_uring_file) {
++		fprintf(stderr, "Failed to attach io_uring_file iterator: %m\n");
++		ret = 1;
++		goto end_skel;
++	}
++
++	buf_it = bpf_iter_create(bpf_link__fd(skel->links.dump_io_uring_buf));
++	if (buf_it < 0) {
++		fprintf(stderr, "Failed to create io_uring_buf iterator: %m\n");
++		ret = 1;
++		goto end_skel;
++	}
++
++	file_it = bpf_iter_create(bpf_link__fd(skel->links.dump_io_uring_file));
++	if (file_it < 0) {
++		fprintf(stderr, "Failed to create io_uring_file iterator: %m\n");
++		ret = 1;
++		goto end_buf_it;
++	}
++
++	ret = read(file_it, buf, sizeof(buf));
++	if (ret < 0) {
++		fprintf(stderr, "Failed to read from io_uring_file iterator: %m\n");
++		ret = 1;
++		goto end_file_it;
++	}
++
++	/* Check if we have to dump its parent as well, first descriptor will
++	 * always be DUMP_SETUP, if so, recurse and dump it first.
++	 */
++	d = (void *)buf;
++	if (ret >= sizeof(*d) && d->type == DUMP_SETUP && d->desc.setup.wq_fd) {
++		int r;
++
++		r = sys_pidfd_getfd(pidfd, d->desc.setup.wq_fd, 0);
++		if (r < 0) {
++			fprintf(stderr, "Failed to obtain parent io_uring: %m\n");
++			ret = 1;
++			goto end_file_it;
++		}
++		r = do_dump_parent(skel, r);
++		if (r < 0) {
++			ret = 1;
++			goto end_file_it;
++		}
++	}
++
++	ret = write(STDOUT_FILENO, buf, ret);
++	if (ret < 0) {
++		fprintf(stderr, "Failed to write to stdout: %m\n");
++		ret = 1;
++		goto end_file_it;
++	}
++
++	ret = read(buf_it, buf, sizeof(buf));
++	if (ret < 0) {
++		fprintf(stderr, "Failed to read from io_uring_buf iterator: %m\n");
++		ret = 1;
++		goto end_file_it;
++	}
++
++	ret = write(STDOUT_FILENO, buf, ret);
++	if (ret < 0) {
++		fprintf(stderr, "Failed to write to stdout: %m\n");
++		ret = 1;
++		goto end_file_it;
++	}
++
++end_file_it:
++	close(file_it);
++end_buf_it:
++	close(buf_it);
++end_skel:
++	bpf_cr__destroy(skel);
++end_tfd:
++	close(tfd);
++end:
++	close(pidfd);
++	return ret;
 +}
 +
-+static const struct seq_operations bpf_epoll_seq_ops = {
-+	.start = bpf_epoll_seq_start,
-+	.next  = bpf_epoll_seq_next,
-+	.stop  = bpf_epoll_seq_stop,
-+	.show  = bpf_epoll_seq_show,
-+};
-+
-+static const struct bpf_iter_seq_info bpf_epoll_seq_info = {
-+	.seq_ops          = &bpf_epoll_seq_ops,
-+	.init_seq_private = bpf_epoll_init_seq,
-+	.seq_priv_size    = sizeof(struct bpf_epoll_iter_seq_info),
-+};
-+
-+static struct bpf_iter_reg epoll_reg_info = {
-+	.target            = "epoll",
-+	.feature           = BPF_ITER_RESCHED,
-+	.attach_target     = bpf_epoll_iter_attach,
-+	.detach_target     = bpf_epoll_iter_detach,
-+	.ctx_arg_info_size = 2,
-+	.ctx_arg_info = {
-+		{ offsetof(struct bpf_iter__epoll, ep),
-+		  PTR_TO_BTF_ID },
-+		{ offsetof(struct bpf_iter__epoll, epi),
-+		  PTR_TO_BTF_ID_OR_NULL },
-+	},
-+	.seq_info	   = &bpf_epoll_seq_info,
-+};
-+
-+static int __init epoll_iter_init(void)
++static int dump_desc_cmp(const void *a, const void *b)
 +{
-+	epoll_reg_info.ctx_arg_info[0].btf_id = btf_epoll_ids[0];
-+	epoll_reg_info.ctx_arg_info[1].btf_id = btf_epoll_ids[1];
-+	return bpf_iter_reg_target(&epoll_reg_info);
++	const struct io_uring_dump *da = a;
++	const struct io_uring_dump *db = b;
++	uint64_t dafd = da->io_uring_fd;
++	uint64_t dbfd = db->io_uring_fd;
++
++	if (dafd < dbfd)
++		return -1;
++	else if (dafd > dbfd)
++		return 1;
++	else if (da->type < db->type)
++		return -1;
++	else if (da->type > db->type)
++		return 1;
++	return 0;
 +}
-+late_initcall(epoll_iter_init);
++
++static int do_restore_setup(const struct io_uring_dump *d)
++{
++	struct io_uring_params p;
++	int fd, nfd;
++
++	memset(&p, 0, sizeof(p));
++
++	p.flags = d->desc.setup.flags;
++	if (p.flags & IORING_SETUP_SQ_AFF)
++		p.sq_thread_cpu = d->desc.setup.sq_thread_cpu;
++	if (p.flags & IORING_SETUP_SQPOLL)
++		p.sq_thread_idle = d->desc.setup.sq_thread_idle;
++	if (p.flags & IORING_SETUP_ATTACH_WQ)
++		p.wq_fd = d->desc.setup.wq_fd;
++	if (p.flags & IORING_SETUP_CQSIZE)
++		p.cq_entries = d->desc.setup.cq_entries;
++
++	fd = sys_io_uring_setup(d->desc.setup.sq_entries, &p);
++	if (fd < 0) {
++		fprintf(stderr, "Failed to restore DUMP_SETUP desc: %m\n");
++		return -errno;
++	}
++
++	nfd = dup2(fd, d->io_uring_fd);
++	if (nfd < 0) {
++		fprintf(stderr, "Failed to dup io_uring_fd: %m\n");
++		close(fd);
++		return -errno;
++	}
++	return 0;
++}
++
++static int do_restore_eventfd(const struct io_uring_dump *d)
++{
++	int evfd, ret, opcode;
++
++	/* This would require restoring the eventfd first in CRIU, which would
++	 * be found using eventfd_ctx and peeking into struct file guts from
++	 * task_file iterator. Here, we just reopen a normal eventfd and
++	 * register it. The BPF program does have code which does eventfd
++	 * matching to report the fd number.
++	 */
++	evfd = eventfd(42, 0);
++	if (evfd < 0) {
++		fprintf(stderr, "Failed to open eventfd: %m\n");
++		return -errno;
++	}
++
++	opcode = d->desc.eventfd.async ? IORING_REGISTER_EVENTFD_ASYNC : IORING_REGISTER_EVENTFD;
++	ret = sys_io_uring_register(d->io_uring_fd, opcode, &evfd, 1);
++	if (ret < 0) {
++		ret = -errno;
++		fprintf(stderr, "Failed to register eventfd: %m\n");
++		goto end;
++	}
++
++	ret = 0;
++end:
++	close(evfd);
++	return ret;
++}
++
++static void print_desc(const struct io_uring_dump *d)
++{
++	printf("%s:\n\tio_uring_fd: %d\n\tend: %s\n",
++	       type2str[d->type % __DUMP_MAX], d->io_uring_fd, d->end ? "true" : "false");
++	switch (d->type) {
++	case DUMP_SETUP:
++		printf("\t\tflags: %u\n\t\tsq_entries: %u\n\t\tcq_entries: %u\n"
++		       "\t\tsq_thread_cpu: %d\n\t\tsq_thread_idle: %d\n\t\twq_fd: %d\n",
++		       d->desc.setup.flags, d->desc.setup.sq_entries,
++		       d->desc.setup.cq_entries, d->desc.setup.sq_thread_cpu,
++		       d->desc.setup.sq_thread_idle, d->desc.setup.wq_fd);
++		break;
++	case DUMP_EVENTFD:
++		printf("\t\teventfd: %d\n\t\tasync: %s\n",
++		       d->desc.eventfd.eventfd,
++		       d->desc.eventfd.async ? "true" : "false");
++		break;
++	case DUMP_REG_FD:
++		printf("\t\treg_fd: %d\n\t\tindex: %lu\n",
++		       d->desc.reg_fd.reg_fd, d->desc.reg_fd.index);
++		break;
++	case DUMP_REG_BUF:
++		printf("\t\taddr: %lu\n\t\tlen: %lu\n\t\tindex: %lu\n",
++		       d->desc.reg_buf.addr, d->desc.reg_buf.len,
++		       d->desc.reg_buf.index);
++		break;
++	default:
++		printf("\t\t{Unknown}\n");
++		break;
++	}
++}
++
++static int do_restore_reg_fd(const struct io_uring_dump *d)
++{
++	int ret;
++
++	/* In CRIU, we restore the fds to be registered before executing the
++	 * restore action that registers file descriptors to io_uring.
++	 * Our example app would register stdin/stdout/stderr in a sparse
++	 * table, so the test case in the commit works.
++	 */
++	if (reg_fd_cnt == MAX_DESC || d->desc.reg_fd.index >= MAX_DESC) {
++		fprintf(stderr, "Exceeded max fds MAX_DESC (%d)\n", MAX_DESC);
++		return -EDOM;
++	}
++	assert(reg_fd_cnt <= d->desc.reg_fd.index);
++	/* Fill sparse entries */
++	while (reg_fd_cnt < d->desc.reg_fd.index)
++		fds[reg_fd_cnt++] = -1;
++	fds[reg_fd_cnt++] = d->desc.reg_fd.reg_fd;
++	if (d->end) {
++		ret = sys_io_uring_register(d->io_uring_fd,
++					    IORING_REGISTER_FILES, &fds,
++					    reg_fd_cnt);
++		if (ret < 0) {
++			fprintf(stderr, "Failed to register files: %m\n");
++			return -errno;
++		}
++	}
++	return 0;
++}
++
++static int do_restore_reg_buf(const struct io_uring_dump *d)
++{
++	struct iovec *iov;
++	int ret;
++
++	/* This step in CRIU for buffers with intact source buffers must be
++	 * executed with care. There are primarily three cases (each with corner
++	 * cases excluded for brevity):
++	 * 1. Source VMA is intact ([ubuf->ubuf, ubuf->ubuf_end) is in VMA, base
++	 *    page PFN is same)
++	 * 2. Source VMA is split (with multiple pages of ubuf overlaying over
++	 *    holes) using munmap(s).
++	 * 3. Source VMA is absent (no VMA or full VMA with incorrect PFN).
++	 *
++	 * PFN remains unique as pages are pinned, hence one with same PFN will
++	 * not be recycled to be part of another mapping by page allocator. 2
++	 * and 3 required page contents dumping.
++	 *
++	 * VMA with holes (registered before punching holes) also needs partial
++	 * page content dumping to restore without holes, and then punch the
++	 * holes. This can be detected when buffer touches two VMAs with holes,
++	 * and base page PFN matches (split VMA case).
++	 *
++	 * All of this is too complicated to demonstrate here, and is done in
++	 * userspace, hence left out. Future patches will implement the page
++	 * dumping from ubuf iterator part.
++	 *
++	 * In usual cases we might be able to dump page contents from inside
++	 * io_uring that we are dumping, by submitting operations, but we want
++	 * to avoid manipulating the ring while dumping, and opcodes we might
++	 * need for doing that may be restricted, hence preventing dump.
++	 */
++	if (reg_buf_cnt == MAX_DESC) {
++		fprintf(stderr, "Exceeded max buffers MAX_DESC (%d)\n", MAX_DESC);
++		return -EDOM;
++	}
++	assert(d->desc.reg_buf.index == reg_buf_cnt);
++	iov = &bufs[reg_buf_cnt++];
++	iov->iov_base = (void *)d->desc.reg_buf.addr;
++	iov->iov_len  = d->desc.reg_buf.len;
++	if (d->end) {
++		if (reg_fd_cnt) {
++			ret = sys_io_uring_register(d->io_uring_fd,
++						    IORING_REGISTER_FILES, &fds,
++						    reg_fd_cnt);
++			if (ret < 0) {
++				fprintf(stderr, "Failed to register files: %m\n");
++				return -errno;
++			}
++		}
++
++		ret = sys_io_uring_register(d->io_uring_fd,
++					    IORING_REGISTER_BUFFERS, &bufs,
++					    reg_buf_cnt);
++		if (ret < 0) {
++			fprintf(stderr, "Failed to register buffers: %m\n");
++			return -errno;
++		}
++	}
++	return 0;
++}
++
++static int do_restore_action(const struct io_uring_dump *d, bool dry_run)
++{
++	int ret;
++
++	print_desc(d);
++
++	if (dry_run)
++		return 0;
++
++	switch (d->type) {
++	case DUMP_SETUP:
++		ret = do_restore_setup(d);
++		break;
++	case DUMP_EVENTFD:
++		ret = do_restore_eventfd(d);
++		break;
++	case DUMP_REG_FD:
++		ret = do_restore_reg_fd(d);
++		break;
++	case DUMP_REG_BUF:
++		ret = do_restore_reg_buf(d);
++		break;
++	default:
++		fprintf(stderr, "Unknown dump descriptor\n");
++		return -EDOM;
++	}
++	return ret;
++}
++
++static int do_restore(bool dry_run)
++{
++	struct io_uring_dump dump;
++	int ret, prev_fd = 0;
++
++	while ((ret = read(STDIN_FILENO, &dump, sizeof(dump)))) {
++		struct io_uring_dump *d;
++
++		if (ret < 0) {
++			fprintf(stderr, "Failed to read descriptor: %m\n");
++			ret = 1;
++			goto free;
++		}
++
++		ret = 1;
++		if (dump_desc_cnt == MAX_DESC) {
++			fprintf(stderr, "Cannot process more than MAX_DESC (%d) dump descs\n",
++				MAX_DESC);
++			goto free;
++		}
++
++		d = calloc(1, sizeof(*d));
++		if (!d) {
++			fprintf(stderr, "Failed to allocate dump descriptor: %m\n");
++			goto free;
++		}
++
++		*d = dump;
++		if (!prev_fd)
++			prev_fd = d->io_uring_fd;
++		if (prev_fd != d->io_uring_fd) {
++			dump_desc[dump_desc_cnt - 1]->end = true;
++			prev_fd = d->io_uring_fd;
++		}
++		dump_desc[dump_desc_cnt++] = d;
++		qsort(dump_desc, dump_desc_cnt, sizeof(dump_desc[0]), dump_desc_cmp);
++	}
++	if (dump_desc_cnt)
++		dump_desc[dump_desc_cnt - 1]->end = true;
++
++	for (size_t i = 0; i < dump_desc_cnt; i++) {
++		ret = do_restore_action(dump_desc[i], dry_run);
++		if (ret < 0) {
++			fprintf(stderr, "Failed to execute restore action\n");
++			goto free;
++		}
++	}
++
++	if (!dry_run && dump_desc_cnt)
++		sleep(10000);
++	else
++		puts("Nothing to do, exiting...");
++	ret = 0;
++free:
++	while (dump_desc_cnt--)
++		free(dump_desc[dump_desc_cnt]);
++	return ret;
++}
++
++static int run_app(void)
++{
++	struct io_uring_params p;
++	int r, ret, fd, evfd;
++
++	memset(&p, 0, sizeof(p));
++	p.flags |= IORING_SETUP_CQSIZE | IORING_SETUP_SQPOLL | IORING_SETUP_SQ_AFF;
++	p.sq_thread_idle = 1500;
++	p.cq_entries = 4;
++	/* Create a test case with parent io_uring, dependent io_uring,
++	 * registered files, eventfd (async), buffers, etc.
++	 */
++	fd = sys_io_uring_setup(2, &p);
++	if (fd < 0) {
++		fprintf(stderr, "Failed to create io_uring: %m\n");
++		return 1;
++	}
++
++	r = 1;
++	printf("PID: %d, Parent io_uring: %d, ", getpid(), fd);
++	p.flags |= IORING_SETUP_ATTACH_WQ;
++	p.wq_fd = fd;
++
++	fd = sys_io_uring_setup(2, &p);
++	if (fd < 0) {
++		fprintf(stderr, "\nFailed to create io_uring: %m\n");
++		goto end_wq_fd;
++	}
++
++	printf("Dependent io_uring: %d\n", fd);
++
++	evfd = eventfd(42, 0);
++	if (evfd < 0) {
++		fprintf(stderr, "Failed to create eventfd: %m\n");
++		goto end_fd;
++	}
++
++	ret = sys_io_uring_register(fd, IORING_REGISTER_EVENTFD_ASYNC, &evfd, 1);
++	if (ret < 0) {
++		fprintf(stderr, "Failed to register eventfd (async): %m\n");
++		goto end_evfd;
++	}
++
++	ret = sys_io_uring_register(fd, IORING_REGISTER_FILES, &(int []){0, -1, 1, -1, 2}, 5);
++	if (ret < 0) {
++		fprintf(stderr, "Failed to register files: %m\n");
++		goto end_evfd;
++	}
++
++	/* Register dummy buf as well */
++	ret = sys_io_uring_register(fd, IORING_REGISTER_BUFFERS, &(struct iovec[]){{}, {&p, sizeof(p)}}, 2);
++	if (ret < 0) {
++		fprintf(stderr, "Failed to register buffers: %m\n");
++		goto end_evfd;
++	}
++
++	pause();
++
++	r = 0;
++end_evfd:
++	close(evfd);
++end_fd:
++	close(fd);
++end_wq_fd:
++	close(p.wq_fd);
++	return r;
++}
++
++int main(int argc, char *argv[])
++{
++	if (argc < 2 || argc > 4) {
++usage:
++		fprintf(stderr, "Usage: %s dump PID FD > dump.out\n"
++			"\tcat dump.out | %s restore [--dry-run]\n"
++			"\t%s app\n", argv[0], argv[0], argv[0]);
++		return 1;
++	}
++
++	if (libbpf_set_strict_mode(LIBBPF_STRICT_ALL)) {
++		fprintf(stderr, "Failed to set libbpf strict mode\n");
++		return 1;
++	}
++
++	if (!strcmp(argv[1], "app")) {
++		return run_app();
++	} else if (!strcmp(argv[1], "dump")) {
++		if (argc != 4)
++			goto usage;
++		return do_dump(atoi(argv[2]), atoi(argv[3]));
++	} else if (!strcmp(argv[1], "restore")) {
++		if (argc < 2 || argc > 3)
++			goto usage;
++		if (argc == 3 && strcmp(argv[2], "--dry-run"))
++			goto usage;
++		return do_restore(argc == 3 /* dry_run mode */);
++	}
++	fprintf(stderr, "Unknown argument\n");
++	goto usage;
++}
+diff --git a/samples/bpf/bpf_cr.h b/samples/bpf/bpf_cr.h
+new file mode 100644
+index 000000000000..74d4ca639db5
+--- /dev/null
++++ b/samples/bpf/bpf_cr.h
+@@ -0,0 +1,48 @@
++// SPDX-License-Identifier: GPL-2.0-only
++
++#ifndef BPF_CR_H
++#define BPF_CR_H
++
++/* The order of restore actions is in order of declaration for each type,
++ * hence on restore consumed descriptors can be sorted based on their type,
++ * and then each action for the corresponding descriptor can be invoked, to
++ * recreate the io_uring.
++ */
++enum io_uring_state_type {
++	DUMP_SETUP,	/* Record setup parameters */
++	DUMP_EVENTFD,	/* eventfd registered in io_uring */
++	DUMP_REG_FD,	/* fd registered in io_uring */
++	DUMP_REG_BUF,	/* buffer registered in io_uring */
++	__DUMP_MAX,
++};
++
++struct io_uring_dump {
++	enum io_uring_state_type type;
++	int32_t io_uring_fd;
++	bool end;
++	union {
++		struct /* DUMP_SETUP */ {
++			uint32_t flags;
++			uint32_t sq_entries;
++			uint32_t cq_entries;
++			int32_t sq_thread_cpu;
++			int32_t sq_thread_idle;
++			uint32_t wq_fd;
++		} setup;
++		struct /* DUMP_EVENTFD */ {
++			uint32_t eventfd;
++			bool async;
++		} eventfd;
++		struct /* DUMP_REG_FD */ {
++			uint32_t reg_fd;
++			uint64_t index;
++		} reg_fd;
++		struct /* DUMP_REG_BUF */ {
++			uint64_t addr;
++			uint64_t len;
++			uint64_t index;
++		} reg_buf;
++	} desc;
++};
 +
 +#endif
-diff --git a/include/linux/bpf.h b/include/linux/bpf.h
-index e44503158d76..d7e3e9c59b68 100644
---- a/include/linux/bpf.h
-+++ b/include/linux/bpf.h
-@@ -1519,10 +1519,13 @@ struct bpf_iter_aux_info {
- 	 * to skip this check for non-map iterator cheaply.
- 	 */
- 	struct bpf_map *map;
--	struct {
--		struct io_ring_ctx *ctx;
--		ino_t inode;
--	} io_uring;
-+	union {
-+		struct {
-+			struct io_ring_ctx *ctx;
-+			ino_t inode;
-+		} io_uring;
-+		struct file *ep;
-+	};
- };
- 
- typedef int (*bpf_iter_attach_target_t)(struct bpf_prog *prog,
-diff --git a/include/uapi/linux/bpf.h b/include/uapi/linux/bpf.h
-index 885d9293c147..b82b11d72520 100644
---- a/include/uapi/linux/bpf.h
-+++ b/include/uapi/linux/bpf.h
-@@ -94,6 +94,9 @@ union bpf_iter_link_info {
- 	struct {
- 		__u32   io_uring_fd;
- 	} io_uring;
-+	struct {
-+		__u32   epoll_fd;
-+	} epoll;
- };
- 
- /* BPF syscall commands, see bpf(2) man-page for more details. */
-diff --git a/tools/include/uapi/linux/bpf.h b/tools/include/uapi/linux/bpf.h
-index 885d9293c147..b82b11d72520 100644
---- a/tools/include/uapi/linux/bpf.h
-+++ b/tools/include/uapi/linux/bpf.h
-@@ -94,6 +94,9 @@ union bpf_iter_link_info {
- 	struct {
- 		__u32   io_uring_fd;
- 	} io_uring;
-+	struct {
-+		__u32   epoll_fd;
-+	} epoll;
- };
- 
- /* BPF syscall commands, see bpf(2) man-page for more details. */
--- 
+diff --git a/samples/bpf/hbm_kern.h b/samples/bpf/hbm_kern.h
+index 722b3fadb467..1752a46a2b05 100644
+--- a/samples/bpf/hbm_kern.h
++++ b/samples/bpf/hbm_kern.h
+@@ -9,8 +9,6 @@
+  * Include file for sample Host Bandwidth Manager (HBM) BPF programs
+  */
+ #define KBUILD_MODNAME "foo"
+-#include <stddef.h>
+-#include <stdbool.h>
+ #include <uapi/linux/bpf.h>
+ #include <uapi/linux/if_ether.h>
+ #include <uapi/linux/if_packet.h>
+--
 2.34.1
 

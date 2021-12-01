@@ -2,98 +2,116 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 07E1BC433FE
-	for <io-uring@archiver.kernel.org>; Wed,  1 Dec 2021 04:24:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1B116C433F5
+	for <io-uring@archiver.kernel.org>; Wed,  1 Dec 2021 05:51:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232052AbhLAE2L (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Tue, 30 Nov 2021 23:28:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49564 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346608AbhLAE1i (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Tue, 30 Nov 2021 23:27:38 -0500
-Received: from mail-pf1-x444.google.com (mail-pf1-x444.google.com [IPv6:2607:f8b0:4864:20::444])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C9FDC06175B;
-        Tue, 30 Nov 2021 20:24:04 -0800 (PST)
-Received: by mail-pf1-x444.google.com with SMTP id n26so23004876pff.3;
-        Tue, 30 Nov 2021 20:24:04 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=y7IcXh7hkKTNMPxt6YZo1bjq2Oa0ASN2LOQPZecX9IA=;
-        b=G+voL6wJw3c+eMoG3p9xj5cgifda2ejkqCJqCQLLeSaGHJ+JKnfVBotRvVX/0sOx7I
-         6C7aicypaCP+nfwUqw+9GgnLaR2+E0Z9BaOMfv5bxQ/+EiZP9sEE2pDKFhmbp50KMs1i
-         WCLE0WBK5FO9w9UtFchHY1Sf2OIuxQao92ENqR5m8o70J7D/TD5/ffzmblQ6eg3adjbx
-         kx7AGLbanbtH/jgwLvctaEdQlBzpXpf0aufSTxSocbY6r2+CE+20IiWSqy1KK3Cr4SSe
-         DX1ODKLbUZL45dcKPm3Sxm7cmEQfhNT3qin/o1eFpYV2+Pl3PaZ9kcURRsH2PeAJepX/
-         DI9w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=y7IcXh7hkKTNMPxt6YZo1bjq2Oa0ASN2LOQPZecX9IA=;
-        b=Ae+ZirFiA8s+tt0Sl9LaLA16zBKM19rg3lOBCEslue1UdYr24K1ofI6ATFiJSHHBqL
-         b06GEodYBrjrFhCqyQG5kjWFN6OwYNwC+6IZy9sryXTZORuUzaa9hYO5VfHWZ8b4sx5l
-         BS71DleUw2fMO2Zm5CEFJtHsiN3LOL9qZxWabTE++XVpXp086DCY60++ZGADRs5uahxa
-         CnhYrsY3nJQW7F5jx2DAgth8IJFpJA7SzpFEXUhihUSUvl1jE5xDRnWMUQE4GzcRFYV0
-         yo8wSU3lj4huP1B0VF2oBg16jHyrAZqlNvM61yvlLOl7Y8VW5tK40yhx1XKInPHvRuku
-         cn0w==
-X-Gm-Message-State: AOAM532zWHr+Y0TOkwpszeRXEZrgu4WAT+5sB9U6eL2P8QtSeZahn5CK
-        3R5IpdExtliTIZym3reak1VSIcIv29s=
-X-Google-Smtp-Source: ABdhPJxLaJnjlMXWkC24b57twGFlBGMgy582WfgYrQLbB/lD8ZTWNvk/AyBOttqbm/xjQsyogkyLLw==
-X-Received: by 2002:a05:6a00:234a:b0:49f:c0f7:f474 with SMTP id j10-20020a056a00234a00b0049fc0f7f474mr3616842pfj.64.1638332644067;
-        Tue, 30 Nov 2021 20:24:04 -0800 (PST)
-Received: from localhost ([2405:201:6014:d064:3d4e:6265:800c:dc84])
-        by smtp.gmail.com with ESMTPSA id g1sm8435444pgm.23.2021.11.30.20.24.03
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 30 Nov 2021 20:24:03 -0800 (PST)
-From:   Kumar Kartikeya Dwivedi <memxor@gmail.com>
-To:     bpf@vger.kernel.org
-Cc:     Alexei Starovoitov <ast@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Yonghong Song <yhs@fb.com>,
-        Pavel Emelyanov <ovzxemul@gmail.com>,
-        Alexander Mikhalitsyn <alexander@mihalicyn.com>,
-        Andrei Vagin <avagin@gmail.com>, criu@openvz.org,
-        io-uring@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: [PATCH bpf-next v3 09/10] selftests/bpf: Fix btf_dump test for bpf_iter_link_info
-Date:   Wed,  1 Dec 2021 09:53:32 +0530
-Message-Id: <20211201042333.2035153-10-memxor@gmail.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211201042333.2035153-1-memxor@gmail.com>
-References: <20211201042333.2035153-1-memxor@gmail.com>
+        id S230264AbhLAFzN (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 1 Dec 2021 00:55:13 -0500
+Received: from mx0a-00082601.pphosted.com ([67.231.145.42]:48754 "EHLO
+        mx0a-00082601.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1346822AbhLAFzK (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Wed, 1 Dec 2021 00:55:10 -0500
+Received: from pps.filterd (m0148461.ppops.net [127.0.0.1])
+        by mx0a-00082601.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1B14uS9S005899
+        for <io-uring@vger.kernel.org>; Tue, 30 Nov 2021 21:51:49 -0800
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=fb.com; h=from : to : cc : subject
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding : content-type; s=facebook;
+ bh=MSZQFSxPJFwq865NhhlubeB+7yf1sYa/xbh+40S6LQQ=;
+ b=aMVhM6/lgIS0urnM6ZLWUOrXy/BykOs0Tm96tXp1/oGbHV0n10J1EWc7eqz/tNJivjyj
+ xGTZmDr/3hDuzJ0Wq9rZ8Kqs4yErvKTzpAgYcQ2f3AFSakB0HF1Go0Y8zeNG7pi0/w1X
+ XjsBi0joGPJkXuP9x4mRnWndqPNAa0TvwMY= 
+Received: from maileast.thefacebook.com ([163.114.130.16])
+        by mx0a-00082601.pphosted.com with ESMTP id 3cp2exr7f5-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NOT)
+        for <io-uring@vger.kernel.org>; Tue, 30 Nov 2021 21:51:49 -0800
+Received: from intmgw006.03.ash8.facebook.com (2620:10d:c0a8:1b::d) by
+ mail.thefacebook.com (2620:10d:c0a8:83::6) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2308.20; Tue, 30 Nov 2021 21:51:48 -0800
+Received: by devvm225.atn0.facebook.com (Postfix, from userid 425415)
+        id 5D9CD7227181; Tue, 30 Nov 2021 21:51:46 -0800 (PST)
+From:   Stefan Roesch <shr@fb.com>
+To:     <io-uring@vger.kernel.org>, <linux-fsdevel@vger.kernel.org>,
+        <kernel-team@fb.com>
+CC:     <shr@fb.com>
+Subject: [PATCH v2 1/5] fs: split off do_user_path_at_empty from user_path_at_empty()
+Date:   Tue, 30 Nov 2021 21:51:40 -0800
+Message-ID: <20211201055144.3141001-2-shr@fb.com>
+X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20211201055144.3141001-1-shr@fb.com>
+References: <20211201055144.3141001-1-shr@fb.com>
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1199; h=from:subject; bh=QE4SyOAFzzmkq+EmLnqIhi3J/rXlE8epdKkKQ0ddjk0=; b=owEBbQKS/ZANAwAIAUzgyIZIvxHKAcsmYgBhpvYyHodypS5dcJxgGWq6Gcm01FTC9AoUN7RCDrNE /m9lpO2JAjMEAAEIAB0WIQRLvip+Buz51YI8YRFM4MiGSL8RygUCYab2MgAKCRBM4MiGSL8RysTEEA DCmZCmJmDZDxqlorY0oGjDyVOz8xicGLWGmSH307rEylOEUw85KOGpd3eIMfiK/Nnqg9rK5s2wHPyc /ARNL1eox1+ygPgQQUQ0haEENVe149mNIY/bB5clUNBw+8dhw26Jt+Vy2LepNOEYDIAsIC+y/s374r qh6XZm2I8MsXRuSTgWWdV71OsJ221i9gMWFW+H/ReIFwLFg1Nh5n6suRxc+bv6FdTUpn7zERR7kxxO v4c6C8k3f2fuhfQ9JMcnWu4QSiJsYfGQWVShUA/alh0W6ah9MvRYJvyfpUUL+v7ObgbCYbicBIb/pl RC4aSphiHmGciptihLOImE6FmlEw3HAdz/kIpPtLarR6fEXgAIGfeClA8LIu5YtJRj/v6eh3WK4vI0 J8nawV0icVnf9wjjMvRdKF2Ge8cYv8lmHVYnGGiLK61qeGrq0BtCBxBycYrFRmS5Kv07SSlfwqAnHm I0T+D5giFEj0fLONEz1X8U0h1tHGpnrH4Ha/YSt0LDHHQ0ZPN6uWHJhAQwls+gcoVHrc9QFxrt/amO hNfMhKbhGZuCEkRNYHpVDJFOf7452KtXXmLPHWomWisxX7E/c0Kha4lYlLFFJlH6wg1bBnRHVYyadm 8CK3YEOupz+hdjA4nV9A70shbJW6vHjAjpWhf9B1PR22DK1pa0fRWf4Rd+Bw==
-X-Developer-Key: i=memxor@gmail.com; a=openpgp; fpr=4BBE2A7E06ECF9D5823C61114CE0C88648BF11CA
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-FB-Internal: Safe
+Content-Type: text/plain
+X-FB-Source: Intern
+X-Proofpoint-GUID: G8UbqbVEhXIX_VOEWHXFJqnnAk51hLXS
+X-Proofpoint-ORIG-GUID: G8UbqbVEhXIX_VOEWHXFJqnnAk51hLXS
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.0.607.475
+ definitions=2021-11-30_10,2021-11-28_01,2020-04-07_01
+X-Proofpoint-Spam-Details: rule=fb_default_notspam policy=fb_default score=0 clxscore=1015
+ suspectscore=0 mlxscore=0 adultscore=1 mlxlogscore=588 priorityscore=1501
+ impostorscore=0 spamscore=0 bulkscore=0 lowpriorityscore=0 malwarescore=0
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2110150000 definitions=main-2112010033
+X-FB-Internal: deliver
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Since we changed the definition while adding io_uring and epoll iterator
-support, adjust the selftest to check against the updated definition.
+This splits off a do_user_path_at_empty function from the
+user_path_at_empty_function. This is required so it can be
+called from io_uring.
 
-Signed-off-by: Kumar Kartikeya Dwivedi <memxor@gmail.com>
+Signed-off-by: Stefan Roesch <shr@fb.com>
 ---
- tools/testing/selftests/bpf/prog_tests/btf_dump.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ fs/namei.c            | 10 ++++++++--
+ include/linux/namei.h |  2 ++
+ 2 files changed, 10 insertions(+), 2 deletions(-)
 
-diff --git a/tools/testing/selftests/bpf/prog_tests/btf_dump.c b/tools/testing/selftests/bpf/prog_tests/btf_dump.c
-index 9e26903f9170..1678b2c49f78 100644
---- a/tools/testing/selftests/bpf/prog_tests/btf_dump.c
-+++ b/tools/testing/selftests/bpf/prog_tests/btf_dump.c
-@@ -736,7 +736,9 @@ static void test_btf_dump_struct_data(struct btf *btf, struct btf_dump *d,
- 
- 	/* union with nested struct */
- 	TEST_BTF_DUMP_DATA(btf, d, "union", str, union bpf_iter_link_info, BTF_F_COMPACT,
--			   "(union bpf_iter_link_info){.map = (struct){.map_fd = (__u32)1,},}",
-+			   "(union bpf_iter_link_info){.map = (struct){.map_fd = (__u32)1,},"
-+			   ".io_uring = (struct){.io_uring_fd = (__u32)1,},"
-+			   ".epoll = (struct){.epoll_fd = (__u32)1,},}",
- 			   { .map = { .map_fd = 1 }});
- 
- 	/* struct skb with nested structs/unions; because type output is so
--- 
-2.34.1
+diff --git a/fs/namei.c b/fs/namei.c
+index 1f9d2187c765..d988e241b32c 100644
+--- a/fs/namei.c
++++ b/fs/namei.c
+@@ -2794,12 +2794,18 @@ int path_pts(struct path *path)
+ }
+ #endif
+=20
++int do_user_path_at_empty(int dfd, struct filename *filename, unsigned i=
+nt flags,
++		       struct path *path)
++{
++	return filename_lookup(dfd, filename, flags, path, NULL);
++}
++
+ int user_path_at_empty(int dfd, const char __user *name, unsigned flags,
+-		 struct path *path, int *empty)
++		struct path *path, int *empty)
+ {
+ 	struct filename *filename =3D getname_flags(name, flags, empty);
+-	int ret =3D filename_lookup(dfd, filename, flags, path, NULL);
+=20
++	int ret =3D do_user_path_at_empty(dfd, filename, flags, path);
+ 	putname(filename);
+ 	return ret;
+ }
+diff --git a/include/linux/namei.h b/include/linux/namei.h
+index e89329bb3134..8f3ef38c057b 100644
+--- a/include/linux/namei.h
++++ b/include/linux/namei.h
+@@ -49,6 +49,8 @@ enum {LAST_NORM, LAST_ROOT, LAST_DOT, LAST_DOTDOT};
+=20
+ extern int path_pts(struct path *path);
+=20
++extern int do_user_path_at_empty(int dfd, struct filename *filename,
++				unsigned int flags, struct path *path);
+ extern int user_path_at_empty(int, const char __user *, unsigned, struct=
+ path *, int *empty);
+=20
+ static inline int user_path_at(int dfd, const char __user *name, unsigne=
+d flags,
+--=20
+2.30.2
 

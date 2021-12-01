@@ -2,136 +2,122 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E00A9C433F5
-	for <io-uring@archiver.kernel.org>; Wed,  1 Dec 2021 19:27:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9F1D4C433F5
+	for <io-uring@archiver.kernel.org>; Wed,  1 Dec 2021 19:52:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239539AbhLATbJ (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Wed, 1 Dec 2021 14:31:09 -0500
-Received: from smtp8.emailarray.com ([65.39.216.67]:56424 "EHLO
-        smtp8.emailarray.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352767AbhLATbH (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Wed, 1 Dec 2021 14:31:07 -0500
-Received: (qmail 95186 invoked by uid 89); 1 Dec 2021 19:20:45 -0000
-Received: from unknown (HELO localhost) (amxlbW9uQGZsdWdzdmFtcC5jb21AMTYzLjExNC4xMzIuNw==) (POLARISLOCAL)  
-  by smtp8.emailarray.com with SMTP; 1 Dec 2021 19:20:45 -0000
-Date:   Wed, 1 Dec 2021 11:20:43 -0800
-From:   Jonathan Lemon <jonathan.lemon@gmail.com>
-To:     Pavel Begunkov <asml.silence@gmail.com>
-Cc:     io-uring@vger.kernel.org, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
-        "David S . Miller" <davem@davemloft.net>,
-        Willem de Bruijn <willemb@google.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>,
-        David Ahern <dsahern@kernel.org>, Jens Axboe <axboe@kernel.dk>
-Subject: Re: [RFC 05/12] net: optimise page get/free for bvec zc
-Message-ID: <20211201192043.tqed7rtwibnwhw7c@bsd-mbp.dhcp.thefacebook.com>
-References: <cover.1638282789.git.asml.silence@gmail.com>
- <72608c13553a1372e7f6f7a32eb53d5d4b23a1fc.1638282789.git.asml.silence@gmail.com>
+        id S238837AbhLAT4Q (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 1 Dec 2021 14:56:16 -0500
+Received: from bee.birch.relay.mailchannels.net ([23.83.209.14]:12207 "EHLO
+        bee.birch.relay.mailchannels.net" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1352727AbhLAT4M (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Wed, 1 Dec 2021 14:56:12 -0500
+X-Sender-Id: dreamhost|x-authsender|cosmos@claycon.org
+Received: from relay.mailchannels.net (localhost [127.0.0.1])
+        by relay.mailchannels.net (Postfix) with ESMTP id D95218C1E0C;
+        Wed,  1 Dec 2021 19:52:41 +0000 (UTC)
+Received: from pdx1-sub0-mail-a238.dreamhost.com (unknown [127.0.0.6])
+        (Authenticated sender: dreamhost)
+        by relay.mailchannels.net (Postfix) with ESMTPA id 60BAC8C1DEC;
+        Wed,  1 Dec 2021 19:52:41 +0000 (UTC)
+X-Sender-Id: dreamhost|x-authsender|cosmos@claycon.org
+Received: from pdx1-sub0-mail-a238.dreamhost.com (pop.dreamhost.com
+ [64.90.62.162])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384)
+        by 100.114.196.229 (trex/6.4.3);
+        Wed, 01 Dec 2021 19:52:41 +0000
+X-MC-Relay: Neutral
+X-MailChannels-SenderId: dreamhost|x-authsender|cosmos@claycon.org
+X-MailChannels-Auth-Id: dreamhost
+X-Callous-Keen: 60690afb720acca1_1638388361739_2254961659
+X-MC-Loop-Signature: 1638388361739:3640251298
+X-MC-Ingress-Time: 1638388361739
+Received: from ps29521.dreamhostps.com (ps29521.dreamhostps.com [69.163.186.74])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        (Authenticated sender: cosmos@claycon.org)
+        by pdx1-sub0-mail-a238.dreamhost.com (Postfix) with ESMTPSA id 4J48rS66q3z2K;
+        Wed,  1 Dec 2021 11:52:40 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha1; c=relaxed/relaxed; d=claycon.org;
+        s=claycon.org; t=1638388361; bh=06EKC+aL0nYBr8NNM3/0TaMmdG0=;
+        h=Date:From:To:Cc:Subject:Content-Type;
+        b=Cjyc9wKctz/d2tTx8tQ3Py0oHEhngo8erzhnfIbH0HkmXQCg0IejkJg0/yDfyzj2N
+         9Yfj2QBGhd/NjqjzGHBuDEMEXgYPcHBiXB1/s78/jRUVxb2o284JL8CmsHSk3nSgya
+         Ga3dYxumWt5MuSSk22ECCKhTwqvpYa1vxnA7WrP4=
+Date:   Wed, 1 Dec 2021 13:52:39 -0600
+From:   Clay Harris <bugs@claycon.org>
+To:     Stefan Metzmacher <metze@samba.org>
+Cc:     Stefan Roesch <shr@fb.com>, io-uring@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH v1 0/5] io_uring: add xattr support
+Message-ID: <20211201195239.mlgb4qwj2hk2d3tv@ps29521.dreamhostps.com>
+References: <20211129221257.2536146-1-shr@fb.com>
+ <20211130010836.jqp5nuemrse43aca@ps29521.dreamhostps.com>
+ <2ba45a80-ce7a-a105-49e5-5507b4453e05@fb.com>
+ <56e1aa77-c4c1-2c37-9fc0-96cf0dc0f289@samba.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <72608c13553a1372e7f6f7a32eb53d5d4b23a1fc.1638282789.git.asml.silence@gmail.com>
+In-Reply-To: <56e1aa77-c4c1-2c37-9fc0-96cf0dc0f289@samba.org>
+User-Agent: NeoMutt/20170113 (1.7.2)
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On Tue, Nov 30, 2021 at 03:18:53PM +0000, Pavel Begunkov wrote:
-> get_page() in __zerocopy_sg_from_bvec() and matching put_page()s are
-> expensive. However, we can avoid it if the caller can guarantee that
-> pages stay alive until the corresponding ubuf_info is not released.
-> In particular, it targets io_uring with fixed buffers following the
-> described contract.
-> 
-> Assuming that nobody yet uses bvec together with zerocopy, make all
-> calls with bvec iterators follow this model.
-> 
-> Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
-> ---
->  include/linux/skbuff.h | 10 +++++++++-
->  net/core/datagram.c    |  9 +++++++--
->  net/core/skbuff.c      | 16 +++++++++++++---
->  net/ipv4/ip_output.c   |  4 ++++
->  4 files changed, 33 insertions(+), 6 deletions(-)
-> 
-> diff --git a/include/linux/skbuff.h b/include/linux/skbuff.h
-> index 750b7518d6e2..ebb12a7d386d 100644
-> --- a/include/linux/skbuff.h
-> +++ b/include/linux/skbuff.h
-> @@ -461,6 +461,11 @@ enum {
->  	SKBFL_PURE_ZEROCOPY = BIT(2),
->  
->  	SKBFL_DONT_ORPHAN = BIT(3),
-> +
-> +	/* page references are managed by the ubuf_info, so it's safe to
-> +	 * use frags only up until ubuf_info is released
-> +	 */
-> +	SKBFL_MANAGED_FRAGS = BIT(4),
->  };
->  
->  #define SKBFL_ZEROCOPY_FRAG	(SKBFL_ZEROCOPY_ENABLE | SKBFL_SHARED_FRAG)
-> @@ -3154,7 +3159,10 @@ static inline void __skb_frag_unref(skb_frag_t *frag, bool recycle)
->   */
->  static inline void skb_frag_unref(struct sk_buff *skb, int f)
->  {
-> -	__skb_frag_unref(&skb_shinfo(skb)->frags[f], skb->pp_recycle);
-> +	struct skb_shared_info *shinfo = skb_shinfo(skb);
-> +
-> +	if (!(shinfo->flags & SKBFL_MANAGED_FRAGS))
-> +		__skb_frag_unref(&shinfo->frags[f], skb->pp_recycle);
->  }
->  
->  /**
-> diff --git a/net/core/datagram.c b/net/core/datagram.c
-> index e00f7e0a7a0a..5cf0672039d6 100644
-> --- a/net/core/datagram.c
-> +++ b/net/core/datagram.c
-> @@ -642,7 +642,6 @@ static int __zerocopy_sg_from_bvec(struct sock *sk, struct sk_buff *skb,
->  		v = mp_bvec_iter_bvec(from->bvec, bi);
->  		copied += v.bv_len;
->  		truesize += PAGE_ALIGN(v.bv_len + v.bv_offset);
-> -		get_page(v.bv_page);
->  		skb_fill_page_desc(skb, frag++, v.bv_page, v.bv_offset, v.bv_len);
->  		bvec_iter_advance_single(from->bvec, &bi, v.bv_len);
->  	}
-> @@ -671,9 +670,15 @@ int __zerocopy_sg_from_iter(struct sock *sk, struct sk_buff *skb,
->  			    struct iov_iter *from, size_t length)
->  {
->  	int frag = skb_shinfo(skb)->nr_frags;
-> +	bool managed = skb_shinfo(skb)->flags & SKBFL_MANAGED_FRAGS;
->  
-> -	if (iov_iter_is_bvec(from))
-> +	if (iov_iter_is_bvec(from) && (managed || frag == 0)) {
-> +		skb_shinfo(skb)->flags |= SKBFL_MANAGED_FRAGS;
->  		return __zerocopy_sg_from_bvec(sk, skb, from, length);
-> +	}
-> +
-> +	if (managed)
-> +		return -EFAULT;
->  
->  	while (length && iov_iter_count(from)) {
->  		struct page *pages[MAX_SKB_FRAGS];
-> diff --git a/net/core/skbuff.c b/net/core/skbuff.c
-> index b23db60ea6f9..b7b087815539 100644
-> --- a/net/core/skbuff.c
-> +++ b/net/core/skbuff.c
-> @@ -666,10 +666,14 @@ static void skb_release_data(struct sk_buff *skb)
->  			      &shinfo->dataref))
->  		goto exit;
->  
-> -	skb_zcopy_clear(skb, true);
-> +	if (!(shinfo->flags & SKBFL_MANAGED_FRAGS)) {
-> +		for (i = 0; i < shinfo->nr_frags; i++)
-> +			__skb_frag_unref(&shinfo->frags[i], skb->pp_recycle);
-> +	} else {
-> +		shinfo->flags &= ~SKBFL_MANAGED_FRAGS;
-> +	}
->  
-> -	for (i = 0; i < shinfo->nr_frags; i++)
-> -		__skb_frag_unref(&shinfo->frags[i], skb->pp_recycle);
-> +	skb_zcopy_clear(skb, true);
+On Wed, Dec 01 2021 at 13:19:03 +0100, Stefan Metzmacher quoth thus:
 
-It would be better if all of this logic was moved into the callback
-under zcopy_clear.  Note that this path is called for both TX and RX.
--- 
-Jonathan
+> Hi Stefan,
+> 
+> > On 11/29/21 5:08 PM, Clay Harris wrote:
+> >> On Mon, Nov 29 2021 at 14:12:52 -0800, Stefan Roesch quoth thus:
+> >>
+> >>> This adds the xattr support to io_uring. The intent is to have a more
+> >>> complete support for file operations in io_uring.
+> >>>
+> >>> This change adds support for the following functions to io_uring:
+> >>> - fgetxattr
+> >>> - fsetxattr
+> >>> - getxattr
+> >>> - setxattr
+> >>
+> >> You may wish to consider the following.
+> >>
+> >> Patching for these functions makes for an excellent opportunity
+> >> to provide a better interface.  Rather than implement fXetattr
+> >> at all, you could enable io_uring to use functions like:
+> >>
+> >> int Xetxattr(int dfd, const char *path, const char *name,
+> >> 	[const] void *value, size_t size, int flags);
+> >>
+> >> Not only does this simplify the io_uring interface down to two
+> >> functions, but modernizes and fixes a deficit in usability.
+> >> In terms of io_uring, this is just changing internal interfaces.
+> >>
+> >> Although unnecessary for io_uring, it would be nice to at least
+> >> consider what parts of this code could be leveraged for future
+> >> Xetxattr2 syscalls.
+> > 
+> > Clay, 
+> > 
+> > while we can reduce the number of calls to 2, providing 4 calls will
+> > ease the adoption of the interface. 
+> > 
+> > If you look at the userspace interface in liburing, you can see the
+> > following function signature:
+> > 
+> > static inline void io_uring_prep_fgetxattr(struct io_uring_sqe *sqe,
+> > 		                           int         fd,
+> > 					   const char *name,
+> > 					   const char *value,
+> > 					   size_t      len)
+> > 
+> > This is very similar to what you proposed.
+> 
+> What's with lsetxattr and lgetxattr, why are they missing.
+Do any filesystems even support xattrs on symbolic links?
+
+> I'd assume that even 6 helper functions in liburing would be able
+> to use just 2 low level iouring opcodes.
+> 
+> *listxattr is also missing, are there plans for them?
+> 
+> metze

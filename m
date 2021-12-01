@@ -2,42 +2,42 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 17E0EC4321E
-	for <io-uring@archiver.kernel.org>; Wed,  1 Dec 2021 05:51:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 71109C433F5
+	for <io-uring@archiver.kernel.org>; Wed,  1 Dec 2021 05:52:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346810AbhLAFzP (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Wed, 1 Dec 2021 00:55:15 -0500
-Received: from mx0a-00082601.pphosted.com ([67.231.145.42]:61666 "EHLO
-        mx0a-00082601.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1346833AbhLAFzM (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Wed, 1 Dec 2021 00:55:12 -0500
-Received: from pps.filterd (m0044012.ppops.net [127.0.0.1])
-        by mx0a-00082601.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1B10XKIT027600
-        for <io-uring@vger.kernel.org>; Tue, 30 Nov 2021 21:51:52 -0800
+        id S1346818AbhLAFzR (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 1 Dec 2021 00:55:17 -0500
+Received: from mx0b-00082601.pphosted.com ([67.231.153.30]:51508 "EHLO
+        mx0b-00082601.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1346813AbhLAFzP (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Wed, 1 Dec 2021 00:55:15 -0500
+Received: from pps.filterd (m0109331.ppops.net [127.0.0.1])
+        by mx0a-00082601.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1B12GtRt003581
+        for <io-uring@vger.kernel.org>; Tue, 30 Nov 2021 21:51:55 -0800
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=fb.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding : content-type; s=facebook;
- bh=2jEi4ZVqpAO9Zpf8xyWub7qM3fHLB8fg32+GBnuz10U=;
- b=JvvP7A4OrXBZWkd/qX4CN94dtGw2flroMAs7S9BZzxD8C/m6zQq1Y6ZmCgfZvakBTppq
- fHruOScMwqIYt6n5LO3RW0ucK0Q0B0IT2zOB/6wA492nv5Kncn4wp/Fd2QENujW+Iun2
- YQ/82irt1oqKbV/OS80lte6Bfd+qYb7NbO8= 
+ bh=vxtuKADC3kJmyhe7dFgu1SS+zEuy8gw4KZIS5/m7GCc=;
+ b=PDmAU+167KYrOBSVugAEmDeIDOPEQVuJhHpXe1ouY2kSqGLyyaQhxpEqYU25fPCU8C5i
+ ot+LIqNH3o3I6keUGI/TROC8HVzUOEPbiC9BIg0ALckm/YThuK5IkdPftlPwcfAdRaWU
+ RG3Sh8UWrmnigTLqlk3/rxC86uzUd6B7Go0= 
 Received: from mail.thefacebook.com ([163.114.132.120])
-        by mx0a-00082601.pphosted.com with ESMTP id 3cnmcfxfxg-1
+        by mx0a-00082601.pphosted.com with ESMTP id 3cp047rx8e-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NOT)
-        for <io-uring@vger.kernel.org>; Tue, 30 Nov 2021 21:51:52 -0800
-Received: from intmgw001.37.frc1.facebook.com (2620:10d:c085:108::4) by
- mail.thefacebook.com (2620:10d:c085:21d::5) with Microsoft SMTP Server
+        for <io-uring@vger.kernel.org>; Tue, 30 Nov 2021 21:51:54 -0800
+Received: from intmgw002.25.frc3.facebook.com (2620:10d:c085:108::4) by
+ mail.thefacebook.com (2620:10d:c085:11d::6) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2308.20; Tue, 30 Nov 2021 21:51:51 -0800
+ 15.1.2308.20; Tue, 30 Nov 2021 21:51:53 -0800
 Received: by devvm225.atn0.facebook.com (Postfix, from userid 425415)
-        id 61C2E7227183; Tue, 30 Nov 2021 21:51:46 -0800 (PST)
+        id 6CACF7227187; Tue, 30 Nov 2021 21:51:46 -0800 (PST)
 From:   Stefan Roesch <shr@fb.com>
 To:     <io-uring@vger.kernel.org>, <linux-fsdevel@vger.kernel.org>,
         <kernel-team@fb.com>
 CC:     <shr@fb.com>
-Subject: [PATCH v2 2/5] fs: split off setxattr_setup function from setxattr
-Date:   Tue, 30 Nov 2021 21:51:41 -0800
-Message-ID: <20211201055144.3141001-3-shr@fb.com>
+Subject: [PATCH v2 4/5] io_uring: add fsetxattr and setxattr support
+Date:   Tue, 30 Nov 2021 21:51:43 -0800
+Message-ID: <20211201055144.3141001-5-shr@fb.com>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20211201055144.3141001-1-shr@fb.com>
 References: <20211201055144.3141001-1-shr@fb.com>
@@ -46,166 +46,306 @@ Content-Transfer-Encoding: quoted-printable
 X-FB-Internal: Safe
 Content-Type: text/plain
 X-FB-Source: Intern
-X-Proofpoint-ORIG-GUID: 9MFx8kUS_dH3jEujY1sEYaiPV_WXgIY5
-X-Proofpoint-GUID: 9MFx8kUS_dH3jEujY1sEYaiPV_WXgIY5
+X-Proofpoint-GUID: cOv6Sy9RYIcXpNgDwXILA7HSzkSjIkfM
+X-Proofpoint-ORIG-GUID: cOv6Sy9RYIcXpNgDwXILA7HSzkSjIkfM
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.0.607.475
  definitions=2021-11-30_10,2021-11-28_01,2020-04-07_01
-X-Proofpoint-Spam-Details: rule=fb_default_notspam policy=fb_default score=0 clxscore=1015 bulkscore=0
- mlxlogscore=999 lowpriorityscore=0 priorityscore=1501 impostorscore=0
- suspectscore=0 spamscore=0 phishscore=0 mlxscore=0 malwarescore=0
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=fb_default_notspam policy=fb_default score=0 phishscore=0
+ lowpriorityscore=0 adultscore=0 mlxscore=0 mlxlogscore=999 impostorscore=0
+ clxscore=1015 bulkscore=0 priorityscore=1501 malwarescore=0 spamscore=0
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2110150000 definitions=main-2112010033
 X-FB-Internal: deliver
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-This splits of the setup part of the function
-setxattr in its own dedicated function called
-setxattr_setup.
-
-This makes it possible to call this function
-from io_uring in the pre-processing of an
-xattr request.
+This adds support to io_uring for the fsetxattr and setxattr API.
 
 Signed-off-by: Stefan Roesch <shr@fb.com>
 ---
- fs/internal.h | 17 ++++++++++++
- fs/xattr.c    | 75 ++++++++++++++++++++++++++++++++++-----------------
- 2 files changed, 67 insertions(+), 25 deletions(-)
+ fs/io_uring.c                 | 174 ++++++++++++++++++++++++++++++++++
+ include/uapi/linux/io_uring.h |   6 +-
+ 2 files changed, 179 insertions(+), 1 deletion(-)
 
-diff --git a/fs/internal.h b/fs/internal.h
-index 7979ff8d168c..1b88f29905e6 100644
---- a/fs/internal.h
-+++ b/fs/internal.h
-@@ -194,3 +194,20 @@ long splice_file_to_pipe(struct file *in,
- 			 struct pipe_inode_info *opipe,
- 			 loff_t *offset,
- 			 size_t len, unsigned int flags);
-+
-+ /*
-+  * fs/xattr.c:
-+  */
-+struct xattr_ctx {
-+	/* Value of attribute */
-+	const void __user *value;
-+	size_t size;
-+	/* Attribute name */
-+	char *kname;
-+	int kname_sz;
-+	int flags;
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 568729677e25..9d977bf243fd 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -81,6 +81,7 @@
+ #include <linux/tracehook.h>
+ #include <linux/audit.h>
+ #include <linux/security.h>
++#include <linux/xattr.h>
+=20
+ #define CREATE_TRACE_POINTS
+ #include <trace/events/io_uring.h>
+@@ -717,6 +718,13 @@ struct io_async_rw {
+ 	struct wait_page_queue		wpq;
+ };
+=20
++struct io_xattr {
++	struct file			*file;
++	struct xattr_ctx		ctx;
++	void				*value;
++	struct filename			*filename;
 +};
 +
-+void *setxattr_setup(struct user_namespace *mnt_userns,
-+		     const char __user *name,
-+		     struct xattr_ctx *data);
-diff --git a/fs/xattr.c b/fs/xattr.c
-index 5c8c5175b385..79afea64d7ba 100644
---- a/fs/xattr.c
-+++ b/fs/xattr.c
-@@ -25,6 +25,8 @@
+ enum {
+ 	REQ_F_FIXED_FILE_BIT	=3D IOSQE_FIXED_FILE_BIT,
+ 	REQ_F_IO_DRAIN_BIT	=3D IOSQE_IO_DRAIN_BIT,
+@@ -856,6 +864,7 @@ struct io_kiocb {
+ 		struct io_mkdir		mkdir;
+ 		struct io_symlink	symlink;
+ 		struct io_hardlink	hardlink;
++		struct io_xattr		xattr;
+ 	};
 =20
- #include <linux/uaccess.h>
+ 	u8				opcode;
+@@ -1105,6 +1114,10 @@ static const struct io_op_def io_op_defs[] =3D {
+ 	[IORING_OP_MKDIRAT] =3D {},
+ 	[IORING_OP_SYMLINKAT] =3D {},
+ 	[IORING_OP_LINKAT] =3D {},
++	[IORING_OP_FSETXATTR] =3D {
++		.needs_file =3D 1
++	},
++	[IORING_OP_SETXATTR] =3D {},
+ };
 =20
-+#include "internal.h"
-+
- static const char *
- strcmp_prefix(const char *a, const char *a_prefix)
- {
-@@ -539,43 +541,66 @@ EXPORT_SYMBOL_GPL(vfs_removexattr);
- /*
-  * Extended attribute SET operations
-  */
--static long
--setxattr(struct user_namespace *mnt_userns, struct dentry *d,
--	 const char __user *name, const void __user *value, size_t size,
--	 int flags)
-+
-+void *setxattr_setup(struct user_namespace *mnt_userns, const char __use=
-r *name,
-+		struct xattr_ctx *ctx)
- {
--	int error;
- 	void *kvalue =3D NULL;
--	char kname[XATTR_NAME_MAX + 1];
-+	int error;
-=20
--	if (flags & ~(XATTR_CREATE|XATTR_REPLACE))
--		return -EINVAL;
-+	if (ctx->flags & ~(XATTR_CREATE|XATTR_REPLACE))
-+		return ERR_PTR(-EINVAL);
-=20
--	error =3D strncpy_from_user(kname, name, sizeof(kname));
--	if (error =3D=3D 0 || error =3D=3D sizeof(kname))
--		error =3D -ERANGE;
-+	error =3D strncpy_from_user(ctx->kname, name, ctx->kname_sz);
-+	if (error =3D=3D 0 || error =3D=3D ctx->kname_sz)
-+		return  ERR_PTR(-ERANGE);
- 	if (error < 0)
--		return error;
-+		return ERR_PTR(error);
-=20
--	if (size) {
--		if (size > XATTR_SIZE_MAX)
--			return -E2BIG;
--		kvalue =3D kvmalloc(size, GFP_KERNEL);
-+	if (ctx->size) {
-+		if (ctx->size > XATTR_SIZE_MAX)
-+			return ERR_PTR(-E2BIG);
-+
-+		kvalue =3D kvmalloc(ctx->size, GFP_KERNEL);
- 		if (!kvalue)
--			return -ENOMEM;
--		if (copy_from_user(kvalue, value, size)) {
--			error =3D -EFAULT;
--			goto out;
-+			return ERR_PTR(-ENOMEM);
-+
-+		if (copy_from_user(kvalue, ctx->value, ctx->size)) {
-+			kvfree(kvalue);
-+			return ERR_PTR(-EFAULT);
- 		}
--		if ((strcmp(kname, XATTR_NAME_POSIX_ACL_ACCESS) =3D=3D 0) ||
--		    (strcmp(kname, XATTR_NAME_POSIX_ACL_DEFAULT) =3D=3D 0))
--			posix_acl_fix_xattr_from_user(mnt_userns, kvalue, size);
-+
-+		if ((strcmp(ctx->kname, XATTR_NAME_POSIX_ACL_ACCESS) =3D=3D 0) ||
-+		    (strcmp(ctx->kname, XATTR_NAME_POSIX_ACL_DEFAULT) =3D=3D 0))
-+			posix_acl_fix_xattr_from_user(mnt_userns, kvalue, ctx->size);
- 	}
-=20
-+	return kvalue;
-+}
-+
-+static long
-+setxattr(struct user_namespace *mnt_userns, struct dentry *d,
-+	const char __user *name, const void __user *value, size_t size,
-+	int flags)
-+{
-+	char kname[XATTR_NAME_MAX + 1];
-+	struct xattr_ctx ctx =3D {
-+		.value    =3D value,
-+		.size     =3D size,
-+		.kname    =3D kname,
-+		.kname_sz =3D sizeof(kname),
-+		.flags    =3D flags,
-+	};
-+	void *kvalue;
-+	int error;
-+
-+	kvalue =3D setxattr_setup(mnt_userns, name, &ctx);
-+	if (IS_ERR(kvalue))
-+		return PTR_ERR(kvalue);
-+
- 	error =3D vfs_setxattr(mnt_userns, d, kname, kvalue, size, flags);
--out:
--	kvfree(kvalue);
-=20
-+	kvfree(kvalue);
- 	return error;
+ /* requests with any of those set should undergo io_disarm_next() */
+@@ -3818,6 +3831,147 @@ static int io_renameat(struct io_kiocb *req, unsi=
+gned int issue_flags)
+ 	return 0;
  }
 =20
++static int __io_setxattr_prep(struct io_kiocb *req,
++			const struct io_uring_sqe *sqe,
++			struct user_namespace *user_ns)
++{
++	struct io_xattr *ix =3D &req->xattr;
++	const char __user *name;
++	void *ret;
++
++	if (unlikely(req->ctx->flags & IORING_SETUP_IOPOLL))
++		return -EINVAL;
++	if (unlikely(sqe->ioprio))
++		return -EINVAL;
++	if (unlikely(req->flags & REQ_F_FIXED_FILE))
++		return -EBADF;
++
++	ix->filename =3D NULL;
++	name =3D u64_to_user_ptr(READ_ONCE(sqe->addr));
++	ix->ctx.value =3D u64_to_user_ptr(READ_ONCE(sqe->addr2));
++	ix->ctx.size =3D READ_ONCE(sqe->len);
++	ix->ctx.flags =3D READ_ONCE(sqe->xattr_flags);
++
++	ix->ctx.kname =3D kmalloc(XATTR_NAME_MAX + 1, GFP_KERNEL);
++	if (!ix->ctx.kname)
++		return -ENOMEM;
++	ix->ctx.kname_sz =3D XATTR_NAME_MAX + 1;
++
++	ret =3D setxattr_setup(user_ns, name, &ix->ctx);
++	if (IS_ERR(ret)) {
++		kfree(ix->ctx.kname);
++		return PTR_ERR(ret);
++	}
++
++	ix->value =3D ret;
++	req->flags |=3D REQ_F_NEED_CLEANUP;
++	return 0;
++}
++
++static int io_setxattr_prep(struct io_kiocb *req,
++			const struct io_uring_sqe *sqe)
++{
++	struct io_xattr *ix =3D &req->xattr;
++	const char __user *path;
++	int ret;
++
++	ret =3D __io_setxattr_prep(req, sqe, current_user_ns());
++	if (ret)
++		return ret;
++
++	path =3D u64_to_user_ptr(READ_ONCE(sqe->addr3));
++
++	ix->filename =3D getname_flags(path, LOOKUP_FOLLOW, NULL);
++	if (IS_ERR(ix->filename)) {
++		ret =3D PTR_ERR(ix->filename);
++		ix->filename =3D NULL;
++	}
++
++	return ret;
++}
++
++static int io_fsetxattr_prep(struct io_kiocb *req,
++			const struct io_uring_sqe *sqe)
++{
++	if (!req->file)
++		return -EBADF;
++
++	return __io_setxattr_prep(req, sqe, file_mnt_user_ns(req->file));
++}
++
++static int __io_setxattr(struct io_kiocb *req, unsigned int issue_flags,
++			struct path *path)
++{
++	struct io_xattr *ix =3D &req->xattr;
++	int ret;
++
++	ret =3D mnt_want_write(path->mnt);
++	if (!ret) {
++		ret =3D vfs_setxattr(mnt_user_ns(path->mnt), path->dentry,
++				ix->ctx.kname, ix->value, ix->ctx.size,
++				ix->ctx.flags);
++		mnt_drop_write(path->mnt);
++	}
++
++	return ret;
++}
++
++static int io_fsetxattr(struct io_kiocb *req, unsigned int issue_flags)
++{
++	struct io_xattr *ix =3D &req->xattr;
++	int ret;
++
++	if (issue_flags & IO_URING_F_NONBLOCK)
++		return -EAGAIN;
++
++	ret =3D __io_setxattr(req, issue_flags, &req->file->f_path);
++
++	req->flags &=3D ~REQ_F_NEED_CLEANUP;
++	kfree(ix->ctx.kname);
++
++	if (ix->value)
++		kvfree(ix->value);
++	if (ret < 0)
++		req_set_fail(req);
++
++	io_req_complete(req, ret);
++	return 0;
++}
++
++static int io_setxattr(struct io_kiocb *req, unsigned int issue_flags)
++{
++	struct io_xattr *ix =3D &req->xattr;
++	unsigned int lookup_flags =3D LOOKUP_FOLLOW;
++	struct path path;
++	int ret;
++
++	if (issue_flags & IO_URING_F_NONBLOCK)
++		return -EAGAIN;
++
++retry:
++	ret =3D do_user_path_at_empty(AT_FDCWD, ix->filename, lookup_flags, &pa=
+th);
++	putname(ix->filename);
++	if (!ret) {
++		ret =3D __io_setxattr(req, issue_flags, &path);
++		path_put(&path);
++		if (retry_estale(ret, lookup_flags)) {
++			lookup_flags |=3D LOOKUP_REVAL;
++			goto retry;
++		}
++	}
++
++	req->flags &=3D ~REQ_F_NEED_CLEANUP;
++	kfree(ix->ctx.kname);
++
++	if (ix->value)
++		kvfree(ix->value);
++	if (ret < 0)
++		req_set_fail(req);
++
++	io_req_complete(req, ret);
++	return 0;
++}
++
+ static int io_unlinkat_prep(struct io_kiocb *req,
+ 			    const struct io_uring_sqe *sqe)
+ {
+@@ -6531,6 +6685,10 @@ static int io_req_prep(struct io_kiocb *req, const=
+ struct io_uring_sqe *sqe)
+ 		return io_symlinkat_prep(req, sqe);
+ 	case IORING_OP_LINKAT:
+ 		return io_linkat_prep(req, sqe);
++	case IORING_OP_FSETXATTR:
++		return io_fsetxattr_prep(req, sqe);
++	case IORING_OP_SETXATTR:
++		return io_setxattr_prep(req, sqe);
+ 	}
+=20
+ 	printk_once(KERN_WARNING "io_uring: unhandled opcode %d\n",
+@@ -6674,6 +6832,15 @@ static void io_clean_op(struct io_kiocb *req)
+ 			putname(req->hardlink.oldpath);
+ 			putname(req->hardlink.newpath);
+ 			break;
++		case IORING_OP_SETXATTR:
++			if (req->xattr.filename)
++				putname(req->xattr.filename);
++			fallthrough;
++		case IORING_OP_FSETXATTR:
++			kfree(req->xattr.ctx.kname);
++			if (req->xattr.value)
++				kvfree(req->xattr.value);
++			break;
+ 		}
+ 	}
+ 	if ((req->flags & REQ_F_POLLED) && req->apoll) {
+@@ -6816,6 +6983,12 @@ static int io_issue_sqe(struct io_kiocb *req, unsi=
+gned int issue_flags)
+ 	case IORING_OP_LINKAT:
+ 		ret =3D io_linkat(req, issue_flags);
+ 		break;
++	case IORING_OP_FSETXATTR:
++		ret =3D io_fsetxattr(req, issue_flags);
++		break;
++	case IORING_OP_SETXATTR:
++		ret =3D io_setxattr(req, issue_flags);
++		break;
+ 	default:
+ 		ret =3D -EINVAL;
+ 		break;
+@@ -11183,6 +11356,7 @@ static int __init io_uring_init(void)
+ 	BUILD_BUG_SQE_ELEM(42, __u16,  personality);
+ 	BUILD_BUG_SQE_ELEM(44, __s32,  splice_fd_in);
+ 	BUILD_BUG_SQE_ELEM(44, __u32,  file_index);
++	BUILD_BUG_SQE_ELEM(48, __u64,  addr3);
+=20
+ 	BUILD_BUG_ON(sizeof(struct io_uring_files_update) !=3D
+ 		     sizeof(struct io_uring_rsrc_update));
+diff --git a/include/uapi/linux/io_uring.h b/include/uapi/linux/io_uring.=
+h
+index 787f491f0d2a..dbf473900da2 100644
+--- a/include/uapi/linux/io_uring.h
++++ b/include/uapi/linux/io_uring.h
+@@ -45,6 +45,7 @@ struct io_uring_sqe {
+ 		__u32		rename_flags;
+ 		__u32		unlink_flags;
+ 		__u32		hardlink_flags;
++		__u32		xattr_flags;
+ 	};
+ 	__u64	user_data;	/* data to be passed back at completion time */
+ 	/* pack this to avoid bogus arm OABI complaints */
+@@ -60,7 +61,8 @@ struct io_uring_sqe {
+ 		__s32	splice_fd_in;
+ 		__u32	file_index;
+ 	};
+-	__u64	__pad2[2];
++	__u64	addr3;
++	__u64	__pad2[1];
+ };
+=20
+ enum {
+@@ -143,6 +145,8 @@ enum {
+ 	IORING_OP_MKDIRAT,
+ 	IORING_OP_SYMLINKAT,
+ 	IORING_OP_LINKAT,
++	IORING_OP_FSETXATTR,
++	IORING_OP_SETXATTR,
+=20
+ 	/* this goes last, obviously */
+ 	IORING_OP_LAST,
 --=20
 2.30.2
 

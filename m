@@ -2,347 +2,192 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 45A0BC4167B
-	for <io-uring@archiver.kernel.org>; Fri,  3 Dec 2021 19:15:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2982BC433EF
+	for <io-uring@archiver.kernel.org>; Fri,  3 Dec 2021 23:16:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234903AbhLCTS4 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Fri, 3 Dec 2021 14:18:56 -0500
-Received: from mx0a-00082601.pphosted.com ([67.231.145.42]:26274 "EHLO
-        mx0a-00082601.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1353268AbhLCTSy (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Fri, 3 Dec 2021 14:18:54 -0500
-Received: from pps.filterd (m0044010.ppops.net [127.0.0.1])
-        by mx0a-00082601.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1B3HkrIS020309
-        for <io-uring@vger.kernel.org>; Fri, 3 Dec 2021 11:15:30 -0800
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=fb.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding : content-type; s=facebook;
- bh=F2GglMVxwoVRGlTeDj2uUpw2Fu17kMvNugnz2Z/r6qY=;
- b=PBax5WggAX+0POy146GyD0A6xMrUOc0DWMS53YTYAXVRxcdnrjFRXRZe65yF4tqX5+9n
- 6dmhW8KD3TUIiq9qDMscvlDUOc3byZQ1U5N/Aj/AJ9vakAtdH3uc0JGyoPnJs7enx0C7
- mzLkQdz9xUxYsO7BKgE55ZrjREH802+dJvw= 
-Received: from maileast.thefacebook.com ([163.114.130.16])
-        by mx0a-00082601.pphosted.com with ESMTP id 3cqnf01t5b-3
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NOT)
-        for <io-uring@vger.kernel.org>; Fri, 03 Dec 2021 11:15:29 -0800
-Received: from intmgw001.05.ash7.facebook.com (2620:10d:c0a8:1b::d) by
- mail.thefacebook.com (2620:10d:c0a8:83::7) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2308.20; Fri, 3 Dec 2021 11:15:28 -0800
-Received: by devvm225.atn0.facebook.com (Postfix, from userid 425415)
-        id 4DA73767FEA4; Fri,  3 Dec 2021 11:15:26 -0800 (PST)
-From:   Stefan Roesch <shr@fb.com>
-To:     <io-uring@vger.kernel.org>, <linux-fsdevel@vger.kernel.org>,
-        <kernel-team@fb.com>
-CC:     <shr@fb.com>
-Subject: [PATCH v3 4/5] io_uring: add fsetxattr and setxattr support
-Date:   Fri, 3 Dec 2021 11:15:15 -0800
-Message-ID: <20211203191516.1327214-5-shr@fb.com>
-X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20211203191516.1327214-1-shr@fb.com>
-References: <20211203191516.1327214-1-shr@fb.com>
+        id S1354224AbhLCXTx (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Fri, 3 Dec 2021 18:19:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60448 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233523AbhLCXTw (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Fri, 3 Dec 2021 18:19:52 -0500
+Received: from mail-pg1-x541.google.com (mail-pg1-x541.google.com [IPv6:2607:f8b0:4864:20::541])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6234DC061751;
+        Fri,  3 Dec 2021 15:16:28 -0800 (PST)
+Received: by mail-pg1-x541.google.com with SMTP id k4so4493976pgb.8;
+        Fri, 03 Dec 2021 15:16:28 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=H2tlWxxKk0y0zgMKzXY+FjZgjjuO8jF5VgKYcgWiYKk=;
+        b=F1DJlGoun5eYiNj4OKd7aVJDHNgdrvSGnouPSxuOlPsVEDlsUpAaMiUdidLMRUIzwU
+         D9cpaf/FzxbIlm6YczhQb+05U1aSMnKuEKlDqeaI93p0pazC6oZyC3r7vc+P3J/wLQri
+         zu9sentqnxFm2OdJn07UA5ICC4vtrHIYd/Z1p46r/bTZuNacDPg+xz4p7T0e8f+TM9v/
+         7mMjSE4FTTjNKl1ANWNVNkFT9g22uYc1sJCCpNR2db2m5MfctWfvS3DapgvGc4PhuPEW
+         px+xoxeiC9aVf/l1AHqpRDhxzljYcW/sySgVSCbEbaS7ua6Hzdb2ulJN9s8SCWkK646Z
+         qutQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=H2tlWxxKk0y0zgMKzXY+FjZgjjuO8jF5VgKYcgWiYKk=;
+        b=CcGIJAr2eJbMOEq+uxMPNDBaSZL9OgrgnhlFR/Uu4XG4hnhocdcnug93cW7yipgstB
+         g1jDyQWpYaG8ZJFLJSX0yLqM+lybgsHqBUOBD1UfMVVd3zx7Fhm4sqATUkT5xJmYFpqH
+         rrislAFuLbusC514RiruClr25kxOrt62xH2/2QmCLOV08czzJgtuvfphZljMRdU+7us3
+         76ajooo7xWC3k8hvPWr2a3Lkn9FT9SqSlIDwUEMDpE2ZHj2mt3HIepXZTMBlgKgNW9DV
+         rICs8MokQKkkCzeEnXQSEQ/J54GMsQdMdLRxVfpOLmUFv3xXOy+YRnyrnOEs/L5N0JVz
+         CeDA==
+X-Gm-Message-State: AOAM533YRPXdwLSSIKpZoKRxGNjdl0DyUtb8Y5w9TW4TyQ3Sw9hca5kW
+        eqW+648pnS5JymgIwrXuHsbKRABt1/I=
+X-Google-Smtp-Source: ABdhPJxeJWHXwHnCsd9sdh9N1OdXfW+7AZDzXM3JTDHm2cl/KcYduF7X7tXjpRzufyOsrGeRBw2K1g==
+X-Received: by 2002:a05:6a00:1990:b0:4a4:ef57:fd72 with SMTP id d16-20020a056a00199000b004a4ef57fd72mr22358034pfl.2.1638573387785;
+        Fri, 03 Dec 2021 15:16:27 -0800 (PST)
+Received: from localhost ([2405:201:6014:d064:502e:73f4:8af1:9522])
+        by smtp.gmail.com with ESMTPSA id t67sm4276616pfd.24.2021.12.03.15.16.26
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 03 Dec 2021 15:16:27 -0800 (PST)
+Date:   Sat, 4 Dec 2021 04:46:24 +0530
+From:   Kumar Kartikeya Dwivedi <memxor@gmail.com>
+To:     Pavel Begunkov <asml.silence@gmail.com>
+Cc:     Alexei Starovoitov <alexei.starovoitov@gmail.com>,
+        bpf <bpf@vger.kernel.org>, Jens Axboe <axboe@kernel.dk>,
+        io-uring@vger.kernel.org, Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Pavel Emelyanov <ovzxemul@gmail.com>,
+        Alexander Mihalicyn <alexander@mihalicyn.com>,
+        Andrei Vagin <avagin@gmail.com>, criu@openvz.org,
+        Linux-Fsdevel <linux-fsdevel@vger.kernel.org>
+Subject: Re: [PATCH bpf-next v1 1/8] io_uring: Implement eBPF iterator for
+ registered buffers
+Message-ID: <20211203231624.pqxwzaz4boakudi3@apollo.legion>
+References: <20211116054237.100814-1-memxor@gmail.com>
+ <20211116054237.100814-2-memxor@gmail.com>
+ <20211118220226.ritjbjeh5s4yw7hl@ast-mbp.dhcp.thefacebook.com>
+ <20211119041523.cf427s3hzj75f7jr@apollo.localdomain>
+ <20211119045659.vriegs5nxgszo3p3@ast-mbp.dhcp.thefacebook.com>
+ <20211119051657.5334zvkcqga754z3@apollo.localdomain>
+ <CAADnVQ+rdAh2LaHOHxqk7z4aheMQ2gjzMFegrehzEfE_6twBdg@mail.gmail.com>
+ <aaf8aa08-f4ee-0688-2af3-2c59bb76dda6@gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-FB-Internal: Safe
-Content-Type: text/plain
-X-FB-Source: Intern
-X-Proofpoint-GUID: 0ihl5Qh-YfSUxu17r9ZKIbgeySXOARk0
-X-Proofpoint-ORIG-GUID: 0ihl5Qh-YfSUxu17r9ZKIbgeySXOARk0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.11.62.513
- definitions=2021-12-03_07,2021-12-02_01,2021-12-02_01
-X-Proofpoint-Spam-Details: rule=fb_default_notspam policy=fb_default score=0 spamscore=0
- malwarescore=0 phishscore=0 priorityscore=1501 suspectscore=0 mlxscore=0
- clxscore=1015 impostorscore=0 bulkscore=0 mlxlogscore=999 adultscore=0
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2110150000 definitions=main-2112030124
-X-FB-Internal: deliver
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <aaf8aa08-f4ee-0688-2af3-2c59bb76dda6@gmail.com>
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-This adds support to io_uring for the fsetxattr and setxattr API.
+On Fri, Dec 03, 2021 at 09:22:54PM IST, Pavel Begunkov wrote:
+> On 11/19/21 05:24, Alexei Starovoitov wrote:
+> > [...]
+> >
+> > Also I'd like to hear what Jens and Pavel have to say about
+> > applicability of CRIU to io_uring in general.
+>
 
-Signed-off-by: Stefan Roesch <shr@fb.com>
----
- fs/io_uring.c                 | 171 ++++++++++++++++++++++++++++++++++
- include/uapi/linux/io_uring.h |   6 +-
- 2 files changed, 176 insertions(+), 1 deletion(-)
+Hi Pavel, thanks for taking a look!
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 568729677e25..b8e195472f05 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -81,6 +81,7 @@
- #include <linux/tracehook.h>
- #include <linux/audit.h>
- #include <linux/security.h>
-+#include <linux/xattr.h>
-=20
- #define CREATE_TRACE_POINTS
- #include <trace/events/io_uring.h>
-@@ -717,6 +718,13 @@ struct io_async_rw {
- 	struct wait_page_queue		wpq;
- };
-=20
-+struct io_xattr {
-+	struct file			*file;
-+	struct xattr_ctx		ctx;
-+	void				*value;
-+	struct filename			*filename;
-+};
-+
- enum {
- 	REQ_F_FIXED_FILE_BIT	=3D IOSQE_FIXED_FILE_BIT,
- 	REQ_F_IO_DRAIN_BIT	=3D IOSQE_IO_DRAIN_BIT,
-@@ -856,6 +864,7 @@ struct io_kiocb {
- 		struct io_mkdir		mkdir;
- 		struct io_symlink	symlink;
- 		struct io_hardlink	hardlink;
-+		struct io_xattr		xattr;
- 	};
-=20
- 	u8				opcode;
-@@ -1105,6 +1114,10 @@ static const struct io_op_def io_op_defs[] =3D {
- 	[IORING_OP_MKDIRAT] =3D {},
- 	[IORING_OP_SYMLINKAT] =3D {},
- 	[IORING_OP_LINKAT] =3D {},
-+	[IORING_OP_FSETXATTR] =3D {
-+		.needs_file =3D 1
-+	},
-+	[IORING_OP_SETXATTR] =3D {},
- };
-=20
- /* requests with any of those set should undergo io_disarm_next() */
-@@ -3818,6 +3831,144 @@ static int io_renameat(struct io_kiocb *req, unsi=
-gned int issue_flags)
- 	return 0;
- }
-=20
-+static int __io_setxattr_prep(struct io_kiocb *req,
-+			const struct io_uring_sqe *sqe,
-+			struct user_namespace *user_ns)
-+{
-+	struct io_xattr *ix =3D &req->xattr;
-+	const char __user *name;
-+	void *ret;
-+
-+	if (unlikely(req->ctx->flags & IORING_SETUP_IOPOLL))
-+		return -EINVAL;
-+	if (unlikely(sqe->ioprio))
-+		return -EINVAL;
-+	if (unlikely(req->flags & REQ_F_FIXED_FILE))
-+		return -EBADF;
-+
-+	ix->filename =3D NULL;
-+	name =3D u64_to_user_ptr(READ_ONCE(sqe->addr));
-+	ix->ctx.value =3D u64_to_user_ptr(READ_ONCE(sqe->addr2));
-+	ix->ctx.size =3D READ_ONCE(sqe->len);
-+	ix->ctx.flags =3D READ_ONCE(sqe->xattr_flags);
-+
-+	ix->ctx.kname =3D kmalloc(XATTR_NAME_MAX + 1, GFP_KERNEL);
-+	if (!ix->ctx.kname)
-+		return -ENOMEM;
-+	ix->ctx.kname_sz =3D XATTR_NAME_MAX + 1;
-+
-+	ret =3D setxattr_setup(user_ns, name, &ix->ctx);
-+	if (IS_ERR(ret)) {
-+		kfree(ix->ctx.kname);
-+		return PTR_ERR(ret);
-+	}
-+
-+	ix->value =3D ret;
-+	req->flags |=3D REQ_F_NEED_CLEANUP;
-+	return 0;
-+}
-+
-+static int io_setxattr_prep(struct io_kiocb *req,
-+			const struct io_uring_sqe *sqe)
-+{
-+	struct io_xattr *ix =3D &req->xattr;
-+	const char __user *path;
-+	int ret;
-+
-+	ret =3D __io_setxattr_prep(req, sqe, current_user_ns());
-+	if (ret)
-+		return ret;
-+
-+	path =3D u64_to_user_ptr(READ_ONCE(sqe->addr3));
-+
-+	ix->filename =3D getname_flags(path, LOOKUP_FOLLOW, NULL);
-+	if (IS_ERR(ix->filename)) {
-+		ret =3D PTR_ERR(ix->filename);
-+		ix->filename =3D NULL;
-+	}
-+
-+	return ret;
-+}
-+
-+static int io_fsetxattr_prep(struct io_kiocb *req,
-+			const struct io_uring_sqe *sqe)
-+{
-+	return __io_setxattr_prep(req, sqe, file_mnt_user_ns(req->file));
-+}
-+
-+static int __io_setxattr(struct io_kiocb *req, unsigned int issue_flags,
-+			struct path *path)
-+{
-+	struct io_xattr *ix =3D &req->xattr;
-+	int ret;
-+
-+	ret =3D mnt_want_write(path->mnt);
-+	if (!ret) {
-+		ret =3D vfs_setxattr(mnt_user_ns(path->mnt), path->dentry,
-+				ix->ctx.kname, ix->value, ix->ctx.size,
-+				ix->ctx.flags);
-+		mnt_drop_write(path->mnt);
-+	}
-+
-+	return ret;
-+}
-+
-+static int io_fsetxattr(struct io_kiocb *req, unsigned int issue_flags)
-+{
-+	struct io_xattr *ix =3D &req->xattr;
-+	int ret;
-+
-+	if (issue_flags & IO_URING_F_NONBLOCK)
-+		return -EAGAIN;
-+
-+	ret =3D __io_setxattr(req, issue_flags, &req->file->f_path);
-+
-+	req->flags &=3D ~REQ_F_NEED_CLEANUP;
-+	kfree(ix->ctx.kname);
-+
-+	if (ix->value)
-+		kvfree(ix->value);
-+	if (ret < 0)
-+		req_set_fail(req);
-+
-+	io_req_complete(req, ret);
-+	return 0;
-+}
-+
-+static int io_setxattr(struct io_kiocb *req, unsigned int issue_flags)
-+{
-+	struct io_xattr *ix =3D &req->xattr;
-+	unsigned int lookup_flags =3D LOOKUP_FOLLOW;
-+	struct path path;
-+	int ret;
-+
-+	if (issue_flags & IO_URING_F_NONBLOCK)
-+		return -EAGAIN;
-+
-+retry:
-+	ret =3D do_user_path_at_empty(AT_FDCWD, ix->filename, lookup_flags, &pa=
-th);
-+	putname(ix->filename);
-+	if (!ret) {
-+		ret =3D __io_setxattr(req, issue_flags, &path);
-+		path_put(&path);
-+		if (retry_estale(ret, lookup_flags)) {
-+			lookup_flags |=3D LOOKUP_REVAL;
-+			goto retry;
-+		}
-+	}
-+
-+	req->flags &=3D ~REQ_F_NEED_CLEANUP;
-+	kfree(ix->ctx.kname);
-+
-+	if (ix->value)
-+		kvfree(ix->value);
-+	if (ret < 0)
-+		req_set_fail(req);
-+
-+	io_req_complete(req, ret);
-+	return 0;
-+}
-+
- static int io_unlinkat_prep(struct io_kiocb *req,
- 			    const struct io_uring_sqe *sqe)
- {
-@@ -6531,6 +6682,10 @@ static int io_req_prep(struct io_kiocb *req, const=
- struct io_uring_sqe *sqe)
- 		return io_symlinkat_prep(req, sqe);
- 	case IORING_OP_LINKAT:
- 		return io_linkat_prep(req, sqe);
-+	case IORING_OP_FSETXATTR:
-+		return io_fsetxattr_prep(req, sqe);
-+	case IORING_OP_SETXATTR:
-+		return io_setxattr_prep(req, sqe);
- 	}
-=20
- 	printk_once(KERN_WARNING "io_uring: unhandled opcode %d\n",
-@@ -6674,6 +6829,15 @@ static void io_clean_op(struct io_kiocb *req)
- 			putname(req->hardlink.oldpath);
- 			putname(req->hardlink.newpath);
- 			break;
-+		case IORING_OP_SETXATTR:
-+			if (req->xattr.filename)
-+				putname(req->xattr.filename);
-+			fallthrough;
-+		case IORING_OP_FSETXATTR:
-+			kfree(req->xattr.ctx.kname);
-+			if (req->xattr.value)
-+				kvfree(req->xattr.value);
-+			break;
- 		}
- 	}
- 	if ((req->flags & REQ_F_POLLED) && req->apoll) {
-@@ -6816,6 +6980,12 @@ static int io_issue_sqe(struct io_kiocb *req, unsi=
-gned int issue_flags)
- 	case IORING_OP_LINKAT:
- 		ret =3D io_linkat(req, issue_flags);
- 		break;
-+	case IORING_OP_FSETXATTR:
-+		ret =3D io_fsetxattr(req, issue_flags);
-+		break;
-+	case IORING_OP_SETXATTR:
-+		ret =3D io_setxattr(req, issue_flags);
-+		break;
- 	default:
- 		ret =3D -EINVAL;
- 		break;
-@@ -11183,6 +11353,7 @@ static int __init io_uring_init(void)
- 	BUILD_BUG_SQE_ELEM(42, __u16,  personality);
- 	BUILD_BUG_SQE_ELEM(44, __s32,  splice_fd_in);
- 	BUILD_BUG_SQE_ELEM(44, __u32,  file_index);
-+	BUILD_BUG_SQE_ELEM(48, __u64,  addr3);
-=20
- 	BUILD_BUG_ON(sizeof(struct io_uring_files_update) !=3D
- 		     sizeof(struct io_uring_rsrc_update));
-diff --git a/include/uapi/linux/io_uring.h b/include/uapi/linux/io_uring.=
-h
-index 787f491f0d2a..dbf473900da2 100644
---- a/include/uapi/linux/io_uring.h
-+++ b/include/uapi/linux/io_uring.h
-@@ -45,6 +45,7 @@ struct io_uring_sqe {
- 		__u32		rename_flags;
- 		__u32		unlink_flags;
- 		__u32		hardlink_flags;
-+		__u32		xattr_flags;
- 	};
- 	__u64	user_data;	/* data to be passed back at completion time */
- 	/* pack this to avoid bogus arm OABI complaints */
-@@ -60,7 +61,8 @@ struct io_uring_sqe {
- 		__s32	splice_fd_in;
- 		__u32	file_index;
- 	};
--	__u64	__pad2[2];
-+	__u64	addr3;
-+	__u64	__pad2[1];
- };
-=20
- enum {
-@@ -143,6 +145,8 @@ enum {
- 	IORING_OP_MKDIRAT,
- 	IORING_OP_SYMLINKAT,
- 	IORING_OP_LINKAT,
-+	IORING_OP_FSETXATTR,
-+	IORING_OP_SETXATTR,
-=20
- 	/* this goes last, obviously */
- 	IORING_OP_LAST,
---=20
-2.30.2
+> First, we have no way to know what requests are in flight, without it
+> CR doesn't make much sense. The most compelling way for me is to add
+> a feature to fail all in-flights as it does when is closed. But maybe,
+> you already did solve it somehow?
 
+Indeed, as you note, there is no way to currently inspect in-flight requests,
+what we can do is wait for a barrier operation to synchronize against all
+previous requests.
+
+So for now, my idea is to drain the ring (by waiting for all in-flight requests
+to complete), by using a IOSQE_IO_DRAIN IORING_OP_NOP, and then waiting with a
+fixed timeout (so that if forward progress depends on a blocked task/ourselves),
+we can fail the dumping. This is ofcourse best effort, but it has worked well
+for many of the cases I tested so far.
+
+This might have some other issues, e.g. not being able to accommodate all posted
+completions in the CQ ring due to unreaped completions from when it was
+checkpointed. In that case we can simply give up, since otherwise recreating the
+ring as it was becomes very hard if we let it trample over unread items (it is
+unclear how I can send in completitions at restore that were in overflow list at
+dump).
+
+One idea I had in mind was to add support to post a dummy CQE entry (by
+submitting a e.g. IORING_OP_NOP) where the fields of CQE are set during
+submission time. This allows faking a completed request, then at restore we can
+push all these into the overflow list and project the state as it were if the CQ
+ring was full. At dump time it allows us to continually reap completion items.
+If we detect that kernel doesn't support overflow, we fail.
+
+Adjustment of the kernel side tail is not as hard (we can use IORING_OP_NOP
+completitions to fill it up, then rewrite entries).
+
+There were other operations (like registering buffers) that had similar side
+effect of synchronization of ring state (waiting for it to become idle) before
+returning to userspace, but that was pre-5.13.
+
+Also we have to do this ring synchronization fairly early during the dump, since
+it can lead to addition of other resources (e.g. fds) to the task that then need
+to be dumped again.
+
+> There is probably a way to restore registered buffers and files, though
+> it may be tough considering that files may not have corresponding fds in
+> the userspace, buffers may be unmapped, buffers may come from
+> shmem/etc. and other corner cases.
+
+See [0] for some explanation on all that. CRIU also knows if certain VMA comes
+from shmem or not (whose restoration is already handled separately).
+
+>
+> There are also not covered here pieces of state, SELECT_BUFFER
+> buffers, personalities (aka creds), registered eventfd, io-wq
+> configuration, etc. I'm assuming you'll be checking them and
+> failing CR if any of them is there.
+
+Personalities are not as hard (IIUC), because all the required state is
+available through fdinfo. In the PR linked in this thread, there is code to
+parse it and restore using the saved credentials (though we might want to
+implement UID mapping options, or either let the user do image rewriting for
+that, which is a separate concern).
+
+Ideally I'd like to be able to grab this state from the iterator as well, but it
+needs atleast a bpf_xa_for_each helper, since io_uring's show_fdinfo skips some
+crucial data when it detects contention over uring_lock (and doesn't indicate
+this at all) :(. See the conditional printing on 'has_lock'.
+
+SELECT_BUFFER is indeed unhandled rn. I'm contemplating ways on how to extend
+the iterator so that it can loop over all items of generic structures like
+Xarray in general while taking appropriate locks relevant for the specific hook
+in particular. Both personalities registration and IORING_OP_PROVIDE_BUFFERS
+insert use an Xarray, so it might make sense to rather add a bpf_xa_for_each
+than introducing another iterator, and only mark it as safe for this iterator
+context (where appropriate locks e.g. ctx->uring_lock is held).
+
+For registered eventfd, and io-wq, you can look at [0] to see how I am solving
+that, TLDR I just map the underlying structure to the open fd in the task. eBPF
+is flexible enough to also allow state inspection in case e.g. the corresponding
+eventfd is closed, so that we can recreate it, register, and then close again
+when restoring. Same with files directly added to the fixed file set, the whole
+idea was to bring in eBPF so that dumping these resources is possible when they
+are "hidden" from normal view.
+
+[0]: https://lore.kernel.org/bpf/20211201042333.2035153-11-memxor@gmail.com
+
+>
+> And the last point, there will be some stuff CR of which is
+> likely to be a bad idea. E.g. registered dmabuf's,
+> pre-registered DMA mappings, zerocopy contexts and so on.
+>
+
+Yes, we can just fail the dump for these cases. There are many other cases (in
+general) where we just have to give up.
+
+> IOW, if the first point is solved, there may be a subset of ring
+> setups that can probably be CR. That should cover a good amount
+> of cases. I don't have a strong opinion on the whole thing,
+> I guess it depends on the amount of problems to implement
+> in-flight cancellations.
+>
+> --
+> Pavel Begunkov
+
+--
+Kartikeya

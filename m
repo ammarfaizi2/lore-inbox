@@ -2,167 +2,88 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 14912C433F5
-	for <io-uring@archiver.kernel.org>; Thu,  9 Dec 2021 15:03:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F2F34C433F5
+	for <io-uring@archiver.kernel.org>; Thu,  9 Dec 2021 15:58:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238885AbhLIPHI (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Thu, 9 Dec 2021 10:07:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41452 "EHLO
+        id S240671AbhLIQBq (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Thu, 9 Dec 2021 11:01:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55276 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239135AbhLIPHI (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Thu, 9 Dec 2021 10:07:08 -0500
-Received: from mail-wm1-x32b.google.com (mail-wm1-x32b.google.com [IPv6:2a00:1450:4864:20::32b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC837C061746
-        for <io-uring@vger.kernel.org>; Thu,  9 Dec 2021 07:03:34 -0800 (PST)
-Received: by mail-wm1-x32b.google.com with SMTP id az34-20020a05600c602200b0033bf8662572so4351712wmb.0
-        for <io-uring@vger.kernel.org>; Thu, 09 Dec 2021 07:03:34 -0800 (PST)
+        with ESMTP id S239846AbhLIQBq (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Thu, 9 Dec 2021 11:01:46 -0500
+Received: from mail-pl1-x62d.google.com (mail-pl1-x62d.google.com [IPv6:2607:f8b0:4864:20::62d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20584C0617A1
+        for <io-uring@vger.kernel.org>; Thu,  9 Dec 2021 07:58:12 -0800 (PST)
+Received: by mail-pl1-x62d.google.com with SMTP id q17so4182887plr.11
+        for <io-uring@vger.kernel.org>; Thu, 09 Dec 2021 07:58:12 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=message-id:date:mime-version:user-agent:subject:content-language:to
-         :references:from:in-reply-to:content-transfer-encoding;
-        bh=u4RmT8kOFvwcxv7ra0GkwyxAvHqYWTgFswfs1FLH9EM=;
-        b=gq0s4CmmyVj8OMppjTCqylYxOVc7VzqcY88y+bhv9qQHblzSHmaUE5lHQBiNuf2XT3
-         GQU+d8o8usEWwyJeOciBfDOT/20mh+Tk1B1M6/dvO7VZ7mlpgQKHyli4iXQ60EjKSzVn
-         oIX73Pk9FiI4tXFk/CM3bFq+M+9Ry4TYJ6WInKItcmo2yP/DxJaynXXKFsYl39sV2yQQ
-         qitfh6T9+jhQC/19aasIQLuI3avtvW31NxLOwulVdFMWC8ousAeg7hIzVBmcV6+33zKF
-         j+r0x8Bjk/JopSAu8lTx4CgdUfdOcOp+4oFGsprpfZ7ld+4ApQYMFzR4BXdgpE0ZH1xL
-         LSkw==
+        d=kernel-dk.20210112.gappssmtp.com; s=20210112;
+        h=subject:to:references:from:message-id:date:user-agent:mime-version
+         :in-reply-to:content-language:content-transfer-encoding;
+        bh=biv5OTi9ySXLAnrzcd/teCA8NX2vw4nxLXTxzbrLMPQ=;
+        b=tHRLi5to+H4EjBwccLnByww/gm1JUZym5mUe+YOKjx6/ETopTeXWC94Po5bRg7j+cC
+         dwPDxyBfOEs1GndutpZzbxHDQzXX7bPSsJzVNucaadRMKjFDHjw/IhJcqobFU58zZhIn
+         VGLcdIZpXHTJOTLP1kybtC1JIMXbkzwhvthiXvk9zq0+wRdChKm64TDh07KhLyUPyIfA
+         aNy7i4swkoZLGFZJvtJFG5TovILAG2u4ZLeYiadfbsDUFtUCWBLJqA5P1GZNogUINye8
+         0shT2rGDUjKvk395Jrv7fSIB+TVd1He94kEEPk9N77bLMQDzGJDTEZlb2DV5qS2qWB/9
+         ZfOQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:references:from:in-reply-to
+        h=x-gm-message-state:subject:to:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
          :content-transfer-encoding;
-        bh=u4RmT8kOFvwcxv7ra0GkwyxAvHqYWTgFswfs1FLH9EM=;
-        b=SVNA5CwCEd4ckSgF66FHG9eEVPXGfjB4stGpOQWD92PPOy6oYxwznWwEHR5CZGdmri
-         6kTykGTojWnu1Vdofk5Hah84d5WCov9V+8OvmHweuf7fuklwbNoFJjSytvrCBp8wbfMe
-         xX2Qkr5KGtuWzyDDZ8VbDbeFSW5LCGEau3+9xA5j7RpBq9zm0rVZIobLntu7hEF3Lf9Z
-         HTbfreOwx9y0/JkWVB+chslgRTBXPhe/a/s5LXR9VB2gLF2PRYypsJ6xLQq2kubbNu1a
-         VNS2Vp+Xie1ZkVPlCgkw+JliY1M1WZbrzlnZsvlJCMCzwB7uG0ucIldZ160SqZ4xKq9l
-         2KKQ==
-X-Gm-Message-State: AOAM532K2p+mxkFBWegFQEc9ExRfhgx5wcYmUAWvFTCEcx3f5P9zn1m/
-        /LD3MyXue3zhShnFsNgbez7nRVK/c0o=
-X-Google-Smtp-Source: ABdhPJxyS7x2/4RC5ndwcSd2SCfM187k3PccFe5GUY+iALF+lJk2KL52/laThwK376Iso2YiOpNRkg==
-X-Received: by 2002:a7b:c1d5:: with SMTP id a21mr7967448wmj.14.1639062213440;
-        Thu, 09 Dec 2021 07:03:33 -0800 (PST)
-Received: from [192.168.43.77] (82-132-228-153.dab.02.net. [82.132.228.153])
-        by smtp.gmail.com with ESMTPSA id n184sm9073420wme.2.2021.12.09.07.03.31
+        bh=biv5OTi9ySXLAnrzcd/teCA8NX2vw4nxLXTxzbrLMPQ=;
+        b=b7OYG+lt/1k4yQOkE0zWk3nAtd2xPHdSkkYqVDDOINXcHtr+QQDIU+fs2HBEru+Lmy
+         vGxnQy9pqMyE9L383a9/C0kuUrzML3FKrFhiq3LcxcKDo4WowR63pH4T+mzEmxuVrHsj
+         +gGbaVzx+mby7b/NuIb+hjfQ/14CW7PeAd/GzOGBK/P3jGs1IJk9xWSZ0XsjuoADSgs5
+         yB+fWoeLLAVwZh2kxXeSKmccNK6qcgcUSpf8kXgT/B3s2v4v51qC/mbXyQN3FQMKU4Hx
+         KUWzclbtOD+AOF2nSzaVxONNhc9CYpAT/R+TkzQ2FmKHltzlRHqwOoBtSoe6nRlS1NoT
+         deUA==
+X-Gm-Message-State: AOAM533RcDg/uJLlMgn3lFCq++NAJ6+ltKvAnRKmfaNgQVhZnIUxb5Fl
+        5RU9I/dsQsAL7i+3Qlb+WKVniQ==
+X-Google-Smtp-Source: ABdhPJx9AV16TY4XwyxRRoUmtkt9/ytp79OHBNK2x67X/9jHLAI3NsiGUhgfOsdGmFlPKdqsX6ARCQ==
+X-Received: by 2002:a17:90a:a786:: with SMTP id f6mr16637212pjq.158.1639065491356;
+        Thu, 09 Dec 2021 07:58:11 -0800 (PST)
+Received: from [172.20.4.26] ([66.185.175.30])
+        by smtp.gmail.com with ESMTPSA id k15sm82825pgn.91.2021.12.09.07.58.10
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 09 Dec 2021 07:03:32 -0800 (PST)
-Message-ID: <024aae30-1fdc-f51b-7744-9518a39cbb19@gmail.com>
-Date:   Thu, 9 Dec 2021 15:02:12 +0000
+        Thu, 09 Dec 2021 07:58:10 -0800 (PST)
+Subject: Re: [syzbot] INFO: task hung in io_uring_cancel_generic (2)
+To:     syzbot <syzbot+21e6887c0be14181206d@syzkaller.appspotmail.com>,
+        asml.silence@gmail.com, io-uring@vger.kernel.org,
+        linux-kernel@vger.kernel.org, syzkaller-bugs@googlegroups.com
+References: <00000000000060ab3b05d2973c1a@google.com>
+From:   Jens Axboe <axboe@kernel.dk>
+Message-ID: <053430b4-8b7a-249e-19a9-17752b47504a@kernel.dk>
+Date:   Thu, 9 Dec 2021 08:58:09 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.3.2
-Subject: Re: happy io_uring_prep_accept_direct() submissions go hiding!
+In-Reply-To: <00000000000060ab3b05d2973c1a@google.com>
+Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
-To:     jrun <darwinskernel@gmail.com>, io-uring <io-uring@vger.kernel.org>
-References: <20211208190733.xazgugkuprosux6k@p51>
-From:   Pavel Begunkov <asml.silence@gmail.com>
-In-Reply-To: <20211208190733.xazgugkuprosux6k@p51>
-Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 12/8/21 19:07, jrun wrote:
-> hello,
+On 12/7/21 5:04 PM, syzbot wrote:
+> syzbot has found a reproducer for the following issue on:
 > 
-> - this may very well be something simple i'm missing so apologies in advance. -
+> HEAD commit:    cd8c917a56f2 Makefile: Do not quote value for CONFIG_CC_IM..
+> git tree:       upstream
+> console output: https://syzkaller.appspot.com/x/log.txt?x=153be575b00000
+> kernel config:  https://syzkaller.appspot.com/x/.config?x=5247c9e141823545
+> dashboard link: https://syzkaller.appspot.com/bug?extid=21e6887c0be14181206d
+> compiler:       gcc (Debian 10.2.1-6) 10.2.1 20210110, GNU ld (GNU Binutils for Debian) 2.35.2
+> syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=1218dce1b00000
+> C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=16f91d89b00000
 > 
-> _some_ calls to io_uring_prep_accept_direct() never make it back from
-> kernel! or they seems so... since io_uring_prep_accept_direct() is a new
-> introduction to io_uring i thought i check with you first and get some help if
-> possible.
+> IMPORTANT: if you fix the issue, please add the following tag to the commit:
+> Reported-by: syzbot+21e6887c0be14181206d@syzkaller.appspotmail.com
 
-Don't see how a CQE may get missing, so let me ask a bunch of questions:
-
-First, let's try out my understanding of your problem. At the beginning you
-submit MAX_CONNECTIONS/2 accept requests and _all_ of them complete. In the main
-loop you add another bunch of accepts, but you're not getting CQEs from them.
-Right?
-
-1) Anything in dmesg? Please when it got stuck (or what the symptoms are),
-don't kill it but wait for 3 minutes and check dmesg again.
-
-Or you to reduce the waiting time:
-"echo 10 > /proc/sys/kernel/hung_task_timeout_secs"
-
-And then should if anything wrong it should appear in dmesg max in 20-30 secs
-
-2) What kernel version are you running?
-
-3) Have you tried normal accept (non-direct)?
-
-4) Can try increase the max number io-wq workers exceeds the max number
-of inflight requests? Increase RLIMIT_NPROC, E.g. set it to
-RLIMIT_NPROC = nr_threads + max inflight requests.
-
-5) Do you get CQEs when you shutdown listening sockets?
-
-6) Do you check return values of io_uring_submit()?
-
-7) Any variability during execution? E.g. a different number of
-sockets get accepted.
-
-
-> ---------
-> TEST_PROG:
-> ---------
-> 
-> this msg has a git repo bundled which has the crap i've put together where i
-> encounter this. to compile/run it do this, save the bundle somewhere, say under
-> `/tmp/` and then do:
-> 
-> ```
-> cd /tmp/
-> git clone wsub.git wsub
-> cd wsub
-> # maybe have a look at build.sh before running the following
-> # it will install a single binary under ~/.local/bin
-> # also it will fire up the binary, the server part, wsub, right away
-> sh build.sh
-> 
-> # then from a different terminal
-> cd /tmp/wsub/client
-> # in zsh, use seq for bash
-> MAX_CONNECTIONS=4; for i in {0..$MAX_CONNECTIONS}; do ./client foo; done
-> ```
-> 
-> srv starts listening on a *abstract* unix socket, names after the binary which
-> should turn up in the output of this, if you have ss(8) installed:
-> 
-> `ss -l -x --socket=unix_seqpacket`
-> it will be called `@wsub` if you don't change anything.
-> 
-> client bit just sends it's first arg, "foo" in this case, to the server, and
-> srv prints it out into it's stderr.
-> 
-> 
-> --------
-> PROBLEM:
-> --------
-> 
-> every calls to io_uring_prep_accept_direct() via q_accept(), before entering
-> event_loop(), main.c:587, get properly completed, but subsequent calls to
-> io_uring_prep_accept_direct() after entering event_loop(),
-> main.c:487 `case ACCEPT:`,
-> never turn up on ring's cq! you will notice that all other submissions inside
-> event_loop(), to the same ring, get completed fine.
-> 
-> note also that io_uring_prep_accept_direct() completions make it once there is a
-> new connection!
-> 
-> running the client bit one-by-one might illustrate the point better.
-> 
-> i also experimented with using IORING_SETUP_SQPOLL, different articles but same
-> result for io_uring_prep_accept_direct() submissions.
-> 
-> thoughts?
-> 
-> 
-> 	- jrun
-> 
+#syz test git://git.kernel.dk/linux-block io_uring-5.16
 
 -- 
-Pavel Begunkov
+Jens Axboe
+

@@ -2,83 +2,108 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 881C9C433EF
-	for <io-uring@archiver.kernel.org>; Wed, 15 Dec 2021 16:24:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9DC10C4332F
+	for <io-uring@archiver.kernel.org>; Wed, 15 Dec 2021 16:24:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244773AbhLOQYZ (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Wed, 15 Dec 2021 11:24:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49506 "EHLO
+        id S244769AbhLOQY0 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 15 Dec 2021 11:24:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49514 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244772AbhLOQYY (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Wed, 15 Dec 2021 11:24:24 -0500
-Received: from mail-io1-xd2a.google.com (mail-io1-xd2a.google.com [IPv6:2607:f8b0:4864:20::d2a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4B91C061574
-        for <io-uring@vger.kernel.org>; Wed, 15 Dec 2021 08:24:23 -0800 (PST)
-Received: by mail-io1-xd2a.google.com with SMTP id p23so31055630iod.7
-        for <io-uring@vger.kernel.org>; Wed, 15 Dec 2021 08:24:23 -0800 (PST)
+        with ESMTP id S244772AbhLOQYZ (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Wed, 15 Dec 2021 11:24:25 -0500
+Received: from mail-io1-xd34.google.com (mail-io1-xd34.google.com [IPv6:2607:f8b0:4864:20::d34])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D3F6C061574
+        for <io-uring@vger.kernel.org>; Wed, 15 Dec 2021 08:24:25 -0800 (PST)
+Received: by mail-io1-xd34.google.com with SMTP id e128so31062945iof.1
+        for <io-uring@vger.kernel.org>; Wed, 15 Dec 2021 08:24:25 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernel-dk.20210112.gappssmtp.com; s=20210112;
-        h=from:to:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=+S76o+lU5f8Y6L550JpPm+xHI7UPiFEDOIxOuBfHgB0=;
-        b=eeoTCD/lXC4ZHgBvmLhuznfU5045cTL3rZBg0aucp9SwMeHfDr4LaOd6y7iDeiZGUv
-         psVwuGV1538JFC9lVJJEFmIQVpQ/jWQko5AFv+GII/Vbr1DsSlG1QHMhnm1A7kpTa5ya
-         uSZsePJed0yFhPR1AfQopDFeU+iVtafKjDFcQ2ZlW89tBQT1C3CEadtFwtZwqM956aSE
-         tzzlzlq5OngmA+MEc0YZUfKnD6H6cwcy253tRlPjfxhUSxlpVy6RMeq8on+KbfM+gBj4
-         cgPhBTu6N+pMyxqy6RTEWqVGPIrBhAZxH2whW101yMpTYJx/KJe3Ktq3UWjfz0CbltrO
-         TEYw==
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=ZzPVTfgisDXhr5KSCCKdMaU8KCMcU6kyZCK6gX9Tpbw=;
+        b=FUYh99cWyVn5DKtPS1l684xkvLXgyleEJaHJ047Gp+GwB+Ci1iK7mvEuNqqGGADSuT
+         yLrUTTIqDH8rSCnUTAOrdoHw1nmBbcOxEcUiZGWpbaxkwjc1ZMArtWrS2BLxLQUs/v7X
+         fOa14msslBo9VytcB3y9kHRu/nPmtyeTs2QFIHDQ5KtU+wg4amT860tT1b/SaNZIXOkG
+         tvt7BqImsVoEXe6B7W3jA79Zwy/PBPtYQHEn1Eklv3EK44t5vHx/iUcykIu/KcmpHVAA
+         vS9lFWztEcJhWEedOmuQNb0xvL73L9sqvMPXgcmQ1Ulmhiv/5bkXOK+Hrjd8HzX3b7Dr
+         OKHw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=+S76o+lU5f8Y6L550JpPm+xHI7UPiFEDOIxOuBfHgB0=;
-        b=m8ghj5ZQ/iindA1PLKFB3Hc0YjU2cvZCkI8MefD9zgIf5PXKkw4CFtuDVsvXdXHRIM
-         snXthu3t2iX+to+MxSY9RaiUBVQ+6rfUpIZ+2LIQuqOWdfNqVwZvSBF9M8dVO0/GxlV/
-         b8z3nEgOE3kZfx65bAqpcugP1TQiT9JlgFFDxyes0w8ir8/BZkDGcsGjU2sVKWupKC1x
-         itfh482l1XN9VMiTMmFt4dN/8EfmscP7GJXz9BhEELcLH0fMQp3CVldK38dYb/PEZj/C
-         l3o8K6F/0a9Pqa9SAABJZevlqKgPS9EqoKgc7MPM0panUuA6sTgrZqLkI2Rwcb4f/NOR
-         UzsA==
-X-Gm-Message-State: AOAM531bJCZXNyYCp6KCxipYkwMd2U/Zg9hV3LHtAMponXCUvW7gx7ZJ
-        UFpBL1QfzoetqR5EoupOeYxmQsmp4Egx4g==
-X-Google-Smtp-Source: ABdhPJxFcatts9sLXYdkAle2BfEi6ILJixpQxLDbxTgbcDO9VpviBfTNuiW4VHa7ldCY9PKRGgFbmg==
-X-Received: by 2002:a05:6638:140d:: with SMTP id k13mr5935052jad.37.1639585463015;
-        Wed, 15 Dec 2021 08:24:23 -0800 (PST)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=ZzPVTfgisDXhr5KSCCKdMaU8KCMcU6kyZCK6gX9Tpbw=;
+        b=ORtd3pvfU4Ndb9dW0p5S5eRvgr/evvx5x+THjpsiiZsddPpBayniZBXcT+kdPcPogC
+         J1vvHwwL+QHjVKhLA715vBzFWcL67OcABbIRD2wBDltVP/cm1lJAZah+hAB9Kyb7o5l3
+         Pqz/rYSZCz2i08biguu5jB21GOqMr3LjiyzPRCqYY6hu29179x/pYzZDiPyKTAL8pDsx
+         7UTIfxBnYckwqX9e+VCnb95zfhUCR0+v/zqWVZ4JK01gBd/K5exHO7OuogmPoJWaEsDm
+         J9/ZFJMQrgHSKLXcwmxFypUZTwf8qCXPpPhJ99ciWAZNK8tRoSIngabGu79mdq9S1TD8
+         /yxA==
+X-Gm-Message-State: AOAM531G0++VUY6TYZBGnWQLKaAxLXxDcFLXt5vTR/E9DOeuYutx6F/O
+        Pqc4OIqHRN7nqHeIC1ala+TV6RtVigwhFQ==
+X-Google-Smtp-Source: ABdhPJw4R0XiVxp960OKfbwFzL+UQKbLRFWzaJigp4wFZsWhXzum7JVsqEg1TZG193tAMa11ph5hag==
+X-Received: by 2002:a05:6638:3049:: with SMTP id u9mr6447426jak.132.1639585464597;
+        Wed, 15 Dec 2021 08:24:24 -0800 (PST)
 Received: from x1.localdomain ([207.135.234.126])
-        by smtp.gmail.com with ESMTPSA id g1sm1153170ild.52.2021.12.15.08.24.22
+        by smtp.gmail.com with ESMTPSA id g1sm1153170ild.52.2021.12.15.08.24.23
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 15 Dec 2021 08:24:22 -0800 (PST)
+        Wed, 15 Dec 2021 08:24:24 -0800 (PST)
 From:   Jens Axboe <axboe@kernel.dk>
 To:     io-uring@vger.kernel.org, linux-nvme@lists.infradead.org
-Subject: [PATCHSET v3 0/4] Add support for list issue
-Date:   Wed, 15 Dec 2021 09:24:17 -0700
-Message-Id: <20211215162421.14896-1-axboe@kernel.dk>
+Cc:     Jens Axboe <axboe@kernel.dk>, Chaitanya Kulkarni <kch@nvidia.com>,
+        Hannes Reinecke <hare@suse.de>
+Subject: [PATCH 2/4] nvme: split command copy into a helper
+Date:   Wed, 15 Dec 2021 09:24:19 -0700
+Message-Id: <20211215162421.14896-3-axboe@kernel.dk>
 X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20211215162421.14896-1-axboe@kernel.dk>
+References: <20211215162421.14896-1-axboe@kernel.dk>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Hi,
+We'll need it for batched submit as well.
 
-With the support in 5.16-rc1 for allocating and completing batches of
-IO, the one missing piece is passing down a list of requests for issue.
-Drivers can take advantage of this by defining an mq_ops->queue_rqs()
-hook.
+Reviewed-by: Chaitanya Kulkarni <kch@nvidia.com>
+Reviewed-by: Hannes Reinecke <hare@suse.de>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+---
+ drivers/nvme/host/pci.c | 14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
 
-This implements it for NVMe, allowing copy of multiple commands in one
-swoop.
-
-This is good for around a 500K IOPS/core improvement in my testing,
-which is around a 5-6% improvement in efficiency.
-
-No changes since v3 outside of a comment addition.
-
-Changes since v2:
-- Add comment on why shared tags are currently bypassed
-- Add reviewed-by's
-
+diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
+index 8637538f3fd5..09ea21f75439 100644
+--- a/drivers/nvme/host/pci.c
++++ b/drivers/nvme/host/pci.c
+@@ -500,6 +500,15 @@ static inline void nvme_write_sq_db(struct nvme_queue *nvmeq, bool write_sq)
+ 	nvmeq->last_sq_tail = nvmeq->sq_tail;
+ }
+ 
++static inline void nvme_sq_copy_cmd(struct nvme_queue *nvmeq,
++				    struct nvme_command *cmd)
++{
++	memcpy(nvmeq->sq_cmds + (nvmeq->sq_tail << nvmeq->sqes), cmd,
++		sizeof(*cmd));
++	if (++nvmeq->sq_tail == nvmeq->q_depth)
++		nvmeq->sq_tail = 0;
++}
++
+ /**
+  * nvme_submit_cmd() - Copy a command into a queue and ring the doorbell
+  * @nvmeq: The queue to use
+@@ -510,10 +519,7 @@ static void nvme_submit_cmd(struct nvme_queue *nvmeq, struct nvme_command *cmd,
+ 			    bool write_sq)
+ {
+ 	spin_lock(&nvmeq->sq_lock);
+-	memcpy(nvmeq->sq_cmds + (nvmeq->sq_tail << nvmeq->sqes),
+-	       cmd, sizeof(*cmd));
+-	if (++nvmeq->sq_tail == nvmeq->q_depth)
+-		nvmeq->sq_tail = 0;
++	nvme_sq_copy_cmd(nvmeq, cmd);
+ 	nvme_write_sq_db(nvmeq, write_sq);
+ 	spin_unlock(&nvmeq->sq_lock);
+ }
 -- 
-Jens Axboe
-
+2.34.1
 

@@ -2,57 +2,57 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7C164C4332F
-	for <io-uring@archiver.kernel.org>; Wed, 15 Dec 2021 22:09:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0EE95C433FE
+	for <io-uring@archiver.kernel.org>; Wed, 15 Dec 2021 22:09:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231206AbhLOWJI (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Wed, 15 Dec 2021 17:09:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45922 "EHLO
+        id S231215AbhLOWJJ (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 15 Dec 2021 17:09:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45932 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231209AbhLOWJH (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Wed, 15 Dec 2021 17:09:07 -0500
-Received: from mail-ed1-x534.google.com (mail-ed1-x534.google.com [IPv6:2a00:1450:4864:20::534])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CDE56C061574
-        for <io-uring@vger.kernel.org>; Wed, 15 Dec 2021 14:09:06 -0800 (PST)
-Received: by mail-ed1-x534.google.com with SMTP id x15so80783095edv.1
-        for <io-uring@vger.kernel.org>; Wed, 15 Dec 2021 14:09:06 -0800 (PST)
+        with ESMTP id S231217AbhLOWJI (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Wed, 15 Dec 2021 17:09:08 -0500
+Received: from mail-ed1-x52b.google.com (mail-ed1-x52b.google.com [IPv6:2a00:1450:4864:20::52b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D9D1C06173E
+        for <io-uring@vger.kernel.org>; Wed, 15 Dec 2021 14:09:08 -0800 (PST)
+Received: by mail-ed1-x52b.google.com with SMTP id y13so79669281edd.13
+        for <io-uring@vger.kernel.org>; Wed, 15 Dec 2021 14:09:08 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=CkEVU7XIG1eQ8QRSJpyRf/GLitYv8kcXHmi3gDtDIxY=;
-        b=W+yxrQBfsOPww5q5R5zoqD2frWQwgBi0klfgYL3eWZniXqLpCKL7IhoIvohg3m/YYs
-         ERP3bg/elrtdNAAY0FPwJ8t9w2zoy3hAb6IUfhGKbOl166RIipyAbPrweWHPRpcJKlpw
-         dnJYzYOpOn2I9HB5L6EoGYgojmDiJ4jxF81FFykHByMDv6RoCRBgqkvOlvO0Otp9eOeQ
-         PhfslGUVCIceZ3Lp5bxdsSK5Se9D2TzynPel84etY5I/S1wVfwApMNKsgoioc2cPkhTq
-         zb11zyygFi1Pfp8jWjTY55n6QOwGttcqnAf2oRpCOvRW1XNFxW24p9C/kg8hEjufdQ2e
-         dajA==
+        bh=WyoOiAq7+vahI1LhfFUzi/TCr5tNRPzOU7lEO2TmvsA=;
+        b=A6N/RLgHhAU0XlqBsQjt/e4JYbL51N7wvrxpNxhxLqe21uh0KVgUoZNrzBOUnPjluD
+         znhT8aRhi1SwEN7UrVUyO9oZSh6WLcXlx5m5XNOwwVyZc2deg5k5J+h3Z4Sjo5UOQeBg
+         hdrPrvnUXoQj6sNMr7HxPguSo0C2w7rr5eKgcztUEcuwIykAfhHMBXIBl0qH1xlbjay+
+         pGhVvqWLv5Qv10bcaMnYUgeQGlbERerdA+n8fJ4ucw2NJltjSH2cp6M3u2kFmTl/sVxX
+         9jvKaojGq7V3O1cllYiwQwx22kXiF3LsO79NWacwd0bbDVMTLZ8MWML+r1y+PRHI14xt
+         ljhw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=CkEVU7XIG1eQ8QRSJpyRf/GLitYv8kcXHmi3gDtDIxY=;
-        b=u2qEkKScFaivy9Z6hw128/R25jQwcClNORyIklVMMG1nx9pODASSuTKnrD00Z3umM4
-         pCQ1yP5qSCqkezEyG57tUAaYmHEkEMWHwdGmExkshHzlGyAACXV7rLcS15Jop0eIMjn6
-         F2uaslHwygm0kqEZ1az0ABr5PRB8UwcO58/T0wVNbW1WPHGKFOlWstySHL9IPXP8lwXf
-         pD7hRV8J/2p3i4qoQkyo+oJkG21LKwQk8tzX2DiCPoCNitoOU1FEXq3bCm/XrEG8JC8C
-         z0/mf42RW0OV0/kyUp7b+qKqeRreXrzcOpPRcqcKaCBWzRttBoulAUwXQhxe3zU3QN2D
-         1NDw==
-X-Gm-Message-State: AOAM533ew+M7LL9D2QFaGO49yvaugLoBqK3ncWdn87q+AeEfe4S+QOQC
-        +D5VS9IHFkpSy6slmQ05unrmB4hrKzw=
-X-Google-Smtp-Source: ABdhPJzOoZmiQUmsqGoLgNWwReexl6Jlyc5PlZi4xX5tCKgWLbCjBLJXHequcoqCjkWWVwAaWuhNNA==
-X-Received: by 2002:a17:906:69c5:: with SMTP id g5mr7653418ejs.41.1639606145209;
-        Wed, 15 Dec 2021 14:09:05 -0800 (PST)
+        bh=WyoOiAq7+vahI1LhfFUzi/TCr5tNRPzOU7lEO2TmvsA=;
+        b=iET5gCMxrdtfy5gSU9LJXPmh/Ed7bpkHeaaItA5qpyRpf8RGQbFYFCVrgOBx1IOdgE
+         Zrhe9q0Azcf3kX4NBT9uO/r2NSvIieeztqS0JOGYXUVJIjJGXX6KEkWJKyfF9UfYBl6M
+         XsMNLwf9tr1ikCpS2ZPkl3lh2fVMPWxrXnfL+HOMm4OYWCkRQ8Esg3bgT0c0ZpWB9Plc
+         MRsQ3UZvkP0Hc4fO+avS56yNzrSYoH7QjF3vrb9sJfSGE+5LdMhAsLh/1enC4v5AxLib
+         MBkwCayucRHQ4Ba1tMjp3EgvtvfgV/aaecQT0/IbsqKBStS61sfVRJ2pFP9y57JvKd8n
+         zeIA==
+X-Gm-Message-State: AOAM531ueRKPUpoVmp0TCUhDsat++ywsBmMucI2317R+hS6fbINFtvNy
+        n0EW0hk6XQXyoRBMnj4hvKUIPn7Yw1U=
+X-Google-Smtp-Source: ABdhPJxixyJp5t5R+nSipN6AZNvM9rwbatYgZi3jJLA6xNNI22vlfU0Xkpm77XOhW9ljqQ/TC2bIjw==
+X-Received: by 2002:a17:906:ccc5:: with SMTP id ot5mr2402054ejb.303.1639606146937;
+        Wed, 15 Dec 2021 14:09:06 -0800 (PST)
 Received: from 127.0.0.1localhost ([148.252.129.75])
-        by smtp.gmail.com with ESMTPSA id l16sm1572006edb.59.2021.12.15.14.09.04
+        by smtp.gmail.com with ESMTPSA id l16sm1572006edb.59.2021.12.15.14.09.06
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 15 Dec 2021 14:09:04 -0800 (PST)
+        Wed, 15 Dec 2021 14:09:06 -0800 (PST)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     io-uring@vger.kernel.org
 Cc:     asml.silence@gmail.com
-Subject: [PATCH 4/7] io_uring: kill poll linking optimisation
-Date:   Wed, 15 Dec 2021 22:08:47 +0000
-Message-Id: <15699682bf81610ec901d4e79d6da64baa9f70be.1639605189.git.asml.silence@gmail.com>
+Subject: [PATCH 6/7] io_uring: single shot poll removal optimisation
+Date:   Wed, 15 Dec 2021 22:08:49 +0000
+Message-Id: <ee170a344a18c9ef36b554d806c64caadfd61c31.1639605189.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.34.0
 In-Reply-To: <cover.1639605189.git.asml.silence@gmail.com>
 References: <cover.1639605189.git.asml.silence@gmail.com>
@@ -62,40 +62,34 @@ Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-With IORING_FEAT_FAST_POLL in place, io_put_req_find_next() for poll
-requests doesn't make much sense, and in any case re-adding it
-shouldn't be a problem considering batching in tctx_task_work(). We can
-remove it.
+We don't need to poll oneshot request if we've got a desired mask in
+io_poll_wake(), task_work will clean it up correctly, but as we already
+hold a wq spinlock, we can remove ourselves and save on additional
+spinlocking in io_poll_remove_entries().
 
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
- fs/io_uring.c | 8 ++------
- 1 file changed, 2 insertions(+), 6 deletions(-)
+ fs/io_uring.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index c106c0fbaca2..9a2b3cf7c0c5 100644
+index d59d3fa93c9c..20feca3d86ae 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -5485,7 +5485,6 @@ static bool __io_poll_complete(struct io_kiocb *req, __poll_t mask)
- static void io_poll_task_func(struct io_kiocb *req, bool *locked)
- {
- 	struct io_ring_ctx *ctx = req->ctx;
--	struct io_kiocb *nxt;
+@@ -5568,8 +5568,14 @@ static int io_poll_wake(struct wait_queue_entry *wait, unsigned mode, int sync,
+ 	if (mask && !(mask & poll->events))
+ 		return 0;
  
- 	if (io_poll_rewait(req, &req->poll)) {
- 		spin_unlock(&ctx->completion_lock);
-@@ -5509,11 +5508,8 @@ static void io_poll_task_func(struct io_kiocb *req, bool *locked)
- 		spin_unlock(&ctx->completion_lock);
- 		io_cqring_ev_posted(ctx);
- 
--		if (done) {
--			nxt = io_put_req_find_next(req);
--			if (nxt)
--				io_req_task_submit(nxt, locked);
--		}
-+		if (done)
-+			io_put_req(req);
- 	}
+-	if (io_poll_get_ownership(req))
++	if (io_poll_get_ownership(req)) {
++		/* optional, saves extra locking for removal in tw handler */
++		if (mask && poll->events & EPOLLONESHOT) {
++			list_del_init(&poll->wait.entry);
++			poll->head = NULL;
++		}
+ 		__io_poll_execute(req, mask);
++	}
+ 	return 1;
  }
  
 -- 

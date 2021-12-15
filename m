@@ -2,164 +2,91 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DE6F0C4332F
-	for <io-uring@archiver.kernel.org>; Wed, 15 Dec 2021 21:59:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8BD0BC433F5
+	for <io-uring@archiver.kernel.org>; Wed, 15 Dec 2021 22:09:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230331AbhLOV7g (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Wed, 15 Dec 2021 16:59:36 -0500
-Received: from mx0a-00082601.pphosted.com ([67.231.145.42]:57702 "EHLO
-        mx0a-00082601.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230318AbhLOV7d (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Wed, 15 Dec 2021 16:59:33 -0500
-Received: from pps.filterd (m0044010.ppops.net [127.0.0.1])
-        by mx0a-00082601.pphosted.com (8.16.1.2/8.16.1.2) with ESMTP id 1BFLidTq016264
-        for <io-uring@vger.kernel.org>; Wed, 15 Dec 2021 13:59:33 -0800
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=fb.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding : content-type; s=facebook;
- bh=quLcGe8M8WkNv4h+9Ale0u3mw4BzXj5UDLOKMkH4Z9I=;
- b=JaKvz7QQWJLaGtFafuNW30PYHkUGfy5IJl7W2NlXFrcX6+GJglOgvYIJljkyLLK7KoSe
- xezzUWyfUpb3jvPi7BMJ8BlmYFWf2qqS+OfJmAaHgwE6S0Ns7Ppe42GQRfh1vorWmL1t
- wHaF8oKJr008rt+gxEC882TgP0q6wz3L3LI= 
-Received: from maileast.thefacebook.com ([163.114.130.16])
-        by mx0a-00082601.pphosted.com (PPS) with ESMTPS id 3cyf7fvsh0-5
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NOT)
-        for <io-uring@vger.kernel.org>; Wed, 15 Dec 2021 13:59:33 -0800
-Received: from intmgw002.25.frc3.facebook.com (2620:10d:c0a8:1b::d) by
- mail.thefacebook.com (2620:10d:c0a8:82::c) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2308.20; Wed, 15 Dec 2021 13:59:32 -0800
-Received: by devvm225.atn0.facebook.com (Postfix, from userid 425415)
-        id D9EDB81A403F; Wed, 15 Dec 2021 13:59:26 -0800 (PST)
-From:   Stefan Roesch <shr@fb.com>
-To:     <io-uring@vger.kernel.org>, <linux-fsdevel@vger.kernel.org>
-CC:     <viro@zeniv.linux.org.uk>, <shr@fb.com>,
-        Christian Brauner <christian.brauner@ubuntu.com>
-Subject: [PATCH v6 2/3] fs: split off vfs_getdents function of getdents64 syscall
-Date:   Wed, 15 Dec 2021 13:59:23 -0800
-Message-ID: <20211215215924.3301586-3-shr@fb.com>
-X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20211215215924.3301586-1-shr@fb.com>
-References: <20211215215924.3301586-1-shr@fb.com>
+        id S231196AbhLOWJF (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 15 Dec 2021 17:09:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45900 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230368AbhLOWJE (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Wed, 15 Dec 2021 17:09:04 -0500
+Received: from mail-ed1-x534.google.com (mail-ed1-x534.google.com [IPv6:2a00:1450:4864:20::534])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A3A3C061574
+        for <io-uring@vger.kernel.org>; Wed, 15 Dec 2021 14:09:04 -0800 (PST)
+Received: by mail-ed1-x534.google.com with SMTP id g14so78912441edb.8
+        for <io-uring@vger.kernel.org>; Wed, 15 Dec 2021 14:09:04 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=cXKWjOWwCKMXPMdaQKcCIj7d9Mfr1wyl2LHyh/AgAGM=;
+        b=Kg7ySUBb3T0SepCxXCBlE6Tl5dwhBo80/zDtalnYPLXBb8ibTTaJwq4w2KJ6E484hp
+         fK2XrCQHXIhz/YPIEpusUoQ8IkOAeWXHhLp/41I5s1rXmrsw5kykzPcX7f4IF4NSaUNm
+         w8x+1S8CCitap/U87roFGJavHVA5fEN2RtaZZEk8lPIZxVm5GM1Db4AvN9mC5wFOtkMq
+         mhKW8anDT5nBMS5JlcdxFiF7ZnUEjvUzrdHrVPqBQOQl2s6kwatvfFOI/3Ej2zc0UL03
+         AK1MPpEPIYgQ7n1NTYp3Ix3zvRFZgziG0kL3nx/vPpyEJJuV7AcwZmTfxsXVgNr0bIzf
+         SUMw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=cXKWjOWwCKMXPMdaQKcCIj7d9Mfr1wyl2LHyh/AgAGM=;
+        b=RToGL5N0KX8W3S/tWoJcF17HDGt7jhVC++IrSqRLLKC6nLJ5rh8lDeGJ6g6DSAUDIg
+         aCFNpDP529HUF9DaWY6Cid082VRbEW9CsDvA/hXDnlQAykNVVacq++Gx34eoOh3sGCf7
+         23TO4lJ2QdNwBIVGxPAEw0SxSgU6yq1UMXqccwffsfb3xnA49TB1asHf/+w5HqXs7PCd
+         1522jcZqdy5OTiBCfZ1SleEzVFZrbThEPmx+Slo5hkxaVzkXoCIbPL4dqDzUeIXj4nqf
+         hlXZMTMaVtEVd1Rd8IUjeuCpMVWTc0z/mQqK8zZvp4WrttHqaAaaB1tJTpBEJ6NOf0xi
+         8ehw==
+X-Gm-Message-State: AOAM531yLV+kWLZ3H+0af+9b9B78YXhmvl4TybRJSHBpPQiA6AcUDJ22
+        Nv6xNkqBnfBadOukUkpvhZeufwXDRik=
+X-Google-Smtp-Source: ABdhPJyYJPlWRKNElilJj7Hk7IR6PZDqg2FHAm/a/t6AbsFg/n+S9OkwBOayXxbGNyWcBpoSnK9E3A==
+X-Received: by 2002:a17:907:97d4:: with SMTP id js20mr13210108ejc.416.1639606142506;
+        Wed, 15 Dec 2021 14:09:02 -0800 (PST)
+Received: from 127.0.0.1localhost ([148.252.129.75])
+        by smtp.gmail.com with ESMTPSA id l16sm1572006edb.59.2021.12.15.14.09.01
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 15 Dec 2021 14:09:02 -0800 (PST)
+From:   Pavel Begunkov <asml.silence@gmail.com>
+To:     io-uring@vger.kernel.org
+Cc:     asml.silence@gmail.com
+Subject: [PATCH for-next 0/7] reworking io_uring's poll and internal poll
+Date:   Wed, 15 Dec 2021 22:08:43 +0000
+Message-Id: <cover.1639605189.git.asml.silence@gmail.com>
+X-Mailer: git-send-email 2.34.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-FB-Internal: Safe
-Content-Type: text/plain
-X-FB-Source: Intern
-X-Proofpoint-GUID: ZRk9wteGoC67EZc_bIZB2iiMaxAJOWP9
-X-Proofpoint-ORIG-GUID: ZRk9wteGoC67EZc_bIZB2iiMaxAJOWP9
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.11.62.513
- definitions=2021-12-15_13,2021-12-14_01,2021-12-02_01
-X-Proofpoint-Spam-Details: rule=fb_outbound_notspam policy=fb_outbound score=0 bulkscore=0 spamscore=0
- mlxlogscore=831 priorityscore=1501 suspectscore=0 mlxscore=0 phishscore=0
- impostorscore=0 lowpriorityscore=0 clxscore=1015 malwarescore=0
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2110150000 definitions=main-2112150120
-X-FB-Internal: deliver
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-This splits off the vfs_getdents function from the getdents64 system
-call. This allows io_uring to call the function.
+That's mostly a bug fixing set, some of the problems are listed in 5/7.
+The main part is 5/7, which is bulky but at this point it's hard (if
+possible) to do anything without breaking a dozen of things on the
+way, so I consider it necessary evil.
+It also addresses one of two problems brought up by Eric Biggers
+for aio, specifically poll rewait. There is no poll-free support yet.
 
-Signed-off-by: Stefan Roesch <shr@fb.com>
-Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
----
- fs/internal.h |  8 ++++++++
- fs/readdir.c  | 37 +++++++++++++++++++++++++++++--------
- 2 files changed, 37 insertions(+), 8 deletions(-)
+As a side effect it also changes performance characteristics, adding
+extra atomics but removing io_kiocb referencing, improving rewait, etc.
+There are also drafts on optimising locking needed for hashing, those
+will go later.
 
-diff --git a/fs/internal.h b/fs/internal.h
-index 7979ff8d168c..355be993b9f1 100644
---- a/fs/internal.h
-+++ b/fs/internal.h
-@@ -194,3 +194,11 @@ long splice_file_to_pipe(struct file *in,
- 			 struct pipe_inode_info *opipe,
- 			 loff_t *offset,
- 			 size_t len, unsigned int flags);
-+
-+/*
-+ * fs/readdir.c
-+ */
-+struct linux_dirent64;
-+
-+int vfs_getdents(struct file *file, struct linux_dirent64 __user *dirent=
-,
-+		 unsigned int count, s64 pos);
-diff --git a/fs/readdir.c b/fs/readdir.c
-index e9c197edf73a..5c3af16a6178 100644
---- a/fs/readdir.c
-+++ b/fs/readdir.c
-@@ -21,6 +21,7 @@
- #include <linux/unistd.h>
- #include <linux/compat.h>
- #include <linux/uaccess.h>
-+#include "internal.h"
-=20
- #include <asm/unaligned.h>
-=20
-@@ -368,22 +369,26 @@ static int filldir64(struct dir_context *ctx, const=
- char *name, int namlen,
- 	return -EFAULT;
- }
-=20
--SYSCALL_DEFINE3(getdents64, unsigned int, fd,
--		struct linux_dirent64 __user *, dirent, unsigned int, count)
-+/**
-+ * vfs_getdents - getdents without fdget
-+ * @file    : pointer to file struct of directory
-+ * @dirent  : pointer to user directory structure
-+ * @count   : size of buffer
-+ * @ctx_pos : if file pos is used, pass -1,
-+ *            if ctx pos is used, pass ctx pos
-+ */
-+int vfs_getdents(struct file *file, struct linux_dirent64 __user *dirent=
-,
-+		 unsigned int count, s64 ctx_pos)
- {
--	struct fd f;
- 	struct getdents_callback64 buf =3D {
- 		.ctx.actor =3D filldir64,
-+		.ctx.pos =3D ctx_pos,
- 		.count =3D count,
- 		.current_dir =3D dirent
- 	};
- 	int error;
-=20
--	f =3D fdget_pos(fd);
--	if (!f.file)
--		return -EBADF;
--
--	error =3D iterate_dir(f.file, &buf.ctx);
-+	error =3D do_iterate_dir(file, &buf.ctx, ctx_pos < 0);
- 	if (error >=3D 0)
- 		error =3D buf.error;
- 	if (buf.prev_reclen) {
-@@ -396,6 +401,22 @@ SYSCALL_DEFINE3(getdents64, unsigned int, fd,
- 		else
- 			error =3D count - buf.count;
- 	}
-+
-+	return error;
-+}
-+
-+SYSCALL_DEFINE3(getdents64, unsigned int, fd,
-+		struct linux_dirent64 __user *, dirent, unsigned int, count)
-+{
-+	struct fd f;
-+	int error;
-+
-+	f =3D fdget_pos(fd);
-+	if (!f.file)
-+		return -EBADF;
-+
-+	error =3D vfs_getdents(f.file, dirent, count, -1);
-+
- 	fdput_pos(f);
- 	return error;
- }
---=20
-2.30.2
+Performance measurements is a TODO, but the main goal lies in
+correctness and maintainability.
+
+Pavel Begunkov (7):
+  io_uring: remove double poll on poll update
+  io_uring: refactor poll update
+  io_uring: move common poll bits
+  io_uring: kill poll linking optimisation
+  io_uring: poll rework
+  io_uring: single shot poll removal optimisation
+  io_uring: use completion batching for poll rem/upd
+
+ fs/io_uring.c | 649 ++++++++++++++++++++++----------------------------
+ 1 file changed, 287 insertions(+), 362 deletions(-)
+
+-- 
+2.34.0
 

@@ -2,92 +2,134 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7F0CAC433FE
-	for <io-uring@archiver.kernel.org>; Wed, 15 Dec 2021 21:09:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7D679C433F5
+	for <io-uring@archiver.kernel.org>; Wed, 15 Dec 2021 21:59:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229561AbhLOVJy (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Wed, 15 Dec 2021 16:09:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60604 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229468AbhLOVJy (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Wed, 15 Dec 2021 16:09:54 -0500
-Received: from mail-io1-xd2a.google.com (mail-io1-xd2a.google.com [IPv6:2607:f8b0:4864:20::d2a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55464C06173E
-        for <io-uring@vger.kernel.org>; Wed, 15 Dec 2021 13:09:54 -0800 (PST)
-Received: by mail-io1-xd2a.google.com with SMTP id p65so32285968iof.3
-        for <io-uring@vger.kernel.org>; Wed, 15 Dec 2021 13:09:54 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20210112.gappssmtp.com; s=20210112;
-        h=subject:to:references:from:message-id:date:user-agent:mime-version
-         :in-reply-to:content-language:content-transfer-encoding;
-        bh=5Q+WSgSr064mkUseEEX3jWFB2tdlOM5Z453qQSoCbHg=;
-        b=WDlBqkdEI7kxFH+wJqgqXjUjeYPC1/0TkN+cEF34zn2SRUrML+Dgbin5phBwiRtsAt
-         m1dYAXifjaNaSzKX4SxOimN2ee5uYH7Q6IDxzyGwxKwAhGVRXFmao5vc+L+6a0PU/3Sz
-         uO8VKvDTKuxT6YDNsZX0/n3RHOPikReASjGPFgg/l/SImoN6kzJdjTXF3c77nDvXUmDD
-         rl7MMddA60u9j/fbDDqsLhGYrIHCjnasoli1QU5bRuchIektDsf/D/ycE0HgbGZeR8qu
-         5gi0sFC9LmTPZ8l2bU1kje3w9wNfS09g4X0rRCsV6SOEyd9t7k+K2riagwLDpwtPTPAk
-         qR2Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:subject:to:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=5Q+WSgSr064mkUseEEX3jWFB2tdlOM5Z453qQSoCbHg=;
-        b=tmEM6EszWlrCOx54qb7h+F5C/hnpvMndcUnbETmYiQb40USknXa3/HLWlXNAV6SUk/
-         q87zUvhY+jxfNOyTafUGDnLb6r7t2s2LM1UnsE5dg7CRmNTEsM5ySw7NCi9Y4iNXMfWT
-         +WoL8K2IPX4Az1lN/M8NeQDNMidFZsdGBjaMVsNSjjjVfUxKP1hfO6f3g/nDuT0kUWTl
-         CULqBe1XC2ZtMzShV2ZCQetM2R5plHLTygXcwlyPEFyygD7drcjxCUjuQjzxu8FUonRq
-         CVtyBsuKn5jjsPdbldi366mjuDGoFeFwrc5HR4CYiC6YiRN7osw4Mae9cyb+u88OIE/W
-         ITSw==
-X-Gm-Message-State: AOAM532OZnrZoMPq7zhOOZJyGcCg6GzSZHxmbuukICQ1CV981DXTyevW
-        sv0DSTdVB96LR/AhxfnviDAyew==
-X-Google-Smtp-Source: ABdhPJwTvinOdFkaSDVsp24gveeu8UqEF5AB3Nx+fm5Kd2lsZrKm1PTUVDnWjrAKYv97eTEZWBpuzw==
-X-Received: by 2002:a02:ab8f:: with SMTP id t15mr7128205jan.147.1639602593713;
-        Wed, 15 Dec 2021 13:09:53 -0800 (PST)
-Received: from [192.168.1.30] ([207.135.234.126])
-        by smtp.gmail.com with ESMTPSA id u24sm1558545ior.20.2021.12.15.13.09.53
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 15 Dec 2021 13:09:53 -0800 (PST)
-Subject: Re: [PATCH v2 0/3] io_uring: add getdents64 support
-To:     Stefan Roesch <shr@fb.com>, io-uring@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>
-References: <20211124231700.1158521-1-shr@fb.com>
-From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <49b476cb-0de6-22ff-61b7-87ac300b9567@kernel.dk>
-Date:   Wed, 15 Dec 2021 14:09:52 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        id S230314AbhLOV7a (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Wed, 15 Dec 2021 16:59:30 -0500
+Received: from mx0a-00082601.pphosted.com ([67.231.145.42]:3560 "EHLO
+        mx0a-00082601.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S230306AbhLOV7a (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Wed, 15 Dec 2021 16:59:30 -0500
+Received: from pps.filterd (m0044012.ppops.net [127.0.0.1])
+        by mx0a-00082601.pphosted.com (8.16.1.2/8.16.1.2) with ESMTP id 1BFLifgC014620
+        for <io-uring@vger.kernel.org>; Wed, 15 Dec 2021 13:59:30 -0800
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=fb.com; h=from : to : cc : subject
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding : content-type; s=facebook;
+ bh=ksBHQidfEShKnwe7+1AkUOhHNpo3hluOCDtYZipjTtQ=;
+ b=W5ihbceAZXOe6y0KsIvmadzeXv11SXG7XHUM/B/9MXOeHhmx+p/jSL02O++zNZgdpfNz
+ xEro0hFA2gDN3p6w2I8IQ58EcY4lIXf9wNXM6puDe7Rm4mn5VG5TXs88Cj7ZfM0R+hxw
+ 9hRF5PnJyEKRkbvjZkdKCVGQT2VW5iLKbCo= 
+Received: from mail.thefacebook.com ([163.114.132.120])
+        by mx0a-00082601.pphosted.com (PPS) with ESMTPS id 3cy84ky7vv-2
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NOT)
+        for <io-uring@vger.kernel.org>; Wed, 15 Dec 2021 13:59:30 -0800
+Received: from intmgw006.03.ash8.facebook.com (2620:10d:c085:108::4) by
+ mail.thefacebook.com (2620:10d:c085:21d::5) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2308.20; Wed, 15 Dec 2021 13:59:29 -0800
+Received: by devvm225.atn0.facebook.com (Postfix, from userid 425415)
+        id D29CF81A403D; Wed, 15 Dec 2021 13:59:26 -0800 (PST)
+From:   Stefan Roesch <shr@fb.com>
+To:     <io-uring@vger.kernel.org>, <linux-fsdevel@vger.kernel.org>
+CC:     <viro@zeniv.linux.org.uk>, <shr@fb.com>
+Subject: [PATCH v6 1/3] fs: split off do_iterate_dir from iterate_dir function
+Date:   Wed, 15 Dec 2021 13:59:22 -0800
+Message-ID: <20211215215924.3301586-2-shr@fb.com>
+X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20211215215924.3301586-1-shr@fb.com>
+References: <20211215215924.3301586-1-shr@fb.com>
 MIME-Version: 1.0
-In-Reply-To: <20211124231700.1158521-1-shr@fb.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: quoted-printable
+X-FB-Internal: Safe
+Content-Type: text/plain
+X-FB-Source: Intern
+X-Proofpoint-GUID: HNfBLGMLHpkvJv1kIOBJEPtD8721mqi-
+X-Proofpoint-ORIG-GUID: HNfBLGMLHpkvJv1kIOBJEPtD8721mqi-
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.11.62.513
+ definitions=2021-12-15_13,2021-12-14_01,2021-12-02_01
+X-Proofpoint-Spam-Details: rule=fb_outbound_notspam policy=fb_outbound score=0 suspectscore=0
+ spamscore=0 clxscore=1015 bulkscore=0 mlxlogscore=999 priorityscore=1501
+ impostorscore=0 lowpriorityscore=0 mlxscore=0 phishscore=0 malwarescore=0
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2110150000 definitions=main-2112150120
+X-FB-Internal: deliver
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On 11/24/21 4:16 PM, Stefan Roesch wrote:
-> This series adds support for getdents64 in liburing. The intent is to
-> provide a more complete I/O interface for io_uring.
-> 
-> Patch 1: fs: add parameter use_fpos to iterate_dir()
->   This adds a new parameter to the function iterate_dir() so the
->   caller can specify if the position is the file position or the
->   position stored in the buffer context.
-> 
-> Patch 2: fs: split off vfs_getdents function from getdents64 system call
->   This splits of the iterate_dir part of the syscall in its own
->   dedicated function. This allows to call the function directly from
->   liburing.
-> 
-> Patch 3: io_uring: add support for getdents64
->   Adds the functions to io_uring to support getdents64.
-> 
-> There is also a patch series for the changes to liburing. This includes
-> a new test. The patch series is called "liburing: add getdents support."
+This splits of the function do_iterate_dir() from the iterate_dir()
+function and adds a new parameter. The new parameter allows the
+caller to specify if the position is the file position or the
+position stored in the buffer context.
 
-Al, ping on this one as well, same question on the VFS side.
+The function iterate_dir is calling the new function do_iterate_dir().
 
--- 
-Jens Axboe
+This change is required to support getdents in io_uring.
+
+Signed-off-by: Stefan Roesch <shr@fb.com>
+---
+ fs/readdir.c | 25 +++++++++++++++++++++----
+ 1 file changed, 21 insertions(+), 4 deletions(-)
+
+diff --git a/fs/readdir.c b/fs/readdir.c
+index 09e8ed7d4161..e9c197edf73a 100644
+--- a/fs/readdir.c
++++ b/fs/readdir.c
+@@ -36,8 +36,15 @@
+ 	unsafe_copy_to_user(dst, src, len, label);		\
+ } while (0)
+=20
+-
+-int iterate_dir(struct file *file, struct dir_context *ctx)
++/**
++ * do_iterate_dir - iterate over directory
++ * @file    : pointer to file struct of directory
++ * @ctx     : pointer to directory ctx structure
++ * @use_fpos: true : use file offset
++ *            false: use pos in ctx structure
++ */
++static int do_iterate_dir(struct file *file, struct dir_context *ctx,
++			  bool use_fpos)
+ {
+ 	struct inode *inode =3D file_inode(file);
+ 	bool shared =3D false;
+@@ -60,12 +67,17 @@ int iterate_dir(struct file *file, struct dir_context=
+ *ctx)
+=20
+ 	res =3D -ENOENT;
+ 	if (!IS_DEADDIR(inode)) {
+-		ctx->pos =3D file->f_pos;
++		if (use_fpos)
++			ctx->pos =3D file->f_pos;
++
+ 		if (shared)
+ 			res =3D file->f_op->iterate_shared(file, ctx);
+ 		else
+ 			res =3D file->f_op->iterate(file, ctx);
+-		file->f_pos =3D ctx->pos;
++
++		if (use_fpos)
++			file->f_pos =3D ctx->pos;
++
+ 		fsnotify_access(file);
+ 		file_accessed(file);
+ 	}
+@@ -76,6 +88,11 @@ int iterate_dir(struct file *file, struct dir_context =
+*ctx)
+ out:
+ 	return res;
+ }
++
++int iterate_dir(struct file *file, struct dir_context *ctx)
++{
++	return do_iterate_dir(file, ctx, true);
++}
+ EXPORT_SYMBOL(iterate_dir);
+=20
+ /*
+--=20
+2.30.2
 

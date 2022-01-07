@@ -2,28 +2,28 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D662DC4332F
-	for <io-uring@archiver.kernel.org>; Fri,  7 Jan 2022 00:00:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 15734C4332F
+	for <io-uring@archiver.kernel.org>; Fri,  7 Jan 2022 00:00:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343669AbiAGAA0 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Thu, 6 Jan 2022 19:00:26 -0500
-Received: from ip59.38.31.103.in-addr.arpa.unknwn.cloudhost.asia ([103.31.38.59]:44518
+        id S1343703AbiAGAA3 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Thu, 6 Jan 2022 19:00:29 -0500
+Received: from ip59.38.31.103.in-addr.arpa.unknwn.cloudhost.asia ([103.31.38.59]:44544
         "EHLO gnuweeb.org" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S232801AbiAGAA0 (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Thu, 6 Jan 2022 19:00:26 -0500
+        with ESMTP id S245708AbiAGAA1 (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Thu, 6 Jan 2022 19:00:27 -0500
 Received: from integral2.. (unknown [36.68.70.227])
-        by gnuweeb.org (Postfix) with ESMTPSA id 4A52AC1645;
-        Fri,  7 Jan 2022 00:00:22 +0000 (UTC)
+        by gnuweeb.org (Postfix) with ESMTPSA id 575FCC17B7;
+        Fri,  7 Jan 2022 00:00:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=gnuweeb.org;
-        s=default; t=1641513622;
-        bh=U98ugxZLlMOKIunZ2C2GpMLa0XORGQZbIFew5+TljBI=;
-        h=From:To:Cc:Subject:Date:From;
-        b=OYfwA+ei3bBqTe3uCT6Ux2Y9TsBdz4qV0cajnNKxhPDzbEwNk8g9Lpn8eIElHBhMx
-         89af13zpyFMY8tnAZVyiO3NCtRwRMRpcdrvbNIegys77Vobu+aiA6JKEmgAV1iszQP
-         DTYYKcH9ESokk/I5PqWXokUZSK6uIEy/OX0C4rAuDSJ9wMDUM4Qb/p8M4Fpsn8BmAV
-         Skb6fXd7hmfBhAjdh450J87VsR0x1oe2k7kZK8YTxV6hyjviRX2a9hGz6V3rVSg+qQ
-         Q2o5PWDOFNV5Ds/Bjzzfb4ykRa3sNJfC386e5Mz2QyWn1yoiPWvRxP6Z6eNRx9nHgZ
-         TmoasFHDMoGQQ==
+        s=default; t=1641513623;
+        bh=WzZ3THiNZ134dV91EsO3hDKhoOTzDcbFpG9HFQHAhJk=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=HGsgKQxjkRKN8/+wDKpCyl7VHvQLMo5iNUpPpDlWMeZRMTh/CSPkwIIrR5dsMEH2f
+         rKfvWHjFwTTwx/FKloWxxN3VFy/NEEmuuUOfSpC5yuuclzri1x8LarrNe4AuFSdywc
+         34dHqjfoynxVeMXKjxV7Z7r70lM9/uNO89YsgalZWnoKGXPgzwShioXDbsW6qKXFqb
+         MviLqisFAesc3rRyRrBzCFL0X6SXiTkbO37Vg7353gh2/HdolQypeNkVs+aYhaKSsM
+         KD2fFiUqoinaY6csLzxDjDucFCDRQqf2Dqm2HuPhW+GGOliYVkaW1vQeVLgrEWGZ4Q
+         G6dz0GD16cI8g==
 From:   Ammar Faizi <ammarfaizi2@gnuweeb.org>
 To:     Jens Axboe <axboe@kernel.dk>
 Cc:     Ammar Faizi <ammarfaizi2@gnuweeb.org>,
@@ -36,146 +36,74 @@ Cc:     Ammar Faizi <ammarfaizi2@gnuweeb.org>,
         Jakub Kicinski <kuba@kernel.org>, Nugra <richiisei@gmail.com>,
         Praveen Kumar <kpraveen.lkml@gmail.com>,
         Ammar Faizi <ammarfaizi2@gmail.com>
-Subject: [RFC PATCH v4 0/3] Add sendto(2) and recvfrom(2) support for io_uring
-Date:   Fri,  7 Jan 2022 07:00:02 +0700
-Message-Id: <20220107000006.1194026-1-ammarfaizi2@gnuweeb.org>
+Subject: [RFC PATCH v4 2/3] net: Make `move_addr_to_user()` be a non static function
+Date:   Fri,  7 Jan 2022 07:00:04 +0700
+Message-Id: <20220107000006.1194026-3-ammarfaizi2@gnuweeb.org>
 X-Mailer: git-send-email 2.32.0
+In-Reply-To: <20220107000006.1194026-1-ammarfaizi2@gnuweeb.org>
+References: <20220107000006.1194026-1-ammarfaizi2@gnuweeb.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-Hello,
+In order to add recvfrom support for io_uring, we need to call
+`move_addr_to_user()` from fs/io_uring.c.
 
-This RFC patchset adds sendto(2) and recvfrom(2) support for io_uring.
-It also addresses an issue in the liburing GitHub repository [1].
+This makes `move_addr_to_user()` be a non static function so we can
+call it from io_uring.
 
-
-## Motivations
-1) By using `sendto()` and `recvfrom()` we can make the submission
-   simpler compared to always using `sendmsg()` and `recvmsg()` from
-   the userspace.
-
-2) There is a historical patch that tried to add the same
-   functionality, but did not end up being applied. [2]
-
-On Tue, 7 Jul 2020 12:29:18 -0600, Jens Axboe <axboe@kernel.dk> wrote:
-> In a private conversation with the author, a good point was brought
-> up that the sendto/recvfrom do not require an allocation of an async
-> context, if we need to defer or go async with the request. I think
-> that's a major win, to be honest. There are other benefits as well
-> (like shorter path), but to me, the async less part is nice and will
-> reduce overhead
-
-
-## Changes summary
-There are 3 patches in this series.
-
-PATCH 1/3 renames io_recv to io_recvfrom and io_send to io_sendto.
-Note that:
-
-    send(sockfd, buf, len, flags);
-
-  is equivalent to
-
-    sendto(sockfd, buf, len, flags, NULL, 0);
-
-  and
-
-    recv(sockfd, buf, len, flags);
-
-  is equivalent to
-
-    recvfrom(sockfd, buf, len, flags, NULL, NULL);
-
-So it is saner to have `send` and `recv` directed to `sendto` and
-`recvfrom` instead of the opposite with respect to the name.
-
-PATCH 2/3 makes `move_addr_to_user()` be a non static function. This
-function lives in net/socket.c, we need to call this from io_uring
-to add `recvfrom()` support for io_uring. Added net files maintainers
-to the CC list.
-
-PATCH 3/3 adds `sendto(2)` and `recvfrom(2)` support for io_uring.
-Added two new opcodes: IORING_OP_SENDTO and IORING_OP_RECVFROM.
-
-
-## How to test
-This patchset is based on "for-next" branch in Jens' tree commit:
-
-  c1537fd063e2f1dbd96d8f68b405a66297ee306f ("Merge branch 'for-5.17/drivers' into for-next")
-
-It is also available in the Git repository at:
-
-  https://github.com/ammarfaizi2/linux-block.git ammarfaizi2/linux-block/io_uring-recvfrom-sendto.v4
-
-Test with liburing (added the liburing support, docs, and test program),
-the liburing support is based on liburing "master" branch commit:
-
-  918d8061ffdfdf253806a1e8e141c71644e678bd ("Remove getdents support")
-
-It is available in the Git repository at:
-
-  https://github.com/ammarfaizi2/liburing.git sendto-recvfrom.v2
-
-Please review and comment.
-
----
-
-RFC v4 (this patchset):
-  - Rebase the work (sync with "for-next" branch in Jens' tree).
-
-  - Remove Tested-by tag from Nugra as we have changes.
-
-  - (Address Praveen's comment) Zero `sendto_addr_len` and
-    `recvfrom_addr_len` on prep when the `req->opcode` is not
-    `IORING_OP_{SENDTO,RECVFROM}`.
-
-RFC v3:
-  - Fix build error when CONFIG_NET is undefined for PATCH 1/3. I
-    tried to fix it in PATCH 3/3, but it should be fixed in PATCH 1/3,
-    otherwise it breaks the build in PATCH 1/3.
-
-  - Added `io_uring_prep_{sendto,recvfrom}` docs to the liburing.
-
-RFC v2:
-  - Rebase the work, now this patchset is based on commit
-    bb3294e22482db4b7ec ("Merge branch 'for-5.17/drivers' into
-    for-next").
-
-  - In `io_recvfrom()`, mark the error check of `move_addr_to_user()`
-    call as unlikely.
-
-  - Fix build error when CONFIG_NET is undefined.
-
-  - Update liburing test (the branch is still the same, just force
-    pushed).
-
-  - Added Nugra to CC list (tester).
-
----
-RFC v3: https://lore.kernel.org/io-uring/20211230013154.102910-1-ammar.faizi@intel.com/
-RFC v2: https://lore.kernel.org/io-uring/20211230114846.137954-1-ammar.faizi@intel.com/
-RFC v1: https://lore.kernel.org/io-uring/20211230173126.174350-1-ammar.faizi@intel.com/
-Link: https://github.com/axboe/liburing/issues/397 [1]
-Link: https://lore.kernel.org/io-uring/a2399c89-2c45-375c-7395-b5caf556ec3d@kernel.dk/ [2]
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: Jakub Kicinski <kuba@kernel.org>
+Cc: netdev@vger.kernel.org
+Cc: Nugra <richiisei@gmail.com>
 Signed-off-by: Ammar Faizi <ammarfaizi2@gnuweeb.org>
 ---
 
-Ammar Faizi (3):
-  io_uring: Rename `io_{send,recv}` to `io_{sendto,recvfrom}`
-  net: Make `move_addr_to_user()` be a non static function
-  io_uring: Add `sendto(2)` and `recvfrom(2)` support
+v4:
+  * No changes *
 
- fs/io_uring.c                 | 94 +++++++++++++++++++++++++++++++----
- include/linux/socket.h        |  2 +
- include/uapi/linux/io_uring.h |  5 +-
- net/socket.c                  |  4 +-
- 4 files changed, 92 insertions(+), 13 deletions(-)
+v3:
+  * No changes *
 
+v2:
+  - Added Nugra to CC list (tester).
 
-base-commit: c1537fd063e2f1dbd96d8f68b405a66297ee306f
+---
+---
+ include/linux/socket.h | 2 ++
+ net/socket.c           | 4 ++--
+ 2 files changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/include/linux/socket.h b/include/linux/socket.h
+index 8ef26d89ef49..0d0bc1ace50c 100644
+--- a/include/linux/socket.h
++++ b/include/linux/socket.h
+@@ -371,6 +371,8 @@ struct ucred {
+ #define IPX_TYPE	1
+ 
+ extern int move_addr_to_kernel(void __user *uaddr, int ulen, struct sockaddr_storage *kaddr);
++extern int move_addr_to_user(struct sockaddr_storage *kaddr, int klen,
++			     void __user *uaddr, int __user *ulen);
+ extern int put_cmsg(struct msghdr*, int level, int type, int len, void *data);
+ 
+ struct timespec64;
+diff --git a/net/socket.c b/net/socket.c
+index 7f64a6eccf63..af521d351c8a 100644
+--- a/net/socket.c
++++ b/net/socket.c
+@@ -267,8 +267,8 @@ int move_addr_to_kernel(void __user *uaddr, int ulen, struct sockaddr_storage *k
+  *	specified. Zero is returned for a success.
+  */
+ 
+-static int move_addr_to_user(struct sockaddr_storage *kaddr, int klen,
+-			     void __user *uaddr, int __user *ulen)
++int move_addr_to_user(struct sockaddr_storage *kaddr, int klen,
++		      void __user *uaddr, int __user *ulen)
+ {
+ 	int err;
+ 	int len;
 -- 
 2.32.0
 

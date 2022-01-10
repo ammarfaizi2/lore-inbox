@@ -2,89 +2,100 @@ Return-Path: <io-uring-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 88CF8C433EF
-	for <io-uring@archiver.kernel.org>; Sun,  9 Jan 2022 16:47:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D1060C433EF
+	for <io-uring@archiver.kernel.org>; Mon, 10 Jan 2022 13:20:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233868AbiAIQrd (ORCPT <rfc822;io-uring@archiver.kernel.org>);
-        Sun, 9 Jan 2022 11:47:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53508 "EHLO
+        id S231380AbiAJNU4 (ORCPT <rfc822;io-uring@archiver.kernel.org>);
+        Mon, 10 Jan 2022 08:20:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46506 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230389AbiAIQrc (ORCPT
-        <rfc822;io-uring@vger.kernel.org>); Sun, 9 Jan 2022 11:47:32 -0500
-Received: from mail-il1-x132.google.com (mail-il1-x132.google.com [IPv6:2607:f8b0:4864:20::132])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A182C06173F
-        for <io-uring@vger.kernel.org>; Sun,  9 Jan 2022 08:47:32 -0800 (PST)
-Received: by mail-il1-x132.google.com with SMTP id d14so9357598ila.1
-        for <io-uring@vger.kernel.org>; Sun, 09 Jan 2022 08:47:32 -0800 (PST)
+        with ESMTP id S230248AbiAJNUz (ORCPT
+        <rfc822;io-uring@vger.kernel.org>); Mon, 10 Jan 2022 08:20:55 -0500
+Received: from mail-yb1-xb2b.google.com (mail-yb1-xb2b.google.com [IPv6:2607:f8b0:4864:20::b2b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 88B79C06173F
+        for <io-uring@vger.kernel.org>; Mon, 10 Jan 2022 05:20:55 -0800 (PST)
+Received: by mail-yb1-xb2b.google.com with SMTP id g14so9378298ybs.8
+        for <io-uring@vger.kernel.org>; Mon, 10 Jan 2022 05:20:55 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20210112.gappssmtp.com; s=20210112;
-        h=from:to:cc:in-reply-to:references:subject:message-id:date
-         :mime-version:content-transfer-encoding;
-        bh=xWI3vNvmJfkrk5zSMMt3m4H8NBhpSTby79+KRMrIVro=;
-        b=tTCcfQ3wUNKqEYSJ9hV+mo0+y/rj6IlemkWzjotqMkznRlVmfJvV84Sqm63cu3Jbz2
-         1zffd7b1HsctsXx3LxpZ2v4Hg9gKa5JTDJ+rCiEygv076Q2BJ3atIInp5rTpzVIqBPnQ
-         lnXz6+F5E7bNRxYZKaPyl97CM64oY2Ac6vXcAHemCEkSonz0qbuQeiyrQSrjAmLYVr87
-         uv6isgv5uLP+UoTzpHXCGVM7iTvg+Z6iQAmpAatofz+AdTLsV/6nZyL9rb6rGwC5EomS
-         shoFji/9ZXDKEWWT8IUJQ6/Iz++4apR5zIhdmN/BAn9EnBKQ1zrdJ6Vjg2ZRm+TmWJJn
-         lgMg==
+        d=gmail.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=XNye1TnFFysA92DS32jbU6JjhG8n0xBu2ZbXY8SQOOI=;
+        b=MH2XQU9Wcf9eyWxg0gONvc7HCz8VN/QoiBIb4bbwdYePOdSIpYZaN/xQ5zzLfNnNPG
+         DqIr2okoDO2bwR80dexXQLZfiI/xaitFdiA4lRyiHPzpBQjPs6QMOzA/TXyBE1NgsTk5
+         PKSyFUvxQQqc+OeurtJjyhdEa5pOYqJ24Kx5rHRfavloAz1c3E2X4rOnZ1tdKWDE8eR0
+         T7MXvMizyAo/voOVDRNrwiWwalDcfLdqCQhGEtzE1fj1T8AIquCjcjVcbyCul+mqIoQi
+         KywhKjUPbQu9g8SFKlMWHWe1UQ44VfPw6kkb+quoTE7XafynJMACmbQAthTDC57uMGKU
+         pLeg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:in-reply-to:references:subject
-         :message-id:date:mime-version:content-transfer-encoding;
-        bh=xWI3vNvmJfkrk5zSMMt3m4H8NBhpSTby79+KRMrIVro=;
-        b=DZHJ95Un+RY2+1eHVGGO5oL0oZFXcODrFSxwO7vFSFT03jj/4QRRLrrSNbtUM+Jzlv
-         uPceDX++p3ApYlWTrNDRqE6Fiuupe1J/jWs4zq2HSH9tMp6aZSPfOzSPL8tLXPgLanu+
-         UA+hRtJqM69TJU9ckTv+ds4APEFf+kPrKkJZzihJY2VqXib+EUGbg5GtCPa/jZKMFyov
-         fxyYDiyfBVWtEHnnGkX10ldrEoBAuuLR232p1p59vwa2VcyGnI2ws45LsQPNkpnepSkF
-         aj3JQkJ+oT/Ncmbya+b4iyWFkcfG6oBuLh+R1A7w+lqc+cWgi7hrq1c0uZ8Usl1FKizT
-         RqqQ==
-X-Gm-Message-State: AOAM533XOfC6p+91pc2qJmyUwWXPxaqxKfulGVzqHP7/FbgN8KY0J6ZJ
-        +WFfL93JZGu+FiaDabCYE1QxQw==
-X-Google-Smtp-Source: ABdhPJykikycN3zW/Nq4TrdDL2iDS6cvHhZXqzgLY5rS7vpDWVxnYs8pnnu4lp5MFstYan62jrTEMw==
-X-Received: by 2002:a92:d34d:: with SMTP id a13mr7838543ilh.266.1641746851830;
-        Sun, 09 Jan 2022 08:47:31 -0800 (PST)
-Received: from [192.168.1.116] ([66.219.217.159])
-        by smtp.gmail.com with ESMTPSA id v5sm2773135ilu.77.2022.01.09.08.47.30
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 09 Jan 2022 08:47:31 -0800 (PST)
-From:   Jens Axboe <axboe@kernel.dk>
-To:     Ammar Faizi <ammarfaizi2@gnuweeb.org>
-Cc:     io-uring Mailing List <io-uring@vger.kernel.org>,
-        Ammar Faizi <ammarfaizi2@gmail.com>,
-        GNU/Weeb Mailing List <gwml@gnuweeb.org>
-In-Reply-To: <20220107130218.1238910-1-ammarfaizi2@gnuweeb.org>
-References: <20220107130218.1238910-1-ammarfaizi2@gnuweeb.org>
-Subject: Re: [PATCH liburing 0/3] Fix undefined behavior, acessing dead object
-Message-Id: <164174685029.72168.15306294752052885000.b4-ty@kernel.dk>
-Date:   Sun, 09 Jan 2022 09:47:30 -0700
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=XNye1TnFFysA92DS32jbU6JjhG8n0xBu2ZbXY8SQOOI=;
+        b=uVQh0h59AjKUDjIht2YfQrKmpReyrzvpkm5Bz2Q+Z+9eknAELwVxxBNPI2ohV0KJaS
+         7CiPmVjgvSkmo7sP4xGggTEAHIs5DY9xz2NrJuiW77Ki4UwiZTFZAy9btLg8zZVKc94F
+         B9ucOkVQ0VxRO5QUUyG6rp15o4WeV9D6DkQ1vxMRJ9Sqi88X+SsYKkuOs1MTf+RxYI8i
+         BCv2tLIRoVKnFWFFze3Y1UOuJl9o5mgsPcXOpp24kj1HLN3FlCtnCABg3/HMEbLQgOK2
+         pXPqZGIbBeR7WXCf0KJczsh/YAk7RLPv64NCuqjJ0H7TVe1+y5IVYovCBeRHGVCsUOu/
+         0Nag==
+X-Gm-Message-State: AOAM533sHA6t3o/9spJYoC/j7xQ6rpPjKdN7ckbA19a158ucBNU9ZKOA
+        AaGZOG0860tgDXRRgZtLeQ7goSI8dcDgOe1DOT4=
+X-Google-Smtp-Source: ABdhPJzXahI7cOaa52c/s7h/X38R6hJp/LyRYWqMYB3LDfl/t0Aqa709daWdIxLqJRk18wje3aN+eiWv5OK6BXcsj9E=
+X-Received: by 2002:a25:fc4:: with SMTP id 187mr1607718ybp.608.1641820854165;
+ Mon, 10 Jan 2022 05:20:54 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+References: <69f226b35fbdb996ab799a8bbc1c06bf634ccec1.1641688805.git.asml.silence@gmail.com>
+ <164174539343.69043.6549592398281965008.b4-ty@kernel.dk>
+In-Reply-To: <164174539343.69043.6549592398281965008.b4-ty@kernel.dk>
+From:   Lukas Bulwahn <lukas.bulwahn@gmail.com>
+Date:   Mon, 10 Jan 2022 14:20:43 +0100
+Message-ID: <CAKXUXMxnowRRZTLZAW_zF0Su8PYBKJc3x3j=m+-cyM6ox6E2LQ@mail.gmail.com>
+Subject: Re: [PATCH for-next] io_uring: fix not released cached task refs
+To:     Jens Axboe <axboe@kernel.dk>
+Cc:     io-uring@vger.kernel.org, Pavel Begunkov <asml.silence@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <io-uring.vger.kernel.org>
 X-Mailing-List: io-uring@vger.kernel.org
 
-On Fri, 7 Jan 2022 20:02:15 +0700, Ammar Faizi wrote:
-> This series fixes undefined behavior caused by accessing local
-> variables that have been out of their scope.
-> 
-> FWIW, compile the following code with gcc (Ubuntu 11.2.0-7ubuntu2) 11.2.0:
-> ```
-> #include <stdio.h>
-> 
-> [...]
+On Sun, Jan 9, 2022 at 5:23 PM Jens Axboe <axboe@kernel.dk> wrote:
+>
+> On Sun, 9 Jan 2022 00:53:22 +0000, Pavel Begunkov wrote:
+> > tctx_task_work() may get run after io_uring cancellation and so there
+> > will be no one to put cached in tctx task refs that may have been added
+> > back by tw handlers using inline completion infra, Call
+> > io_uring_drop_tctx_refs() at the end of the main tw handler to release
+> > them.
+> >
+> >
+> > [...]
+>
+> Applied, thanks!
+>
+> [1/1] io_uring: fix not released cached task refs
+>       commit: 3cc7fdb9f90a25ae92250bf9e6cf3b9556b230e9
+>
 
-Applied, thanks!
+The memory leak, reported in
+https://lore.kernel.org/all/CAKXUXMzHUi3q4K-OpiBKyMAsQ2K=FOsVzULC76v05nCUKNCA+Q@mail.gmail.com/:
 
-[1/3] test/socket-rw-eagain: Fix UB, accessing dead object
-      commit: 5ee4feeac88d42c8c4cadee1f242279ff5fc0277
-[2/3] test/socket-rw: Fix UB, accessing dead object
-      commit: e5bb9f3e65f0e18132b27ba0322e2419d87f4f92
-[3/3] test/socket-rw-offset: Fix UB, accessing dead object
-      commit: 3f10277e6412d56cb52424d07f685128112498fa
+    - does     trigger on next-20220107.
 
-Best regards,
--- 
-Jens Axboe
+    - does NOT trigger on next-20220107 + cherry-pick
+3cc7fdb9f90a25ae92250bf9e6cf3b9556b230e9.
+
+    - does NOT trigger on next-20220110, which already includes commit
+3cc7fdb9f90a25ae92250bf9e6cf3b9556b230e9.
 
 
+So, with that I think this patch resolves the reported memory leak for good:
+
+Tested-by: Lukas Bulwahn <lukas.bulwahn@gmail.com>
+
+Pavel, thanks for the quick fix.
+
+I guess that the patch has already landed in linux-next, so the tag
+above will not be applied to the commit, but is only for our own
+historic reference.
+
+Lukas
